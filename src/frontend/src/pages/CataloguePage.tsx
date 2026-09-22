@@ -7,7 +7,8 @@ export function CataloguePage() {
       owner="Võ Việt Tiến (A)"
       useCases={[
         'UC01 — Manage medicine catalogue',
-        'UC04 — Look up stock levels and batch history',
+        'UC04 — Look up stock and batch history',
+        'UC13 — Manage medicine prices',
       ]}
     />
   );

@@ -14,7 +14,10 @@ export enum MovementType {
   DISPENSE = 'dispense',
   SALE = 'sale',
   RETURN = 'return',
+  /** Posted from a stock take discrepancy. */
   ADJUSTMENT = 'adjustment',
+  /** Expired or damaged stock removed from circulation. */
+  WRITE_OFF = 'write_off',
 }
 
 /**

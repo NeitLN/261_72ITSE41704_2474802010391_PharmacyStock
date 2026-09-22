@@ -2,6 +2,7 @@ import {
   AlertOutlined,
   FileTextOutlined,
   MedicineBoxOutlined,
+  SettingOutlined,
   ShopOutlined,
   ShoppingCartOutlined,
 } from '@ant-design/icons';
@@ -35,7 +36,12 @@ const menuItems = [
   {
     key: '/reports',
     icon: <AlertOutlined />,
-    label: <Link to="/reports">Alerts &amp; reports</Link>,
+    label: <Link to="/reports">Stock control &amp; reports</Link>,
+  },
+  {
+    key: '/administration',
+    icon: <SettingOutlined />,
+    label: <Link to="/administration">Users &amp; roles</Link>,
   },
 ];
 

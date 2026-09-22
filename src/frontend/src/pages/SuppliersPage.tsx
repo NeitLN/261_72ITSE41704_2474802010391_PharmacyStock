@@ -7,7 +7,7 @@ export function SuppliersPage() {
       owner="Võ Việt Tiến (A)"
       useCases={[
         'UC02 — Manage suppliers',
-        'UC03 — Record goods receipts from suppliers',
+        'UC03 — Record a goods receipt',
       ]}
     />
   );

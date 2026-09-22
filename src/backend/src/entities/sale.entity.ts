@@ -2,10 +2,16 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { SaleLine } from './sale-line.entity.js';
+import { SaleReturn } from './sale-return.entity.js';
 import { DispenseLine } from './dispense-line.entity.js';
+import { Customer } from './customer.entity.js';
+import { User } from './user.entity.js';
 
 export enum SaleStatus {
   COMPLETED = 'completed',
@@ -28,8 +34,23 @@ export class Sale {
   @Column({ type: 'enum', enum: SaleStatus, default: SaleStatus.COMPLETED })
   status: SaleStatus;
 
+  /** Optional: an over-the-counter sale need not identify the buyer. */
+  @ManyToOne(() => Customer, (customer) => customer.sales, { nullable: true })
+  @JoinColumn({ name: 'customer_id' })
+  customer: Customer;
+
+  @OneToMany(() => SaleLine, (line) => line.sale)
+  lines: SaleLine[];
+
+  @OneToMany(() => SaleReturn, (saleReturn) => saleReturn.sale)
+  returns: SaleReturn[];
+
   @OneToMany(() => DispenseLine, (line) => line.sale)
   dispenseLines: DispenseLine[];
+
+  @ManyToOne(() => User, { nullable: false })
+  @JoinColumn({ name: 'sold_by_id' })
+  soldBy: User;
 
   @CreateDateColumn()
   soldAt: Date;

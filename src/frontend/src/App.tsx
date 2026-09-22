@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { MainLayout } from './layouts/MainLayout';
+import { AdministrationPage } from './pages/AdministrationPage';
 import { CataloguePage } from './pages/CataloguePage';
 import { DispensingPage } from './pages/DispensingPage';
 import { ReportsPage } from './pages/ReportsPage';
@@ -16,6 +17,7 @@ export default function App() {
         <Route path="dispensing" element={<DispensingPage />} />
         <Route path="sales" element={<SalesPage />} />
         <Route path="reports" element={<ReportsPage />} />
+        <Route path="administration" element={<AdministrationPage />} />
       </Route>
     </Routes>
   );

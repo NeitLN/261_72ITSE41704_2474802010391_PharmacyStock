@@ -7,8 +7,10 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Prescription } from './prescription.entity.js';
+import { PrescriptionItem } from './prescription-item.entity.js';
 import { Batch } from './batch.entity.js';
 import { Sale } from './sale.entity.js';
+import { User } from './user.entity.js';
 
 /**
  * One batch-level issue of a medicine against a prescription (UC06).
@@ -30,6 +32,13 @@ export class DispenseLine {
   @JoinColumn({ name: 'prescription_id' })
   prescription: Prescription;
 
+  /** Which prescribed item this fulfils, so over-dispensing is detectable (BR07). */
+  @ManyToOne(() => PrescriptionItem, (item) => item.dispenseLines, {
+    nullable: false,
+  })
+  @JoinColumn({ name: 'prescription_item_id' })
+  prescriptionItem: PrescriptionItem;
+
   @ManyToOne(() => Batch, { nullable: false })
   @JoinColumn({ name: 'batch_id' })
   batch: Batch;
@@ -43,6 +52,10 @@ export class DispenseLine {
   @ManyToOne(() => Sale, (sale) => sale.dispenseLines, { nullable: true })
   @JoinColumn({ name: 'sale_id' })
   sale: Sale;
+
+  @ManyToOne(() => User, { nullable: false })
+  @JoinColumn({ name: 'dispensed_by_id' })
+  dispensedBy: User;
 
   @CreateDateColumn()
   dispensedAt: Date;

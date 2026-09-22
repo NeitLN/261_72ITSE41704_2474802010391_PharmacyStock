@@ -14,7 +14,13 @@ export class Supplier {
   name: string;
 
   @Column({ nullable: true })
+  contactPerson: string;
+
+  @Column({ nullable: true })
   contactPhone: string;
+
+  @Column({ nullable: true })
+  email: string;
 
   @Column({ nullable: true })
   address: string;

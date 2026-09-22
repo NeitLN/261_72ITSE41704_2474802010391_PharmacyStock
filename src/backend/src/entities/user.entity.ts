@@ -1,12 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-
-/** The two roles required by the course scope (minimum 2 roles). */
-export enum UserRole {
-  /** Full access: catalogue, suppliers, receipts, adjustments, reports. */
-  MANAGER = 'manager',
-  /** Counter staff: prescription intake, dispensing, sales, returns. */
-  PHARMACIST = 'pharmacist',
-}
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Role } from './role.entity.js';
 
 @Entity('users')
 export class User {
@@ -23,9 +23,19 @@ export class User {
   @Column()
   fullName: string;
 
-  @Column({ type: 'enum', enum: UserRole })
-  role: UserRole;
+  @Column({ nullable: true })
+  email: string;
+
+  @ManyToOne(() => Role, (role) => role.users, { nullable: false })
+  @JoinColumn({ name: 'role_id' })
+  role: Role;
 
   @Column({ default: true })
   isActive: boolean;
+
+  @Column({ type: 'timestamp', nullable: true })
+  lastLoginAt: Date;
+
+  @CreateDateColumn()
+  createdAt: Date;
 }

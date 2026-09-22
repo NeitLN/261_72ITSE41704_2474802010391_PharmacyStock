@@ -4,15 +4,33 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import databaseConfig from './config/database.config.js';
-import { Batch } from './entities/batch.entity.js';
-import { DispenseLine } from './entities/dispense-line.entity.js';
-import { GoodsReceipt } from './entities/goods-receipt.entity.js';
-import { Medicine } from './entities/medicine.entity.js';
-import { Prescription } from './entities/prescription.entity.js';
-import { Sale } from './entities/sale.entity.js';
-import { StockMovement } from './entities/stock-movement.entity.js';
-import { Supplier } from './entities/supplier.entity.js';
-import { User } from './entities/user.entity.js';
+import {
+  AuditLog,
+  Batch,
+  Customer,
+  DispenseLine,
+  GoodsReceipt,
+  GoodsReceiptLine,
+  Medicine,
+  MedicineCategory,
+  MedicinePrice,
+  Permission,
+  Prescriber,
+  Prescription,
+  PrescriptionItem,
+  ReturnLine,
+  Role,
+  Sale,
+  SaleLine,
+  SaleReturn,
+  StockAlert,
+  StockMovement,
+  StockTake,
+  StockTakeLine,
+  Supplier,
+  UnitOfMeasure,
+  User,
+} from './entities/index.js';
 
 @Module({
   imports: [
@@ -32,14 +50,30 @@ import { User } from './entities/user.entity.js';
         database: config.get<string>('database.database'),
         entities: [
           Medicine,
-          Supplier,
+          MedicineCategory,
+          MedicinePrice,
+          UnitOfMeasure,
           Batch,
+          Supplier,
           GoodsReceipt,
+          GoodsReceiptLine,
+          Customer,
+          Prescriber,
           Prescription,
+          PrescriptionItem,
           DispenseLine,
           Sale,
+          SaleLine,
+          SaleReturn,
+          ReturnLine,
           StockMovement,
+          StockTake,
+          StockTakeLine,
+          StockAlert,
           User,
+          Role,
+          Permission,
+          AuditLog,
         ],
         synchronize: config.get<boolean>('database.synchronize'),
         logging: config.get<boolean>('database.logging'),

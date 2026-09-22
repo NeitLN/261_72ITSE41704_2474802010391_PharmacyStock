@@ -52,16 +52,28 @@ src/backend/src
 
 ### Domain model
 
-Nine entities, in `src/backend/src/entities/`:
-
-`Medicine`, `Batch`, `Supplier`, `GoodsReceipt`, `Prescription`,
-`DispenseLine`, `Sale`, `StockMovement`, `User`.
+Twenty-five entities in `src/backend/src/entities/`, grouped as catalogue,
+purchasing, prescriptions and dispensing, sales and returns, stock control, and
+access control. See [`docs/design/domain-model.md`](docs/design/domain-model.md)
+for what each one holds and why it is separate.
 
 Stock is held on `Batch`, not on `Medicine`, because expiry is tracked per
-delivered lot. Every change to stock is written to `StockMovement`, which is
-append-only.
+delivered lot. Every change to stock is appended to `StockMovement`, which is
+never edited or deleted.
+
+### User roles
+
+| Role | Can do |
+|---|---|
+| Manager | Everything: catalogue, suppliers, goods receipts, prices, stock takes and approvals, alerts, reports, user administration |
+| Pharmacist | Take in prescriptions, dispense, manage customers and prescribers, look up stock |
+| Cashier | Record sales, process returns, look up stock |
 
 ### Business rules beyond CRUD
+
+Ten rules, five from the catalogue topic and five from the domain model. Full
+table with owners and tests in
+[`docs/requirements/business-rules.md`](docs/requirements/business-rules.md).
 
 | ID | Rule |
 |---|---|
@@ -70,6 +82,11 @@ append-only.
 | BR03 | Stock on hand can never go negative |
 | BR04 | A controlled medicine requires a valid prescription reference |
 | BR05 | Every stock change is recorded; corrections post a compensating movement rather than editing history |
+| BR06 | Quantities in a non-base unit are converted explicitly before any stock arithmetic |
+| BR07 | A prescription cannot be dispensed beyond the quantity prescribed |
+| BR08 | A stock take is approved by someone other than the person who counted |
+| BR09 | Prices are effective-dated; a price change never revalues a past sale |
+| BR10 | An expired prescription cannot be dispensed |
 
 ## Prerequisites
 
@@ -161,7 +178,7 @@ Run from `src/backend` or `src/frontend`:
 ## Repository layout
 
 ```
-docs/          requirements, design, diagrams, meeting notes
+docs/          course requirements, journal, requirements, design, diagrams
 src/backend/   NestJS API
 src/frontend/  React web client
 tests/         manual test cases and test evidence
@@ -176,26 +193,53 @@ tests/         manual test cases and test evidence
 
 ## Current status
 
+**Week 1 — scaffold.** The toolchain and the domain model are in place; no use
+case is implemented.
+
 **Working today**
 
-- Backend builds, lints and passes its unit test; nine TypeORM entities defined
+- Backend builds, lints and passes its unit test; 25 TypeORM entities defined
 - Frontend builds, lints, and serves a navigable Ant Design shell
 - Local PostgreSQL available via `docker-compose.yml`
 
 **Not built yet**
 
-- All twelve use cases — the frontend pages are labelled placeholders
+- All sixteen use cases — the frontend pages are labelled placeholders
 - Authentication and role-based access control
-- Any of the five business rules
+- Any of the ten business rules
 - Database migrations (the project currently relies on `DB_SYNCHRONIZE` for
   local development only)
 - Seed data and sample accounts
 
-Several business decisions are still open and are marked `TODO` in the entity
-files — expiry date granularity, partial dispensing, what makes a prescription
-reference valid, and how dispensing links to sales. They are to be settled and
-written up as requirements in week 2.
+**Not yet verified**
+
+- The backend has not been run against a live PostgreSQL database
+
+### Scope against the course targets
+
+Targets are those expected of a three-person team
+([Suggested Project Titles, Table 2](docs/course-requirements.md)).
+
+| Dimension | Target | Planned | Built |
+|---|---|---|---|
+| Use cases end-to-end | 13–16 | 16 | 0 |
+| Domain classes | 16–22 | 25 | 25 defined |
+| User roles | 3+ | 3 | 0 |
+| Business rules beyond CRUD | 6+ | 10 | 0 |
+| Documented test cases | 20+ | 34 | 0 run |
+
+Nine business decisions are still open — expiry date granularity, partial
+dispensing, what makes a prescription reference valid, how dispensing links to
+sales, and others. They are marked `TODO` in the code and listed in
+[`docs/README.md`](docs/README.md), to be settled in week 2.
 
 ## Documentation
 
-See `docs/` for requirements, design documents, diagrams and meeting notes.
+| Document | What it covers |
+|---|---|
+| [`docs/course-requirements.md`](docs/course-requirements.md) | What the course measures — scope targets, rubrics, submission rules |
+| [`docs/journal.md`](docs/journal.md) | Session-by-session record of the work |
+| [`docs/requirements/use-cases.md`](docs/requirements/use-cases.md) | The sixteen use cases, roles and ownership |
+| [`docs/requirements/business-rules.md`](docs/requirements/business-rules.md) | The ten business rules and the invariants to test |
+| [`docs/design/domain-model.md`](docs/design/domain-model.md) | The twenty-five entities and why each exists |
+| [`tests/manual/test-cases.md`](tests/manual/test-cases.md) | The thirty-four planned test cases |

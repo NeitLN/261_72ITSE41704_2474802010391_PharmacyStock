@@ -1,5 +1,15 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Batch } from './batch.entity.js';
+import { MedicineCategory } from './medicine-category.entity.js';
+import { UnitOfMeasure } from './unit-of-measure.entity.js';
+import { MedicinePrice } from './medicine-price.entity.js';
 
 /**
  * A medicine in the pharmacy catalogue.
@@ -20,9 +30,8 @@ export class Medicine {
   @Column({ nullable: true })
   activeIngredient: string;
 
-  /** Standard stock unit for this medicine, e.g. tablet, bottle. */
-  @Column()
-  unit: string;
+  @Column({ nullable: true })
+  strength: string;
 
   /** Controlled medicines require a valid prescription reference (BR04). */
   @Column({ default: false })
@@ -32,6 +41,27 @@ export class Medicine {
   @Column({ type: 'int', default: 0 })
   reorderLevel: number;
 
+  /** Batches expiring within this many days raise an alert (UC11). */
+  @Column({ type: 'int', default: 90 })
+  expiryAlertDays: number;
+
+  @Column({ default: true })
+  isActive: boolean;
+
+  @ManyToOne(() => MedicineCategory, (category) => category.medicines, {
+    nullable: false,
+  })
+  @JoinColumn({ name: 'category_id' })
+  category: MedicineCategory;
+
+  /** Stock is always held and reported in this unit. */
+  @ManyToOne(() => UnitOfMeasure, (unit) => unit.medicines, { nullable: false })
+  @JoinColumn({ name: 'base_unit_id' })
+  baseUnit: UnitOfMeasure;
+
   @OneToMany(() => Batch, (batch) => batch.medicine)
   batches: Batch[];
+
+  @OneToMany(() => MedicinePrice, (price) => price.medicine)
+  prices: MedicinePrice[];
 }

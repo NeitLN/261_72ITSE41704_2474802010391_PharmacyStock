@@ -5,7 +5,10 @@ export function SalesPage() {
     <PlaceholderPage
       title="Sales & returns"
       owner="Bùi Duy Anh (B)"
-      useCases={['UC07 — Record a sale', 'UC08 — Handle a return (BR05)']}
+      useCases={[
+        'UC07 — Record a sale',
+        'UC08 — Process a return (BR05)',
+      ]}
     />
   );
 }

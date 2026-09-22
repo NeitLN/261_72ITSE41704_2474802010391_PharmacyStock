@@ -1,0 +1,27 @@
+# Local PostgreSQL for development.
+# Start with:  docker compose up -d
+# The credentials here are for local development only and match
+# src/backend/.env.example. Never reuse them for anything reachable.
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: pharmacy_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: pharmacy_app
+      POSTGRES_PASSWORD: pharmacy_dev_password
+      POSTGRES_DB: pharmacy_stock
+    ports:
+      # Host port 5433 avoids clashing with a PostgreSQL installed directly
+      # on the machine, which usually holds 5432.
+      - '5433:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U pharmacy_app -d pharmacy_stock']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:

@@ -38,15 +38,12 @@ the project, while one discovered in Week 10 is not.
 
 **Not done / blocked**
 
-- Team & Topic Registration form (Appendix A) not yet submitted on E-learning.
-- Lecturer not yet added as a repository collaborator.
+- Nothing blocked at the end of this session.
 
 **Next**
 
 | Task | Owner | By |
 |---|---|---|
-| Submit Appendix A registration form | Tiến (A) | End of week 1 |
-| Add lecturer as repository collaborator | Tiến (A) | End of week 1 |
 | Read Module 1 — Requirements engineering | All | Week 2 |
 | Settle the nine open business decisions | All | Week 2 |
 
@@ -75,6 +72,12 @@ the project, while one discovered in Week 10 is not.
   booting the application revealed it. Fixed by typing every single-valued
   relation as `Relation<T>`, the approach TypeORM documents for ESM.
 
+- Week 1 administrative milestone complete (reported by Tiến, 24/09/2026):
+  - Team & Topic Registration form (Appendix A) submitted on E-learning.
+  - Topic 12 confirmed still free in the class group when registered.
+  - Lecturer added as a collaborator; repository is also public. Verified on
+    GitHub: `nguyentrihai93` is listed as a collaborator.
+
 **Decided**
 
 - The team uses the Docker database (port 5433), not a PostgreSQL installed on
@@ -82,8 +85,18 @@ the project, while one discovered in Week 10 is not.
 
 **Not done / blocked**
 
-**Next**
+- Nothing blocked. Duy Anh and Minh have not yet made their first commits —
+  every member needs commits under their own account from early in the term
+  (CLO2).
+
+**Next — week 2: requirements**
 
 | Task | Owner | By |
 |---|---|---|
-|  |  |  |
+| Clone the repo, run it locally with `docker compose`, make a first commit (e.g. own journal entry) | Duy Anh (B), Minh (C) | Early week 2 |
+| Read Self-study Modules 1 and 2 | All | Early week 2 |
+| Settle the nine open business decisions in `docs/README.md` | All | Mid week 2 |
+| Functional requirements and use-case specs for UC01–04, UC13 | Tiến (A) | End of week 2 |
+| Functional requirements and use-case specs for UC05–08, UC14; write up BR01–BR04, BR07, BR10 | Duy Anh (B) | End of week 2 |
+| Functional requirements and use-case specs for UC09–12, UC15–16; measurable non-functional requirements | Minh (C) | End of week 2 |
+| Assemble the Proposal draft (Chapters 1–2) for optional lecturer review | Tiến (A) | End of week 2 |

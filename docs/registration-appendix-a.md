@@ -4,8 +4,9 @@ Content prepared for the online registration form on E-learning, **due end of
 Week 1**. Copy each field into the form. Keep this file as a record of what was
 submitted.
 
-**Status: not yet submitted.** Fill in the two blank email addresses, then
-submit. Record the submission date in `journal.md` afterwards.
+**Status: submitted.** The team leader confirmed on 24/09/2026 that the form
+was submitted on E-learning. The member emails in the submitted form are not
+recorded in this file.
 
 ---
 
@@ -70,7 +71,9 @@ submit. Record the submission date in `journal.md` afterwards.
 
 ## Before submitting, also do
 
-- [ ] Add Dr. Nguyen Tri Hai as a collaborator on the repository, or make it public
-- [ ] Confirm no other team in class group 261_72ITSE41704_01 has registered topic 12
-- [ ] Collect the two missing email addresses
-- [ ] Record the submission date in `journal.md`
+- [x] Add Dr. Nguyen Tri Hai as a collaborator on the repository, or make it public
+      — both done; verified 24/09/2026: repository is public and
+      `nguyentrihai93` is a collaborator
+- [x] Confirm no other team in class group 261_72ITSE41704_01 has registered topic 12
+- [x] Submit the form
+- [x] Record the submission in `journal.md`

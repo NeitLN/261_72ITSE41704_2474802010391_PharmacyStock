@@ -3,6 +3,24 @@
 Working agreement for the team. It exists so that the commit history is usable
 as evidence of who built what.
 
+## Task tracking
+
+Every work package in the ten-week plan is a GitHub issue:
+
+- The title starts with its task id, e.g. `[W05-B2]` — week 5, member B, slot 2.
+- It is assigned to its owner, names a reviewer, and sits under the milestone
+  for its week. The milestone due date is the Sunday that ends the week.
+- The body states the definition of done.
+
+To keep the board accurate without anyone updating it by hand:
+
+1. Branch from `main` for the issue.
+2. Open a pull request whose description contains `Closes #<issue number>`.
+3. When the reviewer approves and the PR is merged, the issue closes itself.
+
+If a task turns out to be blocked, comment on the issue saying why. If the plan
+changes, edit the issue rather than working around it silently.
+
 ## Branches
 
 - `main` must always build. Do not commit to it directly once feature work starts.

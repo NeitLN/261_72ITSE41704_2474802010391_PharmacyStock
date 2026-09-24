@@ -9,11 +9,14 @@ Each entry records what changed, who did it, and what is next. Record blockers
 honestly; a blocker written down on the day it appeared is evidence of managing
 the project, while one discovered in Week 10 is not.
 
+**Calendar.** Week 1 began Monday 14/09/2026, counted back from the Proposal
+deadline on Sunday 04/10/2026 (end of week 3). Weeks run Monday to Sunday.
+
 ---
 
-## Week 1 — Session 1
+## Week 2 — Session 1
 
-**Date:** _(fill in)_
+**Date:** 22/09/2026
 **Present:** _(fill in)_
 
 **Done**
@@ -49,7 +52,7 @@ the project, while one discovered in Week 10 is not.
 
 ---
 
-## Week 1 — Session 2
+## Week 2 — Session 2
 
 **Date:** 24/09/2026
 **Present:** _(fill in)_
@@ -72,7 +75,8 @@ the project, while one discovered in Week 10 is not.
   booting the application revealed it. Fixed by typing every single-valued
   relation as `Relation<T>`, the approach TypeORM documents for ESM.
 
-- Week 1 administrative milestone complete (reported by Tiến, 24/09/2026):
+- Week 1 registration milestone complete (reported by Tiến, 24/09/2026; the
+  week 1 deadline was Sunday 20/09):
   - Team & Topic Registration form (Appendix A) submitted on E-learning.
   - Topic 12 confirmed still free in the class group when registered.
   - Lecturer added as a collaborator; repository is also public. Verified on

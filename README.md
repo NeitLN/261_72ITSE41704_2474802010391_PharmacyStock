@@ -232,6 +232,14 @@ dispensing, what makes a prescription reference valid, how dispensing links to
 sales, and others. They are marked `TODO` in the code and listed in
 [`docs/README.md`](docs/README.md), to be settled in week 2.
 
+## Task tracking
+
+The ten-week plan is tracked as GitHub issues — one per work package, assigned
+to its owner, under a milestone for each week:
+[milestones](https://github.com/NeitLN/261_72ITSE41704_2474802010391_PharmacyStock/milestones?direction=asc&sort=due_date).
+Pull requests close their issue with `Closes #n`. See
+[CONTRIBUTING](CONTRIBUTING.md#task-tracking).
+
 ## Documentation
 
 | Document | What it covers |

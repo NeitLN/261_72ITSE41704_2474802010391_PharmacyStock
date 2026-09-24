@@ -17,6 +17,28 @@ a report should be written in English from the start.
 Documentation written in Week 10 from memory is one of the four named failure
 patterns.
 
+## Calendar
+
+Week 1 began Monday 14/09/2026, counted back from the Proposal deadline on
+Sunday 04/10/2026. Official deadlines are those published on E-learning/CTE;
+dates marked *expected* are the end of the week and may differ.
+
+| Week | Dates | Milestone |
+|---|---|---|
+| 1 | 14/09 – 20/09 | Team & Topic Registration (Appendix A) |
+| 2 | 21/09 – 27/09 | Requirements; open decisions settled |
+| 3 | 28/09 – 04/10 | **Project Proposal — due Sun 04/10** (20%) |
+| 4 | 05/10 – 11/10 | Design artefacts in the repository |
+| 5 | 12/10 – 18/10 | Tag `v0.1` |
+| 6 | 19/10 – 25/10 | Test-case table |
+| 7 | 26/10 – 01/11 | Tag `v0.2`; Appendix D self-check |
+| 8 | 02/11 – 08/11 | Updated design documentation |
+| 9 | 09/11 – 15/11 | Tag `v1.0`; draft report |
+| 10 | 16/11 – 22/11 | **Final Project Report** (80%) — expected Sun 22/11 |
+
+Every task is a GitHub issue under the milestone for its week. See
+[`../CONTRIBUTING.md`](../CONTRIBUTING.md#task-tracking).
+
 ## Scope targets
 
 From Suggested Project Titles, Table 2 — expected for a **three-person team**.

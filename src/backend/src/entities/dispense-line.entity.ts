@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  type Relation,
 } from 'typeorm';
 import { Prescription } from './prescription.entity.js';
 import { PrescriptionItem } from './prescription-item.entity.js';
@@ -30,18 +31,18 @@ export class DispenseLine {
     nullable: false,
   })
   @JoinColumn({ name: 'prescription_id' })
-  prescription: Prescription;
+  prescription: Relation<Prescription>;
 
   /** Which prescribed item this fulfils, so over-dispensing is detectable (BR07). */
   @ManyToOne(() => PrescriptionItem, (item) => item.dispenseLines, {
     nullable: false,
   })
   @JoinColumn({ name: 'prescription_item_id' })
-  prescriptionItem: PrescriptionItem;
+  prescriptionItem: Relation<PrescriptionItem>;
 
   @ManyToOne(() => Batch, { nullable: false })
   @JoinColumn({ name: 'batch_id' })
-  batch: Batch;
+  batch: Relation<Batch>;
 
   /**
    * Set when this dispensing is also billed as a sale, so stock is not
@@ -51,11 +52,11 @@ export class DispenseLine {
    */
   @ManyToOne(() => Sale, (sale) => sale.dispenseLines, { nullable: true })
   @JoinColumn({ name: 'sale_id' })
-  sale: Sale;
+  sale: Relation<Sale>;
 
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'dispensed_by_id' })
-  dispensedBy: User;
+  dispensedBy: Relation<User>;
 
   @CreateDateColumn()
   dispensedAt: Date;

@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  type Relation,
 } from 'typeorm';
 import { StockTakeLine } from './stock-take-line.entity.js';
 import { User } from './user.entity.js';
@@ -49,12 +50,12 @@ export class StockTake {
 
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'counted_by_id' })
-  countedBy: User;
+  countedBy: Relation<User>;
 
   /** Must differ from countedBy: a count is approved by someone else (BR08). */
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'approved_by_id' })
-  approvedBy: User;
+  approvedBy: Relation<User>;
 
   @CreateDateColumn()
   createdAt: Date;

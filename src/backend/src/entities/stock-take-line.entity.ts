@@ -4,6 +4,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  type Relation,
 } from 'typeorm';
 import { StockTake } from './stock-take.entity.js';
 import { Batch } from './batch.entity.js';
@@ -30,9 +31,9 @@ export class StockTakeLine {
     nullable: false,
   })
   @JoinColumn({ name: 'stock_take_id' })
-  stockTake: StockTake;
+  stockTake: Relation<StockTake>;
 
   @ManyToOne(() => Batch, { nullable: false })
   @JoinColumn({ name: 'batch_id' })
-  batch: Batch;
+  batch: Relation<Batch>;
 }

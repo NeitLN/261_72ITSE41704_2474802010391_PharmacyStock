@@ -40,7 +40,6 @@ the project, while one discovered in Week 10 is not.
 
 - Team & Topic Registration form (Appendix A) not yet submitted on E-learning.
 - Lecturer not yet added as a repository collaborator.
-- Backend not yet run against PostgreSQL — needs database credentials.
 
 **Next**
 
@@ -48,7 +47,6 @@ the project, while one discovered in Week 10 is not.
 |---|---|---|
 | Submit Appendix A registration form | Tiến (A) | End of week 1 |
 | Add lecturer as repository collaborator | Tiến (A) | End of week 1 |
-| Verify backend boots against PostgreSQL | Tiến (A) | Week 1 |
 | Read Module 1 — Requirements engineering | All | Week 2 |
 | Settle the nine open business decisions | All | Week 2 |
 
@@ -56,12 +54,31 @@ the project, while one discovered in Week 10 is not.
 
 ## Week 1 — Session 2
 
-**Date:** _(fill in)_
+**Date:** 24/09/2026
 **Present:** _(fill in)_
 
 **Done**
 
+- Started PostgreSQL 18 through `docker compose` and ran the backend against it
+  for the first time. The schema was created: 26 tables, 41 foreign keys.
+- Checked that data survives a database restart.
+
+**Defects found and fixed**
+
+- `docker-compose.yml` mounted the volume at `/var/lib/postgresql/data`. The
+  PostgreSQL 18 image refuses to start with that layout and expects
+  `/var/lib/postgresql`. Fixed the mount path.
+- The backend crashed on start with `Cannot access 'GoodsReceipt' before
+  initialization`. Cause: under ES modules, `emitDecoratorMetadata` emits a
+  direct reference to the related class, and entities that import each other
+  hit it before it is defined. Build, lint and unit tests all passed, so only
+  booting the application revealed it. Fixed by typing every single-valued
+  relation as `Relation<T>`, the approach TypeORM documents for ESM.
+
 **Decided**
+
+- The team uses the Docker database (port 5433), not a PostgreSQL installed on
+  each machine, so everyone runs the same configuration.
 
 **Not done / blocked**
 

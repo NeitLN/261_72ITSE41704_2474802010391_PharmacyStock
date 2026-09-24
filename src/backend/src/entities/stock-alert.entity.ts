@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  type Relation,
 } from 'typeorm';
 import { Medicine } from './medicine.entity.js';
 import { Batch } from './batch.entity.js';
@@ -46,16 +47,16 @@ export class StockAlert {
 
   @ManyToOne(() => Medicine, { nullable: false })
   @JoinColumn({ name: 'medicine_id' })
-  medicine: Medicine;
+  medicine: Relation<Medicine>;
 
   /** Null for a low-stock alert, which is about the medicine as a whole. */
   @ManyToOne(() => Batch, { nullable: true })
   @JoinColumn({ name: 'batch_id' })
-  batch: Batch;
+  batch: Relation<Batch>;
 
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'acknowledged_by_id' })
-  acknowledgedBy: User;
+  acknowledgedBy: Relation<User>;
 
   @Column({ type: 'timestamp', nullable: true })
   acknowledgedAt: Date;

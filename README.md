@@ -198,9 +198,12 @@ case is implemented.
 
 **Working today**
 
-- Backend builds, lints and passes its unit test; 25 TypeORM entities defined
+- Backend builds, lints and passes its unit test
+- Backend boots against PostgreSQL 18 (Docker) and creates the schema: 26
+  tables — the 25 entities plus the `role_permissions` join table — with 41
+  foreign keys
+- Data survives a database restart
 - Frontend builds, lints, and serves a navigable Ant Design shell
-- Local PostgreSQL available via `docker-compose.yml`
 
 **Not built yet**
 
@@ -210,10 +213,6 @@ case is implemented.
 - Database migrations (the project currently relies on `DB_SYNCHRONIZE` for
   local development only)
 - Seed data and sample accounts
-
-**Not yet verified**
-
-- The backend has not been run against a live PostgreSQL database
 
 ### Scope against the course targets
 

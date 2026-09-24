@@ -16,7 +16,9 @@ services:
       # on the machine, which usually holds 5432.
       - '5433:5432'
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      # PostgreSQL 18+ images expect the mount at /var/lib/postgresql and keep
+      # the data in a versioned subdirectory. Mounting .../data fails to start.
+      - pgdata:/var/lib/postgresql
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U pharmacy_app -d pharmacy_stock']
       interval: 10s

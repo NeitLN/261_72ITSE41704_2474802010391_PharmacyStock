@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  type Relation,
 } from 'typeorm';
 import { Supplier } from './supplier.entity.js';
 import { Batch } from './batch.entity.js';
@@ -35,7 +36,7 @@ export class GoodsReceipt {
     nullable: false,
   })
   @JoinColumn({ name: 'supplier_id' })
-  supplier: Supplier;
+  supplier: Relation<Supplier>;
 
   @OneToMany(() => GoodsReceiptLine, (line) => line.goodsReceipt)
   lines: GoodsReceiptLine[];
@@ -45,7 +46,7 @@ export class GoodsReceipt {
 
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'received_by_id' })
-  receivedBy: User;
+  receivedBy: Relation<User>;
 
   @CreateDateColumn()
   createdAt: Date;

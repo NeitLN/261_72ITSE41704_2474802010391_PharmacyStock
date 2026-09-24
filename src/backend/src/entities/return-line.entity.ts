@@ -4,6 +4,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  type Relation,
 } from 'typeorm';
 import { SaleReturn } from './sale-return.entity.js';
 import { SaleLine } from './sale-line.entity.js';
@@ -39,10 +40,10 @@ export class ReturnLine {
     nullable: false,
   })
   @JoinColumn({ name: 'sale_return_id' })
-  saleReturn: SaleReturn;
+  saleReturn: Relation<SaleReturn>;
 
   /** Caps the returnable quantity: you cannot return more than was sold (TC-17). */
   @ManyToOne(() => SaleLine, (line) => line.returnLines, { nullable: false })
   @JoinColumn({ name: 'sale_line_id' })
-  saleLine: SaleLine;
+  saleLine: Relation<SaleLine>;
 }

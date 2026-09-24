@@ -5,6 +5,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  type Relation,
 } from 'typeorm';
 import { Batch } from './batch.entity.js';
 import { MedicineCategory } from './medicine-category.entity.js';
@@ -52,12 +53,12 @@ export class Medicine {
     nullable: false,
   })
   @JoinColumn({ name: 'category_id' })
-  category: MedicineCategory;
+  category: Relation<MedicineCategory>;
 
   /** Stock is always held and reported in this unit. */
   @ManyToOne(() => UnitOfMeasure, (unit) => unit.medicines, { nullable: false })
   @JoinColumn({ name: 'base_unit_id' })
-  baseUnit: UnitOfMeasure;
+  baseUnit: Relation<UnitOfMeasure>;
 
   @OneToMany(() => Batch, (batch) => batch.medicine)
   batches: Batch[];

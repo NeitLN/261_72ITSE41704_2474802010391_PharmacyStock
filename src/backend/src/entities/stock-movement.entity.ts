@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  type Relation,
 } from 'typeorm';
 import { Batch } from './batch.entity.js';
 import { User } from './user.entity.js';
@@ -47,11 +48,11 @@ export class StockMovement {
 
   @ManyToOne(() => Batch, (batch) => batch.movements, { nullable: false })
   @JoinColumn({ name: 'batch_id' })
-  batch: Batch;
+  batch: Relation<Batch>;
 
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'performed_by_id' })
-  performedBy: User;
+  performedBy: Relation<User>;
 
   @CreateDateColumn()
   occurredAt: Date;

@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  type Relation,
 } from 'typeorm';
 import { SaleLine } from './sale-line.entity.js';
 import { SaleReturn } from './sale-return.entity.js';
@@ -37,7 +38,7 @@ export class Sale {
   /** Optional: an over-the-counter sale need not identify the buyer. */
   @ManyToOne(() => Customer, (customer) => customer.sales, { nullable: true })
   @JoinColumn({ name: 'customer_id' })
-  customer: Customer;
+  customer: Relation<Customer>;
 
   @OneToMany(() => SaleLine, (line) => line.sale)
   lines: SaleLine[];
@@ -50,7 +51,7 @@ export class Sale {
 
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'sold_by_id' })
-  soldBy: User;
+  soldBy: Relation<User>;
 
   @CreateDateColumn()
   soldAt: Date;

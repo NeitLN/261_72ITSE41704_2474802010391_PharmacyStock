@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  type Relation,
 } from 'typeorm';
 import { Sale } from './sale.entity.js';
 import { ReturnLine } from './return-line.entity.js';
@@ -34,14 +35,14 @@ export class SaleReturn {
 
   @ManyToOne(() => Sale, (sale) => sale.returns, { nullable: false })
   @JoinColumn({ name: 'sale_id' })
-  sale: Sale;
+  sale: Relation<Sale>;
 
   @OneToMany(() => ReturnLine, (line) => line.saleReturn)
   lines: ReturnLine[];
 
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'processed_by_id' })
-  processedBy: User;
+  processedBy: Relation<User>;
 
   @CreateDateColumn()
   returnedAt: Date;

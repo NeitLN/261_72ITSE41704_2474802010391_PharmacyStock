@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  type Relation,
 } from 'typeorm';
 import { DispenseLine } from './dispense-line.entity.js';
 import { PrescriptionItem } from './prescription-item.entity.js';
@@ -57,13 +58,13 @@ export class Prescription {
     nullable: false,
   })
   @JoinColumn({ name: 'customer_id' })
-  customer: Customer;
+  customer: Relation<Customer>;
 
   @ManyToOne(() => Prescriber, (prescriber) => prescriber.prescriptions, {
     nullable: false,
   })
   @JoinColumn({ name: 'prescriber_id' })
-  prescriber: Prescriber;
+  prescriber: Relation<Prescriber>;
 
   @OneToMany(() => PrescriptionItem, (item) => item.prescription)
   items: PrescriptionItem[];

@@ -5,6 +5,7 @@ import {
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
+  type Relation,
 } from 'typeorm';
 import { GoodsReceipt } from './goods-receipt.entity.js';
 import { Medicine } from './medicine.entity.js';
@@ -32,14 +33,14 @@ export class GoodsReceiptLine {
     nullable: false,
   })
   @JoinColumn({ name: 'goods_receipt_id' })
-  goodsReceipt: GoodsReceipt;
+  goodsReceipt: Relation<GoodsReceipt>;
 
   @ManyToOne(() => Medicine, { nullable: false })
   @JoinColumn({ name: 'medicine_id' })
-  medicine: Medicine;
+  medicine: Relation<Medicine>;
 
   /** The batch this line brought into stock. */
   @OneToOne(() => Batch, { nullable: true })
   @JoinColumn({ name: 'batch_id' })
-  batch: Batch;
+  batch: Relation<Batch>;
 }

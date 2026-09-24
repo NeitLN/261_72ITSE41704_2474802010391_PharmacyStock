@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  type Relation,
 } from 'typeorm';
 import { User } from './user.entity.js';
 
@@ -36,7 +37,7 @@ export class AuditLog {
 
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'performed_by_id' })
-  performedBy: User;
+  performedBy: Relation<User>;
 
   @CreateDateColumn()
   occurredAt: Date;

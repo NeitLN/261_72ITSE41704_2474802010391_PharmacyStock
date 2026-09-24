@@ -4,6 +4,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  type Relation,
 } from 'typeorm';
 import { Medicine } from './medicine.entity.js';
 import { User } from './user.entity.js';
@@ -32,9 +33,9 @@ export class MedicinePrice {
 
   @ManyToOne(() => Medicine, (medicine) => medicine.prices, { nullable: false })
   @JoinColumn({ name: 'medicine_id' })
-  medicine: Medicine;
+  medicine: Relation<Medicine>;
 
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'set_by_id' })
-  setBy: User;
+  setBy: Relation<User>;
 }

@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  type Relation,
   Unique,
 } from 'typeorm';
 import { Medicine } from './medicine.entity.js';
@@ -58,13 +59,13 @@ export class Batch {
     nullable: false,
   })
   @JoinColumn({ name: 'medicine_id' })
-  medicine: Medicine;
+  medicine: Relation<Medicine>;
 
   @ManyToOne(() => GoodsReceipt, (receipt) => receipt.batches, {
     nullable: true,
   })
   @JoinColumn({ name: 'goods_receipt_id' })
-  goodsReceipt: GoodsReceipt;
+  goodsReceipt: Relation<GoodsReceipt>;
 
   @OneToMany(() => StockMovement, (movement) => movement.batch)
   movements: StockMovement[];

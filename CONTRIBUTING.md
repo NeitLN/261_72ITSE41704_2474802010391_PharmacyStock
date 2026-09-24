@@ -12,11 +12,22 @@ Every work package in the ten-week plan is a GitHub issue:
   for its week. The milestone due date is the Sunday that ends the week.
 - The body states the definition of done.
 
-To keep the board accurate without anyone updating it by hand:
+Workflow:
 
-1. Branch from `main` for the issue.
-2. Open a pull request whose description contains `Closes #<issue number>`.
-3. When the reviewer approves and the PR is merged, the issue closes itself.
+1. Move the card to *In Progress* and branch from `main` for the issue.
+2. Open a pull request whose description contains `Refs #<issue number>`, the
+   use case / business rule / test case IDs, and how you tested it.
+3. The reviewer runs it and approves; CI must be green; then merge.
+4. The tester — **not the author** — runs the related test cases on `main` and
+   records each run in `tests/manual/runs.md`. When they pass, the tester
+   closes the issue and the card moves to *Done*.
+5. A failed run becomes a `bug` issue with severity S1–S4. The fix PR uses
+   `Refs #<bug>` and adds a test that reproduces it; the label `needs-retest`
+   stays until the original tester reruns it and closes the bug.
+
+`Refs` is used instead of `Closes` so that nothing is marked done before it has
+been tested by someone other than its author. Full process:
+[`docs/plan/00-tong-quan.md`](docs/plan/00-tong-quan.md) §6.
 
 If a task turns out to be blocked, comment on the issue saying why. If the plan
 changes, edit the issue rather than working around it silently.
@@ -63,7 +74,7 @@ A task is done when all of the following hold:
 | Tag | Week | Contents |
 |---|---|---|
 | `v0.1` | 5 | One full flow works: receive → dispense → sell, with data persisting |
-| `v0.2` | 7 | All twelve use cases run end to end |
+| `v0.2` | 7 | All 14 Must use cases run end to end |
 | `v1.0` | 9 | Feature freeze; packaged and runnable from a fresh clone |
 
 Do not move an existing tag. If a fix is needed after `v1.0`, tag the fix

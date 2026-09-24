@@ -82,7 +82,7 @@ table with owners and tests in
 | BR03 | Stock on hand can never go negative |
 | BR04 | A controlled medicine requires a valid prescription reference |
 | BR05 | Every stock change is recorded; corrections post a compensating movement rather than editing history |
-| BR06 | Quantities in a non-base unit are converted explicitly before any stock arithmetic |
+| BR06 | Quantities in a non-base unit are converted explicitly before any stock arithmetic _(Could — out of scope unless time allows)_ |
 | BR07 | A prescription cannot be dispensed beyond the quantity prescribed |
 | BR08 | A stock take is approved by someone other than the person who counted |
 | BR09 | Prices are effective-dated; a price change never revalues a past sale |
@@ -207,7 +207,7 @@ case is implemented.
 
 **Not built yet**
 
-- All sixteen use cases — the frontend pages are labelled placeholders
+- All use cases (14 Must, 2 Should) — the frontend pages are labelled placeholders
 - Authentication and role-based access control
 - Any of the ten business rules
 - Database migrations (the project currently relies on `DB_SYNCHRONIZE` for
@@ -221,10 +221,10 @@ Targets are those expected of a three-person team
 
 | Dimension | Target | Planned | Built |
 |---|---|---|---|
-| Use cases end-to-end | 13–16 | 16 | 0 |
+| Use cases end-to-end | 13–16 | 14 Must + 2 Should | 0 |
 | Domain classes | 16–22 | 25 | 25 defined |
 | User roles | 3+ | 3 | 0 |
-| Business rules beyond CRUD | 6+ | 10 | 0 |
+| Business rules beyond CRUD | 6+ | 6 Must + 3 Should + 1 Could | 0 |
 | Documented test cases | 20+ | 34 | 0 run |
 
 Nine business decisions are still open — expiry date granularity, partial
@@ -240,16 +240,18 @@ to its owner, under a milestone for each week.
 - **Board:** [Pharmacy Stock — 10-week plan](https://github.com/users/NeitLN/projects/1)
 - **Milestones:** [by week](https://github.com/NeitLN/261_72ITSE41704_2474802010391_PharmacyStock/milestones?direction=asc&sort=due_date)
 
-Pull requests close their issue with `Closes #n`. See
+Pull requests reference their issue with `Refs #n`; the tester closes it after the
+acceptance tests pass. See
 [CONTRIBUTING](CONTRIBUTING.md#task-tracking).
 
 ## Documentation
 
 | Document | What it covers |
 |---|---|
+| [`docs/plan/`](docs/plan/) | The ten-week plan: tasks per member per week, quality process, risks |
 | [`docs/course-requirements.md`](docs/course-requirements.md) | What the course measures — scope targets, rubrics, submission rules |
 | [`docs/journal.md`](docs/journal.md) | Session-by-session record of the work |
-| [`docs/requirements/use-cases.md`](docs/requirements/use-cases.md) | The sixteen use cases, roles and ownership |
+| [`docs/requirements/use-cases.md`](docs/requirements/use-cases.md) | The sixteen use cases (14 Must, 2 Should), roles and ownership |
 | [`docs/requirements/business-rules.md`](docs/requirements/business-rules.md) | The ten business rules and the invariants to test |
 | [`docs/design/domain-model.md`](docs/design/domain-model.md) | The twenty-five entities and why each exists |
 | [`tests/manual/test-cases.md`](tests/manual/test-cases.md) | The thirty-four planned test cases |

@@ -15,7 +15,7 @@ project scores in the Average band for design.**
 | BR03 | **Stock never goes negative.** No operation may take a batch below zero, including two concurrent transactions competing for the last units. | Catalogue | Duy Anh (B) | TC-09, TC-10, TC-26 |
 | BR04 | **Controlled medicines require a valid prescription reference.** Dispensing a medicine flagged as controlled without a prescription that passes the validity checks is refused. | Catalogue | Duy Anh (B) | TC-12, TC-13, TC-14 |
 | BR05 | **Every stock change is recorded and reversible only by compensation.** Each movement writes one `StockMovement` row. Corrections post a new, opposite movement that references the original; no row is ever edited or deleted. | Catalogue | Tiến (A) | TC-16, TC-19, TC-25 |
-| BR06 | **Unit conversion is explicit.** Quantities entered in a non-base unit are converted to base units before any stock arithmetic. A quantity that does not resolve to a whole number of base units is refused. | Model | Tiến (A) | _to be written_ |
+| BR06 | **Unit conversion is explicit.** _(Could — out of scope unless time allows; stock is entered and sold in the base unit. See plan §4.)_ Quantities entered in a non-base unit are converted to base units before any stock arithmetic. A quantity that does not resolve to a whole number of base units is refused. | Model | Tiến (A) | _to be written_ |
 | BR07 | **A prescription cannot be over-dispensed.** The sum of dispensed quantities for a prescription item can never exceed the quantity prescribed, across any number of visits. | Model | Duy Anh (B) | _to be written_ |
 | BR08 | **A stock take is approved by someone other than the counter.** Posting adjustments requires an approver different from the person who counted, and every discrepancy line carries a reason. | Model | Minh (C) | TC-19, TC-20 |
 | BR09 | **Prices are effective-dated.** A sale is valued at the price in force on the day of the sale. Changing a price never alters the value of a past sale or a past report. | Model | Tiến (A) | _to be written_ |
@@ -37,6 +37,10 @@ are the strongest evidence of a correct implementation.
    return-line quantities is at most the quantity sold.
 
 ## Rules still to be settled
+
+Whether BR01, BR02 and BR04 also govern over-the-counter sales is open decision 11
+(proposal: yes — every outbound movement). All eighteen open decisions, with
+options and deadlines, are in [`../plan/00-tong-quan.md`](../plan/00-tong-quan.md) §8.
 
 Five of the rules above depend on decisions the team has not yet made. They are
 listed in [`../README.md`](../README.md) and must be settled in Week 2:

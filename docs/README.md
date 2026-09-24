@@ -2,6 +2,7 @@
 
 | File / folder | Contents | Due |
 |---|---|---|
+| [`plan/`](plan/) | **Ten-week plan**: overview (scope, quality process, traceability, risks) and one file per week with tasks, hours, reviewers and acceptance criteria. Written in Vietnamese | Updated when the plan changes |
 | [`course-requirements.md`](course-requirements.md) | What the course measures, taken from the three course PDFs. Read this before planning anything. | — |
 | [`registration-appendix-a.md`](registration-appendix-a.md) | Content for the Week 1 registration form | Week 1 |
 | [`journal.md`](journal.md) | Session-by-session record of what changed, who did it and what is next | Every session |
@@ -47,13 +48,17 @@ Full detail in [`course-requirements.md`](course-requirements.md).
 
 | Dimension | Target | Planned | Built |
 |---|---|---|---|
-| Use cases end-to-end | 13–16 | 16 | 0 |
+| Use cases end-to-end | 13–16 | 14 Must + 2 Should | 0 |
 | Domain classes | 16–22 | 25 | 25 defined |
 | User roles | 3+ | 3 | 0 |
-| Business rules beyond CRUD | 6+ | 10 | 0 |
+| Business rules beyond CRUD | 6+ | 6 Must + 3 Should + 1 Could | 0 |
 | Documented test cases | 20+ | 34 | 0 run |
 
 ## Open business decisions
+
+Decisions 1–9 below are due Saturday 26/09. Nine further decisions that affect
+the data model (10–18) are listed in [`plan/00-tong-quan.md`](plan/00-tong-quan.md) §8
+and are due Wednesday 07/10. Code TODOs referring to "6.4-x" mean decision x here.
 
 These must be settled in **Week 2**, before the affected use cases are built or
 their test cases are given expected results. Each is marked `TODO` at the place

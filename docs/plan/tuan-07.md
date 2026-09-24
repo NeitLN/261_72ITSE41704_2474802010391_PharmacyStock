@@ -22,7 +22,7 @@
 | Mã | Việc | Giờ | Reviewer | Phụ thuộc | Đầu ra / nghiệm thu | Issue |
 |---|---|---|---|---|---|---|
 | W07-A1 | **UC13 Lịch sử giá** *(S)* — `PriceBook`: giá theo ngày hiệu lực (BR09); UC07 lấy giá tại ngày thanh toán | 5 | B | W06-B2 | TC-40, 41 Pass do B chạy | #55 |
-| W07-A2 | **Hồi quy phần của B và C** trong bộ R + **TC-31 luồng đầu–cuối** (nhập → nhận đơn → cấp → thanh toán → trả → báo cáo khớp) | 2,5 | — | B1, C2 | Lượt chạy trong `runs.md` | #56 (nội dung đổi) |
+| W07-A2 | **Hồi quy phần của B và C** trong bộ R + **TC-31 luồng đầu–cuối** (nhập → nhận đơn → cấp → thanh toán → trả → báo cáo khớp) | 2,5 | B | B1, C2 | Lượt chạy trong `runs.md` | #56 (nội dung đổi) |
 | W07-A3 | **Seed giao dịch cho báo cáo**: bán và trả trải hai kỳ (dùng ngày nghiệp vụ lùi); cập nhật seed theo schema mới | 2 | C | B1 | TC-23 có dữ liệu tính tay | #57 (nội dung đổi) |
 | — | A: họp 2,5 · review 3 · giữ schema/seed 1 · sửa lỗi/dự phòng 4 | 10,5 | — | — | — | — |
 | W07-B1 | **UC08 Trả hàng** theo QĐ 4/13/14: `SaleReturn` + `ReturnLine`; không trả vượt số đã bán (TC-17); `requestId` chống gửi lặp (TC-18); **bút toán bù** qua `StockLedger` (`reversesMovementId`); thuốc kiểm soát / lô hết hạn không về tồn bán (TC-50). **Lên `main` trước T4 28/10** (UC12 phụ thuộc) | 7 | C + A | W06-B2 | TC-16, 17, 18, 50 Pass do C chạy; invariant vẫn pass | #58 |

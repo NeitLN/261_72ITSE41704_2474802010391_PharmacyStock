@@ -341,7 +341,7 @@ Bản 1 được **4 agent AI độc lập** rà soát, mỗi agent chỉ đọc
 
 ## 11. Điều chỉnh so với Issue, Excel và tài liệu repo hiện có
 
-Tài liệu repo đã được đồng bộ cùng lúc đưa roadmap vào `docs/plan/` (24/09). Issue trên GitHub và file Excel theo dõi nội bộ **chưa** cập nhật theo bảng dưới.
+**Đã áp dụng.** Tài liệu repo đồng bộ ngày 24/09. Ngày 25/09: 90 Issue được cập nhật tiêu đề, mô tả (người review, giờ, phụ thuộc, link tới file tuần, quy trình `Refs #n`) và nhãn; thêm nhãn `stock-integrity`, `needs-retest`, `S1`–`S4`, `proposal-feedback`; bảng dự án cập nhật Start/Due/Week/Hours (không đổi trạng thái); file Excel nội bộ dựng lại theo 90 gói việc mới. Bảng dưới ghi lại những gì đã thay đổi.
 
 | Nơi | Thay đổi |
 |---|---|

@@ -11,8 +11,10 @@ the result survives a restart. A screen that lists data someone else inserted
 by hand is not a use case.
 
 Full use-case specifications with actors, preconditions, main flow and
-alternative flows are due in **Week 2** (Module 1 and 2). This file is the
-index and the ownership record.
+alternative flows are due in **Week 2** (Module 1 and 2). They live in
+[`use-cases/`](use-cases/), one file per use case, written from
+[`_template.md`](use-cases/_template.md); [`UC03`](use-cases/UC03-record-goods-receipt.md)
+is the worked example. This file is the index and the ownership record.
 
 | ID | Use case | Actor | Owner | Priority | Milestone | Status |
 |---|---|---|---|---|---|---|

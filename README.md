@@ -235,8 +235,11 @@ sales, and others. They are marked `TODO` in the code and listed in
 ## Task tracking
 
 The ten-week plan is tracked as GitHub issues — one per work package, assigned
-to its owner, under a milestone for each week:
-[milestones](https://github.com/NeitLN/261_72ITSE41704_2474802010391_PharmacyStock/milestones?direction=asc&sort=due_date).
+to its owner, under a milestone for each week.
+
+- **Board:** [Pharmacy Stock — 10-week plan](https://github.com/users/NeitLN/projects/1)
+- **Milestones:** [by week](https://github.com/NeitLN/261_72ITSE41704_2474802010391_PharmacyStock/milestones?direction=asc&sort=due_date)
+
 Pull requests close their issue with `Closes #n`. See
 [CONTRIBUTING](CONTRIBUTING.md#task-tracking).
 

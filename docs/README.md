@@ -36,7 +36,8 @@ dates marked *expected* are the end of the week and may differ.
 | 9 | 09/11 – 15/11 | Tag `v1.0`; draft report |
 | 10 | 16/11 – 22/11 | **Final Project Report** (80%) — expected Sun 22/11 |
 
-Every task is a GitHub issue under the milestone for its week. See
+Every task is a GitHub issue under the milestone for its week, and an item on
+the [project board](https://github.com/users/NeitLN/projects/1). See
 [`../CONTRIBUTING.md`](../CONTRIBUTING.md#task-tracking).
 
 ## Scope targets

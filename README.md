@@ -127,13 +127,14 @@ cd src/backend
 cp .env.example .env
 ```
 
-Edit `.env` so the connection settings match your database. If you used
-`docker compose`, set `DB_PORT=5433`, `DB_USERNAME=pharmacy_app`,
-`DB_PASSWORD=pharmacy_dev_password`.
+The defaults in `.env.example` match `docker-compose.yml`, so if you started the
+database with `docker compose up -d` there is nothing to change. If you use a
+PostgreSQL installed on your machine instead, edit the `DB_*` values in `.env`.
 
-For the first run on an empty local database, set `DB_SYNCHRONIZE=true` so
-TypeORM creates the tables. Turn it back off afterwards — it rewrites the
-schema on every boot and must never be enabled against shared data.
+`DB_SYNCHRONIZE=true` lets TypeORM create the tables from the entities. It is
+for local development only and is replaced by migrations in week 4 — it
+rewrites the schema on every boot and must never be enabled against shared
+data.
 
 ### 4. Configure the frontend
 

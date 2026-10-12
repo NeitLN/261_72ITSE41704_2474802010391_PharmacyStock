@@ -52,6 +52,19 @@ UC16; Should items only after the week 7 gate.
   not a redefined goal.
 - Every pull request needs a real review by its rotation reviewer.
 
+## Leader's weekly review — by Sunday 18/10
+
+_(filled in by Tiến after the members finish the week's work; process in
+[CONTRIBUTING](../../CONTRIBUTING.md#leaders-weekly-review))_
+
+| Member | Work reviewed (links) | Done well | Revisions requested (issue, due) |
+|---|---|---|---|
+| Duy Anh (B) | | | |
+| Minh (C) | | | |
+| Tiến (A) — self-assessment, with Minh's comments | | | |
+
+Revisions from the previous week: none (first weekly review).
+
 ## Contribution check — Wednesday 14/10
 
 _(to be filled in at the meeting: each member's merged and open pull

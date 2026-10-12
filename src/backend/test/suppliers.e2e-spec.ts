@@ -111,6 +111,31 @@ describe('UC02 suppliers (e2e)', () => {
     });
   });
 
+  it('UC02-11 null for a required field is a field error, not a server error', async () => {
+    const { id } = await createSupplier();
+    const res = await t
+      .http()
+      .patch(`/api/suppliers/${id}`)
+      .set(as('manager'))
+      .send({ name: null, phone: null });
+
+    expect(res.status).toBe(400);
+    const fields = res.body.errors.map((e: { field: string }) => e.field);
+    expect(fields).toEqual(expect.arrayContaining(['name', 'phone']));
+  });
+
+  it('UC02-12 editing details leaves the active flag alone', async () => {
+    const { id } = await createSupplier();
+    await t.http().post(`/api/suppliers/${id}/deactivate`).set(as('manager'));
+
+    const res = await t
+      .http()
+      .patch(`/api/suppliers/${id}`)
+      .set(as('manager'))
+      .send({ name: 'Renamed' });
+    expect(res.body).toMatchObject({ name: 'Renamed', isActive: false });
+  });
+
   it('UC02-06 a deactivated supplier leaves the default list and can be reactivated (1a)', async () => {
     const { id } = await createSupplier();
     await createSupplier({ name: 'Zuellig', phone: '028 1111 2222' });

@@ -8,6 +8,7 @@ import {
   MaxLength,
 } from 'class-validator';
 import { QueryBoolean, Trim, TrimToNull } from '../../common/transforms.js';
+import { IfSent } from '../../common/validation.js';
 
 /** Digits with optional spaces, dots or dashes and a leading +; 8–20 characters. */
 const PHONE = /^\+?\d[\d .-]{6,18}\d$/;
@@ -49,14 +50,14 @@ export class CreateSupplierDto {
 
 /** Every field optional; a field left out is not changed, "" clears an optional one. */
 export class UpdateSupplierDto {
-  @IsOptional()
+  @IfSent()
   @Trim()
   @IsString()
   @IsNotEmpty({ message: 'Name is required.' })
   @MaxLength(200)
   name?: string;
 
-  @IsOptional()
+  @IfSent()
   @Trim()
   @IsString()
   @IsNotEmpty({ message: 'Phone number is required.' })

@@ -281,9 +281,50 @@ export class InitialSchema1791815704381 implements MigrationInterface {
     await queryRunner.query(
       `CREATE TRIGGER "trg_stock_movements_append_only" BEFORE UPDATE OR DELETE ON "stock_movements" FOR EACH ROW EXECUTE FUNCTION "stock_movements_append_only"()`,
     );
+
+    // Expiry alerts name a batch; stock-level alerts do not (decision 16).
+    await queryRunner.query(
+      `ALTER TABLE "stock_alerts" ADD CONSTRAINT "ck_stock_alerts_batch_by_type" CHECK (("type" IN ('expiring_soon', 'expired') AND "batch_id" IS NOT NULL) OR ("type" IN ('low_stock', 'out_of_stock') AND "batch_id" IS NULL))`,
+    );
+
+    // A reversal must be the exact opposite of a movement that is not itself
+    // a reversal, on the same batch and of the same type (BR05). Without
+    // this, any row with reverses_movement_id set would skip the sign CHECK.
+    await queryRunner.query(`CREATE FUNCTION "stock_movements_check_reversal"() RETURNS trigger LANGUAGE plpgsql AS $$
+      DECLARE
+        original "stock_movements"%ROWTYPE;
+      BEGIN
+        IF NEW."reverses_movement_id" IS NULL THEN
+          RETURN NEW;
+        END IF;
+        SELECT * INTO original FROM "stock_movements" WHERE "id" = NEW."reverses_movement_id";
+        IF NOT FOUND
+          OR original."reverses_movement_id" IS NOT NULL
+          OR original."batch_id" <> NEW."batch_id"
+          OR original."type" <> NEW."type"
+          OR NEW."deltaSellable" <> -original."deltaSellable"
+          OR NEW."deltaQuarantine" <> -original."deltaQuarantine"
+          OR NEW."deltaPendingDestruction" <> -original."deltaPendingDestruction"
+        THEN
+          RAISE EXCEPTION 'a reversal must exactly negate a non-reversal movement of the same batch and type (BR05)'
+            USING ERRCODE = 'check_violation';
+        END IF;
+        RETURN NEW;
+      END;
+    $$`);
+    await queryRunner.query(
+      `CREATE TRIGGER "trg_stock_movements_check_reversal" BEFORE INSERT ON "stock_movements" FOR EACH ROW EXECUTE FUNCTION "stock_movements_check_reversal"()`,
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `DROP TRIGGER "trg_stock_movements_check_reversal" ON "stock_movements"`,
+    );
+    await queryRunner.query(`DROP FUNCTION "stock_movements_check_reversal"()`);
+    await queryRunner.query(
+      `ALTER TABLE "stock_alerts" DROP CONSTRAINT "ck_stock_alerts_batch_by_type"`,
+    );
     await queryRunner.query(
       `DROP TRIGGER "trg_stock_movements_append_only" ON "stock_movements"`,
     );

@@ -169,6 +169,14 @@ cd src/frontend && npm run dev
 `npm run seed` (in `src/backend`) applies the migrations and creates one
 account per role: `manager`, `pharmacist` and `cashier`.
 
+On a database without medicines it also writes a simulated demo data set:
+60 medicines with prices, 10 suppliers, 12 patients, 7 prescribers and 120
+batches received through 24 goods receipts. Dates are relative to the day you
+seed, so there are always expired, near-expiry and long-dated batches, ten
+medicines below their reorder level and one batch on hold. All names and
+numbers are fictional. `SEED_DEMO=false npm run seed` writes only the
+accounts and reference data.
+
 Sign-in (UC16) is not built yet. Until it is, the backend runs with
 `AUTH_MODE=dev` and the web client has a **Dev user** switch in the header bar
 that chooses which account to act as; there are no passwords. This mode is for

@@ -1,4 +1,4 @@
-import type { DataSourceOptions } from 'typeorm';
+import type { PostgresDataSourceOptions } from 'typeorm/driver/postgres/PostgresDataSourceOptions.js';
 import {
   AuditLog,
   Batch,
@@ -68,7 +68,7 @@ export const ENTITIES = [
  */
 export function dataSourceOptions(
   env: NodeJS.ProcessEnv = process.env,
-): DataSourceOptions {
+): PostgresDataSourceOptions {
   return {
     type: 'postgres',
     host: env.DB_HOST ?? 'localhost',

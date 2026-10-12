@@ -54,7 +54,7 @@
 | **T4 28/10** | **UC08 trên `main`**. **Điểm cắt phạm vi**: Must nào < 50% → dừng Should, dồn người (ngồi cặp) |
 | **T5 29/10** | Bắt đầu hồi quy bộ R (A: phần B, C; B: phần A) |
 | T6 30/10 | Sửa S1/S2; chạy lại |
-| **T7 31/10** | Họp: demo 14 UC; chấm Appendix D; C ký → **B tag `v0.2`** |
+| **T7 31/10** | Họp: demo 13 UC Must; chấm Appendix D; C ký → **B tag `v0.2`** |
 | CN 01/11 | Dự phòng |
 
 ## 6. Vòng chất lượng tuần này
@@ -71,7 +71,7 @@
 
 ## 8. Nghiệm thu cuối tuần
 
-- [ ] 14/14 UC Must: mỗi UC có ≥ 1 TC Pass trong `runs.md` tuần này do người khác tác giả chạy
+- [ ] 13/13 UC Must: mỗi UC có ≥ 1 TC Pass trong `runs.md` tuần này do người khác tác giả chạy
 - [ ] Unit BR01–05, BR07 pass trong CI; TC-31 Pass
 - [ ] Appendix D có trong repo
 - [ ] Tag `v0.2`; 0 S1/S2 mở

@@ -23,7 +23,7 @@
 2. **Nền móng dùng chung, mỗi người một phần**, để tuần 5 cả ba code song song:
    - A: migration + tooling (thay `DB_SYNCHRONIZE`), lát cắt mẫu UC02 kèm hợp đồng `CurrentUser`, mẫu phân quyền, helper form-error; bảo vệ `main`.
    - B: `FefoAllocator`, `ExpiryPolicy` (có `Clock`), **`StockLedger`** (sổ append-only, khóa, invariant).
-   - C: mẫu phân quyền (chốt T3 06/10), **hạ tầng test + CI với PostgreSQL**, bảng test dạng nhật ký + TC-35…55.
+   - C: mẫu phân quyền (chốt T3 06/10), **hạ tầng test + CI với PostgreSQL**, bảng test dạng nhật ký + TC-35…63 (Proposal v1.1, Appendix C).
 3. B, C **học NestJS/TypeORM có cấu trúc** qua lát cắt mẫu.
 4. Tiếp nhận phản hồi Proposal nếu có.
 
@@ -47,7 +47,7 @@
 | — | B: **học NestJS/TypeORM** (module, provider, repository, transaction, lock, guard) qua lát cắt mẫu 4 · wireframe giao dịch **dạng phác thảo** 1 · họp 2,5 · review 1,5 | 9 | — | — | Wireframe (nguồn + PNG) | — |
 | W04-C1 | **Mẫu phân quyền** — chốt **T3 06/10**: ma trận 3 vai trò × permission; `actor` + `assertPermission()` trong service; JWT + `bcryptjs`; sequence đăng nhập | 3 | B | UC15/16 | `docs/design/access-control.md`; A dùng ngay trong lát cắt mẫu | #34 (nội dung đổi) |
 | W04-C2 | **Hạ tầng test + CI**: DB test riêng, reset mỗi lần chạy, helper e2e cho Vitest ESM (thay spec "Hello World"); GitHub Actions: PostgreSQL service → migration trên DB trống → build + lint + unit + e2e — **ngồi cặp với A** | 5 | B | W04-A2 | PR đỏ bị chặn merge; e2e chạy trong CI | #35 (nội dung đổi) |
-| W04-C3 | **Bảng test mới**: `test-cases.md` (định nghĩa: tác giả, người chạy, tuần khớp roadmap) + `runs.md` (nhật ký chạy ghi nối tiếp); **viết TC-35…55 có expected trước code**; định nghĩa **bộ hồi quy R**; TC-32 dùng ngưỡng khả dụng từ NFR | 4 | A | QĐ đã chốt | 55 TC, không TC nào thiếu expected; bộ R 15 TC | #36 (nội dung đổi) |
+| W04-C3 | **Bảng test mới**: `test-cases.md` (định nghĩa: tác giả, người chạy, tuần khớp roadmap) + `runs.md` (nhật ký chạy ghi nối tiếp); **viết TC-35…63 có expected trước code** (đã chép từ Appendix C ngày 12/10; C bổ sung bước và dữ liệu); định nghĩa **bộ hồi quy R**; TC-32 dùng ngưỡng khả dụng từ NFR | 4 | A | QĐ đã chốt | 63 TC, không TC nào thiếu expected; bộ R 15 TC | #36 (nội dung đổi) |
 | — | C: **học NestJS/TypeORM** qua lát cắt mẫu 3 · wireframe quản lý + đăng nhập dạng phác thảo 1,5 · họp 2,5 · review 1 | 8 | — | — | Wireframe | — |
 
 ## 4. Phân bổ giờ
@@ -91,7 +91,7 @@ T7 10/10  Họp: đi qua 3 luồng trên sơ đồ + code nền móng; retro
 - [ ] **B và C mỗi người merge ≥ 1 PR nền móng của mình** (B: `StockLedger`; C: CI) theo mẫu how-to
 - [ ] CI chạy migration trên DB trống + unit + e2e; `main` được bảo vệ
 - [ ] ≥ 10 test `BR01/02-*`, ≥ 3 test `BR05-*` pass
-- [ ] QĐ 10–18 có trạng thái; 55 TC có expected
+- [x] QĐ 10–18 có trạng thái (Proposal v1.1); 63 TC có expected trong `tests/manual/test-cases.md` (đồng bộ 12/10)
 - [ ] Mỗi người ≥ 1 PR merge và ≥ 1 review
 
 ## 9. Nếu không đạt

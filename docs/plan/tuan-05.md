@@ -23,7 +23,7 @@ Unit test BR01–03 và e2e đồng thời cơ bản xanh trong CI. **C tag `v0.
 ## 2. Điều kiện bắt đầu
 
 - [ ] Migration, lát cắt mẫu UC02, `CurrentUser`, `StockLedger`, `FefoAllocator`, CI trên `main` (tuần 4)
-- [ ] 55 TC có expected; `runs.md` sẵn sàng
+- [x] 63 TC có expected; `runs.md` sẵn sàng (12/10)
 - [ ] **T2 12/10: buổi ngồi cặp 1 giờ** A với B và C (đi qua lát cắt mẫu + `StockLedger` + mẫu phân quyền)
 
 ## 3. Việc theo thành viên

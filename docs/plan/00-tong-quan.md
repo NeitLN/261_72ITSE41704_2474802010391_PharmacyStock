@@ -58,7 +58,7 @@ Mã việc `Wtt-Xn` trùng mã Issue trên GitHub khi nội dung tương ứng. 
 | D4 | **Chia nền móng cho cả ba**: A (migration, lát cắt mẫu), B (`StockLedger`, `FefoAllocator`), C (phân quyền, hạ tầng test, CI) | Tránh "single hero"; mỗi người sở hữu một phần cốt lõi (§10 F2) |
 | D5 | **Quy tắc = lớp miền thuần, có unit test đặt tên `BRxx-…`**; thời gian truyền vào qua `Clock` / `asOfDate` | Test không cần UI, lặp lại được với ngày cố định (§10 F6) |
 | D6 | **Yêu cầu viết một lần bằng tiếng Anh** trong `docs/requirements/`; Proposal lấy từ đó. A làm **một đặc tả mẫu** trước để B, C theo | Chỉ còn 10 ngày đến Proposal |
-| D7 | **MoSCoW**: 14 UC Must (trên cận dưới 13) | Có biên an toàn nếu giám khảo không tính UC16 đăng nhập là một "journey" |
+| D7 | **MoSCoW**: 14 UC Must (trên cận dưới 13) — *Proposal v1.1: 13 Must + 3 Should, §13* | Có biên an toàn nếu giám khảo không tính UC16 đăng nhập là một "journey" |
 | D8 | **Mỗi người sở hữu 5–6 UC và tự viết phần báo cáo của UC mình** | Cân đóng góp; Appendix C mục tiêu ~33/33/33 (§10 F2) |
 | D9 | **Review chính theo vòng B↔C↔A; A là reviewer thứ hai bắt buộc cho PR nhãn `stock-integrity`** (sổ kho, cấp phát, trả, kiểm kê, xác thực) | Không dồn review cho A; vẫn giữ mắt kinh nghiệm ở chỗ rủi ro (§10 F3) |
 | D10 | **Người chạy test ≠ tác giả**; bảng test là **nhật ký chạy ghi nối tiếp**; Issue chỉ đóng sau khi người chạy test xác nhận Pass | Giữ bằng chứng "Fail → sửa → Pass" (§10 F4) |
@@ -214,7 +214,7 @@ Mã FR do từng người đặt ở tuần 2 (`FR-01…`). Ma trận đầy đ�
 | Nộp bài | — | — | W03-A3, W10-A3 | — | TC-34 (C) | CLO5 |
 | Git, cộng tác | — | — | Mọi tuần | CI | — | **CLO2**: cổng đóng góp hằng tuần (§6.7), 3 tag |
 
-**TC mới (viết ở W04-C3)**: 35 OTC lô hết hạn bị từ chối · 36 OTC thuốc kiểm soát bị từ chối · 37/38 BR07 đúng phần còn lại / vượt · 39 BR08 tự duyệt · 40/41 BR09 · 42 BR10 · 43 đăng nhập sai · 44 tài khoản bị khóa *(S)* · 45 UC01 tạo/trùng mã · 46 UC02 validation · 47 UC05 tạo đơn/thiếu trường · 48 UC04 tra cứu + lịch sử lô · 49 phiếu nhập hạn ≤ ngày nhập · 50 hàng trả kiểm soát/hết hạn · 51 điều chỉnh/hủy giữ invariant · 52 tổng hóa đơn thập phân · 53 vai trò × endpoint · 54 cấp vượt đồng thời · 55 OTC theo FEFO. TC-11 viết lại (bỏ "sai đơn vị" nếu BR06 bị cắt). **Tổng 55 TC.**
+**TC mới (viết ở W04-C3)** — *Proposal v1.1 có 63 TC (thêm TC-56…63, một số TC đổi nội dung); bảng hiện hành: `tests/manual/test-cases.md`*: 35 OTC lô hết hạn bị từ chối · 36 OTC thuốc kiểm soát bị từ chối · 37/38 BR07 đúng phần còn lại / vượt · 39 BR08 tự duyệt · 40/41 BR09 · 42 BR10 · 43 đăng nhập sai · 44 tài khoản bị khóa *(S)* · 45 UC01 tạo/trùng mã · 46 UC02 validation · 47 UC05 tạo đơn/thiếu trường · 48 UC04 tra cứu + lịch sử lô · 49 phiếu nhập hạn ≤ ngày nhập · 50 hàng trả kiểm soát/hết hạn · 51 điều chỉnh/hủy giữ invariant · 52 tổng hóa đơn thập phân · 53 vai trò × endpoint · 54 cấp vượt đồng thời · 55 OTC theo FEFO. TC-11 viết lại (bỏ "sai đơn vị" nếu BR06 bị cắt). **Tổng 55 TC.**
 
 ---
 

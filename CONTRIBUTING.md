@@ -87,8 +87,8 @@ A task is done when all of the following hold:
 
 | Tag | Week | Contents |
 |---|---|---|
-| `v0.1` | 5 | One full flow works: receive → dispense → sell, with data persisting |
-| `v0.2` | 7 | All 14 Must use cases run end to end |
+| `v0.1` | 5 | One full flow works: sign in → receive → take in a prescription → dispense, with data persisting |
+| `v0.2` | 7 | All 13 Must use cases run end to end (Must-core gate) |
 | `v1.0` | 9 | Feature freeze; packaged and runnable from a fresh clone |
 
 Do not move an existing tag. If a fix is needed after `v1.0`, tag the fix

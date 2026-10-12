@@ -8,8 +8,8 @@ export function ReportsPage() {
       useCases={[
         'UC09 — Conduct a stock take (BR08)',
         'UC10 — Review low-stock alerts',
-        'UC11 — Review expiry alerts and write off expired stock',
-        'UC12 — Produce a turnover report',
+        'UC11 — Review expiry alerts, batch status and quarantined stock',
+        'UC12 — Produce a stock movement report',
       ]}
     />
   );

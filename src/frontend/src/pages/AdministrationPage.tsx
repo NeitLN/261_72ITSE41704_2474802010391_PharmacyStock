@@ -6,7 +6,7 @@ export function AdministrationPage() {
       title="Users, roles & permissions"
       owner="Võ Hoàng Minh (C)"
       useCases={[
-        'UC15 — Manage users, roles and permissions',
+        'UC15 — Manage users, roles and permissions (Should)',
         'UC16 — Sign in and sign out',
       ]}
     />

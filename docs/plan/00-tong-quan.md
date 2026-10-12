@@ -120,7 +120,7 @@ Yêu cầu + tiêu chí chấp nhận (FR-xx, luồng thay thế)
 - Nhánh `feature/uc06-dispense`, `fix/123-negative-stock`, `docs/…`. Không commit thẳng `main`.
 - **Bảo vệ `main`** (A bật 12/10, trễ từ tuần 4): bắt buộc PR, 1 approve khác tác giả, approve cũ bị hủy khi có commit mới. Check CI bắt buộc được thêm khi workflow CI của W04-C2 chạy trên `main`. Admin không bị áp luật (để không kẹt khi reviewer vắng), nhưng mỗi lần merge không có approve phải ghi lý do trong PR và journal.
 - **Mẫu PR**: UC/FR/BR/TC liên quan · đã test thế nào · **"Reviewer đã chạy: lệnh + TC"**.
-- PR mục tiêu < 400 dòng; reviewer phản hồi **trong 24 giờ**; mỗi người merge vào `main` **ít nhất 2 lần/tuần** trong tuần 5–8.
+- PR mục tiêu < 400 dòng; reviewer phản hồi **trong 24 giờ**. Theo Proposal §2.4: từ tuần 4 đến 9, mỗi tuần mỗi người merge **ít nhất 1 PR có review** cho phần của mình và **review ít nhất 1 PR** của người khác (sửa 12/10, trước đây ghi "2 lần/tuần"). Kiểm tra bằng minh chứng (link PR, review), không chia nhỏ PR để đủ số.
 - **Migration**: mỗi PR tối đa một migration, sinh **sau khi rebase** lên `main`; CI chạy migration + seed trên DB trống. A là **người giữ schema và seed** (1 giờ/tuần, tuần 5–8).
 - **Ma trận review** (người chính → A là người thứ hai nếu PR có nhãn `stock-integrity`):
 
@@ -374,7 +374,7 @@ Bản 1 được **4 agent AI độc lập** rà soát, mỗi agent chỉ đọc
 ### 13.1 Tình hình
 
 - Repo không có commit nào từ 25/09 đến 12/10. Proposal v1.1 được nộp 11/10 (bản đầu 04/10), ngoài repo; biên nhận nộp chưa được đính vào #19–#21.
-- Ngày 12/10, A hoàn thành toàn bộ việc của A tuần 2–5 thành các PR xếp chồng, **chưa merge, chưa có review**: #93 (W04-A1), #94 (W04-A2, sau #91), #95 (W04-A3), #96 (`StockLedger`), #97 (W05-A1), #99 (W05-A2), #100 (W05-A3), cùng PR tài liệu này (W02-A3, #12). Mỗi PR lớn được Codex review chỉ-đọc; lỗi tìm được đã sửa trong cùng PR, có test hồi quy.
+- Ngày 12/10, A **làm xong (chưa được nghiệm thu)** toàn bộ việc của A tuần 2–5 trong các PR xếp chồng, **chưa merge, chưa có review**: #93 (W04-A1), #94 (W04-A2, sau #91), #95 (W04-A3), #96 (`StockLedger`), #97 (W05-A1), #99 (W05-A2), #100 (W05-A3), cùng PR tài liệu này (W02-A3, #12). Mỗi PR lớn được Codex review chỉ-đọc; lỗi tìm được đã sửa trong cùng PR, có test hồi quy.
 - B và C chưa có PR nào cho tuần 2–4. Minh mở PR đầu tiên #98 (W02-C2) tối 12/10.
 - Cách làm việc có hỗ trợ AI (Claude Code, Codex) được ghi để khai báo ở Appendix B của báo cáo cuối.
 
@@ -387,11 +387,11 @@ Bản 1 được **4 agent AI độc lập** rà soát, mỗi agent chỉ đọc
 | 3 | `StockLedger` | Chuyển từ W04-B3 (B) sang A, theo Proposal v1.1 (module M3 của Tiến). B giữ `FefoAllocator`/`ExpiryPolicy` và xây cấp phát trên API ledger |
 | 4 | Phân quyền khi chưa có mẫu của C | A làm khung tạm: `Actor` + `assertPermission` + ma trận Bảng 2.4 lưu trong DB + `DevAuthGuard` (`AUTH_MODE=dev`). C thay guard bằng JWT ở #43 mà không sửa service |
 | 5 | Tuần 7–8 | Theo Proposal Bảng 2.9: Should (UC13, màn hình UC14, UC15, FR-46/47) chỉ làm sau **cổng Must-core** tuần 7; tuần 7 của A là trạng thái lô và cách ly trong ledger (`tuan-07.md`, `tuan-08.md`) |
-| 6 | R1 (báo GV) | **Không báo GV.** Trưởng nhóm xác nhận cả ba đang làm; phần việc của Duy Anh và Minh chưa lên GitHub sẽ lên qua PR từ tuần 5. Theo dõi bằng cổng đóng góp hằng tuần (§6.7, Proposal §2.4); nếu một tuần trôi qua mà một thành viên không có PR nào, xem lại quyết định này và ghi journal |
+| 6 | R1 (báo GV) | **Không báo GV.** Trưởng nhóm xác nhận cả ba đang làm; phần việc của Duy Anh và Minh chưa lên GitHub sẽ lên qua PR từ tuần 5. Theo dõi bằng cổng đóng góp hằng tuần (§6.7, Proposal §2.4) và báo cáo tuần `docs/progress/`. **Xem lại vào T4 21/10**: nếu đến hôm đó một thành viên chưa có PR nào của phần mình, trưởng nhóm báo GV (FAQ: báo sớm) và ghi journal |
 
 ### 13.3 Việc còn mở
 
-- **R1**: lịch sử GitHub đến 12/10 chỉ có PR của Tiến và một PR của Minh (#98); trưởng nhóm xác nhận cả nhóm đang làm và quyết định không báo GV (§13.2 số 6). Mỗi T4 đối chiếu danh sách PR và biểu đồ contributor, ghi vào journal.
+- **R1**: lịch sử GitHub đến 12/10 chỉ có PR của Tiến và một PR của Minh (#98); trưởng nhóm xác nhận cả nhóm đang làm và chưa báo GV (§13.2 số 6, xem lại T4 21/10). Mỗi T4 ghi phần kiểm tra đóng góp vào báo cáo tuần: PR đã merge và đang mở của từng người, review đã làm, vướng mắc, cam kết có ngày.
 - Phản hồi của GV về Proposal: chưa có → phần còn lại của W04-A1.
 - Theo dõi DEC-09, DEC-10 với dược sĩ (tuần 5, A).
 - Giờ trong bảng tuần 7–8 chưa cân lại sau khi đổi việc; cân ở retro.

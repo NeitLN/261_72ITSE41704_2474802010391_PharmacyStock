@@ -9,7 +9,7 @@
 ## Cập nhật 12/10/2026
 
 - **A**: W05-A1 UC01 → PR #97 · W05-A2 UC03 → PR #99 · W05-A3 seed → PR #100 (thêm 12 bệnh nhân và 7 bác sĩ để UC05 của B chọn được ngay). Chờ C review và người khác tác giả chạy TC-01, 03, 45, 46, 49.
-- **Điều kiện bắt đầu** của B và C đã có trong PR #94–#96 (chưa merge): migration, lát cắt mẫu, `Actor`, `StockLedger`. Chưa có: CI (W04-C2) và bảng TC-35…63 (W04-C3) của C.
+- **Điều kiện bắt đầu** của B và C đã có trong PR #94–#96 (chưa merge): migration, lát cắt mẫu, `Actor`, `StockLedger`. Chưa có: CI (W04-C2). Bảng 63 TC đã chép từ Appendix C ở #102; C bổ sung bước, dữ liệu và bộ hồi quy R (W04-C3).
 - **Đăng nhập**: tạm dùng `DevAuthGuard` (chọn user mẫu ở thanh trên). W05-C1/C2 thay bằng JWT, chỉ cần sinh ra cùng `Actor`; service không đổi.
 - **Buổi ngồi cặp T2 12/10** chưa diễn ra; dời sang ngày gần nhất cả ba có mặt, nội dung: `how-to-add-a-module.md` + `stock-ledger.md`.
 - v0.1 vẫn cần UC05/UC06 (B) và đăng nhập (C). Nếu T5 15/10 chưa có PR của B hoặc C: áp dụng phương án khi trễ ở cuối file và ghi journal.

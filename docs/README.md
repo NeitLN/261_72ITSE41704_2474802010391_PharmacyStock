@@ -5,6 +5,7 @@
 | [`plan/`](plan/) | **Ten-week plan**: overview (scope, quality process, traceability, risks) and one file per week with tasks, hours, reviewers and acceptance criteria. Written in Vietnamese | Updated when the plan changes |
 | [`course-requirements.md`](course-requirements.md) | What the course measures, taken from the three course PDFs. Read this before planning anything. | — |
 | [`registration-appendix-a.md`](registration-appendix-a.md) | Content for the Week 1 registration form | Week 1 |
+| [`progress/`](progress/README.md) | **Weekly progress reports for the lecturer**: planned vs delivered with evidence links, each member's activity, what slipped | Every week (closed on Sunday) |
 | [`journal.md`](journal.md) | Session-by-session record of what changed, who did it and what is next | Every session |
 | [`requirements/`](requirements/) | Use cases and their specifications, business rules, business decisions (DEC-01–10) and the pharmacist review, functional and non-functional requirements — all as in Proposal v1.1 | Kept current |
 | [`design/`](design/) | Domain model, stock ledger and lock protocol, how to add a module | Kept current |

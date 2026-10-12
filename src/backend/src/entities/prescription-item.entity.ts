@@ -1,4 +1,5 @@
 import {
+  Check,
   Column,
   Entity,
   JoinColumn,
@@ -16,10 +17,16 @@ import { DispenseLine } from './dispense-line.entity.js';
  *
  * This is what was *prescribed*; DispenseLine records what was *issued*, and
  * the two differ whenever a prescription is dispensed over several visits or
- * FEFO draws from more than one batch. Comparing them is what stops a
- * prescription being dispensed twice (BR07).
+ * FEFO draws from more than one batch. `quantityDispensed` caches the sum of
+ * the dispense lines, and a CHECK keeps it within the prescribed quantity
+ * (BR07) as a safety net behind the service check.
  */
 @Entity('prescription_items')
+@Check('ck_prescription_items_quantity', '"quantityPrescribed" > 0')
+@Check(
+  'ck_prescription_items_dispensed',
+  '"quantityDispensed" >= 0 AND "quantityDispensed" <= "quantityPrescribed"',
+)
 export class PrescriptionItem {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -27,8 +34,21 @@ export class PrescriptionItem {
   @Column({ type: 'int' })
   quantityPrescribed: number;
 
-  @Column({ nullable: true })
-  dosageInstruction: string;
+  @Column({ type: 'int', default: 0 })
+  quantityDispensed: number;
+
+  /** Strength as written on the prescription, e.g. "500 mg" (DEC-03). */
+  @Column()
+  strength: string;
+
+  @Column()
+  dose: string;
+
+  @Column()
+  route: string;
+
+  @Column({ type: 'int' })
+  daysOfUse: number;
 
   @ManyToOne(() => Prescription, (prescription) => prescription.items, {
     nullable: false,

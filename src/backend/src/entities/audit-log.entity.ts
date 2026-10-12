@@ -39,6 +39,6 @@ export class AuditLog {
   @JoinColumn({ name: 'performed_by_id' })
   performedBy: Relation<User>;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   occurredAt: Date;
 }

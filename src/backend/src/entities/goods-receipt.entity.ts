@@ -7,30 +7,31 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   type Relation,
+  Unique,
 } from 'typeorm';
 import { Supplier } from './supplier.entity.js';
-import { Batch } from './batch.entity.js';
 import { GoodsReceiptLine } from './goods-receipt-line.entity.js';
 import { User } from './user.entity.js';
 
 /** A delivery of stock from a supplier (UC03). */
 @Entity('goods_receipts')
+@Unique('uq_goods_receipt_supplier_document', ['supplier', 'documentNumber'])
 export class GoodsReceipt {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  /** Supplier document number, used to reject duplicate entry (TC-03). */
-  @Column({ unique: true })
-  referenceNumber: string;
+  /** The supplier's document number; a second receipt with it is refused (FR-08, TC-03). */
+  @Column()
+  documentNumber: string;
 
   @Column({ type: 'date' })
-  receivedDate: string;
+  receiptDate: string;
 
-  @Column({ type: 'numeric', precision: 12, scale: 2, default: 0 })
+  @Column({ type: 'numeric', precision: 14, scale: 2, default: 0 })
   totalCost: string;
 
-  @Column({ nullable: true })
-  note: string;
+  @Column({ type: 'varchar', nullable: true })
+  note: string | null;
 
   @ManyToOne(() => Supplier, (supplier) => supplier.goodsReceipts, {
     nullable: false,
@@ -41,13 +42,10 @@ export class GoodsReceipt {
   @OneToMany(() => GoodsReceiptLine, (line) => line.goodsReceipt)
   lines: GoodsReceiptLine[];
 
-  @OneToMany(() => Batch, (batch) => batch.goodsReceipt)
-  batches: Batch[];
-
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'received_by_id' })
   receivedBy: Relation<User>;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 }

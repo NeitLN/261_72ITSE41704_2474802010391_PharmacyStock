@@ -38,6 +38,6 @@ export class Customer {
   @OneToMany(() => Prescription, (prescription) => prescription.customer)
   prescriptions: Prescription[];
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 }

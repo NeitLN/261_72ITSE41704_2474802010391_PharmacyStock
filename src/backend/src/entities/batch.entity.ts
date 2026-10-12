@@ -1,4 +1,5 @@
 import {
+  Check,
   Column,
   CreateDateColumn,
   Entity,
@@ -10,30 +11,34 @@ import {
   Unique,
 } from 'typeorm';
 import { Medicine } from './medicine.entity.js';
-import { GoodsReceipt } from './goods-receipt.entity.js';
 import { StockMovement } from './stock-movement.entity.js';
+import { User } from './user.entity.js';
 
+/**
+ * Whether a batch may be issued at all (DEC-07, FR-48). Expiry is not a
+ * status: it is computed from `expiryDate` against the business date (BR02).
+ */
 export enum BatchStatus {
-  /** Available for dispensing and sale. */
-  AVAILABLE = 'available',
-  /** Held aside — a return under review, or a recall. Not dispensable. */
-  QUARANTINED = 'quarantined',
-  /** Past its expiry date. Never dispensable (BR02). */
-  EXPIRED = 'expired',
-  /** Written off after a stock take or damage. */
-  WRITTEN_OFF = 'written_off',
+  ACTIVE = 'active',
+  ON_HOLD = 'on_hold',
+  RECALLED = 'recalled',
+  REJECTED = 'rejected',
 }
 
 /**
  * A single delivered lot of one medicine, with its own expiry date.
- * FEFO dispensing (BR01) picks among AVAILABLE batches by expiryDate ascending.
  *
- * TODO (open decision 6.4-1): confirm whether expiryDate is stored as a full
- * date or as year-month, and whether a batch expiring exactly on the
- * transaction date may still be dispensed.
+ * Quantity is split by stock state (DEC-04): sellable stock can be issued,
+ * quarantine holds returned goods waiting for assessment, and pending
+ * destruction holds written-off or rejected goods until a destruction record
+ * is made. Each column is a cache of the sum of the batch's stock movements in
+ * that state (BR05); only StockLedger changes them.
  */
 @Entity('batches')
 @Unique('uq_batch_medicine_number', ['medicine', 'batchNumber'])
+@Check('ck_batches_qty_sellable', '"qtySellable" >= 0')
+@Check('ck_batches_qty_quarantine', '"qtyQuarantine" >= 0')
+@Check('ck_batches_qty_pending_destruction', '"qtyPendingDestruction" >= 0')
 export class Batch {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -41,19 +46,39 @@ export class Batch {
   @Column()
   batchNumber: string;
 
+  /** A label with only month and year is stored as the last day of that month (DEC-01). */
   @Column({ type: 'date' })
   expiryDate: string;
 
-  /** Current quantity on hand, in the medicine's base unit. Never negative (BR03). */
   @Column({ type: 'int', default: 0 })
-  quantityOnHand: number;
+  qtySellable: number;
 
-  @Column({ type: 'enum', enum: BatchStatus, default: BatchStatus.AVAILABLE })
+  @Column({ type: 'int', default: 0 })
+  qtyQuarantine: number;
+
+  @Column({ type: 'int', default: 0 })
+  qtyPendingDestruction: number;
+
+  @Column({ type: 'enum', enum: BatchStatus, default: BatchStatus.ACTIVE })
   status: BatchStatus;
 
-  /** Purchase cost per base unit, used for turnover valuation (UC12). */
-  @Column({ type: 'numeric', precision: 12, scale: 2, nullable: true })
+  @Column({ type: 'varchar', nullable: true })
+  statusReason: string | null;
+
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'status_changed_by_id' })
+  statusChangedBy: Relation<User> | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  statusChangedAt: Date | null;
+
+  /** Cost per base unit from the first receipt; values stock in the movement report (DEC-06). */
+  @Column({ type: 'numeric', precision: 12, scale: 2 })
   unitCost: string;
+
+  /** When the batch was first received. Breaks FEFO ties (DEC-07). */
+  @Column({ type: 'timestamptz' })
+  receivedAt: Date;
 
   @ManyToOne(() => Medicine, (medicine) => medicine.batches, {
     nullable: false,
@@ -61,15 +86,9 @@ export class Batch {
   @JoinColumn({ name: 'medicine_id' })
   medicine: Relation<Medicine>;
 
-  @ManyToOne(() => GoodsReceipt, (receipt) => receipt.batches, {
-    nullable: true,
-  })
-  @JoinColumn({ name: 'goods_receipt_id' })
-  goodsReceipt: Relation<GoodsReceipt>;
-
   @OneToMany(() => StockMovement, (movement) => movement.batch)
   movements: StockMovement[];
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 }

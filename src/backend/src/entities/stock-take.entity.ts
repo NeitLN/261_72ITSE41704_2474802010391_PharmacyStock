@@ -12,10 +12,12 @@ import { StockTakeLine } from './stock-take-line.entity.js';
 import { User } from './user.entity.js';
 
 export enum StockTakeStatus {
-  DRAFT = 'draft',
+  /** Opened; counted quantities are being entered. */
   COUNTING = 'counting',
-  /** Counted quantities have been posted as adjustments; no further edits. */
-  POSTED = 'posted',
+  /** Submitted by the counter; waiting for a different user to approve (BR08). */
+  PENDING_APPROVAL = 'pending_approval',
+  /** Differences posted as ADJUSTMENT movements; no further edits. */
+  APPROVED = 'approved',
   CANCELLED = 'cancelled',
 }
 
@@ -32,31 +34,39 @@ export class StockTake {
   @Column({ unique: true })
   referenceNumber: string;
 
-  @Column({ type: 'date' })
-  countedDate: string;
-
   @Column({
     type: 'enum',
     enum: StockTakeStatus,
-    default: StockTakeStatus.DRAFT,
+    default: StockTakeStatus.COUNTING,
   })
   status: StockTakeStatus;
 
-  @Column({ nullable: true })
-  note: string;
+  @Column({ type: 'varchar', nullable: true })
+  note: string | null;
 
   @OneToMany(() => StockTakeLine, (line) => line.stockTake)
   lines: StockTakeLine[];
 
   @ManyToOne(() => User, { nullable: false })
+  @JoinColumn({ name: 'opened_by_id' })
+  openedBy: Relation<User>;
+
+  /** The user who submitted the counts. */
+  @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'counted_by_id' })
-  countedBy: Relation<User>;
+  countedBy: Relation<User> | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  submittedAt: Date | null;
 
   /** Must differ from countedBy: a count is approved by someone else (BR08). */
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'approved_by_id' })
-  approvedBy: Relation<User>;
+  approvedBy: Relation<User> | null;
 
-  @CreateDateColumn()
+  @Column({ type: 'timestamptz', nullable: true })
+  approvedAt: Date | null;
+
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 }

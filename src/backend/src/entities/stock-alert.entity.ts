@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -12,7 +13,10 @@ import { Batch } from './batch.entity.js';
 import { User } from './user.entity.js';
 
 export enum AlertType {
+  /** Sellable quantity above zero and at or below the reorder level (DEC-08). */
   LOW_STOCK = 'low_stock',
+  /** Sellable quantity is zero (DEC-08). */
+  OUT_OF_STOCK = 'out_of_stock',
   EXPIRING_SOON = 'expiring_soon',
   EXPIRED = 'expired',
 }
@@ -28,10 +32,19 @@ export enum AlertStatus {
  * A raised stock alert (UC10, UC11).
  *
  * Alerts are stored rather than computed on every page load so that the team
- * can show who saw an alert and when it was acted on — the evidence the
- * pharmacy needs when expired stock is found at the counter.
+ * can show who saw an alert and when it was acted on. At most one unresolved
+ * stock-level alert exists per medicine, and at most one unresolved expiry
+ * alert per batch (partial unique indexes, decision 16).
  */
 @Entity('stock_alerts')
+@Index('uq_stock_alerts_open_level', ['medicine'], {
+  unique: true,
+  where: `"type" IN ('low_stock', 'out_of_stock') AND "status" <> 'resolved'`,
+})
+@Index('uq_stock_alerts_open_expiry', ['batch'], {
+  unique: true,
+  where: `"type" IN ('expiring_soon', 'expired') AND "status" <> 'resolved'`,
+})
 export class StockAlert {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -49,18 +62,21 @@ export class StockAlert {
   @JoinColumn({ name: 'medicine_id' })
   medicine: Relation<Medicine>;
 
-  /** Null for a low-stock alert, which is about the medicine as a whole. */
+  /** Null for a stock-level alert, which is about the medicine as a whole. */
   @ManyToOne(() => Batch, { nullable: true })
   @JoinColumn({ name: 'batch_id' })
-  batch: Relation<Batch>;
+  batch: Relation<Batch> | null;
 
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'acknowledged_by_id' })
-  acknowledgedBy: Relation<User>;
+  acknowledgedBy: Relation<User> | null;
 
-  @Column({ type: 'timestamp', nullable: true })
-  acknowledgedAt: Date;
+  @Column({ type: 'timestamptz', nullable: true })
+  acknowledgedAt: Date | null;
 
-  @CreateDateColumn()
+  @Column({ type: 'timestamptz', nullable: true })
+  resolvedAt: Date | null;
+
+  @CreateDateColumn({ type: 'timestamptz' })
   raisedAt: Date;
 }

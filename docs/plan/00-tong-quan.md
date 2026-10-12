@@ -387,10 +387,11 @@ Bản 1 được **4 agent AI độc lập** rà soát, mỗi agent chỉ đọc
 | 3 | `StockLedger` | Chuyển từ W04-B3 (B) sang A, theo Proposal v1.1 (module M3 của Tiến). B giữ `FefoAllocator`/`ExpiryPolicy` và xây cấp phát trên API ledger |
 | 4 | Phân quyền khi chưa có mẫu của C | A làm khung tạm: `Actor` + `assertPermission` + ma trận Bảng 2.4 lưu trong DB + `DevAuthGuard` (`AUTH_MODE=dev`). C thay guard bằng JWT ở #43 mà không sửa service |
 | 5 | Tuần 7–8 | Theo Proposal Bảng 2.9: Should (UC13, màn hình UC14, UC15, FR-46/47) chỉ làm sau **cổng Must-core** tuần 7; tuần 7 của A là trạng thái lô và cách ly trong ledger (`tuan-07.md`, `tuan-08.md`) |
+| 6 | R1 (báo GV) | **Không báo GV.** Trưởng nhóm xác nhận cả ba đang làm; phần việc của Duy Anh và Minh chưa lên GitHub sẽ lên qua PR từ tuần 5. Theo dõi bằng cổng đóng góp hằng tuần (§6.7, Proposal §2.4); nếu một tuần trôi qua mà một thành viên không có PR nào, xem lại quyết định này và ghi journal |
 
 ### 13.3 Việc còn mở
 
-- **R1 vẫn đang xảy ra** (B: 0 PR; C: 1 PR mở). Hướng xử lý của §9.1 (báo GV, ghi journal) do trưởng nhóm quyết; quy tắc đóng góp từ tuần 4 của Proposal §2.4 áp dụng từ tuần 5.
+- **R1**: lịch sử GitHub đến 12/10 chỉ có PR của Tiến và một PR của Minh (#98); trưởng nhóm xác nhận cả nhóm đang làm và quyết định không báo GV (§13.2 số 6). Mỗi T4 đối chiếu danh sách PR và biểu đồ contributor, ghi vào journal.
 - Phản hồi của GV về Proposal: chưa có → phần còn lại của W04-A1.
 - Theo dõi DEC-09, DEC-10 với dược sĩ (tuần 5, A).
 - Giờ trong bảng tuần 7–8 chưa cân lại sau khi đổi việc; cân ở retro.

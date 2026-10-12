@@ -171,6 +171,10 @@ exist. Points marked _(fill in)_ need the team's own account.
 - No pull request has a review yet. Under the new rotation Minh reviews
   Tiến's pull requests.
 - v0.1 still needs UC05/UC06 (Duy Anh) and sign-in (Minh).
+- Risk R1: on GitHub only Tiến's pull requests and Minh's first one (#98)
+  exist so far. The team leader confirms that all three are working and
+  decides not to report to the lecturer; contributions are checked every
+  Wednesday from the pull-request list and the contributor graph.
 
 **Next — rest of week 5**
 
@@ -181,4 +185,4 @@ exist. Points marked _(fill in)_ need the team's own account.
 | UC05, UC06 on the ledger API; BR01–03 tests | Duy Anh (B) | Sat 17/10 |
 | Sign-in (JWT) replacing `DevAuthGuard`; CI with PostgreSQL | Minh (C) | Thu 15/10 |
 | Follow up DEC-09, DEC-10 with the pharmacist | Tiến (A) | Sun 18/10 |
-| Decide on reporting R1 to the lecturer | Tiến (A) | Wed 14/10 |
+| Weekly contribution check (PR list and contributor graph) at the Wednesday meeting | Tiến (A) | Wed 14/10 |

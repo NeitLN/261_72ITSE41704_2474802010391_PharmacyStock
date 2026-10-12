@@ -61,14 +61,20 @@ export class SuppliersService {
     dto: UpdateSupplierDto,
   ): Promise<Supplier> {
     assertPermission(actor, Permission.SUPPLIER_MANAGE);
-    const supplier = await this.findOrFail(id);
-    if (dto.name !== undefined) supplier.name = dto.name;
-    if (dto.phone !== undefined) supplier.phone = dto.phone;
-    if (dto.address !== undefined) supplier.address = dto.address;
+    await this.findOrFail(id);
+    // Write only the columns the request sent, so a concurrent change to
+    // another column (e.g. a deactivation) is never overwritten by a stale copy.
+    const changes: Partial<Supplier> = {};
+    if (dto.name !== undefined) changes.name = dto.name;
+    if (dto.phone !== undefined) changes.phone = dto.phone;
+    if (dto.address !== undefined) changes.address = dto.address;
     if (dto.contactPerson !== undefined)
-      supplier.contactPerson = dto.contactPerson;
-    if (dto.email !== undefined) supplier.email = dto.email;
-    return this.suppliers.save(supplier);
+      changes.contactPerson = dto.contactPerson;
+    if (dto.email !== undefined) changes.email = dto.email;
+    if (Object.keys(changes).length > 0) {
+      await this.suppliers.update({ id }, changes);
+    }
+    return this.findOrFail(id);
   }
 
   /**
@@ -81,9 +87,9 @@ export class SuppliersService {
     active: boolean,
   ): Promise<Supplier> {
     assertPermission(actor, Permission.SUPPLIER_MANAGE);
-    const supplier = await this.findOrFail(id);
-    supplier.isActive = active;
-    return this.suppliers.save(supplier);
+    await this.findOrFail(id);
+    await this.suppliers.update({ id }, { isActive: active });
+    return this.findOrFail(id);
   }
 
   private async findOrFail(id: string): Promise<Supplier> {

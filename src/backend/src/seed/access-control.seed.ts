@@ -36,9 +36,18 @@ const NO_PASSWORD = '!';
 
 /**
  * Writes the permission matrix (Proposal Table 2.4) and the sample accounts.
- * Safe to run again: existing rows are updated, not duplicated.
+ *
+ * Safe to run again without undoing changes made in the application (UC15):
+ * a role that already exists keeps its grants and only receives permissions
+ * that are new in this run; a sample account that already exists keeps its
+ * role and name.
  */
 export async function seedAccessControl(manager: EntityManager): Promise<void> {
+  const existingCodes = new Set(
+    (await manager.find(Permission, { select: { code: true } })).map(
+      (p) => p.code,
+    ),
+  );
   await manager.upsert(
     Permission,
     Object.values(PermissionCode).map((code) => ({
@@ -51,24 +60,37 @@ export async function seedAccessControl(manager: EntityManager): Promise<void> {
   const byCode = new Map(permissions.map((p) => [p.code, p]));
 
   for (const code of Object.values(RoleCode)) {
-    const role =
-      (await manager.findOne(Role, { where: { code } })) ??
-      manager.create(Role, { code });
-    role.name = ROLE_NAMES[code];
-    role.permissions = ROLE_PERMISSIONS[code].map((p) => byCode.get(p)!);
-    await manager.save(role);
+    const existing = await manager.findOne(Role, {
+      where: { code },
+      relations: { permissions: true },
+    });
+    if (!existing) {
+      await manager.save(
+        manager.create(Role, {
+          code,
+          name: ROLE_NAMES[code],
+          permissions: ROLE_PERMISSIONS[code].map((p) => byCode.get(p)!),
+        }),
+      );
+      continue;
+    }
+    const added = ROLE_PERMISSIONS[code].filter((p) => !existingCodes.has(p));
+    if (added.length > 0) {
+      existing.permissions.push(...added.map((p) => byCode.get(p)!));
+      await manager.save(existing);
+    }
   }
 
   for (const sample of SAMPLE_USERS) {
+    if (await manager.existsBy(User, { username: sample.username })) continue;
     const role = await manager.findOneByOrFail(Role, { code: sample.role });
-    const user =
-      (await manager.findOne(User, { where: { username: sample.username } })) ??
+    await manager.save(
       manager.create(User, {
         username: sample.username,
         passwordHash: NO_PASSWORD,
-      });
-    user.fullName = sample.fullName;
-    user.role = role;
-    await manager.save(user);
+        fullName: sample.fullName,
+        role,
+      }),
+    );
   }
 }

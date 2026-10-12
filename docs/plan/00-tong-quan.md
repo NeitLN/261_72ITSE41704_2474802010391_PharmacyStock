@@ -117,7 +117,7 @@ Yêu cầu + tiêu chí chấp nhận (FR-xx, luồng thay thế)
 ### 6.2 Nhánh, PR, bảo vệ `main`
 
 - Nhánh `feature/uc06-dispense`, `fix/123-negative-stock`, `docs/…`. Không commit thẳng `main`.
-- **Bảo vệ `main`** (A bật ở tuần 4): bắt buộc PR, 1 approve khác tác giả, CI xanh, approve cũ bị hủy khi có commit mới.
+- **Bảo vệ `main`** (A bật 12/10, trễ từ tuần 4): bắt buộc PR, 1 approve khác tác giả, approve cũ bị hủy khi có commit mới. Check CI bắt buộc được thêm khi workflow CI của W04-C2 chạy trên `main`. Admin không bị áp luật (để không kẹt khi reviewer vắng), nhưng mỗi lần merge không có approve phải ghi lý do trong PR và journal.
 - **Mẫu PR**: UC/FR/BR/TC liên quan · đã test thế nào · **"Reviewer đã chạy: lệnh + TC"**.
 - PR mục tiêu < 400 dòng; reviewer phản hồi **trong 24 giờ**; mỗi người merge vào `main` **ít nhất 2 lần/tuần** trong tuần 5–8.
 - **Migration**: mỗi PR tối đa một migration, sinh **sau khi rebase** lên `main`; CI chạy migration + seed trên DB trống. A là **người giữ schema và seed** (1 giờ/tuần, tuần 5–8).
@@ -125,9 +125,11 @@ Yêu cầu + tiêu chí chấp nhận (FR-xx, luồng thay thế)
 
 | Tác giả | Reviewer chính | Reviewer dự phòng khi vắng |
 |---|---|---|
-| A | B | C |
-| B | C | A |
-| C | A | B |
+| A | C | B |
+| B | A | C |
+| C | B | A |
+
+Đổi từ tuần 5 (quyết định trưởng nhóm 12/10, thay vòng A→B→C→A của Proposal §2.4). Workflow `.github/workflows/assign-reviewer.yml` tự yêu cầu reviewer chính khi mở PR. Mỗi người chỉ approve bằng tài khoản của chính mình, sau khi đã chạy nhánh.
 
 ### 6.3 Checklist review
 

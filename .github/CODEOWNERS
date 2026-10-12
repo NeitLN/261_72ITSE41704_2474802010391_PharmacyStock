@@ -1,0 +1,7 @@
+# The stock ledger, the schema and the seed are kept by Tiến (docs/plan/00-tong-quan.md §6.2).
+# Changes here request Tiến as a second reviewer next to the rotation reviewer.
+# Code-owner approval is not required by branch protection, so a PR by Tiến is
+# never blocked on its own author.
+/src/backend/src/stock/       @NeitLN
+/src/backend/src/migrations/  @NeitLN
+/src/backend/src/seed/        @NeitLN

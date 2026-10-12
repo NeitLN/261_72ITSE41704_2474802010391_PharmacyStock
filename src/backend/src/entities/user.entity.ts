@@ -34,9 +34,9 @@ export class User {
   @Column({ default: true })
   isActive: boolean;
 
-  @Column({ type: 'timestamp', nullable: true })
-  lastLoginAt: Date;
+  @Column({ type: 'timestamptz', nullable: true })
+  lastLoginAt: Date | null;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 }

@@ -1,4 +1,5 @@
 import {
+  Check,
   Column,
   Entity,
   JoinColumn,
@@ -8,24 +9,22 @@ import {
 } from 'typeorm';
 import { SaleReturn } from './sale-return.entity.js';
 import { SaleLine } from './sale-line.entity.js';
+import { User } from './user.entity.js';
 
 /**
- * How a returned item re-enters stock.
- *
- * TODO (open decision 6.4-4): confirm which of these a returned medicine may
- * take, and whether RESTOCKED items may be dispensed again.
+ * Where a returned item stands (BR11, DEC-04). A return always enters the
+ * quarantine of its original batch as PENDING_ASSESSMENT; a manager then
+ * releases it to sellable stock or rejects it to pending destruction (FR-46).
  */
-export enum ReturnDisposition {
-  /** Returned to saleable stock on its original batch. */
-  RESTOCKED = 'restocked',
-  /** Held aside, not available for dispensing. */
-  QUARANTINED = 'quarantined',
-  /** Written off and removed from stock entirely. */
-  DESTROYED = 'destroyed',
+export enum ReturnAssessmentStatus {
+  PENDING_ASSESSMENT = 'pending_assessment',
+  RELEASED = 'released',
+  REJECTED = 'rejected',
 }
 
 /** One returned line, tied to the sale line it reverses. */
 @Entity('return_lines')
+@Check('ck_return_lines_quantity', '"quantity" > 0')
 export class ReturnLine {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -33,8 +32,26 @@ export class ReturnLine {
   @Column({ type: 'int' })
   quantity: number;
 
-  @Column({ type: 'enum', enum: ReturnDisposition })
-  disposition: ReturnDisposition;
+  /** Copied from the sale line: the refund uses the original unit price (FR-28). */
+  @Column({ type: 'numeric', precision: 12, scale: 2 })
+  unitPrice: string;
+
+  @Column({
+    type: 'enum',
+    enum: ReturnAssessmentStatus,
+    default: ReturnAssessmentStatus.PENDING_ASSESSMENT,
+  })
+  assessmentStatus: ReturnAssessmentStatus;
+
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'assessed_by_id' })
+  assessedBy: Relation<User> | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  assessedAt: Date | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  assessmentNote: string | null;
 
   @ManyToOne(() => SaleReturn, (saleReturn) => saleReturn.lines, {
     nullable: false,

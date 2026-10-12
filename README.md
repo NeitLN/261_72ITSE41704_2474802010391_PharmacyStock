@@ -131,10 +131,16 @@ The defaults in `.env.example` match `docker-compose.yml`, so if you started the
 database with `docker compose up -d` there is nothing to change. If you use a
 PostgreSQL installed on your machine instead, edit the `DB_*` values in `.env`.
 
-`DB_SYNCHRONIZE=true` lets TypeORM create the tables from the entities. It is
-for local development only and is replaced by migrations in week 4 — it
-rewrites the schema on every boot and must never be enabled against shared
-data.
+Create the tables with the migrations:
+
+```bash
+npm run migration:run
+```
+
+If your database volume still holds tables created by the old
+`DB_SYNCHRONIZE` setting (before week 5), drop it once first with
+`docker compose down -v` and `docker compose up -d`. The schema is built only
+by migrations; see [`src/backend/README.md`](src/backend/README.md).
 
 ### 4. Configure the frontend
 
@@ -211,8 +217,6 @@ case is implemented.
 - All use cases (14 Must, 2 Should) — the frontend pages are labelled placeholders
 - Authentication and role-based access control
 - Any of the ten business rules
-- Database migrations (the project currently relies on `DB_SYNCHRONIZE` for
-  local development only)
 - Seed data and sample accounts
 
 ### Scope against the course targets

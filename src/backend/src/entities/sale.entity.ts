@@ -53,6 +53,6 @@ export class Sale {
   @JoinColumn({ name: 'sold_by_id' })
   soldBy: Relation<User>;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   soldAt: Date;
 }

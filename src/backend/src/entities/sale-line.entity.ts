@@ -1,4 +1,5 @@
 import {
+  Check,
   Column,
   Entity,
   JoinColumn,
@@ -18,12 +19,21 @@ import { ReturnLine } from './return-line.entity.js';
  * price change does not rewrite the value of past sales.
  */
 @Entity('sale_lines')
+@Check('ck_sale_lines_quantity', '"quantity" > 0')
+@Check(
+  'ck_sale_lines_returned',
+  '"quantityReturned" >= 0 AND "quantityReturned" <= "quantity"',
+)
 export class SaleLine {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ type: 'int' })
   quantity: number;
+
+  /** Sum of the return lines against this line; never above the quantity sold (TC-17). */
+  @Column({ type: 'int', default: 0 })
+  quantityReturned: number;
 
   @Column({ type: 'numeric', precision: 12, scale: 2 })
   unitPrice: string;

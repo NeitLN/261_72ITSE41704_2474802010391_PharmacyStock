@@ -34,3 +34,6 @@ export * from './user.entity.js';
 export * from './role.entity.js';
 export * from './permission.entity.js';
 export * from './audit-log.entity.js';
+
+// Infrastructure
+export * from './processed-request.entity.js';

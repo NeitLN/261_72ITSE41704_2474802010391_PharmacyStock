@@ -44,6 +44,6 @@ export class SaleReturn {
   @JoinColumn({ name: 'processed_by_id' })
   processedBy: Relation<User>;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   returnedAt: Date;
 }

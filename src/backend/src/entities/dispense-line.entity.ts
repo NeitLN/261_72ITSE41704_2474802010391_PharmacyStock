@@ -1,4 +1,5 @@
 import {
+  Check,
   Column,
   CreateDateColumn,
   Entity,
@@ -20,6 +21,7 @@ import { User } from './user.entity.js';
  * from and how much was taken.
  */
 @Entity('dispense_lines')
+@Check('ck_dispense_lines_quantity', '"quantity" > 0')
 export class DispenseLine {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -45,10 +47,8 @@ export class DispenseLine {
   batch: Relation<Batch>;
 
   /**
-   * Set when this dispensing is also billed as a sale, so stock is not
-   * deducted twice (TC-15).
-   *
-   * TODO (open decision 6.4-5): confirm how dispensing and sales are linked.
+   * Set when this dispensing is billed as a sale. Billing creates sale lines
+   * without a second stock movement (DEC-05, FR-26).
    */
   @ManyToOne(() => Sale, (sale) => sale.dispenseLines, { nullable: true })
   @JoinColumn({ name: 'sale_id' })
@@ -58,6 +58,10 @@ export class DispenseLine {
   @JoinColumn({ name: 'dispensed_by_id' })
   dispensedBy: Relation<User>;
 
-  @CreateDateColumn()
+  /** Why less than requested was supplied, confirmed by the pharmacist (DEC-02). */
+  @Column({ type: 'varchar', nullable: true })
+  partialSupplyNote: string | null;
+
+  @CreateDateColumn({ type: 'timestamptz' })
   dispensedAt: Date;
 }

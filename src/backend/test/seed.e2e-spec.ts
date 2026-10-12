@@ -67,4 +67,12 @@ describe('Demo seed (e2e)', () => {
       before,
     );
   });
+
+  it('SEED-04 medicines without a completed demo seed are reported, not mixed with demo data', async () => {
+    await t.dataSource.query(
+      `DELETE FROM audit_logs WHERE action = 'seed.demo.completed'`,
+    );
+    const { demo } = await seed(t.dataSource, { demo: true, clock });
+    expect(demo).toBe('existing-data');
+  });
 });

@@ -2,6 +2,7 @@ import type { DataSource } from 'typeorm';
 import type { Actor } from '../auth/actor.js';
 import { ROLE_PERMISSIONS, RoleCode } from '../auth/permissions.js';
 import {
+  AuditLog,
   Batch,
   BatchStatus,
   Customer,
@@ -23,6 +24,11 @@ import {
   DEMO_PRESCRIBERS,
   DEMO_SUPPLIERS,
 } from './demo-catalogue.js';
+
+/** Written last, so its presence means the whole demo data set is there. */
+const DEMO_MARKER = 'seed.demo.completed';
+
+export type DemoSeedStatus = 'written' | 'skipped' | 'existing-data';
 
 /** Small deterministic generator, so every seeded database looks the same. */
 function random(seed: number) {
@@ -80,13 +86,23 @@ interface PlannedBatch {
  * in eight has already expired, about one in six expires within the alert
  * window, the rest are long-dated. One batch is put on hold.
  *
- * Runs only on a database without medicines; on any other it does nothing.
+ * Runs only on a database without medicines. The catalogue and each receipt
+ * commit separately, so the last step writes a marker row in `audit_logs`; a
+ * database with medicines but no marker is reported as `existing-data`
+ * (either data entered by hand or an interrupted demo seed to reset).
  */
 export async function seedDemoData(
   dataSource: DataSource,
   clock: Clock,
-): Promise<boolean> {
-  if ((await dataSource.getRepository(Medicine).count()) > 0) return false;
+): Promise<DemoSeedStatus> {
+  if (
+    await dataSource.getRepository(AuditLog).existsBy({ action: DEMO_MARKER })
+  ) {
+    return 'skipped';
+  }
+  if ((await dataSource.getRepository(Medicine).count()) > 0) {
+    return 'existing-data';
+  }
   const today = clock.today();
   const rnd = random(20261012);
 
@@ -228,5 +244,11 @@ export async function seedDemoData(
       },
     );
   }
-  return true;
+  await dataSource.getRepository(AuditLog).save({
+    action: DEMO_MARKER,
+    entityName: 'seed',
+    details: `Demo data set written for business date ${today}.`,
+    performedBy: { id: actor.id },
+  });
+  return 'written';
 }

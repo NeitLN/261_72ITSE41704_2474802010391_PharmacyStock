@@ -10,6 +10,7 @@ import {
   Space,
   Switch,
   Table,
+  Tabs,
   Tag,
   Typography,
 } from 'antd';
@@ -18,15 +19,16 @@ import { useCallback, useState } from 'react';
 import { showApiError, toApiError } from '../api/errors';
 import { type Supplier, type SupplierInput, suppliersApi } from '../api/suppliers';
 import { useLoad } from '../api/useLoad';
+import { GoodsReceiptsPanel } from './GoodsReceiptsPanel';
 
 const NO_SUPPLIERS: Supplier[] = [];
 
 /**
  * UC02 Manage suppliers — the reference slice for every other screen:
  * list with search, a modal form whose errors appear under each field, and
- * actions that reload the list. The goods receipt tab (UC03) is added next.
+ * actions that reload the list.
  */
-export function SuppliersPage() {
+function SuppliersPanel() {
   const { message } = App.useApp();
   const [search, setSearch] = useState('');
   const [includeInactive, setIncludeInactive] = useState(false);
@@ -94,11 +96,8 @@ export function SuppliersPage() {
   ];
 
   return (
-    <Card>
-      <Space style={{ width: '100%', justifyContent: 'space-between' }} wrap>
-        <Typography.Title level={3} style={{ margin: 0 }}>
-          Suppliers
-        </Typography.Title>
+    <>
+      <Space style={{ width: '100%', justifyContent: 'flex-end' }} wrap>
         <Space wrap>
           <Input.Search
             allowClear
@@ -135,6 +134,24 @@ export function SuppliersPage() {
           setEditing(null);
           reload();
         }}
+      />
+    </>
+  );
+}
+
+/** UC02 suppliers and UC03 goods receipts, one tab each. */
+export function SuppliersPage() {
+  return (
+    <Card>
+      <Typography.Title level={3} style={{ marginTop: 0 }}>
+        Suppliers &amp; goods receipts
+      </Typography.Title>
+      <Tabs
+        destroyOnHidden
+        items={[
+          { key: 'suppliers', label: 'Suppliers', children: <SuppliersPanel /> },
+          { key: 'receipts', label: 'Goods receipts', children: <GoodsReceiptsPanel /> },
+        ]}
       />
     </Card>
   );

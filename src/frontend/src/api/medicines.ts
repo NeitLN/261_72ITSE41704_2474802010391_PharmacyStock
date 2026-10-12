@@ -64,7 +64,14 @@ export const medicinesApi = {
       .then((r) => r.data),
 };
 
-const vnd = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
+// VND has no minor unit in daily use, but unit costs may carry cents: show
+// them only when present, so 1750.5 is not rounded to 1.751 ₫.
+const vnd = new Intl.NumberFormat('vi-VN', {
+  style: 'currency',
+  currency: 'VND',
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 2,
+});
 
 /** Formats a numeric string from the API as VND without using floats for storage. */
 export function formatVnd(amount: string | null): string {

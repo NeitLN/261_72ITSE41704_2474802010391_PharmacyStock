@@ -29,10 +29,16 @@ const NO_RECEIPTS: GoodsReceiptSummary[] = [];
 const NO_MEDICINES: Medicine[] = [];
 const NO_SUPPLIERS: Supplier[] = [];
 
-/** Today in the browser's calendar, `YYYY-MM-DD`. */
-function localToday(): string {
-  return new Date().toLocaleDateString('en-CA');
+/**
+ * Today's business date, `YYYY-MM-DD` in Asia/Ho_Chi_Minh (decision 10), the
+ * same calendar the API uses, whatever the browser's time zone.
+ */
+function businessToday(): string {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
 }
+
+/** The API accepts at most this many lines per receipt. */
+const MAX_LINES = 100;
 
 /** UC03 Record a goods receipt: the list, the entry form and the details. */
 export function GoodsReceiptsPanel() {
@@ -155,7 +161,9 @@ function ReceiptFormModal({
         form={form}
         layout="vertical"
         onFinish={submit}
-        initialValues={{ receiptDate: localToday(), lines: [EMPTY_LINE] }}
+        initialValues={{ receiptDate: businessToday(), lines: [EMPTY_LINE] }}
+        // Frozen while saving, so an error for line N still means the line sent.
+        disabled={saving}
       >
         <Space align="start" wrap>
           <Form.Item
@@ -193,7 +201,7 @@ function ReceiptFormModal({
           Expiry: if the label shows only month and year, enter the last day of that month.
         </Typography.Paragraph>
         <Form.List name="lines">
-          {(fields, { add, remove }) => (
+          {(fields, { add, remove }, { errors }) => (
             <div style={{ marginTop: 8 }}>
               {fields.map((field, index) => (
                 <Space key={field.key} align="start" wrap style={{ display: 'flex' }}>
@@ -256,17 +264,23 @@ function ReceiptFormModal({
                     <Button
                       icon={<DeleteOutlined />}
                       aria-label={`Remove line ${index + 1}`}
-                      disabled={fields.length === 1}
+                      disabled={fields.length === 1 || saving}
                       onClick={() => remove(field.name)}
                     />
                   </Form.Item>
                 </Space>
               ))}
               <div>
-                <Button icon={<PlusOutlined />} onClick={() => add(EMPTY_LINE)}>
+                <Button
+                  icon={<PlusOutlined />}
+                  disabled={fields.length >= MAX_LINES || saving}
+                  onClick={() => add(EMPTY_LINE)}
+                >
                   Add line
                 </Button>
               </div>
+              {/* Errors about the list itself, e.g. the total is too large. */}
+              <Form.ErrorList errors={errors} />
             </div>
           )}
         </Form.List>

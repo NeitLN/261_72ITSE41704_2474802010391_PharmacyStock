@@ -10,7 +10,8 @@
 | **Primary actor** | Manager / Pharmacist / Cashier |
 | **Status** | Draft / Agreed / Built / Verified |
 | **Related rules** | BRxx, … |
-| **Depends on decisions** | QĐ n (from `docs/README.md`), or "none" |
+| **Requirements** | FR-xx, … (from `../functional-requirements.md`) |
+| **Decisions** | DEC-xx or decision n (from `../business-decisions.md`), or "none" |
 
 ## Goal
 
@@ -46,13 +47,14 @@ case enforces.
 
 ## Functional requirements
 
-Number them `FR-xx.n`, where `xx` is the use-case number, so members writing
-different use cases never collide. Each must be a testable "The system shall …"
-statement and map to at least one test case.
+Use the numbers fixed in Proposal v1.1
+([`../functional-requirements.md`](../functional-requirements.md)); do not
+invent new ones. A missing requirement is added there first, in its own pull
+request. List each FR the use case implements with its test cases.
 
-| ID | Requirement | Test cases |
+| ID | Requirement (short form) | Test cases |
 |---|---|---|
-| FR-xx.1 | The system shall … | TC-.. |
+| FR-xx | … | TC-.. |
 
 **Test for a good FR:** could someone who has never seen the code write a
 pass/fail test from this sentence alone? If not, rewrite it.
@@ -60,4 +62,5 @@ pass/fail test from this sentence alone? If not, rewrite it.
 ## Open questions
 
 Anything this use case needs that is not decided yet. Link the decision
-number; never pick an answer silently.
+number; never pick an answer silently. Once settled, rename the section
+*Resolved questions* and say where the answer is recorded.

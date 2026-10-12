@@ -21,7 +21,7 @@ Instructor: Dr. Nguyen Tri Hai.
 | 2474802010242 | Võ Hoàng Minh | Stock take, alerts, expiry and turnover reports; test coordination, packaging and run guide | C |
 
 Each member owns a complete slice: UI → business logic → data access → tests →
-documentation. Review rule: A's work is reviewed by B, B's by C, C's by A.
+documentation. Review rule: Tiến's work is reviewed by Minh, Duy Anh's by Tiến, Minh's by Duy Anh.
 
 ## Technology stack
 

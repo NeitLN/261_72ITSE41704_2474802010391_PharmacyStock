@@ -5,9 +5,10 @@
 | [`plan/`](plan/) | **Ten-week plan**: overview (scope, quality process, traceability, risks) and one file per week with tasks, hours, reviewers and acceptance criteria. Written in Vietnamese | Updated when the plan changes |
 | [`course-requirements.md`](course-requirements.md) | What the course measures, taken from the three course PDFs. Read this before planning anything. | — |
 | [`registration-appendix-a.md`](registration-appendix-a.md) | Content for the Week 1 registration form | Week 1 |
+| [`progress/`](progress/README.md) | **Weekly progress reports for the lecturer**: planned vs delivered with evidence links, each member's activity, what slipped | Every week (closed on Sunday) |
 | [`journal.md`](journal.md) | Session-by-session record of what changed, who did it and what is next | Every session |
-| [`requirements/`](requirements/) | Use cases, business rules, functional and non-functional requirements | Week 2 |
-| [`design/`](design/) | Domain model, architecture notes, data dictionary | Week 4 |
+| [`requirements/`](requirements/) | Use cases and their specifications, business rules, business decisions (DEC-01–10) and the pharmacist review, functional and non-functional requirements — all as in Proposal v1.1 | Kept current |
+| [`design/`](design/) | Domain model, stock ledger and lock protocol, how to add a module | Kept current |
 | [`diagrams/`](diagrams/) | Use case, class, sequence and ER diagrams; wireframes. Keep the editable source and an exported image. | Week 4 |
 
 Reports submitted for assessment are written in English and follow the course
@@ -46,32 +47,18 @@ the [project board](https://github.com/users/NeitLN/projects/1). See
 From Suggested Project Titles, Table 2 — expected for a **three-person team**.
 Full detail in [`course-requirements.md`](course-requirements.md).
 
-| Dimension | Target | Planned | Built |
+| Dimension | Target | Planned (Proposal v1.1) | Built (12/10, in open PRs) |
 |---|---|---|---|
-| Use cases end-to-end | 13–16 | 14 Must + 2 Should | 0 |
-| Domain classes | 16–22 | 25 | 25 defined |
-| User roles | 3+ | 3 | 0 |
-| Business rules beyond CRUD | 6+ | 6 Must + 3 Should + 1 Could | 0 |
-| Documented test cases | 20+ | 34 | 0 run |
+| Use cases end-to-end | 13–16 | 13 Must + 3 Should | UC01, UC02, UC03 (#95, #97, #99), not yet test-run |
+| Domain classes | 16–22 | 25 | 25 in the v1.1 schema (#94) |
+| User roles | 3+ | 3 | Permission matrix enforced in services; sign-in not built |
+| Business rules beyond CRUD | 6+ | 8 Must + 2 Should + 1 Could (BR01–BR11) | BR03, BR05 in the stock ledger (#96) |
+| Documented test cases | 20+ | 63 | 34 written; automated tests per PR, 0 manual runs |
 
-## Open business decisions
+## Business decisions
 
-Decisions 1–9 below are due Saturday 26/09. Nine further decisions that affect
-the data model (10–18) are listed in [`plan/00-tong-quan.md`](plan/00-tong-quan.md) §8
-and are due Wednesday 07/10. Code TODOs referring to "6.4-x" mean decision x here.
-
-These must be settled in **Week 2**, before the affected use cases are built or
-their test cases are given expected results. Each is marked `TODO` at the place
-in the code it affects.
-
-| # | Question | Affects |
-|---|---|---|
-| 1 | Is expiry stored as a full date or year-month? Can a batch be dispensed on its exact expiry date? | BR02, TC-07 |
-| 2 | When stock is short, reject the whole request or allow a partial dispense? | BR03, TC-09 |
-| 3 | Which fields and statuses make a prescription reference valid? | BR04, TC-13, TC-14 |
-| 4 | Which stock state do returned medicines enter, and may they be dispensed again? | UC08, TC-16 |
-| 5 | How are dispensing and sales linked so stock is not deducted twice? | UC06, UC07, TC-15 |
-| 6 | How is turnover defined — period, and how returns are counted? | UC12, TC-23 |
-| 7 | How is a tie broken between batches with the same expiry date? | BR01 |
-| 8 | Is the low-stock alert triggered below the threshold, or at and below it? | UC10, TC-21 |
-| 9 | What are the performance targets — data volume, reference machine, measurement method? | NFR, TC-29 |
+Decisions 1–9 (business) and 10–18 (data model) are settled by Proposal v1.1
+as DEC-01 to DEC-10, reviewed by a practising pharmacist in week 4. Record:
+[`requirements/business-decisions.md`](requirements/business-decisions.md).
+DEC-09 and DEC-10 are being confirmed with the reviewer in week 5; until then
+they are team assumptions.

@@ -115,8 +115,11 @@ exist. Points marked _(fill in)_ need the team's own account.
 
 **Done**
 
-- Project Proposal submitted on E-learning: first version 04/10, version 1.1
-  dated 11/10 (cover page). Receipts: _(fill in, and attach to #19–#21)_.
+- Project Proposal submitted on E-learning: first version 04/10; version 1.1
+  submitted to "Project Proposal Resubmission (After Review/Update)" on
+  11/10 at 23:54 (PDF and DOCX, named Project-Proposal-VoVietTien-2474802010391),
+  status "Submitted for grading", before the 23:59 deadline. Receipt:
+  `docs/evidence/proposal-resubmission-receipt-2026-10-11.png`; #19–#21 closed.
   Who wrote which part: _(fill in)_.
 - Week 4: a practising pharmacist (a relative of the team leader) reviewed
   decisions DEC-01 to DEC-10 in a recorded conversation. Summary:

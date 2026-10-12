@@ -88,6 +88,39 @@ what the reviewer actually did:
 A one-word "LGTM" is not a review. A new commit dismisses the approval, so
 re-run before approving again.
 
+## Leader's weekly review
+
+Every weekend, after the members have finished the week's work, the team
+leader reviews **all of that week's work** and gives feedback. This is on top
+of the per-PR review by the rotation reviewer, which stays the gate for
+merging; the weekly review looks across the week.
+
+**When:** Saturday after the team meeting, finished by Sunday evening.
+
+**What the leader looks at, per member:** the pull requests merged and still
+open, the reviews they gave, issues closed, test runs recorded, and the week's
+plan (`docs/plan/tuan-NN.md`) — what was promised against what was delivered,
+and the quality of it (rules in services, tests, validation, documentation).
+
+**How feedback is given** — always on GitHub, so it is visible evidence:
+
+- A comment on the pull request or issue concerned, starting with
+  `Weekly review (week NN):`.
+- A change that is needed becomes an issue labelled `weekly-review`, assigned
+  to the member who owns the work, under the next week's milestone, with a
+  due date — normally Wednesday of the next week.
+- Good work is said too: the review records what was done well, not only
+  what to fix.
+
+**Where it is summarised:** the *Leader's weekly review* section of that
+week's report in `docs/progress/week-NN.md` — one row per member with the
+work reviewed, the feedback, the revisions requested and their issues. The
+next report records whether those revisions were made.
+
+**The leader's own work** is assessed in the same section, and Minh (the
+leader's rotation reviewer) adds his comments on it before the report is
+closed.
+
 ## Definition of done
 
 A task is done when all of the following hold:

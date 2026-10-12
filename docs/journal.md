@@ -147,7 +147,7 @@ exist. Points marked _(fill in)_ need the team's own account.
   (#95); `StockLedger` with the lock protocol (#96); UC01 (#97); UC03 (#99);
   demo seed (#100); requirements and plan aligned with Proposal v1.1 (this
   pull request).
-- Tests at the tip of the stack: 31 unit, 58 e2e, all passing; UC02, UC01 and
+- Tests at the tip of the stack: 31 unit, 61 e2e, all passing; UC02, UC01 and
   UC03 also tried in a browser with Playwright.
 - Each large pull request was reviewed read-only by Codex before review by a
   team member; its findings were fixed in the same pull request with a test.

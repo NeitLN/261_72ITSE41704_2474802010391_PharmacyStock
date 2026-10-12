@@ -207,15 +207,21 @@ tests/         manual test cases and test evidence
 
 ## Git workflow
 
-- `main` must always build. No direct commits to `main` once feature work starts.
+- `main` must always build and is protected: changes arrive only through a
+  pull request with one approval, and a new commit dismisses an old approval.
 - Feature branches: `feature/<use-case>-<short-description>`, merged via pull request.
-- Every member commits under their own GitHub account.
+- Every member commits, reviews and approves under their own GitHub account.
+- Review rotation: Minh reviews Tiến, Tiến reviews Duy Anh, Duy Anh reviews
+  Minh; a workflow requests the reviewer automatically. Details:
+  [CONTRIBUTING](CONTRIBUTING.md#pull-requests).
 - Release tags: `v0.1` (week 5), `v0.2` (week 7), `v1.0` (week 9).
 
 ## Current status
 
-**Week 5 (12/10/2026).** Built in open pull requests #93–#101, reviewed by
-Codex and waiting for the team's review; not merged or tagged yet.
+**Week 5 (12/10/2026).** The Project Proposal v1.1 was submitted on
+11/10/2026 (receipt in `docs/evidence/`). Tiến's work for weeks 2–5 is in open
+pull requests #91–#102, reviewed by Codex and waiting for the team's review;
+not merged or tagged yet.
 
 **Built (in pull requests)**
 

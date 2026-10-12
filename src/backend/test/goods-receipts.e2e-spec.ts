@@ -223,6 +223,26 @@ describe('UC03 goods receipts (e2e)', () => {
     expect(fieldsOf(res.body)).toEqual(['lines.0.expiryDate', 'receiptDate']);
   });
 
+  it('UC03-15 a total above the column limit is a field error, not a 500', async () => {
+    const big = {
+      ...receipt().lines[0],
+      quantity: 1_000_000,
+      unitCost: 1_000_000,
+    };
+    const res = await post(receipt({ lines: [big] }));
+    expect(res.status).toBe(400);
+    expect(fieldsOf(res.body)).toEqual(['lines']);
+    expect(await counts()).toEqual({ receipts: 0, batches: 0, movements: 0 });
+  });
+
+  it('UC03-16 a new batch counts as received on the receipt date for FEFO (DEC-07)', async () => {
+    clock.set(new Date('2026-10-12T15:00:00Z')); // 22:00 in Vietnam
+    await post(receipt({ receiptDate: '2026-10-10' })).expect(201);
+    const batch = await t.dataSource.getRepository(Batch).findOneByOrFail({});
+    expect(batch.receivedAt.toISOString()).toBe('2026-10-09T17:00:00.000Z');
+    clock.set(new Date('2026-10-12T03:00:00Z'));
+  });
+
   it('UC03-05 a receipt date in the future is refused', async () => {
     const res = await post(receipt({ receiptDate: '2026-10-13' }));
     expect(fieldsOf(res.body)).toEqual(['receiptDate']);

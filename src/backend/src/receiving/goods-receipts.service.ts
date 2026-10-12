@@ -59,6 +59,9 @@ export interface GoodsReceiptSummary {
   createdAt: Date;
 }
 
+/** goods_receipts.totalCost is numeric(14,2): at most 999,999,999,999.99. */
+const MAX_TOTAL_CENTS = 99_999_999_999_999n;
+
 /** VND with two decimals held as whole cents, so totals never use floats. */
 function toCents(amount: number): bigint {
   return BigInt(Math.round(amount * 100));
@@ -96,9 +99,14 @@ export class GoodsReceiptsService {
     try {
       receiptId = await this.ledger.run(async (tx) => {
         const manager = tx.manager;
-        const supplier = await manager.findOneBy(Supplier, {
-          id: dto.supplierId,
-        });
+        // FOR SHARE: a concurrent deactivation (an UPDATE) waits until this
+        // receipt commits, or this read waits for it, so the status checked
+        // here is still true when the receipt is saved.
+        const supplier = await manager
+          .createQueryBuilder(Supplier, 's')
+          .where('s.id = :id', { id: dto.supplierId })
+          .setLock('pessimistic_read')
+          .getOne();
         if (!supplier || !supplier.isActive) {
           throw ValidationFailed.field(
             'supplierId',
@@ -119,6 +127,12 @@ export class GoodsReceiptsService {
           (sum, l) => sum + BigInt(l.quantity) * toCents(l.unitCost),
           0n,
         );
+        if (totalCents > MAX_TOTAL_CENTS) {
+          throw ValidationFailed.field(
+            'lines',
+            'The receipt total is too large; split the delivery into several receipts.',
+          );
+        }
         const receipt = await manager.save(
           manager.create(GoodsReceipt, {
             supplier,
@@ -130,7 +144,9 @@ export class GoodsReceiptsService {
           }),
         );
 
-        const receivedAt = this.clock.now();
+        // FEFO ties go to the batch received earlier (DEC-07): that is the
+        // receipt date in Vietnam time, not the moment it was typed in.
+        const receivedAt = new Date(`${dto.receiptDate}T00:00:00+07:00`);
         for (const [index, line] of dto.lines.entries()) {
           const unitCost = centsToString(toCents(line.unitCost));
           let batch = await tx.lockBatchByNumber(

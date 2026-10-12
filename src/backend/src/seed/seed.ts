@@ -1,5 +1,6 @@
 import type { DataSource } from 'typeorm';
 import { seedAccessControl } from './access-control.seed.js';
+import { seedCatalogueReference } from './catalogue-reference.seed.js';
 
 /**
  * Every seed step, in dependency order, in one transaction. Each step is
@@ -8,5 +9,6 @@ import { seedAccessControl } from './access-control.seed.js';
 export async function seed(dataSource: DataSource): Promise<void> {
   await dataSource.transaction(async (manager) => {
     await seedAccessControl(manager);
+    await seedCatalogueReference(manager);
   });
 }

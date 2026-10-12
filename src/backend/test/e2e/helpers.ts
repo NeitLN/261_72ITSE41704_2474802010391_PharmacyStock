@@ -6,6 +6,7 @@ import { AppModule } from '../../src/app.module.js';
 import { configureApp } from '../../src/app.setup.js';
 import { DEV_USER_HEADER } from '../../src/auth/dev-auth.guard.js';
 import { seed } from '../../src/seed/seed.js';
+import { Clock, type FixedClock } from '../../src/stock/clock.js';
 
 export interface TestApp {
   app: INestApplication;
@@ -14,11 +15,16 @@ export interface TestApp {
   http: () => ReturnType<typeof request>;
 }
 
-/** Boots the whole application with the same settings as main.ts. */
-export async function createTestApp(): Promise<TestApp> {
-  const moduleRef = await Test.createTestingModule({
-    imports: [AppModule],
-  }).compile();
+/**
+ * Boots the whole application with the same settings as main.ts. Pass a
+ * FixedClock to control "today" in date rules.
+ */
+export async function createTestApp(
+  options: { clock?: FixedClock } = {},
+): Promise<TestApp> {
+  const builder = Test.createTestingModule({ imports: [AppModule] });
+  if (options.clock) builder.overrideProvider(Clock).useValue(options.clock);
+  const moduleRef = await builder.compile();
   const app = moduleRef.createNestApplication();
   configureApp(app);
   await app.init();

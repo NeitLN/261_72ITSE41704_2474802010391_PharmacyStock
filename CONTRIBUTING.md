@@ -72,6 +72,22 @@ changes, edit the issue rather than working around it silently.
 - The PR description says what changed, how it was tested, and which use case
   or business rule it belongs to.
 
+### What a review records
+
+A review is evidence for the Collaborative Development criterion, so it says
+what the reviewer actually did:
+
+1. The head commit reviewed (short SHA).
+2. The commands run and their result, e.g. `npm run test:e2e` → 61 passed.
+3. The test cases or flows tried by hand (TC IDs), and the outcome.
+4. Real observations: questions, defects, suggestions — or "checked X against
+   Y, no change needed".
+5. The verdict: *Approve* only after running the branch; *Request changes*
+   names what must change.
+
+A one-word "LGTM" is not a review. A new commit dismisses the approval, so
+re-run before approving again.
+
 ## Definition of done
 
 A task is done when all of the following hold:

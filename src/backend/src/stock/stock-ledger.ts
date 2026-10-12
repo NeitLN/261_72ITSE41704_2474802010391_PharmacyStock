@@ -88,17 +88,31 @@ export class StockLedger {
 export class LedgerTransaction {
   private readonly lockedMedicines = new Set<string>();
   private readonly lockedBatches = new Map<string, Batch>();
+  /** Highest medicine id locked so far; later locks must be above it. */
+  private highestMedicineId: string | null = null;
+  /** Writes run one after another, so concurrent posts never share a stale quantity. */
+  private writes: Promise<unknown> = Promise.resolve();
 
   constructor(readonly manager: EntityManager) {}
 
-  /** Step 1: lock the medicines whose batches this command touches. */
+  /**
+   * Step 1: lock the medicines whose batches this command touches. Pass them
+   * all in one call: locks are taken in ascending id, and a later call may
+   * only add ids above every id already locked, so two commands can never
+   * wait on each other in opposite order.
+   */
   async lockMedicines(medicineIds: string[]): Promise<void> {
-    const ids = [...new Set(medicineIds)].filter(
-      (id) => !this.lockedMedicines.has(id),
-    );
+    const ids = [...new Set(medicineIds.map((id) => id.toLowerCase()))]
+      .filter((id) => !this.lockedMedicines.has(id))
+      .sort();
     if (ids.length === 0) return;
     if (this.lockedBatches.size > 0) {
       throw new Error('Lock order: lock every medicine before any batch.');
+    }
+    if (this.highestMedicineId !== null && ids[0] < this.highestMedicineId) {
+      throw new Error(
+        'Lock order: medicines must be locked in ascending id; lock them all in one call.',
+      );
     }
     const rows = await this.manager
       .createQueryBuilder(Medicine, 'm')
@@ -115,6 +129,7 @@ export class LedgerTransaction {
       );
     }
     ids.forEach((id) => this.lockedMedicines.add(id));
+    this.highestMedicineId = ids[ids.length - 1];
   }
 
   /** Step 2: lock given batches (ascending id) and return them with fresh quantities. */
@@ -309,7 +324,17 @@ export class LedgerTransaction {
     });
   }
 
-  private async write(
+  private write(
+    actor: Actor,
+    batch: Batch,
+    movement: Parameters<LedgerTransaction['writeNow']>[2],
+  ): Promise<StockMovement> {
+    const next = this.writes.then(() => this.writeNow(actor, batch, movement));
+    this.writes = next.catch(() => undefined);
+    return next;
+  }
+
+  private async writeNow(
     actor: Actor,
     batch: Batch,
     movement: StockDeltas &
@@ -336,7 +361,7 @@ export class LedgerTransaction {
   }
 
   private requireMedicineLocked(medicineId: string): void {
-    if (!this.lockedMedicines.has(medicineId)) {
+    if (!this.lockedMedicines.has(medicineId.toLowerCase())) {
       throw new Error(
         `Lock order: lock medicine ${medicineId} before its batches.`,
       );

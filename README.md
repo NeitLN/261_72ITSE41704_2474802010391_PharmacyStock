@@ -134,7 +134,7 @@ PostgreSQL installed on your machine instead, edit the `DB_*` values in `.env`.
 Create the tables with the migrations:
 
 ```bash
-npm run migration:run
+npm run seed    # applies the migrations, then writes the sample data
 ```
 
 If your database volume still holds tables created by the old
@@ -166,9 +166,14 @@ cd src/frontend && npm run dev
 
 ## Sample accounts
 
-None yet. User seeding is planned for week 5 together with authentication
-(UC — login and role-based access). This section will list the sample manager
-and pharmacist accounts once they exist.
+`npm run seed` (in `src/backend`) applies the migrations and creates one
+account per role: `manager`, `pharmacist` and `cashier`.
+
+Sign-in (UC16) is not built yet. Until it is, the backend runs with
+`AUTH_MODE=dev` and the web client has a **Dev user** switch in the header bar
+that chooses which account to act as; there are no passwords. This mode is for
+a developer's machine only. Details:
+[`docs/design/how-to-add-a-module.md`](docs/design/how-to-add-a-module.md).
 
 ## Commands
 

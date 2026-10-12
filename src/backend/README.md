@@ -48,13 +48,19 @@ migration that needs them, with a comment saying so.
 ## Layout
 
 ```
+src/auth/       Actor, permissions (Table 2.4), temporary DevAuthGuard
+src/common/     error classes, error filter, validation helpers
 src/database/   connection options shared by the app, the CLI and the tests
+src/seed/       idempotent seed steps (npm run seed)
+src/suppliers/  UC02, the reference slice (docs/design/how-to-add-a-module.md)
 src/entities/   TypeORM entities (the domain model)
 src/migrations/ schema migrations, listed in index.ts
 src/main.ts     bootstrap, global validation, CORS
 ```
 
 Business logic belongs in services, not in controllers and not in the frontend.
+Test files: `*.spec.ts` next to the code (unit), `test/*.e2e-spec.ts` (API on
+the test database).
 
 ## Domain model
 

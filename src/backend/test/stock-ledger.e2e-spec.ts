@@ -265,6 +265,49 @@ describe('StockLedger (e2e)', () => {
     ).rejects.toThrow('Lock order');
   });
 
+  it('BR03-03 overlapping posts inside one command cannot both pass the check', async () => {
+    const id = await receive('A1', 10);
+
+    await expect(
+      ledger.run(async (tx) => {
+        await tx.lockMedicines([medicine.id]);
+        await tx.lockBatches([id]);
+        const sale = {
+          batchId: id,
+          type: MovementType.SALE,
+          deltaSellable: -7,
+          sourceDocumentType: SourceDocumentType.SALE_LINE,
+          sourceDocumentId: DOC,
+        };
+        await Promise.all([tx.post(manager, sale), tx.post(manager, sale)]);
+      }),
+    ).rejects.toMatchObject({ rule: 'BR03' });
+
+    expect(await quantities(id)).toEqual([10, 0, 0]);
+    expect(await findLedgerMismatches(t.dataSource)).toEqual([]);
+  });
+
+  it('LOCK-03 a later call may not lock a medicine below one already locked', async () => {
+    const other = await createMedicine(t.dataSource);
+    const [low, high] = [medicine.id, other.id].sort();
+
+    await expect(
+      ledger.run(async (tx) => {
+        await tx.lockMedicines([high]);
+        await tx.lockMedicines([low]);
+      }),
+    ).rejects.toThrow('ascending id');
+
+    // The same pair in one call, or low then high, is fine.
+    await ledger.run(async (tx) => {
+      await tx.lockMedicines([high, low]);
+    });
+    await ledger.run(async (tx) => {
+      await tx.lockMedicines([low]);
+      await tx.lockMedicines([high.toUpperCase()]);
+    });
+  });
+
   it('LOCK-02 eligible batches: active, unexpired, in stock, in FEFO order (DEC-01, DEC-07)', async () => {
     const early = new Date('2026-09-01T03:00:00Z');
     const late = new Date('2026-09-20T03:00:00Z');

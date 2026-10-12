@@ -5,6 +5,8 @@
 > Milestone: *Week 10 — Final Report (80%)*. Module tự học: 10.
 > Rubric: 5 tiêu chí × 2 điểm.
 
+> **Reviewer** theo vòng mới từ 12/10 (A do C duyệt, B do A, C do B; `00-tong-quan.md` §6.2).
+
 ## 1. Mục tiêu
 
 Nộp báo cáo tiếng Anh đúng template, phản ánh **đúng cái đã xây dựng** (phần chưa làm có lý do), kèm link repo đã tag và run guide. Đạt **checklist 12.2 (10 mục) và 12.3 (5 mục)**. File tải lại mở được. Cam kết và Appendix C có tên cả 3 người.
@@ -18,17 +20,17 @@ Nộp báo cáo tiếng Anh đúng template, phản ánh **đúng cái đã xây
 
 | Mã | Việc | Giờ | Reviewer | Phụ thuộc | Đầu ra / nghiệm thu | Issue |
 |---|---|---|---|---|---|---|
-| W10-A1 | **Biên tập để nhất quán** theo template: thứ tự chương, mục lục, danh sách hình/bảng, tham chiếu chéo, thuật ngữ. **Không viết lại phần của người khác**; góp ý nội dung gửi lại người viết | 4 | C | Nháp tuần 9 | Không mục template nào thiếu | #82 |
-| W10-A2 | **Ch.4** (đã làm so với đề xuất, hạn chế gồm **mọi lỗi còn mở**, hướng phát triển; mỗi người tự viết đoạn "kỹ năng đạt được" của mình); **Appendix B do Tiến tự soạn** từ ghi chép dùng AI của cả 3 người | 3 | B | A1 | Hạn chế khớp release note | #83 |
-| W10-A3 | Xuất PDF + DOCX, tên `2474802010391_VoVietTien_ApplicationProgrammingProject`; **nộp CTE T6 20/11** kèm link repo + run guide; tải lại, mở thử; lưu biên nhận (**TC-34**, C chạy) | 2 | C | mọi việc | Biên nhận; hai file mở được | #84 |
+| W10-A1 | **Biên tập để nhất quán** theo template: thứ tự chương, mục lục, danh sách hình/bảng, tham chiếu chéo, thuật ngữ. **Không viết lại phần của người khác**; góp ý nội dung gửi lại người viết | 4 | B | Nháp tuần 9 | Không mục template nào thiếu | #82 |
+| W10-A2 | **Ch.4** (đã làm so với đề xuất, hạn chế gồm **mọi lỗi còn mở**, hướng phát triển; mỗi người tự viết đoạn "kỹ năng đạt được" của mình); **Appendix B do Tiến tự soạn** từ ghi chép dùng AI của cả 3 người | 3 | C | A1 | Hạn chế khớp release note | #83 |
+| W10-A3 | Xuất PDF + DOCX, tên `2474802010391_VoVietTien_ApplicationProgrammingProject`; **nộp CTE T6 20/11** kèm link repo + run guide; tải lại, mở thử; lưu biên nhận (**TC-34**, C chạy) | 2 | B | mọi việc | Biên nhận; hai file mở được | #84 |
 | — | A: họp 2 · review 2 · dự phòng 7 | 11 | — | — | — | — |
-| W10-B1 | **Đối chiếu tài liệu ↔ code** theo ma trận truy vết; viết mục **"3.3.3 chức năng chưa triển khai và lý do"**; chỗ nào không khớp thì sửa văn bản (không sửa code sau freeze, trừ S1) | 4 | A | ma trận W09-B3 | Không FR nào mô tả sai so với code | #85 |
-| W10-B2 | **Tài liệu tham khảo, thư viện, license** (mục đích + license của mọi thư viện chính); **nêu rõ phần code sinh tự động** (scaffold NestJS/Vite, công cụ) theo FAQ Guidelines | 3 | A | — | Danh sách đầy đủ; một kiểu trích dẫn | #86 |
-| W10-B3 | **Appendix C** từ số liệu thật (`git shortlog`, PR, review, Issue đã đóng); cả nhóm xem; **thu chữ ký (tên gõ) của cả 3 người** cho Appendix C và cam kết | 2 | C | — | Phần trăm tổng 100%, có số commit và PR mỗi người | #87 |
+| W10-B1 | **Đối chiếu tài liệu ↔ code** theo ma trận truy vết; viết mục **"3.3.3 chức năng chưa triển khai và lý do"**; chỗ nào không khớp thì sửa văn bản (không sửa code sau freeze, trừ S1) | 4 | C | ma trận W09-B3 | Không FR nào mô tả sai so với code | #85 |
+| W10-B2 | **Tài liệu tham khảo, thư viện, license** (mục đích + license của mọi thư viện chính); **nêu rõ phần code sinh tự động** (scaffold NestJS/Vite, công cụ) theo FAQ Guidelines | 3 | C | — | Danh sách đầy đủ; một kiểu trích dẫn | #86 |
+| W10-B3 | **Appendix C** từ số liệu thật (`git shortlog`, PR, review, Issue đã đóng); cả nhóm xem; **thu chữ ký (tên gõ) của cả 3 người** cho Appendix C và cam kết | 2 | A | — | Phần trăm tổng 100%, có số commit và PR mỗi người | #87 |
 | — | B: đoạn "kỹ năng đạt được" 0,5 · họp 2 · review 2 · sửa lỗi/dự phòng 6,5 | 11 | — | — | — | — |
-| W10-C1 | Clone mới trên máy khác lần cuối + **chạy lại luồng chính trên đúng bản sẽ nộp** (tag `v1.0` hoặc tag sửa lỗi mới) | 3 | A | — | Lượt chạy trong `runs.md` | #88 |
-| W10-C2 | **Kiểm tra file và link**: PDF/DOCX đúng phiên bản; mọi link (repo, tag, bảng dự án) mở được khi **chưa đăng nhập**; tên file đúng | 2 | A | A3 | Bảng kiểm tra | #89 |
-| W10-C3 | **Checklist 12.2 + 12.3** tick từng mục; kiểm bảng góp ý Proposal đã có trong báo cáo | 3 | B | — | `docs/report/final-checklist.md` | #90 |
+| W10-C1 | Clone mới trên máy khác lần cuối + **chạy lại luồng chính trên đúng bản sẽ nộp** (tag `v1.0` hoặc tag sửa lỗi mới) | 3 | B | — | Lượt chạy trong `runs.md` | #88 |
+| W10-C2 | **Kiểm tra file và link**: PDF/DOCX đúng phiên bản; mọi link (repo, tag, bảng dự án) mở được khi **chưa đăng nhập**; tên file đúng | 2 | B | A3 | Bảng kiểm tra | #89 |
+| W10-C3 | **Checklist 12.2 + 12.3** tick từng mục; kiểm bảng góp ý Proposal đã có trong báo cáo | 3 | A | — | `docs/report/final-checklist.md` | #90 |
 | — | C: đoạn "kỹ năng đạt được" 0,5 · họp 2 · review 2 · sửa lỗi/dự phòng 7,5 | 12 | — | — | — | — |
 
 ## 4. Phân bổ giờ

@@ -1,7 +1,8 @@
 # Roadmap 10 tuần — Pharmacy Stock and Prescription Dispensing System
 
 **Vai trò người lập:** phụ trách kỹ thuật và kế hoạch · **Lập ngày:** 24/09/2026 (thứ Năm, tuần 2) · **Bản 2** (sau tự phản biện, §10)
-**Trạng thái:** kế hoạch — chưa phải kết quả. Các quyết định của trưởng nhóm ngày 24/09 ở §12. Mọi ô "đã xong" phải có minh chứng (commit / PR / lượt chạy test / ảnh).
+**Bản 3 — 12/10/2026**: đồng bộ với Proposal v1.1 (nộp 11/10), vòng review mới và tiến độ thực tế — xem **§13**.
+**Trạng thái:** kế hoạch — chưa phải kết quả. Các quyết định của trưởng nhóm ngày 24/09 ở §12, ngày 12/10 ở §13. Mọi ô "đã xong" phải có minh chứng (commit / PR / lượt chạy test / ảnh).
 
 ## 0. Cách đọc bộ tài liệu
 
@@ -71,11 +72,11 @@ Mã việc `Wtt-Xn` trùng mã Issue trên GitHub khi nội dung tương ứng. 
 
 | Mức | Use case (chủ sở hữu) | Quy tắc | Khác |
 |---|---|---|---|
-| **Must — 14 UC** | A: UC01 danh mục thuốc (kèm giá bán hiện hành) · UC02 NCC · UC03 nhập hàng · UC04 tra cứu tồn/lịch sử lô — B: UC05 nhận đơn · UC06 cấp phát · UC07 bán hàng (OTC + theo đơn) · UC08 trả hàng · **UC14 khách hàng/bác sĩ** — C: UC09 kiểm kê · UC10 cảnh báo tồn thấp · UC11 cảnh báo hạn dùng/hủy lô · UC12 báo cáo luân chuyển · UC16 đăng nhập | BR01 FEFO · BR02 lô hết hạn · BR03 không âm kho · BR04 thuốc kiểm soát cần đơn hợp lệ (gồm kiểm tra `validUntil`) · BR05 sổ kho append-only + bút toán bù · BR07 không cấp vượt đơn — **6 quy tắc**; BR01/02/04 áp dụng cho **mọi** xuất kho (cấp phát và bán OTC) | 3 vai trò, quyền kiểm ở service · validation mọi input · xử lý lỗi DB · dữ liệu còn sau restart · CI · ≥ 20 TC có lượt chạy thật · unit test cho mọi BR Must · 50–200 bản ghi mẫu thực tế |
-| **Should** | A: UC13 lịch sử giá theo ngày — C: UC15 màn hình quản trị người dùng/vai trò | BR08 kiểm kê hai người · BR09 giá theo ngày hiệu lực · BR10 đơn hết hạn (tách riêng khỏi BR04) | Backup/restore (TC-30) · stress đồng thời 20 lần |
+| **Must — 13 UC** | A: UC01 danh mục thuốc (giá hiện hành, phân loại OTC/kê đơn/kiểm soát) · UC02 NCC · UC03 nhập hàng · UC04 tra cứu tồn/lịch sử lô — B: UC05 nhận đơn + xác nhận dược sĩ (gồm tạo nhanh bệnh nhân/bác sĩ) · UC06 cấp phát · UC07 bán hàng · UC08 trả hàng vào cách ly — C: UC09 kiểm kê · UC10 cảnh báo tồn thấp/hết hàng · UC11 cảnh báo hạn dùng, trạng thái lô, hủy lô · UC12 báo cáo luân chuyển kho · UC16 đăng nhập | BR01 FEFO · BR02 lô hết hạn + cảnh báo sát hạn · BR03 không âm kho · BR04 thuốc không phải OTC cần đơn đã xác nhận; bán OTC chỉ thuốc OTC · BR05 sổ kho append-only · BR07 không cấp vượt đơn · BR10 hiệu lực đơn 5 ngày · BR11 hàng trả vào cách ly — **8 quy tắc** | 3 vai trò, quyền kiểm ở service · validation mọi input · xử lý lỗi DB · dữ liệu còn sau restart · CI · ≥ 45/63 TC có lượt chạy thật · unit test cho mọi BR Must · 50–200 bản ghi mẫu |
+| **Should** (chỉ sau cổng Must-core tuần 7) | A: UC13 lịch sử giá — B: màn hình UC14 khách hàng/bác sĩ — C: UC15 quản trị người dùng; đánh giá cách ly và hồ sơ tiêu hủy (FR-46, 47) | BR08 kiểm kê hai người · BR09 giá theo ngày hiệu lực | Backup/restore (TC-30) |
 | **Could** (cắt đầu tiên) | — | **BR06 quy đổi đơn vị** — mặc định nhập theo đơn vị cơ sở (QĐ 18) | Quét mã vạch · gợi ý đặt hàng · deploy công khai · xuất PDF/Excel |
 
-Không làm Should thì: vai trò và tài khoản vẫn có qua seed; giá hiện hành vẫn đặt được ở UC01. **14 UC Must vẫn chạy.**
+Không làm Should thì: vai trò và tài khoản vẫn có qua seed; giá hiện hành vẫn đặt được ở UC01; tạo nhanh bệnh nhân/bác sĩ nằm trong UC05. **13 UC Must vẫn chạy.** (Bản 2 có 14 UC Must với UC14 là Must; Proposal v1.1 đưa màn hình UC14 xuống Should sau góp ý của dược sĩ làm tăng việc — §13.)
 
 ## 5. Roadmap tổng quan
 
@@ -84,13 +85,13 @@ Không làm Should thì: vai trò và tài khoản vẫn có qua seed; giá hi�
 | 1 | 14–20/09 | Đăng ký ✅ (A) | ✅ Đăng ký, repo, scaffold | *không có minh chứng* → tuần 2 | *không có minh chứng* → tuần 2 |
 | 2 | 21–27/09 | PR đầu của B, C; **chốt 9 QĐ lõi (T7 26/09)**; FR + đặc tả UC Must | ✅ Domain, DB · sửa `.env.example` · đặc tả mẫu + FR UC01–04 | Nhập cuộc · QĐ 1,2,3,5,7 + nguồn · FR UC05–08, 14 | Nhập cuộc · QĐ 4,6,8,9 + nguồn · FR UC09–12, 16 + NFR |
 | 3 | 28/09–04/10 | **Proposal — nộp T7 03/10** | Ch.1, 2.4, Ch.4, ghép, nộp; tải rubric + template Final | FR, sơ đồ + đặc tả gọn 14 UC, 2.3 | Ch.3, NFR, tham khảo, checklist + rubric |
-| 4 | 05–11/10 | **Nền móng + cổng thiết kế T4 07/10**; chốt QĐ 10–18 | Migration + tooling, lát cắt mẫu UC02 (+ `CurrentUser`, mẫu phân quyền, form-error), bảo vệ `main` | Học NestJS, sequence, **`FefoAllocator`**, **`StockLedger`** | Học NestJS, mẫu phân quyền, **hạ tầng test + CI**, bảng test mới + TC-35…55 |
-| 5 | 12–18/10 | **v0.1** (API + UI tối thiểu): đăng nhập → nhập hàng → nhận đơn → cấp FEFO | UC01, UC03, seed | UC05, UC06, test BR01–03 + đồng thời cơ bản | Xác thực backend + **UI đăng nhập**, kiểm thử tích hợp, **tag v0.1** |
-| 6 | 19–25/10 | Quy tắc đơn thuốc, bán hàng, kiểm kê | UC04, xử lý lỗi, chạy test của B | BR04/07/10, UC07 (OTC áp BR01/02/04), invariant BR05 | UC09, UC10, chạy test của A |
-| 7 | 26/10–01/11 | **v0.2**: 14 UC Must; Appendix D | UC13 *(S)*, hồi quy, review | UC08, UC14, Appendix D, **tag v0.2** | UC11, UC12, UC15 *(S)* |
-| 8 | 02–08/11 | Làm vững; sơ đồ sinh từ code; **nháp báo cáo** | Restart/rollback, hiệu năng, backup, Ch.2 + kiến trúc/dữ liệu | Stress đồng thời, chống gửi lặp, test BR đầy đủ, báo cáo phần B | Kiểm toán quyền, sơ đồ, hồi quy, báo cáo phần C + kiểm thử |
-| 9 | 09–15/11 | **Freeze T2 09/11**; **v1.0 T6 13/11**; nháp đủ T7 14/11 | Ch.1–2, phần A, ghép (chỉ để nhất quán), bảng phản hồi Proposal | Phần B, kiểm thử khám phá, ma trận truy vết | TC-32, TC-33, hồi quy cuối, **tag v1.0** |
-| 10 | 16–22/11 | **Final — khóa T5 19/11, nộp T6 20/11** | Biên tập nhất quán, Ch.4, nộp | Đối chiếu tài liệu–code, "chưa làm và vì sao", nguồn/license, Appendix C | Chạy máy khác, kiểm tra file/link, checklist 12.2/12.3 |
+| 4 | 05–11/10 | Nền móng; QĐ 10–18 chốt trong Proposal v1.1 | Migration, lát cắt mẫu UC02, bảo vệ `main`, góp ý dược sĩ — **xong 12/10, PR #93–#95** (trễ) | Sequence, `FefoAllocator`/`ExpiryPolicy` — *chưa có PR* | Mẫu phân quyền, hạ tầng test + CI, TC-35…63 — *chưa có PR* |
+| 5 | 12–18/10 | **v0.1**: đăng nhập → nhập hàng → nhận đơn → cấp FEFO | UC01, UC03, seed, **`StockLedger` (chuyển từ B)** — PR #96, #97, #99, #100; theo dõi DEC-09/10 với dược sĩ | UC05 + xác nhận, UC06 có bước bàn giao, test BR01–03 | Đăng nhập backend + UI, kiểm thử tích hợp, **tag v0.1** |
+| 6 | 19–25/10 | Quy tắc đơn, bán OTC, kiểm kê | UC04, xử lý lỗi nhất quán, chạy TC của B | `PrescriptionValidator` (BR04/07/10), UC07 OTC, invariant BR05 | UC09 (BR08), UC10, chạy TC của A |
+| 7 | 26/10–01/11 | **v0.2: 13 UC Must**; **cổng Must-core**; Appendix D | Trạng thái lô và cách ly trong ledger (BR11), hồi quy, seed giao dịch | UC08 vào cách ly, hủy trước bàn giao, TC-62, Appendix D, **tag v0.2** | UC11, UC12, kiểm tra cổng |
+| 8 | 02–08/11 | Làm vững; Should nếu qua cổng; **nháp báo cáo** | UC13 *(nếu qua cổng)*, TC-24/25, TC-29/30, Ch.2 + kiến trúc | TC-26/54/62, TC-27, màn hình UC14 *(nếu qua cổng)*, báo cáo phần B | TC-53, UC15 + FR-46/47 *(nếu qua cổng)*, sơ đồ, hồi quy, báo cáo phần C |
+| 9 | 09–15/11 | **Freeze T2 09/11**; **v1.0 T6 13/11** | Ch.1–2, phần A, ghép, bảng phản hồi Proposal | Phần B, kiểm thử khám phá, ma trận truy vết | TC-32, TC-33, hồi quy cuối, **tag v1.0** |
+| 10 | 16–22/11 | **Final — khóa T5 19/11, nộp T6 20/11** | Biên tập, Ch.4, Appendix B, nộp | Đối chiếu tài liệu–code, "chưa làm và vì sao", Appendix C | Chạy máy khác, kiểm tra file/link, checklist 12.2/12.3 |
 
 **Dự phòng**: khoảng 25–30 giờ/người (~13–15%) rải trong các tuần, nhiều hơn ở tuần 8–10.
 
@@ -218,6 +219,8 @@ Mã FR do từng người đặt ở tuần 2 (`FR-01…`). Ma trận đầy đ�
 ---
 
 ## 8. Quyết định nghiệp vụ cần nhóm chốt
+
+> **Đã chốt trong Proposal v1.1** (DEC-01…10, dược sĩ góp ý tuần 4; QĐ 10–18 cũng được trả lời): bản ghi chính thức ở `docs/requirements/business-decisions.md`. Phần dưới giữ lại để thấy lựa chọn ban đầu; DEC-09, DEC-10 còn chờ dược sĩ xác nhận ở tuần 5.
 
 Tôi **không tự chốt**. Cột "Đề xuất" để buổi họp đi nhanh; nhóm có quyền chọn khác. Mỗi quyết định sau khi chốt được ghi vào `docs/README.md` bởi người phụ trách, bằng commit của chính họ, **với một cách đánh số thống nhất** (QĐ 1–18 — thay cho "6.4-x" trong code TODO). Riêng **QĐ 10–18 ảnh hưởng schema** nên phải chốt trước khi migration tuần 4 merge.
 
@@ -365,3 +368,30 @@ Bản 1 được **4 agent AI độc lập** rà soát, mỗi agent chỉ đọc
 | 2 | Phạm vi | Giao người phụ trách kỹ thuật chọn → **UC14 lên Must (14 UC Must); BR06 xuống Could**. Lý do: 14 UC Must có biên an toàn trên cận dưới 13 của Bảng 2 kể cả khi UC16 đăng nhập không được tính; UC14 vốn đã cần cho UC05. BR06 cần bảng quy đổi theo từng thuốc và chạm vào nhập hàng, cấp phát, giá — rủi ro cao so với lợi ích; 6 quy tắc Must vẫn đạt mức 6+ |
 | 3 | Chia sẻ roadmap | Đưa vào repo `docs/plan/` để cả nhóm và giảng viên cùng xem |
 | 4 | Báo GV nếu thành viên không tham gia trước khi chốt nhóm (R1) | **Còn mở** — trưởng nhóm quyết sau buổi họp T7 26/09 |
+
+## 13. Cập nhật 12/10/2026 — bắt kịp và đồng bộ Proposal v1.1
+
+### 13.1 Tình hình
+
+- Repo không có commit nào từ 25/09 đến 12/10. Proposal v1.1 được nộp 11/10 (bản đầu 04/10), ngoài repo; biên nhận nộp chưa được đính vào #19–#21.
+- Ngày 12/10, A hoàn thành toàn bộ việc của A tuần 2–5 thành các PR xếp chồng, **chưa merge, chưa có review**: #93 (W04-A1), #94 (W04-A2, sau #91), #95 (W04-A3), #96 (`StockLedger`), #97 (W05-A1), #99 (W05-A2), #100 (W05-A3), cùng PR tài liệu này (W02-A3, #12). Mỗi PR lớn được Codex review chỉ-đọc; lỗi tìm được đã sửa trong cùng PR, có test hồi quy.
+- B và C chưa có PR nào cho tuần 2–4. Minh mở PR đầu tiên #98 (W02-C2) tối 12/10.
+- Cách làm việc có hỗ trợ AI (Claude Code, Codex) được ghi để khai báo ở Appendix B của báo cáo cuối.
+
+### 13.2 Quyết định của trưởng nhóm ngày 12/10
+
+| # | Vấn đề | Quyết định |
+|---|---|---|
+| 1 | Nguồn yêu cầu | **Proposal v1.1** là nguồn chính: 13 UC Must + 3 Should, BR01–BR11, FR-01…48, NFR-01…13, 63 TC. `docs/requirements/` đã đồng bộ |
+| 2 | Vòng review | **Minh duyệt Tiến, Tiến duyệt Duy Anh, Duy Anh duyệt Minh** (thay vòng A→B→C của Proposal §2.4). Action tự gán reviewer; bảo vệ `main` cần 1 approve, admin không bị áp luật. Mỗi người chỉ approve bằng tài khoản của mình; merge không có approve phải ghi lý do trong PR và journal |
+| 3 | `StockLedger` | Chuyển từ W04-B3 (B) sang A, theo Proposal v1.1 (module M3 của Tiến). B giữ `FefoAllocator`/`ExpiryPolicy` và xây cấp phát trên API ledger |
+| 4 | Phân quyền khi chưa có mẫu của C | A làm khung tạm: `Actor` + `assertPermission` + ma trận Bảng 2.4 lưu trong DB + `DevAuthGuard` (`AUTH_MODE=dev`). C thay guard bằng JWT ở #43 mà không sửa service |
+| 5 | Tuần 7–8 | Theo Proposal Bảng 2.9: Should (UC13, màn hình UC14, UC15, FR-46/47) chỉ làm sau **cổng Must-core** tuần 7; tuần 7 của A là trạng thái lô và cách ly trong ledger (`tuan-07.md`, `tuan-08.md`) |
+
+### 13.3 Việc còn mở
+
+- **R1 vẫn đang xảy ra** (B: 0 PR; C: 1 PR mở). Hướng xử lý của §9.1 (báo GV, ghi journal) do trưởng nhóm quyết; quy tắc đóng góp từ tuần 4 của Proposal §2.4 áp dụng từ tuần 5.
+- Phản hồi của GV về Proposal: chưa có → phần còn lại của W04-A1.
+- Theo dõi DEC-09, DEC-10 với dược sĩ (tuần 5, A).
+- Giờ trong bảng tuần 7–8 chưa cân lại sau khi đổi việc; cân ở retro.
+

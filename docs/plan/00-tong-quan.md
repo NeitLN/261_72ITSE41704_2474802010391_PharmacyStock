@@ -83,8 +83,8 @@ Không làm Should thì: vai trò và tài khoản vẫn có qua seed; giá hi�
 | Tuần | Ngày | Cổng / mốc | A — Tiến | B — Duy Anh | C — Minh |
 |---|---|---|---|---|---|
 | 1 | 14–20/09 | Đăng ký ✅ (A) | ✅ Đăng ký, repo, scaffold | *không có minh chứng* → tuần 2 | *không có minh chứng* → tuần 2 |
-| 2 | 21–27/09 | PR đầu của B, C; **chốt 9 QĐ lõi (T7 26/09)**; FR + đặc tả UC Must | ✅ Domain, DB · sửa `.env.example` · đặc tả mẫu + FR UC01–04 | Nhập cuộc · QĐ 1,2,3,5,7 + nguồn · FR UC05–08, 14 | Nhập cuộc · QĐ 4,6,8,9 + nguồn · FR UC09–12, 16 + NFR |
-| 3 | 28/09–04/10 | **Proposal — nộp T7 03/10** | Ch.1, 2.4, Ch.4, ghép, nộp; tải rubric + template Final | FR, sơ đồ + đặc tả gọn 14 UC, 2.3 | Ch.3, NFR, tham khảo, checklist + rubric |
+| 2 | 21–27/09 | PR đầu của B, C; phương án QĐ; FR + đặc tả UC | ✅ Domain, DB · `.env.example` (#91) · đặc tả mẫu (#92); FR + đặc tả UC01–04, UC13 xong 12–13/10 (#101) | PR đầu, QĐ 1,2,3,5,7, FR UC05–08, 14 — *chưa có minh chứng trong repo* | PR đầu, QĐ 4,6,8,9, FR UC09–12, 15–16, NFR — *làm trên nhánh 12/10, PR #98* |
+| 3 | 28/09–04/10 | **Proposal — nộp 04/10 ✅** (bản v1.1 nộp lại 11/10 ✅) | Ch.1, 2.4, Ch.4, ghép, nộp | Rà FR và đặc tả UC05–08, 14; 2.3 công nghệ | Rà NFR và Ch.3; checklist 12.1 |
 | 4 | 05–11/10 | Nền móng; QĐ 10–18 chốt trong Proposal v1.1 | Migration, lát cắt mẫu UC02, bảo vệ `main`, góp ý dược sĩ — **xong 12/10, PR #93–#95** (trễ) | Sequence, `FefoAllocator`/`ExpiryPolicy` — *chưa có PR* | Mẫu phân quyền, hạ tầng test + CI, TC-35…63 — *chưa có PR* |
 | 5 | 12–18/10 | **v0.1**: đăng nhập → nhập hàng → nhận đơn → cấp FEFO | UC01, UC03, seed, **`StockLedger` (chuyển từ B)** — PR #96, #97, #99, #100; theo dõi DEC-09/10 với dược sĩ | UC05 + xác nhận, UC06 có bước bàn giao, test BR01–03 | Đăng nhập backend + UI, kiểm thử tích hợp, **tag v0.1** |
 | 6 | 19–25/10 | Quy tắc đơn, bán OTC, kiểm kê | UC04, xử lý lỗi nhất quán, chạy TC của B | `PrescriptionValidator` (BR04/07/10), UC07 OTC, invariant BR05 | UC09 (BR08), UC10, chạy TC của A |
@@ -412,6 +412,21 @@ Bản 1 được **4 agent AI độc lập** rà soát, mỗi agent chỉ đọc
 | 4 | Phân quyền khi chưa có mẫu của C | A làm khung tạm: `Actor` + `assertPermission` + ma trận Bảng 2.4 lưu trong DB + `DevAuthGuard` (`AUTH_MODE=dev`). C thay guard bằng JWT ở #43 mà không sửa service |
 | 5 | Tuần 7–8 | Theo Proposal Bảng 2.9: Should (UC13, màn hình UC14, UC15, FR-46/47) chỉ làm sau **cổng Must-core** tuần 7; tuần 7 của A là trạng thái lô và cách ly trong ledger (`tuan-07.md`, `tuan-08.md`) |
 | 6 | R1 (báo GV) | **Không báo GV.** Trưởng nhóm xác nhận cả ba đang làm; phần việc của Duy Anh và Minh chưa lên GitHub sẽ lên qua PR từ tuần 5. Theo dõi bằng cổng đóng góp hằng tuần (§6.7, Proposal §2.4) và báo cáo tuần `docs/progress/`. **Xem lại vào T4 21/10**: nếu đến hôm đó một thành viên chưa có PR nào của phần mình, trưởng nhóm báo GV (FAQ: báo sớm) và ghi journal |
+
+### 13.4 Khác biệt có chủ đích so với Proposal v1.1 (nêu trong báo cáo cuối)
+
+Kế hoạch bám Bảng 2.9 của Proposal v1.1 cho tuần 4–10. Những chỗ khác, đều có lý do và ngày quyết định:
+
+| Proposal v1.1 | Kế hoạch hiện tại | Lý do |
+|---|---|---|
+| Bảng 2.9 tuần 4: `StockLedger` của Duy Anh | `StockLedger` của Tiến (PR #96); Duy Anh giữ `FefoAllocator`/`ExpiryPolicy` | §2.2 của chính Proposal xếp module M3 (sổ kho) cho Tiến; quyết định 12/10 (§13.2 số 3) |
+| §2.4: Duy Anh duyệt Tiến, Minh duyệt Duy Anh, Tiến duyệt Minh | Minh duyệt Tiến, Tiến duyệt Duy Anh, Duy Anh duyệt Minh | Quyết định trưởng nhóm 12/10 (§13.2 số 2) |
+| Việc tuần 4 làm trong tuần 4 | Việc tuần 4 của Tiến xong 12/10 (tuần 5); của Duy Anh và Minh chưa xong | Trễ — ghi trung thực trong `docs/progress/week-04.md` |
+| Bảng 2.3: UC04 phát hành tuần 5; UC13–UC15 tuần 9 | UC04 tuần 6; Should (UC13, màn hình UC14, UC15) tuần 8 nếu qua cổng | Bảng 2.9 và §2.4 của Proposal ghi như vậy; Bảng 2.3 lệch với chúng — theo Bảng 2.9 |
+| §1.4: 90 gói việc | 93 issue (thêm #103–#105 cho mục Should có điều kiện ở tuần 8) | Tách mục Should khỏi issue tuần 7 theo Bảng 2.9 |
+| — | Thêm: báo cáo tuần `docs/progress/`, leader review cuối tuần, nhật ký dùng AI | Làm rõ quá trình cho giảng viên; không đổi phạm vi |
+
+Phạm vi (13 UC Must + 3 Should, BR01–BR11, FR-01…48, 63 TC) **không đổi**.
 
 ### 13.3 Việc còn mở
 

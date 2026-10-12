@@ -11,7 +11,7 @@ three-person team is expected to hit** — higher than the Course Guidelines
 
 | Dimension | Minimum to pass (§4.1) | Expected for 3 students | Where we are |
 |---|---|---|---|
-| Use cases implemented end-to-end | 6 | **13–16** | 0 built; 14 Must + 2 Should planned |
+| Use cases implemented end-to-end | 6 | **13–16** | 13 Must + 3 Should planned (Proposal v1.1) |
 | Meaningful domain classes | 8 | **16–22** | 25 defined |
 | User roles with distinct permissions | 2 | **3+** | 3 planned |
 | Non-trivial business rules | 3 | **6+** | 6 Must + 3 Should + 1 Could |

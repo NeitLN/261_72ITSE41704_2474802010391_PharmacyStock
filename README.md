@@ -1,37 +1,61 @@
 # Pharmacy Stock and Prescription Dispensing System
 
 A web application for a single-branch pharmacy to manage medicine stock by
-batch, take in prescriptions, dispense and sell medicines, handle returns, and
-report on expiry and turnover.
+batch, take in prescriptions, dispense and sell medicines, handle returns into
+quarantine, and report on expiry and stock movements. Scope and requirements
+follow the submitted Project Proposal v1.1 (11/10/2026).
 
 Course project for **Application Programming Project (72ITSE41704)**, Faculty of
 Information Technology, Van Lang University — Semester 1, 2026–2027.
 Instructor: Dr. Nguyen Tri Hai.
 
-> **Status: week 1 — project scaffold.** The repository structure, toolchain and
-> domain model skeleton are in place. No use case is implemented yet. See
-> [Current status](#current-status) for what does and does not work today.
+> **Status: week 5.** UC01, UC02 and UC03, the stock ledger and the demo seed
+> are built in pull requests waiting for review; nothing is tagged yet. See
+> [Current status](#current-status).
+
+## Weekly progress
+
+Each week has a report for the lecturer — planned versus delivered, links to
+the evidence, and what each member did: [`docs/progress/`](docs/progress/README.md).
+Weeks 1–4 were written on 12/10/2026 from the existing evidence and say so.
+
+| Week | Dates | Milestone | Status | Evidence | Report |
+|---|---|---|---|---|---|
+| 1 | 14/09–20/09 | Team and topic registration | Delivered (form) | #1 | [week 1](docs/progress/week-01.md) |
+| 2 | 21/09–27/09 | Requirements | Partly delivered | `561af37`…`afbd3d9`, #91, #92 | [week 2](docs/progress/week-02.md) |
+| 3 | 28/09–04/10 | **Project Proposal (20%)** | Delivered 04/10 | #19–#21 | [week 3](docs/progress/week-03.md) |
+| 4 | 05/10–11/10 | Design and foundations | Not delivered in week 4; Proposal v1.1 resubmitted 11/10 | [receipt](docs/evidence/proposal-resubmission-receipt-2026-10-11.png) | [week 4](docs/progress/week-04.md) |
+| 5 | 12/10–18/10 | Release `v0.1` | In progress | #93–#102, #98 | [week 5](docs/progress/week-05.md) |
+| 6 | 19/10–25/10 | Test-case table with real runs | — | — | — |
+| 7 | 26/10–01/11 | Release `v0.2`, Must-core gate, Appendix D | — | — | — |
+| 8 | 02/11–08/11 | Hardening, updated design | — | — | — |
+| 9 | 09/11–15/11 | Release `v1.0`, draft report | — | — | — |
+| 10 | 16/11–22/11 | **Final Report (80%)** | — | — | — |
+
+Live task status: [project board](https://github.com/users/NeitLN/projects/1) ·
+[milestones](https://github.com/NeitLN/261_72ITSE41704_2474802010391_PharmacyStock/milestones?direction=asc&sort=due_date) ·
+[pull requests](https://github.com/NeitLN/261_72ITSE41704_2474802010391_PharmacyStock/pulls?q=is%3Apr).
 
 ## Team
 
 | Student ID | Full name | Role | Code |
 |---|---|---|---|
-| 2474802010391 | Võ Việt Tiến | Team leader — catalogue, suppliers, goods receipts, stock lookup; plan and submission coordination | A |
-| 2474802010525 | Bùi Duy Anh | Prescription intake, dispensing, sales, returns; dispensing rules and transactions | B |
-| 2474802010242 | Võ Hoàng Minh | Stock take, alerts, expiry and turnover reports; test coordination, packaging and run guide | C |
+| 2474802010391 | Võ Việt Tiến | Team leader — catalogue and pricing, suppliers, goods receipts, stock lookup, stock ledger, schema and seed; plan and submission | A |
+| 2474802010525 | Bùi Duy Anh | Prescription intake and verification, dispensing, sales, returns into quarantine; customers and prescribers | B |
+| 2474802010242 | Võ Hoàng Minh | Stock take, alerts, expiry and batch status, stock movement report, sign-in and access control; test coordination, packaging and run guide | C |
 
 Each member owns a complete slice: UI → business logic → data access → tests →
-documentation. Review rule: A's work is reviewed by B, B's by C, C's by A.
+documentation. Review rule: Tiến's work is reviewed by Minh, Duy Anh's by Tiến, Minh's by Duy Anh.
 
 ## Technology stack
 
 | Layer | Technology |
 |---|---|
-| Frontend | React 19, TypeScript, Vite, Ant Design, React Router, axios |
-| Backend | NestJS, TypeScript, TypeORM, class-validator |
-| Database | PostgreSQL 18 |
-| Testing | Vitest (backend), manual test cases in `tests/` |
-| Tooling | oxlint, Prettier |
+| Frontend | React 19, TypeScript 6, Vite 8, Ant Design 6, React Router 7, axios |
+| Backend | NestJS 12, TypeScript 6, TypeORM 1.x, class-validator |
+| Database | PostgreSQL 18 (Docker Compose), schema built by migrations |
+| Testing | Vitest + Supertest (unit and API e2e), manual test cases in `tests/` |
+| Tooling | oxlint, Prettier, GitHub Actions |
 
 TypeScript is used end to end so the same types describe the API on both sides.
 
@@ -206,49 +230,55 @@ tests/         manual test cases and test evidence
 
 ## Git workflow
 
-- `main` must always build. No direct commits to `main` once feature work starts.
+- `main` must always build and is protected: changes arrive only through a
+  pull request with one approval, and a new commit dismisses an old approval.
 - Feature branches: `feature/<use-case>-<short-description>`, merged via pull request.
-- Every member commits under their own GitHub account.
+- Every member commits, reviews and approves under their own GitHub account.
+- Review rotation: Minh reviews Tiến, Tiến reviews Duy Anh, Duy Anh reviews
+  Minh; a workflow requests the reviewer automatically. Details:
+  [CONTRIBUTING](CONTRIBUTING.md#pull-requests).
 - Release tags: `v0.1` (week 5), `v0.2` (week 7), `v1.0` (week 9).
 
 ## Current status
 
-**Week 1 — scaffold.** The toolchain and the domain model are in place; no use
-case is implemented.
+**Week 5 (12/10/2026).** The Project Proposal v1.1 was submitted on
+11/10/2026 (receipt in `docs/evidence/`). Tiến's work for weeks 2–5 is in open
+pull requests #91–#102, reviewed by Codex and waiting for the team's review;
+not merged or tagged yet.
 
-**Working today**
+**Built (in pull requests)**
 
-- Backend builds, lints and passes its unit test
-- Backend boots against PostgreSQL 18 (Docker) and creates the schema: 26
-  tables — the 25 entities plus the `role_permissions` join table — with 41
-  foreign keys
-- Data survives a database restart
-- Frontend builds, lints, and serves a navigable Ant Design shell
+- Schema of Proposal v1.1 built by migrations, with database constraints that
+  keep stock non-negative and the ledger append-only (#94)
+- UC02 suppliers as the reference slice, one error format, permission checks
+  in the services (Table 2.4), a temporary dev sign-in, e2e test setup (#95)
+- Stock ledger with the lock protocol of Proposal §3.1 — BR03, BR05 (#96)
+- UC01 medicine catalogue with current price and OTC classification (#97)
+- UC03 goods receipts through the ledger (#99)
+- Demo seed: 60 medicines, 10 suppliers, 120 batches with relative dates (#100)
+- 31 unit and 61 e2e tests passing
 
 **Not built yet**
 
-- All use cases (14 Must, 2 Should) — the frontend pages are labelled placeholders
-- Authentication and role-based access control
-- Any of the ten business rules
-- Seed data and sample accounts
+- Sign-in (UC16) — a dev user switch stands in
+- UC04–UC12 and the Should use cases UC13–UC15
+- CI workflow
 
 ### Scope against the course targets
 
 Targets are those expected of a three-person team
 ([Suggested Project Titles, Table 2](docs/course-requirements.md)).
 
-| Dimension | Target | Planned | Built |
+| Dimension | Target | Planned (Proposal v1.1) | Built (in PRs) |
 |---|---|---|---|
-| Use cases end-to-end | 13–16 | 14 Must + 2 Should | 0 |
-| Domain classes | 16–22 | 25 | 25 defined |
-| User roles | 3+ | 3 | 0 |
-| Business rules beyond CRUD | 6+ | 6 Must + 3 Should + 1 Could | 0 |
-| Documented test cases | 20+ | 34 | 0 run |
+| Use cases end-to-end | 13–16 | 13 Must + 3 Should | 3 (UC01–03) |
+| Domain classes | 16–22 | 25 | 25 in the schema |
+| User roles | 3+ | 3 | Checked in services; sign-in not built |
+| Business rules beyond CRUD | 6+ | 8 Must + 2 Should + 1 Could | BR03, BR05 |
+| Documented test cases | 20+ | 63 | 63 planned; 0 manual runs |
 
-Nine business decisions are still open — expiry date granularity, partial
-dispensing, what makes a prescription reference valid, how dispensing links to
-sales, and others. They are marked `TODO` in the code and listed in
-[`docs/README.md`](docs/README.md), to be settled in week 2.
+Business decisions DEC-01 to DEC-10 are settled in the Proposal and recorded in
+[`docs/requirements/business-decisions.md`](docs/requirements/business-decisions.md).
 
 ## Task tracking
 
@@ -269,7 +299,11 @@ acceptance tests pass. See
 | [`docs/plan/`](docs/plan/) | The ten-week plan: tasks per member per week, quality process, risks |
 | [`docs/course-requirements.md`](docs/course-requirements.md) | What the course measures — scope targets, rubrics, submission rules |
 | [`docs/journal.md`](docs/journal.md) | Session-by-session record of the work |
-| [`docs/requirements/use-cases.md`](docs/requirements/use-cases.md) | The sixteen use cases (14 Must, 2 Should), roles and ownership |
-| [`docs/requirements/business-rules.md`](docs/requirements/business-rules.md) | The ten business rules and the invariants to test |
+| [`docs/requirements/use-cases.md`](docs/requirements/use-cases.md) | The sixteen use cases (13 Must, 3 Should), roles, permissions and ownership |
+| [`docs/requirements/functional-requirements.md`](docs/requirements/functional-requirements.md) | FR-01 to FR-48 and NFR-01 to NFR-13 |
+| [`docs/requirements/business-decisions.md`](docs/requirements/business-decisions.md) | DEC-01 to DEC-10 and the pharmacist review |
+| [`docs/requirements/business-rules.md`](docs/requirements/business-rules.md) | BR01–BR11 and the invariants to test |
 | [`docs/design/domain-model.md`](docs/design/domain-model.md) | The twenty-five entities and why each exists |
-| [`tests/manual/test-cases.md`](tests/manual/test-cases.md) | The thirty-four planned test cases |
+| [`docs/design/stock-ledger.md`](docs/design/stock-ledger.md) | The stock ledger, movement types and the lock protocol |
+| [`docs/design/how-to-add-a-module.md`](docs/design/how-to-add-a-module.md) | The reference slice to copy for every use case |
+| [`tests/manual/test-cases.md`](tests/manual/test-cases.md) | The sixty-three planned test cases (Proposal Appendix C) |

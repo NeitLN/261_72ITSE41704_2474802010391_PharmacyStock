@@ -1,7 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Medicine } from './medicine.entity.js';
 
-/** Therapeutic grouping used for catalogue browsing and turnover reports. */
+/** Therapeutic grouping used for catalogue browsing and the stock movement report. */
 @Entity('medicine_categories')
 export class MedicineCategory {
   @PrimaryGeneratedColumn('uuid')

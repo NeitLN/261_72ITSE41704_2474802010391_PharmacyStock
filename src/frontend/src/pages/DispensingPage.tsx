@@ -6,9 +6,9 @@ export function DispensingPage() {
       title="Prescriptions & dispensing"
       owner="Bùi Duy Anh (B)"
       useCases={[
-        'UC05 — Take in a prescription',
+        'UC05 — Take in a prescription and verify it (FR-44)',
         'UC06 — Dispense against a prescription (BR01, BR02, BR03, BR04, BR07, BR10)',
-        'UC14 — Manage customers and prescribers',
+        'UC14 — Manage customers and prescribers (Should; quick-create is in UC05)',
       ]}
     />
   );

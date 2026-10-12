@@ -4,34 +4,36 @@
 > Milestone: *Week 07 — Iteration 2 — v0.2*. Module tự học: 9.
 > Rubric: đối chiếu cả 5 tiêu chí Final qua Appendix D.
 
+> **Reviewer** theo vòng mới từ 12/10 (A do C duyệt, B do A, C do B; `00-tong-quan.md` §6.2).
+
 ## 1. Mục tiêu
 
-1. **14 UC Must chạy end-to-end**: thêm UC08 trả hàng, UC11 cảnh báo hạn dùng/hủy lô, UC12 báo cáo luân chuyển, UC14 khách hàng/bác sĩ.
-2. Should nếu kịp: UC13 lịch sử giá (BR09), UC15 quản trị người dùng.
+1. **13 UC Must chạy end-to-end** (Proposal v1.1): thêm UC08 trả hàng vào cách ly, UC11 cảnh báo hạn dùng/trạng thái lô/hủy lô, UC12 báo cáo luân chuyển kho.
+2. **Cổng Must-core** (Proposal §2.4): chỉ khi đạt mới mở Should (UC13, màn hình UC14, UC15, FR-46/47) ở tuần 8.
 3. **Hồi quy bộ R** (bắt đầu T5 29/10) và **TC-31 luồng đầu–cuối lần đầu**.
 4. **B tag `v0.2` T7 31/10** (người ký dự phòng: A). **Appendix D** trong `docs/` (B ghi).
 
 ## 2. Điều kiện bắt đầu
 
 - [ ] UC07 có SaleLine (tuần 6); invariant BR05 có test
-- [ ] **Cổng thiết kế T2 26/10**: sequence UC08 (B), UC11 + UC12 (C), UC13 (A) merge trước PR tính năng
+- [ ] **Cổng thiết kế T2 26/10**: sequence UC08 (B), UC11 + UC12 (C), lệnh trạng thái lô/cách ly trong ledger (A) merge trước PR tính năng
 - [ ] Không còn S1 mở
 
 ## 3. Việc theo thành viên
 
 | Mã | Việc | Giờ | Reviewer | Phụ thuộc | Đầu ra / nghiệm thu | Issue |
 |---|---|---|---|---|---|---|
-| W07-A1 | **UC13 Lịch sử giá** *(S)* — `PriceBook`: giá theo ngày hiệu lực (BR09); UC07 lấy giá tại ngày thanh toán | 5 | B | W06-B2 | TC-40, 41 Pass do B chạy | #55 |
-| W07-A2 | **Hồi quy phần của B và C** trong bộ R + **TC-31 luồng đầu–cuối** (nhập → nhận đơn → cấp → thanh toán → trả → báo cáo khớp) | 2,5 | B | B1, C2 | Lượt chạy trong `runs.md` | #56 (nội dung đổi) |
-| W07-A3 | **Seed giao dịch cho báo cáo**: bán và trả trải hai kỳ (dùng ngày nghiệp vụ lùi); cập nhật seed theo schema mới | 2 | C | B1 | TC-23 có dữ liệu tính tay | #57 (nội dung đổi) |
+| W07-A1 | **Trạng thái lô và cách ly trong `StockLedger`** (BR11, DEC-04, DEC-07): đổi trạng thái lô có lý do (FR-48 của C dùng), lệnh RETURN/RELEASE/REJECT/WRITE_OFF/DESTROY qua ledger, invariant cho từng loại | 5 | C | W04-B3 (ledger) | e2e mọi loại movement pass; TC-60 có dữ liệu | #55 (nội dung đổi: UC13 sang tuần 8 nếu qua cổng) |
+| W07-A2 | **Hồi quy phần của B và C** trong bộ R + **TC-31 luồng đầu–cuối** (nhập → nhận đơn → cấp → thanh toán → trả → báo cáo khớp) | 2,5 | C | B1, C2 | Lượt chạy trong `runs.md` | #56 (nội dung đổi) |
+| W07-A3 | **Seed giao dịch cho báo cáo**: bán và trả trải hai kỳ (dùng ngày nghiệp vụ lùi); cập nhật seed theo schema mới | 2 | B | B1 | TC-23 có dữ liệu tính tay | #57 (nội dung đổi) |
 | — | A: họp 2,5 · review 3 · giữ schema/seed 1 · sửa lỗi/dự phòng 4 | 10,5 | — | — | — | — |
-| W07-B1 | **UC08 Trả hàng** theo QĐ 4/13/14: `SaleReturn` + `ReturnLine`; không trả vượt số đã bán (TC-17); `requestId` chống gửi lặp (TC-18); **bút toán bù** qua `StockLedger` (`reversesMovementId`); thuốc kiểm soát / lô hết hạn không về tồn bán (TC-50). **Lên `main` trước T4 28/10** (UC12 phụ thuộc) | 7 | C + A | W06-B2 | TC-16, 17, 18, 50 Pass do C chạy; invariant vẫn pass | #58 |
-| W07-B2 | **UC14 Khách hàng và bác sĩ** (Must): màn hình quản lý + **tạo nhanh ngay trong UC05**; số giấy phép không trùng | 3 | C | W05-B1 | TC mới cho UC14 Pass do C chạy | #59 |
-| W07-B3 | **Appendix D** (cả nhóm chấm ở họp T7; B ghi) + **ký và tag `v0.2`** | 1,5 | A | W07-C3 | `docs/appendix-d-self-check.md`; tag + release note | #60 (nội dung đổi) |
+| W07-B1 | **UC08 Trả hàng** theo QĐ 4/13/14: `SaleReturn` + `ReturnLine`; không trả vượt số đã bán (TC-17); `requestId` chống gửi lặp (TC-18); **bút toán bù** qua `StockLedger` (`reversesMovementId`); thuốc kiểm soát / lô hết hạn không về tồn bán (TC-50). **Lên `main` trước T4 28/10** (UC12 phụ thuộc) | 7 | A + C | W06-B2 | TC-16, 17, 18, 50 Pass do C chạy; invariant vẫn pass | #58 |
+| W07-B2 | **Hủy trước bàn giao** (FR-45, DEC-05) cho cấp phát và giỏ bán + **TC-62** bán OTC và cấp phát tranh lượng cuối (20 lần) | 3 | A | W06-B2 | TC-59, TC-62 Pass do C chạy | #59 (nội dung đổi: màn hình UC14 là Should, sang tuần 8; tạo nhanh nằm trong UC05) |
+| W07-B3 | **Appendix D** (cả nhóm chấm ở họp T7; B ghi) + **ký và tag `v0.2`** | 1,5 | C | W07-C3 | `docs/appendix-d-self-check.md`; tag + release note | #60 (nội dung đổi) |
 | — | B: hồi quy phần của A trong bộ R 2 · họp 2,5 · review 1,5 · sửa lỗi 2,5 | 8,5 | — | — | — | — |
-| W07-C1 | **UC11 Cảnh báo hạn dùng và hủy lô**: `ExpiryReport`; ai đặt trạng thái EXPIRED và khi nào (QĐ 1); hủy → movement WRITE_OFF; xác nhận đã xem | 5 | A | cổng thiết kế | TC-22 Pass do B chạy | #61 |
-| W07-C2 | **UC12 Báo cáo luân chuyển** theo QĐ 6 qua `ReportGenerator` (đa hình cùng báo cáo tồn thấp/hạn dùng): làm phần xuất trước, cộng trả hàng sau khi B1 lên `main` | 5 | A | W07-B1 (T4), W07-A3 | TC-23 Pass: số liệu khớp bảng tính tay (lưu cả hai) | #62 |
-| W07-C3 | **UC15 Quản trị người dùng/vai trò** *(S)* theo ma trận của C; khóa tài khoản (TC-44) | 3 | A | W05-C1 | TC-44 Pass do A chạy | #63 (nội dung đổi) |
+| W07-C1 | **UC11 Cảnh báo hạn dùng và hủy lô**: `ExpiryReport`; ai đặt trạng thái EXPIRED và khi nào (QĐ 1); hủy → movement WRITE_OFF; xác nhận đã xem | 5 | B | cổng thiết kế | TC-22 Pass do B chạy | #61 |
+| W07-C2 | **UC12 Báo cáo luân chuyển** theo QĐ 6 qua `ReportGenerator` (đa hình cùng báo cáo tồn thấp/hạn dùng): làm phần xuất trước, cộng trả hàng sau khi B1 lên `main` | 5 | B | W07-B1 (T4), W07-A3 | TC-23 Pass: số liệu khớp bảng tính tay (lưu cả hai) | #62 |
+| W07-C3 | **Kiểm tra cổng Must-core**: 13 UC Must chạy trên `main`, mọi TC của quy tắc Must pass, CI xanh, invariant + TC-26/54/62 pass; ghi kết quả vào journal | 3 | B | A1, B1, C1, C2 | Kết quả cổng (đạt/không, lý do) trong `docs/journal.md` | #63 (nội dung đổi: UC15 sang tuần 8 nếu qua cổng) |
 | — | C: tổng hợp kết quả hồi quy + ký nghiệm thu (dự phòng A) 1,5 · họp 2,5 · review 1,5 · sửa lỗi 1,5 | 7 | — | — | — | — |
 
 *So với Issue*: UC15 trả lại C (C thiết kế RBAC; cân đóng góp); A nhận hồi quy + seed giao dịch; B ghi Appendix D và tag v0.2.
@@ -52,7 +54,7 @@
 | **T4 28/10** | **UC08 trên `main`**. **Điểm cắt phạm vi**: Must nào < 50% → dừng Should, dồn người (ngồi cặp) |
 | **T5 29/10** | Bắt đầu hồi quy bộ R (A: phần B, C; B: phần A) |
 | T6 30/10 | Sửa S1/S2; chạy lại |
-| **T7 31/10** | Họp: demo 14 UC; chấm Appendix D; C ký → **B tag `v0.2`** |
+| **T7 31/10** | Họp: demo 13 UC Must; chấm Appendix D; C ký → **B tag `v0.2`** |
 | CN 01/11 | Dự phòng |
 
 ## 6. Vòng chất lượng tuần này
@@ -69,7 +71,7 @@
 
 ## 8. Nghiệm thu cuối tuần
 
-- [ ] 14/14 UC Must: mỗi UC có ≥ 1 TC Pass trong `runs.md` tuần này do người khác tác giả chạy
+- [ ] 13/13 UC Must: mỗi UC có ≥ 1 TC Pass trong `runs.md` tuần này do người khác tác giả chạy
 - [ ] Unit BR01–05, BR07 pass trong CI; TC-31 Pass
 - [ ] Appendix D có trong repo
 - [ ] Tag `v0.2`; 0 S1/S2 mở

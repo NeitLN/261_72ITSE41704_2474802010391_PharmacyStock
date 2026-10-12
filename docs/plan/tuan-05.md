@@ -4,6 +4,16 @@
 > Milestone: *Week 05 — Iteration 1 — v0.1*. Module tự học: 6.
 > Rubric: *Implementation & Testing* (CLO4), *Collaborative Development* (CLO2).
 
+> **Reviewer** theo vòng mới từ 12/10 (A do C duyệt, B do A, C do B; `00-tong-quan.md` §6.2).
+
+## Cập nhật 12/10/2026
+
+- **A**: W05-A1 UC01 → PR #97 · W05-A2 UC03 → PR #99 · W05-A3 seed → PR #100 (thêm 12 bệnh nhân và 7 bác sĩ để UC05 của B chọn được ngay). Chờ C review và người khác tác giả chạy TC-01, 03, 45, 46, 49.
+- **Điều kiện bắt đầu** của B và C đã có trong PR #94–#96 (chưa merge): migration, lát cắt mẫu, `Actor`, `StockLedger`. Chưa có: CI (W04-C2). Bảng 63 TC đã chép từ Appendix C ở #102; C bổ sung bước, dữ liệu và bộ hồi quy R (W04-C3).
+- **Đăng nhập**: tạm dùng `DevAuthGuard` (chọn user mẫu ở thanh trên). W05-C1/C2 thay bằng JWT, chỉ cần sinh ra cùng `Actor`; service không đổi.
+- **Buổi ngồi cặp T2 12/10** chưa diễn ra; dời sang ngày gần nhất cả ba có mặt, nội dung: `how-to-add-a-module.md` + `stock-ledger.md`.
+- v0.1 vẫn cần UC05/UC06 (B) và đăng nhập (C). Nếu T5 15/10 chưa có PR của B hoặc C: áp dụng phương án khi trễ ở cuối file và ghi journal.
+
 ## 1. Mục tiêu
 
 **v0.1 = API + giao diện tối thiểu cho một luồng thật**, dữ liệu còn sau restart:
@@ -13,24 +23,24 @@ Unit test BR01–03 và e2e đồng thời cơ bản xanh trong CI. **C tag `v0.
 ## 2. Điều kiện bắt đầu
 
 - [ ] Migration, lát cắt mẫu UC02, `CurrentUser`, `StockLedger`, `FefoAllocator`, CI trên `main` (tuần 4)
-- [ ] 55 TC có expected; `runs.md` sẵn sàng
+- [x] 63 TC có expected; `runs.md` sẵn sàng (12/10)
 - [ ] **T2 12/10: buổi ngồi cặp 1 giờ** A với B và C (đi qua lát cắt mẫu + `StockLedger` + mẫu phân quyền)
 
 ## 3. Việc theo thành viên
 
 | Mã | Việc | Giờ | Reviewer | Phụ thuộc | Đầu ra / nghiệm thu | Issue |
 |---|---|---|---|---|---|---|
-| W05-A1 | **UC01 Danh mục thuốc**: CRUD + **đặt giá bán hiện hành** (ghi `MedicinePrice` không có ngày kết thúc); nhóm thuốc và đơn vị là **dữ liệu seed** | 4 | B | W04-A3 | Thêm/sửa/ngừng; mã trùng báo lỗi đúng trường (TC-45) | #37 |
-| W05-A2 | **UC03 Nhập hàng** qua `StockLedger`: nhiều dòng, tạo/cộng lô theo QĐ 17; hạn phải sau ngày nhập (TC-49); chặn trùng chứng từ (TC-03); e2e rollback khi lỗi giữa chừng | 5 | B + C | A1, W04-B3 | TC-01 Pass do C chạy; e2e rollback pass | #38 |
-| W05-A3 | **Seed thực tế — xong T4 14/10**: ~15 nhóm, ~60 thuốc có giá, ~10 NCC, ~120 lô với **ngày tương đối so với ngày seed** (đã hết hạn, sắp hết, còn dài), 3 tài khoản vai trò | 3 | C | W05-A1 | `npm run seed` chạy lặp lại được trên DB trống | #39 |
+| W05-A1 | **UC01 Danh mục thuốc**: CRUD + **đặt giá bán hiện hành** (ghi `MedicinePrice` không có ngày kết thúc); nhóm thuốc và đơn vị là **dữ liệu seed** | 4 | C | W04-A3 | Thêm/sửa/ngừng; mã trùng báo lỗi đúng trường (TC-45) | #37 |
+| W05-A2 | **UC03 Nhập hàng** qua `StockLedger`: nhiều dòng, tạo/cộng lô theo QĐ 17; hạn phải sau ngày nhập (TC-49); chặn trùng chứng từ (TC-03); e2e rollback khi lỗi giữa chừng | 5 | C + B | A1, W04-B3 | TC-01 Pass do C chạy; e2e rollback pass | #38 |
+| W05-A3 | **Seed thực tế — xong T4 14/10**: ~15 nhóm, ~60 thuốc có giá, ~10 NCC, ~120 lô với **ngày tương đối so với ngày seed** (đã hết hạn, sắp hết, còn dài), 3 tài khoản vai trò | 3 | B | W05-A1 | `npm run seed` chạy lặp lại được trên DB trống | #39 |
 | — | A: giữ schema/seed 1 · khung chương báo cáo (chương → người viết) 0,5 · ngồi cặp 1 · họp 2,5 · review 2 (người thứ hai `stock-integrity`) · sửa lỗi 1 | 8 | — | — | `docs/report/outline.md` | — |
-| W05-B1 | **UC05 Nhận đơn — bản tối thiểu**: chọn khách hàng/bác sĩ **có sẵn** (tạo nhanh để UC14 tuần 7), nhiều dòng thuốc, validation | 4 | C | W04-A3 | Tạo đơn nhiều thuốc trên UI (TC-47 do A chạy) | #40 |
-| W05-B2 | **UC06 Cấp phát**: `DispensingService` → `FefoAllocator` → `StockLedger` trong một transaction; `requestId` chống gửi lặp; `DispenseLine` theo từng lô; UI tối thiểu hiện lô được chọn | 6 | C + A | B1, W04-B2/B3 | Cấp 7 từ lô A=3, B=8 → **A=0, B=4, hai dòng DispenseLine, hai movement −3 và −4** (TC-04 do A chạy) | #41 |
-| W05-B3 | **Test**: unit BR01–03 theo QĐ đã chốt; e2e cấp thành công + thiếu tồn; **e2e song song cơ bản**: hai kết nối cùng xin lượng cuối → đúng một thành công, còn lại lỗi nghiệp vụ (không phải 500), invariant giữ | 3 | C | B2, W04-C2 | Tất cả pass trong CI | #42 |
+| W05-B1 | **UC05 Nhận đơn — bản tối thiểu**: chọn khách hàng/bác sĩ **có sẵn** (tạo nhanh để UC14 tuần 7), nhiều dòng thuốc, validation | 4 | A | W04-A3 | Tạo đơn nhiều thuốc trên UI (TC-47 do A chạy) | #40 |
+| W05-B2 | **UC06 Cấp phát**: `DispensingService` → `FefoAllocator` → `StockLedger` trong một transaction; `requestId` chống gửi lặp; `DispenseLine` theo từng lô; UI tối thiểu hiện lô được chọn | 6 | A + C | B1, W04-B2/B3 | Cấp 7 từ lô A=3, B=8 → **A=0, B=4, hai dòng DispenseLine, hai movement −3 và −4** (TC-04 do A chạy) | #41 |
+| W05-B3 | **Test**: unit BR01–03 theo QĐ đã chốt; e2e cấp thành công + thiếu tồn; **e2e song song cơ bản**: hai kết nối cùng xin lượng cuối → đúng một thành công, còn lại lỗi nghiệp vụ (không phải 500), invariant giữ | 3 | A | B2, W04-C2 | Tất cả pass trong CI | #42 |
 | — | B: ngồi cặp 1 · họp 2,5 · review 1,5 · sửa lỗi 2 | 7 | — | — | — | — |
-| W05-C1 | **Xác thực backend**: JWT + `bcryptjs`; guard thật thay guard tạm; `assertPermission` dùng ma trận; seed vai trò + permission; README mục *Sample accounts* | 4 | A | W04-C1 | Cashier gọi API cấp phát → 403; sai mật khẩu → 401 | #43 |
-| W05-C2 | **Xác thực giao diện**: trang đăng nhập, AuthContext, interceptor axios gắn token, 401 → về trang đăng nhập, menu lọc theo vai trò | 4 | A | C1 | TC-43 Pass do A chạy; trang của A, B vẫn hoạt động sau khi bật guard | #44 |
-| W05-C3 | **Kiểm thử tích hợp** (C là người chạy): T5 UC01/UC03 (TC-01, 03, 45, 49), T6 UC05/UC06 (TC-04 cùng A, 06, 09); ghi `runs.md`; lập bug; **ký nghiệm thu + tag `v0.1`** | 4 | B | A2, B2, C2 | Lượt chạy thật trong `runs.md`; 0 S1/S2 mở | #45 |
+| W05-C1 | **Xác thực backend**: JWT + `bcryptjs`; guard thật thay guard tạm; `assertPermission` dùng ma trận; seed vai trò + permission; README mục *Sample accounts* | 4 | B | W04-C1 | Cashier gọi API cấp phát → 403; sai mật khẩu → 401 | #43 |
+| W05-C2 | **Xác thực giao diện**: trang đăng nhập, AuthContext, interceptor axios gắn token, 401 → về trang đăng nhập, menu lọc theo vai trò | 4 | B | C1 | TC-43 Pass do A chạy; trang của A, B vẫn hoạt động sau khi bật guard | #44 |
+| W05-C3 | **Kiểm thử tích hợp** (C là người chạy): T5 UC01/UC03 (TC-01, 03, 45, 49), T6 UC05/UC06 (TC-04 cùng A, 06, 09); ghi `runs.md`; lập bug; **ký nghiệm thu + tag `v0.1`** | 4 | A | A2, B2, C2 | Lượt chạy thật trong `runs.md`; 0 S1/S2 mở | #45 |
 | — | C: ngồi cặp 1 · họp 2,5 · review 1,5 · sửa lỗi 3 | 8 | — | — | — | — |
 
 ## 4. Phân bổ giờ

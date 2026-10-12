@@ -51,10 +51,24 @@ changes, edit the issue rather than working around it silently.
 
 ## Pull requests
 
-- One reviewer, and it must not be the author. Default rotation: A reviewed by
-  B, B reviewed by C, C reviewed by A.
+- One reviewer, and it must not be the author. Rotation (from week 5):
+
+  | Author | Reviewer | Stand-in when the reviewer is away |
+  |---|---|---|
+  | Tiến (A, `NeitLN`) | Minh (C, `Jayson135724`) | Duy Anh |
+  | Duy Anh (B, `anh7032`) | Tiến (A, `NeitLN`) | Minh |
+  | Minh (C, `Jayson135724`) | Duy Anh (B, `anh7032`) | Tiến |
+
+  The workflow `.github/workflows/assign-reviewer.yml` requests the reviewer
+  automatically when the pull request is opened. A PR labelled
+  `stock-integrity` also needs Tiến as a second reviewer unless Tiến wrote it.
+- Approve only from your own account, and only after running the branch.
 - The reviewer checks out the branch and runs it, following the author's
   instructions — not just reading the diff.
+- `main` is protected: a pull request and one approval are required, and a new
+  commit dismisses an earlier approval. The repository admin can still merge
+  without an approval; if that is ever done, the PR must say why and who was
+  asked to review, and the journal records it.
 - The PR description says what changed, how it was tested, and which use case
   or business rule it belongs to.
 

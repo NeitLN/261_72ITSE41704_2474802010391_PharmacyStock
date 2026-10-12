@@ -58,7 +58,7 @@ database" or "the frontend"; the three slices are:
 - **Duy Anh (B)** — prescriptions, dispensing, sales and returns: UC05–08, UC14.
 - **Minh (C)** — stock control, reporting and access control: UC09–12, UC15, UC16.
 
-Review: A's work is reviewed by B, B's by C, C's by A. The reviewer checks out
+Review: A's work is reviewed by C, B's by A, C's by B. The reviewer checks out
 the branch and runs it. Pull requests labelled `stock-integrity` (stock ledger,
 dispensing, returns, stock take, authentication) also need A as second
 reviewer. Backup reviewers: [`../plan/00-tong-quan.md`](../plan/00-tong-quan.md) §6.2.

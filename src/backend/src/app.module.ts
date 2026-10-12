@@ -5,7 +5,6 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
 import { dataSourceOptions } from './database/data-source-options.js';
-import { StockModule } from './stock/stock.module.js';
 import { SuppliersModule } from './suppliers/suppliers.module.js';
 
 @Module({
@@ -14,7 +13,6 @@ import { SuppliersModule } from './suppliers/suppliers.module.js';
     // Runs after ConfigModule has loaded .env into process.env.
     TypeOrmModule.forRootAsync({ useFactory: () => dataSourceOptions() }),
     AuthModule,
-    StockModule,
     SuppliersModule,
   ],
   controllers: [AppController],

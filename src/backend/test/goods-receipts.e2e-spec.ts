@@ -212,6 +212,17 @@ describe('UC03 goods receipts (e2e)', () => {
     expect(fieldsOf(res.body)).toEqual(['lines.0.expiryDate']);
   });
 
+  it('UC03-14 dates must be full calendar dates', async () => {
+    const res = await post(
+      receipt({
+        receiptDate: '2026-10',
+        lines: [{ ...receipt().lines[0], expiryDate: '2027-02-30' }],
+      }),
+    );
+    expect(res.status).toBe(400);
+    expect(fieldsOf(res.body)).toEqual(['lines.0.expiryDate', 'receiptDate']);
+  });
+
   it('UC03-05 a receipt date in the future is refused', async () => {
     const res = await post(receipt({ receiptDate: '2026-10-13' }));
     expect(fieldsOf(res.body)).toEqual(['receiptDate']);

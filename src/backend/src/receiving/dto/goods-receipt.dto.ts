@@ -4,7 +4,6 @@ import {
   ArrayMinSize,
   IsArray,
   IsInt,
-  IsISO8601,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -16,8 +15,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Trim, TrimToNull } from '../../common/transforms.js';
-
-const ISO_DATE = { strict: true } as const;
+import { IsCalendarDate } from '../../common/validation.js';
 
 /** One delivered line (FR-06, FR-07). */
 export class GoodsReceiptLineDto {
@@ -31,7 +29,7 @@ export class GoodsReceiptLineDto {
   batchNumber: string;
 
   /** Full date; a label with only month and year means its last day (DEC-01). */
-  @IsISO8601(ISO_DATE, { message: 'Expiry date must be a date.' })
+  @IsCalendarDate({ message: 'Expiry date must be a date.' })
   expiryDate: string;
 
   @IsInt({ message: 'Quantity must be a whole number of base units.' })
@@ -59,7 +57,7 @@ export class CreateGoodsReceiptDto {
   @MaxLength(50)
   documentNumber: string;
 
-  @IsISO8601(ISO_DATE, { message: 'Receipt date must be a date.' })
+  @IsCalendarDate({ message: 'Receipt date must be a date.' })
   receiptDate: string;
 
   @IsOptional()

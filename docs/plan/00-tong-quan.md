@@ -187,6 +187,20 @@ Mỗi T7, `docs/journal.md` ghi:
 
 Ngoài ra lưu: lượt chạy trong `runs.md`, ảnh trong `tests/manual/evidence/`, tag và release note, sơ đồ (nguồn + ảnh).
 
+### 6.8 Leader review cuối tuần (thêm 12/10)
+
+Mỗi cuối tuần (T7 sau buổi họp, xong trước tối CN), **sau khi các thành viên hoàn thành việc của tuần**, trưởng nhóm review toàn bộ công việc tuần đó của từng người và góp ý chỉnh sửa. Đây là lớp thêm, **không thay** review PR theo vòng (vẫn là cổng merge).
+
+| Bước | Nội dung |
+|---|---|
+| 1. Xem | Theo từng người: PR đã merge và đang mở, review đã làm, issue đã đóng, lượt chạy test; đối chiếu với `tuan-NN.md` (hứa gì, giao gì) và chất lượng (quy tắc nằm trong service, có test, validation, tài liệu) |
+| 2. Góp ý trên GitHub | Comment trên PR/issue liên quan, mở đầu `Weekly review (week NN):`. Ghi cả điểm làm tốt |
+| 3. Yêu cầu chỉnh sửa | Mỗi chỉnh sửa cần làm = 1 issue nhãn `weekly-review`, gán cho người làm, milestone tuần sau, hạn **T4 tuần sau** |
+| 4. Tóm tắt | Mục *Leader's weekly review* trong `docs/progress/week-NN.md`: mỗi người một dòng (việc đã xem, góp ý, chỉnh sửa yêu cầu + issue). Báo cáo tuần sau ghi chỉnh sửa đã làm hay chưa |
+| 5. Việc của trưởng nhóm | Tự đánh giá trong cùng mục; Minh (reviewer theo vòng của Tiến) thêm nhận xét trước khi đóng báo cáo |
+
+Giờ: khoảng 1,5 giờ/tuần của A, lấy từ dòng "review" trong bảng giờ của từng tuần.
+
 ---
 
 ## 7. Truy vết: yêu cầu → việc → chức năng → test → minh chứng → tiêu chí chấm

@@ -32,3 +32,11 @@ Plans and task details live in [`../plan/`](../plan/) (Vietnamese) and on the
   value; the narrative says what each piece of work was.
 - From week 5 the report is updated during the week and closed on Sunday,
   after the Wednesday contribution check recorded in the journal.
+- **Leader's weekly review.** At the end of each week, after the members
+  have finished their work, the team leader reviews every member's work
+  for that week and gives feedback on GitHub (comments starting
+  `Weekly review (week NN):`). Revisions are issues labelled
+  [`weekly-review`](https://github.com/NeitLN/261_72ITSE41704_2474802010391_PharmacyStock/issues?q=label%3Aweekly-review),
+  due the next Wednesday. Each report summarises the review, and the next
+  report says whether the revisions were made. Minh comments on the
+  leader's own work. Process: [CONTRIBUTING](../../CONTRIBUTING.md#leaders-weekly-review).

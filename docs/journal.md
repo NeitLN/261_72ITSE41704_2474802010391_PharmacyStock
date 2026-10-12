@@ -12,6 +12,10 @@ the project, while one discovered in Week 10 is not.
 **Calendar.** Week 1 began Monday 14/09/2026, counted back from the Proposal
 deadline on Sunday 04/10/2026 (end of week 3). Weeks run Monday to Sunday.
 
+**Weekly summaries** for the lecturer, with evidence links and each
+member's activity, are in [`progress/`](progress/README.md). This journal
+keeps the session-by-session detail.
+
 ---
 
 ## Week 2 — Session 1
@@ -170,7 +174,8 @@ exist. Points marked _(fill in)_ need the team's own account.
 
 **Not done / blocked**
 
-- Branch protection on `main` must be switched on by the repository admin.
+- Branch protection: the ruleset `protect-main` was switched on 12/10 (pull
+  request and one approval required; a new commit dismisses an approval).
 - No pull request has a review yet. Under the new rotation Minh reviews
   Tiến's pull requests.
 - v0.1 still needs UC05/UC06 (Duy Anh) and sign-in (Minh).

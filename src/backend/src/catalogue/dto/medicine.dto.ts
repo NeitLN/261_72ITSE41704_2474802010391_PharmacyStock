@@ -14,6 +14,7 @@ import {
   Min,
 } from 'class-validator';
 import { QueryBoolean, Trim, TrimToNull } from '../../common/transforms.js';
+import { IfSent } from '../../common/validation.js';
 import { MedicineClassification } from '../../entities/index.js';
 
 /** Codes are stored upper-case so "para500" and "PARA500" are the same code. */
@@ -104,9 +105,12 @@ export class CreateMedicineDto {
   currentPrice: number;
 }
 
-/** Every field optional; `currentPrice` sets a new price from today. */
+/**
+ * Every field optional; `currentPrice` sets a new price from today. Required
+ * fields use `@IfSent()`, so an explicit null is a field error.
+ */
 export class UpdateMedicineDto {
-  @IsOptional()
+  @IfSent()
   @UpperTrim()
   @IsString()
   @IsNotEmpty({ message: 'Code is required.' })
@@ -116,7 +120,7 @@ export class UpdateMedicineDto {
   })
   code?: string;
 
-  @IsOptional()
+  @IfSent()
   @Trim()
   @IsString()
   @IsNotEmpty({ message: 'Name is required.' })
@@ -135,15 +139,15 @@ export class UpdateMedicineDto {
   @MaxLength(100)
   strength?: string | null;
 
-  @IsOptional()
+  @IfSent()
   @IsUUID('4', { message: 'Choose a category.' })
   categoryId?: string;
 
-  @IsOptional()
+  @IfSent()
   @IsUUID('4', { message: 'Choose a base unit.' })
   baseUnitId?: string;
 
-  @IsOptional()
+  @IfSent()
   @IsEnum(MedicineClassification, {
     message: 'Classification must be otc, prescription or controlled.',
   })
@@ -163,23 +167,23 @@ export class UpdateMedicineDto {
   )
   classificationDate?: string | null;
 
-  @IsOptional()
+  @IfSent()
   @IsInt({ message: 'Reorder level must be a whole number.' })
   @Min(0, { message: 'Reorder level cannot be negative.' })
   @Max(1_000_000)
   reorderLevel?: number;
 
-  @IsOptional()
+  @IfSent()
   @IsBoolean()
   lowStockMonitored?: boolean;
 
-  @IsOptional()
+  @IfSent()
   @IsInt({ message: 'Alert window must be a whole number of days.' })
   @Min(0, { message: 'Alert window cannot be negative.' })
   @Max(3650)
   expiryAlertDays?: number;
 
-  @IsOptional()
+  @IfSent()
   @IsInt({ message: 'Price must be a whole number of VND.' })
   @Min(1, { message: 'Price must be positive.' })
   @Max(MAX_PRICE)

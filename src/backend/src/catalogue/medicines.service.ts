@@ -134,6 +134,8 @@ export class MedicinesService {
 
     return this.translateDuplicate(() =>
       this.dataSource.transaction(async (manager) => {
+        // Lock the row so two edits cannot overwrite each other's columns.
+        await this.lockRow(manager, id);
         const medicine = await this.findOrFail(manager, id);
         if (dto.code !== undefined && dto.code !== medicine.code) {
           await this.assertCodeFree(manager, dto.code);
@@ -188,10 +190,11 @@ export class MedicinesService {
   ): Promise<MedicineView> {
     assertPermission(actor, Permission.CATALOGUE_MANAGE);
     const manager = this.dataSource.manager;
-    const medicine = await this.findOrFail(manager, id);
-    medicine.isActive = active;
-    await manager.save(medicine);
-    const [view] = await this.withPrices(manager, [medicine]);
+    await this.findOrFail(manager, id);
+    await manager.update(Medicine, { id }, { isActive: active });
+    const [view] = await this.withPrices(manager, [
+      await this.findOrFail(manager, id),
+    ]);
     return view;
   }
 
@@ -284,6 +287,16 @@ export class MedicinesService {
     if (!found)
       throw ValidationFailed.field('baseUnitId', 'Choose a base unit.');
     return found;
+  }
+
+  private async lockRow(manager: EntityManager, id: string): Promise<void> {
+    const row = await manager
+      .createQueryBuilder(Medicine, 'm')
+      .select('m.id')
+      .where('m.id = :id', { id })
+      .setLock('pessimistic_write')
+      .getOne();
+    if (!row) throw new NotFound('Medicine', id);
   }
 
   private async findOrFail(

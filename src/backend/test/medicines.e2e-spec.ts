@@ -218,6 +218,20 @@ describe('UC01 medicine catalogue (e2e)', () => {
     });
   });
 
+  it('UC01-11 null for a required field is a field error, not a server error', async () => {
+    const { id } = await create();
+    const res = await t
+      .http()
+      .patch(`/api/medicines/${id}`)
+      .set(as('manager'))
+      .send({ name: null, reorderLevel: null, currentPrice: null });
+
+    expect(res.status).toBe(400);
+    expect(fieldsOf(res.body)).toEqual(
+      expect.arrayContaining(['currentPrice', 'name', 'reorderLevel']),
+    );
+  });
+
   it('UC01-07 a deactivated medicine leaves the list but stays viewable (2a, FR-02)', async () => {
     const { id } = await create();
     await t

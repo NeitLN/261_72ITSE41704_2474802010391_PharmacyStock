@@ -8,6 +8,7 @@ import {
 } from '@ant-design/icons';
 import { Layout, Menu, Typography } from 'antd';
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import { DevUserSwitcher } from '../auth/DevUserSwitcher';
 
 const { Header, Sider, Content } = Layout;
 
@@ -50,10 +51,13 @@ export function MainLayout() {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Header style={{ display: 'flex', alignItems: 'center' }}>
+      <Header
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+      >
         <Typography.Title level={4} style={{ color: '#fff', margin: 0 }}>
           Pharmacy Stock &amp; Prescription Dispensing
         </Typography.Title>
+        <DevUserSwitcher />
       </Header>
       <Layout>
         <Sider width={260} theme="light">

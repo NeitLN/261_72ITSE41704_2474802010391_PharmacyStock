@@ -3,6 +3,8 @@
 > Mốc môn học: **tài liệu thiết kế cập nhật** — không chấm riêng. Milestone: *Week 08 — Hardening*. Module tự học: ôn 4, 9.
 > Rubric: *Implementation & Testing* (xử lý lỗi, lưu trữ, bảo mật, hiệu năng); *System Design* (sơ đồ khớp code); *Report Writing* (bắt đầu viết).
 
+> **Reviewer** theo vòng mới từ 12/10 (A do C duyệt, B do A, C do B; `00-tong-quan.md` §6.2).
+
 ## 1. Mục tiêu
 
 1. **Không có UC Must mới.** Làm vững: restart, rollback, đồng thời (stress), chống gửi lặp, phân quyền, hiệu năng, backup.
@@ -20,18 +22,20 @@
 
 | Mã | Việc | Giờ | Reviewer | Phụ thuộc | Đầu ra / nghiệm thu | Issue |
 |---|---|---|---|---|---|---|
-| W08-A1 | **TC-24** dữ liệu còn sau restart; **TC-25** lỗi DB giữa giao dịch → rollback toàn bộ (e2e mô phỏng lỗi) | 3 | B | v0.2 | Hai ca Pass do C chạy; e2e TC-25 trong CI | #64 |
-| W08-A2 | **TC-29 Hiệu năng** theo QĐ 9 (nạp dữ liệu lớn vào **DB riêng**, 10 lần đo, trung vị, ghi cấu hình máy); **TC-30 backup/restore** *(S)* bằng `pg_dump` + hướng dẫn trong README | 4 | C | QĐ 9 | Số đo + điều kiện trong `runs.md`; restore khớp số dư | #65 (nội dung đổi) |
-| W08-A3 | **Báo cáo — nháp**: Ch.2 (nền tảng: kiến trúc phân tầng NestJS, TypeORM, FEFO, quy trình nhà thuốc hiện tại có nguồn); Ch.3 phần **kiến trúc và dữ liệu** (ERD và các bảng, luồng dữ liệu) | 5 | C | — | Nháp trong `docs/report/` | #66 |
+| W08-A1 | **TC-24** dữ liệu còn sau restart; **TC-25** lỗi DB giữa giao dịch → rollback toàn bộ (e2e mô phỏng lỗi) | 3 | C | v0.2 | Hai ca Pass do C chạy; e2e TC-25 trong CI | #64 |
+| W08-A2 | **TC-29 Hiệu năng** theo QĐ 9 (nạp dữ liệu lớn vào **DB riêng**, 10 lần đo, trung vị, ghi cấu hình máy); **TC-30 backup/restore** *(S)* bằng `pg_dump` + hướng dẫn trong README | 4 | B | QĐ 9 | Số đo + điều kiện trong `runs.md`; restore khớp số dư | #65 (nội dung đổi) |
+| W08-A3 | **Báo cáo — nháp**: Ch.2 (nền tảng: kiến trúc phân tầng NestJS, TypeORM, FEFO, quy trình nhà thuốc hiện tại có nguồn); Ch.3 phần **kiến trúc và dữ liệu** (ERD và các bảng, luồng dữ liệu) | 5 | B | — | Nháp trong `docs/report/` | #66 |
 | — | A: họp 2,5 · review 2 · giữ schema/seed 1 · sửa lỗi 2,5 | 8 | — | — | — | — |
-| W08-B1 | **TC-26 stress**: 20 lần hai kết nối tranh lượng cuối, ép chồng lấn thật (chờ trong transaction) → đúng một thành công, còn lại lỗi nghiệp vụ, invariant giữ. **TC-54** hai dược sĩ cấp cùng dòng đơn | 3 | C + A | W05-B3, W06-B1 | 20/20 lần đúng; TC-54 Pass | #67 |
-| W08-B2 | **TC-27** gửi lặp cấp phát và trả hàng (`requestId`) do A chạy; rà **mọi dòng bảng tình huống BR có test `BRxx-*` pass** | 3 | C | — | Bảng "tình huống → tên test" không còn dòng trống | #68 |
-| W08-B3 | **Báo cáo — nháp**: Ch.3 **chức năng của B** (UC05–08, UC14: mô tả, input/output, trích 5–25 dòng code FEFO/`StockLedger` có giải thích) + **thiết kế giao diện và điều hướng** | 5 | A | — | Nháp trong `docs/report/` | #69 |
+| W08-B1 | **TC-26 stress**: 20 lần hai kết nối tranh lượng cuối, ép chồng lấn thật (chờ trong transaction) → đúng một thành công, còn lại lỗi nghiệp vụ, invariant giữ. **TC-54** hai dược sĩ cấp cùng dòng đơn | 3 | A + C | W05-B3, W06-B1 | 20/20 lần đúng; TC-54 Pass | #67 |
+| W08-B2 | **TC-27** gửi lặp cấp phát và trả hàng (`requestId`) do A chạy; rà **mọi dòng bảng tình huống BR có test `BRxx-*` pass** | 3 | A | — | Bảng "tình huống → tên test" không còn dòng trống | #68 |
+| W08-B3 | **Báo cáo — nháp**: Ch.3 **chức năng của B** (UC05–08, UC14: mô tả, input/output, trích 5–25 dòng code FEFO/`StockLedger` có giải thích) + **thiết kế giao diện và điều hướng** | 5 | C | — | Nháp trong `docs/report/` | #69 |
 | — | B: họp 2,5 · review 2 · sửa lỗi 4,5 | 9 | — | — | — | — |
-| W08-C1 | **Kiểm toán phân quyền**: bảng endpoint → permission; **e2e ma trận vai trò × endpoint (TC-53) phủ toàn bộ**; kiểm validation, secret, hash mật khẩu. Vượt quyền = S1 | 3 | A | — | TC-53 Pass; bảng không còn ô trống | #70 |
-| W08-C2 | **Sơ đồ sinh lại từ code** (class, ERD), chia theo phân hệ; đánh dấu/bỏ class không dùng nếu Should bị cắt; cập nhật sequence nếu code lệch | 2,5 | B | — | Reviewer đối chiếu sơ đồ với code, không thấy lệch | #71 (nội dung đổi) |
-| W08-C3 | **Hồi quy toàn bộ bộ R** (bắt đầu T5 05/11) + **báo cáo — nháp**: Ch.3 **chức năng của C** (UC09–12, UC15, UC16) + **quy trình và kết quả kiểm thử** | 5,5 | B | — | `runs.md` có lượt hồi quy tuần 8; nháp trong `docs/report/` | #72 |
+| W08-C1 | **Kiểm toán phân quyền**: bảng endpoint → permission; **e2e ma trận vai trò × endpoint (TC-53) phủ toàn bộ**; kiểm validation, secret, hash mật khẩu. Vượt quyền = S1 | 3 | B | — | TC-53 Pass; bảng không còn ô trống | #70 |
+| W08-C2 | **Sơ đồ sinh lại từ code** (class, ERD), chia theo phân hệ; đánh dấu/bỏ class không dùng nếu Should bị cắt; cập nhật sequence nếu code lệch | 2,5 | A | — | Reviewer đối chiếu sơ đồ với code, không thấy lệch | #71 (nội dung đổi) |
+| W08-C3 | **Hồi quy toàn bộ bộ R** (bắt đầu T5 05/11) + **báo cáo — nháp**: Ch.3 **chức năng của C** (UC09–12, UC15, UC16) + **quy trình và kết quả kiểm thử** | 5,5 | A | — | `runs.md` có lượt hồi quy tuần 8; nháp trong `docs/report/` | #72 |
 | — | C: họp 2,5 · review 2 · sửa lỗi 4,5 | 9 | — | — | — | — |
+
+*Cập nhật 12/10 theo Proposal v1.1 §2.4*: **nếu cổng Must-core tuần 7 đạt**, A làm thêm UC13 lịch sử giá (BR09, nội dung cũ của #55), B làm màn hình UC14, C làm UC15 và đánh giá cách ly/tiêu hủy (FR-46, 47). Giờ lấy từ dòng sửa lỗi/dự phòng và cân lại ở retro T7 31/10. Nếu cổng không đạt, tuần 8 dành cho sửa Must và các mục này vào danh sách cắt (§9.3 tổng quan).
 
 ## 4. Phân bổ giờ
 

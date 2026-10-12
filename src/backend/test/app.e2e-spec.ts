@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { seed } from '../src/seed/seed.js';
 import {
   as,
   createTestApp,
@@ -44,5 +45,18 @@ describe('Application (e2e)', () => {
       message: expect.any(String),
       errors: [],
     });
+  });
+
+  it('running the seed again keeps permissions revoked in the application', async () => {
+    await t.dataSource.query(
+      `DELETE FROM role_permissions
+        WHERE "rolesId" = (SELECT id FROM roles WHERE code = 'CASHIER')
+          AND "permissionsId" = (SELECT id FROM permissions WHERE code = 'return.create')`,
+    );
+    await seed(t.dataSource);
+
+    const res = await t.http().get('/api/auth/me').set(as('cashier'));
+    expect(res.body.permissions).toEqual(['sale.create', 'stock.view']);
+    await resetDatabase(t.dataSource);
   });
 });

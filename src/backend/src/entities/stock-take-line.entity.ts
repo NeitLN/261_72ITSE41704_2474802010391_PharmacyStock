@@ -21,7 +21,11 @@ export class StockTakeLine {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  /** Sellable quantity of the batch when the stock take was opened. */
+  /**
+   * Sellable quantity of the batch at the moment its count is entered
+   * (decision 15), so sales and dispensing between opening the stock take and
+   * counting do not show up as a false difference.
+   */
   @Column({ type: 'int' })
   systemQuantity: number;
 

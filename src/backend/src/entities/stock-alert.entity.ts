@@ -1,4 +1,5 @@
 import {
+  Check,
   Column,
   CreateDateColumn,
   Entity,
@@ -37,6 +38,10 @@ export enum AlertStatus {
  * alert per batch (partial unique indexes, decision 16).
  */
 @Entity('stock_alerts')
+@Check(
+  'ck_stock_alerts_batch_by_type',
+  `("type" IN ('expiring_soon', 'expired') AND "batch_id" IS NOT NULL) OR ("type" IN ('low_stock', 'out_of_stock') AND "batch_id" IS NULL)`,
+)
 @Index('uq_stock_alerts_open_level', ['medicine'], {
   unique: true,
   where: `"type" IN ('low_stock', 'out_of_stock') AND "status" <> 'resolved'`,
@@ -62,7 +67,7 @@ export class StockAlert {
   @JoinColumn({ name: 'medicine_id' })
   medicine: Relation<Medicine>;
 
-  /** Null for a stock-level alert, which is about the medicine as a whole. */
+  /** Required for an expiry alert; null for a stock-level alert, which is about the medicine as a whole. */
   @ManyToOne(() => Batch, { nullable: true })
   @JoinColumn({ name: 'batch_id' })
   batch: Relation<Batch> | null;

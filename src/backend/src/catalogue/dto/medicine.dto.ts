@@ -3,7 +3,6 @@ import {
   IsBoolean,
   IsEnum,
   IsInt,
-  IsISO8601,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -14,7 +13,7 @@ import {
   Min,
 } from 'class-validator';
 import { QueryBoolean, Trim, TrimToNull } from '../../common/transforms.js';
-import { IfSent } from '../../common/validation.js';
+import { IfSent, IsCalendarDate } from '../../common/validation.js';
 import { MedicineClassification } from '../../entities/index.js';
 
 /** Codes are stored upper-case so "para500" and "PARA500" are the same code. */
@@ -76,10 +75,7 @@ export class CreateMedicineDto {
 
   @IsOptional()
   @TrimToNull()
-  @IsISO8601(
-    { strict: true },
-    { message: 'Classification date must be a date.' },
-  )
+  @IsCalendarDate({ message: 'Classification date must be a date.' })
   classificationDate?: string | null;
 
   @IsOptional()
@@ -161,10 +157,7 @@ export class UpdateMedicineDto {
 
   @IsOptional()
   @TrimToNull()
-  @IsISO8601(
-    { strict: true },
-    { message: 'Classification date must be a date.' },
-  )
+  @IsCalendarDate({ message: 'Classification date must be a date.' })
   classificationDate?: string | null;
 
   @IfSent()

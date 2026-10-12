@@ -11,6 +11,7 @@ import {
 } from '../common/errors.js';
 import { likePattern } from '../common/transforms.js';
 import {
+  Batch,
   Medicine,
   MedicineCategory,
   MedicineClassification,
@@ -159,8 +160,21 @@ export class MedicinesService {
           medicine.expiryAlertDays = dto.expiryAlertDays;
         if (dto.categoryId !== undefined)
           medicine.category = await this.category(manager, dto.categoryId);
-        if (dto.baseUnitId !== undefined)
+        if (
+          dto.baseUnitId !== undefined &&
+          dto.baseUnitId !== medicine.baseUnit.id
+        ) {
+          // Quantities and prices are stored in the base unit without a unit
+          // of their own, so changing it would turn 100 tablets into 100
+          // bottles. Allowed only before the medicine has any batch.
+          if (await manager.existsBy(Batch, { medicine: { id } })) {
+            throw ValidationFailed.field(
+              'baseUnitId',
+              'The base unit cannot change once the medicine has stock. Create a new medicine instead.',
+            );
+          }
           medicine.baseUnit = await this.unit(manager, dto.baseUnitId);
+        }
 
         this.checkClassification(medicine, today);
         await manager.save(medicine);

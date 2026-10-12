@@ -1,4 +1,8 @@
-import { ValidateIf } from 'class-validator';
+import {
+  registerDecorator,
+  ValidateIf,
+  type ValidationOptions,
+} from 'class-validator';
 import {
   Param,
   ParseUUIDPipe,
@@ -42,6 +46,37 @@ export function createValidationPipe(): ValidationPipe {
  */
 export const IfSent = () =>
   ValidateIf((_object: unknown, value: unknown) => value !== undefined);
+
+/**
+ * A calendar date written exactly as `YYYY-MM-DD`. Stricter than
+ * `@IsISO8601()`, which also accepts `2026` or `2026-10` (PostgreSQL then
+ * fails with a 500) and full timestamps (which break date comparisons).
+ */
+export function IsCalendarDate(options?: ValidationOptions): PropertyDecorator {
+  return (object: object, propertyName: string | symbol) => {
+    registerDecorator({
+      name: 'isCalendarDate',
+      target: object.constructor,
+      propertyName: String(propertyName),
+      options: {
+        message: `${String(propertyName)} must be a date written as YYYY-MM-DD.`,
+        ...options,
+      },
+      validator: {
+        validate(value: unknown) {
+          if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+            return false;
+          }
+          const date = new Date(`${value}T00:00:00Z`);
+          return (
+            !Number.isNaN(date.getTime()) &&
+            date.toISOString().slice(0, 10) === value
+          );
+        },
+      },
+    });
+  };
+}
 
 /** `@UuidParam()` reads `:id` and refuses anything that is not a UUID. */
 export function UuidParam(name = 'id'): ParameterDecorator {

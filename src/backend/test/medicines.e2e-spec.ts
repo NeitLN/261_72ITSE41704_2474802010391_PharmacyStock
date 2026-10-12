@@ -232,6 +232,55 @@ describe('UC01 medicine catalogue (e2e)', () => {
     );
   });
 
+  it('UC01-12 only full calendar dates are accepted for the classification date', async () => {
+    for (const classificationDate of [
+      '2026-10',
+      '2026',
+      '2026-02-30',
+      '2026-10-01T10:00:00Z',
+    ]) {
+      const res = await t
+        .http()
+        .post('/api/medicines')
+        .set(as('manager'))
+        .send({ ...paracetamol(), classificationDate });
+      expect(res.status).toBe(400);
+      expect(fieldsOf(res.body)).toEqual(['classificationDate']);
+    }
+  });
+
+  it('UC01-13 the base unit cannot change once the medicine has stock', async () => {
+    const { id } = await create();
+    const ref = await t
+      .http()
+      .get('/api/medicines/reference-data')
+      .set(as('manager'));
+    const bottle = ref.body.units.find(
+      (u: { code: string }) => u.code === 'BOTTLE',
+    ).id;
+
+    // No stock yet: allowed.
+    await t
+      .http()
+      .patch(`/api/medicines/${id}`)
+      .set(as('manager'))
+      .send({ baseUnitId: bottle })
+      .expect(200);
+
+    await t.dataSource.query(
+      `INSERT INTO batches ("batchNumber", "expiryDate", "unitCost", "receivedAt", medicine_id)
+       VALUES ('B1', '2027-01-31', 100, now(), $1)`,
+      [id],
+    );
+    const res = await t
+      .http()
+      .patch(`/api/medicines/${id}`)
+      .set(as('manager'))
+      .send({ baseUnitId: unitId });
+    expect(res.status).toBe(400);
+    expect(fieldsOf(res.body)).toEqual(['baseUnitId']);
+  });
+
   it('UC01-07 a deactivated medicine leaves the list but stays viewable (2a, FR-02)', async () => {
     const { id } = await create();
     await t

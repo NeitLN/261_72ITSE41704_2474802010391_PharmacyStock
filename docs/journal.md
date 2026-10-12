@@ -197,6 +197,52 @@ exist. Points marked _(fill in)_ need the team's own account.
 
 ---
 
+## Week 5 — Minh joins the repository
+
+**Date:** 12/10/2026
+**Present:** Minh (C), working alone
+
+This is my first commit. The plan scheduled it for week 2 (W02-C1); it is three
+weeks late, and the tasks I owe from weeks 2 and 4 are listed under *Next*.
+
+**My role (C)**
+
+- Use cases: UC09 stock take, UC10 low-stock alerts, UC11 expiry alerts and
+  write-off, UC12 turnover report, UC16 sign in and sign out, and UC15 user
+  administration (Should).
+- Rules: BR08, a stock take is approved by someone other than the counter.
+- Shared foundation: the access-control pattern (roles, permissions,
+  `assertPermission`), the test infrastructure and CI.
+- Testing coordination: the test-case table, the run log and the regression
+  set; packaging and the run guide for the final submission.
+
+**Done**
+
+- Cloned the repository and ran it on my own machine (Windows 11, Node
+  24.15.0, npm 11.12.1, Docker 29.6.2):
+  - `docker compose up -d` started PostgreSQL 18 on port 5433.
+  - With `.env` copied unchanged from `.env.example` on Tiến's branch
+    `fix/env-example-docker` (PR #91), the backend booted and created 26
+    tables and 41 foreign keys, the same counts as in session 2.
+    `GET /api` returned HTTP 200.
+  - Backend: build, lint and the unit test pass. Frontend: build and lint pass.
+- Installing on Windows: an interrupted `npm ci` left a half-deleted
+  `node_modules` and the next `npm ci` failed with `ENOTEMPTY`. Deleting
+  `src/backend/node_modules` and running `npm ci` again fixed it.
+
+**Next**
+
+| Task | Owner | Issue |
+|---|---|---|
+| Review Tiến's PRs #91, #92 and #93 (I am the rotation reviewer) | Minh (C) | #91–#93 |
+| Option papers for decisions 4, 6, 8, 9 with sources; meeting schedule proposal | Minh (C) | #17, #8, #9 |
+| Specifications for UC09–12 and UC16; measurable NFRs | Minh (C) | #18 |
+| Access-control design (`docs/design/access-control.md`), needed by Tiến's UC02 slice | Minh (C) | #34 |
+| Test infrastructure and CI with PostgreSQL, paired with Tiến | Minh (C) | #35 |
+| Test-case table and run log; TC-35 to TC-55 | Minh (C) | #36 |
+
+---
+
 ## Week 5 — Session 2
 
 **Date:** 13/10/2026

@@ -187,12 +187,22 @@ Mỗi T7, `docs/journal.md` ghi:
 
 Ngoài ra lưu: lượt chạy trong `runs.md`, ảnh trong `tests/manual/evidence/`, tag và release note, sơ đồ (nguồn + ảnh).
 
-### 6.8 Leader review cuối tuần (thêm 12/10)
+### 6.8 Chu trình tuần và Leader review cuối tuần (thêm 12/10, chỉnh sau góp ý của Codex)
 
-Mỗi cuối tuần (T7 sau buổi họp, xong trước tối CN), **sau khi các thành viên hoàn thành việc của tuần**, trưởng nhóm review toàn bộ công việc tuần đó của từng người và góp ý chỉnh sửa. Đây là lớp thêm, **không thay** review PR theo vòng (vẫn là cổng merge).
+Mọi thứ của một tuần nằm trong **một** báo cáo `docs/progress/week-NN.md` (khung: `_template.md`); không chép minh chứng sang tài liệu khác.
 
-| Bước | Nội dung |
-|---|---|
+| Khi nào | Việc | Ai |
+|---|---|---|
+| Họp T4 | **Kiểm tra sớm**: phạm vi tuần còn khả thi không, ai vướng gì, ai review PR nào | Cả nhóm |
+| Trước họp T7 | **Tự báo cáo**: mỗi người điền dòng của mình (đã giao gì, link PR, review, lượt chạy test) | Từng người |
+| Họp T7 | **Kiểm minh chứng** (luân phiên một người kiểm mọi dòng có link) + **retrospective 10 phút** (keep/stop/try, chọn một cải tiến) | Luân phiên; cả nhóm |
+| Trước tối CN | **Leader review cuối tuần**, đóng báo cáo | Tiến (dòng của Tiến do Minh review) |
+
+Leader review **không làm lại code review** (đó là việc của reviewer theo vòng, vẫn là cổng merge). Leader tổng hợp từng người: giao so với kế hoạch, minh chứng có đủ không, vướng mắc và khối lượng, dấu hiệu chất lượng (quy tắc trong service, test, validation, tài liệu). Góp ý ghi trên GitHub (`Weekly review (week NN): …`), có cả điểm làm tốt. Lỗi chặn merge sửa trước khi merge; góp ý khác thành issue nhãn `weekly-review`, có người làm, mức S1–S4 và hạn (việc nhỏ: T4 tuần sau; việc lớn: hạn thực tế). Không chấm điểm công sức, không coi số commit là số giờ. Mục tiêu 20–30 phút/tuần cho trưởng nhóm.
+
+Kèm theo: nhật ký dùng AI `docs/ai-use-log.md` cập nhật hằng tuần (nguồn cho Appendix B); bảng đóng góp cộng dồn trong `docs/progress/README.md` (nguồn cho Appendix C); Definition of Ready và issue template trong CONTRIBUTING.
+
+---|---|
 | 1. Xem | Theo từng người: PR đã merge và đang mở, review đã làm, issue đã đóng, lượt chạy test; đối chiếu với `tuan-NN.md` (hứa gì, giao gì) và chất lượng (quy tắc nằm trong service, có test, validation, tài liệu) |
 | 2. Góp ý trên GitHub | Comment trên PR/issue liên quan, mở đầu `Weekly review (week NN):`. Ghi cả điểm làm tốt |
 | 3. Yêu cầu chỉnh sửa | Mỗi chỉnh sửa cần làm = 1 issue nhãn `weekly-review`, gán cho người làm, milestone tuần sau, hạn **T4 tuần sau** |

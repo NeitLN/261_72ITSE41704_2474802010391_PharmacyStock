@@ -45,27 +45,44 @@ requirements; review rotation Minh → Tiến → Duy Anh → Minh; the stock le
 moves to Tiến (Proposal module M3); a temporary development sign-in until
 UC16; Should items only after the week 7 gate.
 
-## Open risks
+## Meetings
 
-- `v0.1` needs UC05/UC06 (Duy Anh) and sign-in (Minh) by Saturday 17/10.
-  If it slips, the missed gate and the real release date are recorded here,
-  not a redefined goal.
-- Every pull request needs a real review by its rotation reviewer.
+**Wednesday 14/10 — early-warning check.** _(to be filled in: present; is
+`v0.1` by Saturday still realistic; blockers; who reviews which open PR;
+actions with owner and date)_
 
-## Leader's weekly review — by Sunday 18/10
+**Saturday 17/10.** _(to be filled in: present, decisions, actions)_
 
-_(filled in by Tiến after the members finish the week's work; process in
-[CONTRIBUTING](../../CONTRIBUTING.md#leaders-weekly-review))_
+## Risks
 
-| Member | Work reviewed (links) | Done well | Revisions requested (issue, due) |
+| Risk | Owner | Trigger | Mitigation | Next review |
+|---|---|---|---|---|
+| R1 uneven contribution | Tiến | A member still has no pull request of their own | Pairing session; weekly early-warning check; report to the lecturer if unchanged | Wed 21/10 |
+| `v0.1` slips | Minh (release), Duy Anh (UC05/UC06) | UC05/UC06 or sign-in not merged by Fri 16/10 | Cut to the minimal flow of the plan; record the missed date honestly | Sat 17/10 |
+| Review backlog on Tiến's 10 PRs | Minh | No review by Wed 14/10 | Review in dependency order (#91 → #94 → …); Duy Anh cross-checks one | Wed 14/10 |
+| Code that its author cannot explain (heavy AI use) | Each owner | A member cannot walk through a merged change | AI-use log; owners explain their PR at the Saturday meeting | Sat 17/10 |
+
+## Retrospective (Saturday 17/10)
+
+_(to be filled in: keep / stop / try, one improvement chosen)_
+
+## AI use this week
+
+Recorded in [`../ai-use-log.md`](../ai-use-log.md): Claude Code wrote the code
+and documents of #93–#102 under Tiến's direction; Codex reviewed the large
+pull requests and the process read-only, and the defects it found were fixed
+with regression tests.
+
+## Self-report and leader's weekly review — by Sunday 18/10
+
+Members fill *Delivered* by the Saturday meeting; the evidence checker this
+week is **Duy Anh**; the reviewer fills the rest by Sunday
+([process](../../CONTRIBUTING.md#leaders-weekly-review)).
+
+| Member | Delivered (self-report, with links) | Reviewer's findings | Revisions (issue, severity, due) |
 |---|---|---|---|
-| Duy Anh (B) | | | |
-| Minh (C) | | | |
-| Tiến (A) — self-assessment, with Minh's comments | | | |
+| Duy Anh (B) | | Tiến: | |
+| Minh (C) | | Tiến: | |
+| Tiến (A) | #93–#102 (see *Delivered so far*) | Minh: | |
 
 Revisions from the previous week: none (first weekly review).
-
-## Contribution check — Wednesday 14/10
-
-_(to be filled in at the meeting: each member's merged and open pull
-requests, reviews given, blockers, next dated commitment)_

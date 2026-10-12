@@ -15,6 +15,22 @@ Plans and task details live in [`../plan/`](../plan/) (Vietnamese) and on the
 | 5 | 12/10–18/10 | Release `v0.1` | In progress | [week-05](week-05.md) |
 | 6–10 | 19/10–22/11 | — | Not started | — |
 
+## Running contribution record (for Appendix C)
+
+Counts per week from Git and GitHub; reviews and test runs count as much as
+code. The narrative of what each piece was is in the weekly report. This is
+a record, not a ranking.
+
+| Week | Tiến (A) | Duy Anh (B) | Minh (C) |
+|---|---|---|---|
+| 1 | Registration form; no commits | — | — |
+| 2 | 10 commits; PR #91, #92 opened | — | — |
+| 3 | Proposal v1.0 submitted; no commits | — | — |
+| 4 | Pharmacist review; Proposal v1.1 resubmitted; no commits | — | — |
+| 5 (to 12/10) | 34 commits; PR #93–#102 opened | — | 6 commits; PR #98 opened |
+
+A new week's report starts from [`_template.md`](_template.md).
+
 ## How these reports are written
 
 - **Dates are kept apart.** Each report states when the work happened, when

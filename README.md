@@ -243,7 +243,7 @@ tests/         manual test cases and test evidence
 
 **Week 5 (12/10/2026).** The Project Proposal v1.1 was submitted on
 11/10/2026 (receipt in `docs/evidence/`). Tiến's work for weeks 2–5 is in open
-pull requests #91–#102, reviewed by Codex and waiting for the team's review;
+pull requests #91–#102, waiting for the team's review;
 not merged or tagged yet.
 
 **Built (in pull requests)**

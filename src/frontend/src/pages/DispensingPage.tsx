@@ -1,15 +1,19 @@
-import { PlaceholderPage } from './PlaceholderPage';
+import { Card, Tabs, Typography } from 'antd';
+import { DispensePanel } from './DispensePanel';
+import { PrescriptionsPanel } from './PrescriptionsPanel';
 
+/** UC05 prescriptions and UC06 dispensing, one tab each. */
 export function DispensingPage() {
+  const items = [
+    { key: 'prescriptions', label: 'Prescriptions', children: <PrescriptionsPanel /> },
+    { key: 'dispense', label: 'Dispense', children: <DispensePanel /> },
+  ];
   return (
-    <PlaceholderPage
-      title="Prescriptions & dispensing"
-      owner="Bùi Duy Anh (B)"
-      useCases={[
-        'UC05 — Take in a prescription and verify it (FR-44)',
-        'UC06 — Dispense against a prescription (BR01, BR02, BR03, BR04, BR07, BR10)',
-        'UC14 — Manage customers and prescribers (Should; quick-create is in UC05)',
-      ]}
-    />
+    <Card>
+      <Typography.Title level={3} style={{ marginTop: 0 }}>
+        Prescriptions &amp; dispensing
+      </Typography.Title>
+      <Tabs destroyOnHidden items={items} />
+    </Card>
   );
 }

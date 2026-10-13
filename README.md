@@ -255,13 +255,15 @@ not merged or tagged yet.
 - Stock ledger with the lock protocol of Proposal §3.1 — BR03, BR05 (#96)
 - UC01 medicine catalogue with current price and OTC classification (#97)
 - UC03 goods receipts through the ledger (#99)
+- UC05 prescription intake and verification with computed validity (FR-44, BR10) (#40)
+- UC06 dispensing through the ledger with FEFO preview — BR01, BR02, BR07 (#41)
 - Demo seed: 60 medicines, 10 suppliers, 120 batches with relative dates (#100)
-- 31 unit and 61 e2e tests passing
+- 74 unit and 97 e2e tests passing
 
 **Not built yet**
 
 - Sign-in (UC16) — a dev user switch stands in
-- UC04–UC12 and the Should use cases UC13–UC15
+- UC04, UC07–UC12 and the Should use cases UC13–UC15
 - CI workflow
 
 ### Scope against the course targets
@@ -271,10 +273,10 @@ Targets are those expected of a three-person team
 
 | Dimension | Target | Planned (Proposal v1.1) | Built (in PRs) |
 |---|---|---|---|
-| Use cases end-to-end | 13–16 | 13 Must + 3 Should | 3 (UC01–03) |
+| Use cases end-to-end | 13–16 | 13 Must + 3 Should | 5 (UC01–03, UC05, UC06) |
 | Domain classes | 16–22 | 25 | 25 in the schema |
 | User roles | 3+ | 3 | Checked in services; sign-in not built |
-| Business rules beyond CRUD | 6+ | 8 Must + 2 Should + 1 Could | BR03, BR05 |
+| Business rules beyond CRUD | 6+ | 8 Must + 2 Should + 1 Could | BR01, BR02, BR03, BR05, BR07, BR10; BR04 in part |
 | Documented test cases | 20+ | 63 | 63 planned; 0 manual runs |
 
 Business decisions DEC-01 to DEC-10 are settled in the Proposal and recorded in

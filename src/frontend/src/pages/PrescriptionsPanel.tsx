@@ -56,7 +56,7 @@ function addDays(date: string, days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-/** Whole months between a birth date and today, for the under-72-months group. */
+/** Whole months between a birth date and a date, for the under-72-months group. */
 function ageMonthsAt(birth: string, today: string): number {
   const [by, bm, bd] = birth.split('-').map(Number);
   const [ty, tm, td] = today.split('-').map(Number);
@@ -253,13 +253,13 @@ function PrescriptionFormModal({
     (p, i, all) => all.findIndex((x) => x.id === p.id) === i,
   );
 
+  // Same order as the server (FR-13): the date of birth wins, measured at the
+  // issue date of the prescription; the typed age is used only without one.
   const chosenCustomer = customers.find((c) => c.id === customerId);
-  const showChildGroup =
-    ageYears != null
-      ? ageYears < 6
-      : chosenCustomer?.dateOfBirth
-        ? ageMonthsAt(chosenCustomer.dateOfBirth, businessToday()) < 72
-        : false;
+  const ageAt = issuedDate ? issuedDate.format('YYYY-MM-DD') : businessToday();
+  const showChildGroup = chosenCustomer?.dateOfBirth
+    ? ageMonthsAt(chosenCustomer.dateOfBirth, ageAt) < 72
+    : ageYears != null && ageYears < 6;
 
   const initialValues: Partial<FormValues> = editing
     ? {

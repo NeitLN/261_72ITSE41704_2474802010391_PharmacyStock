@@ -241,10 +241,11 @@ tests/         manual test cases and test evidence
 
 ## Current status
 
-**Week 5 (12/10/2026).** The Project Proposal v1.1 was submitted on
-11/10/2026 (receipt in `docs/evidence/`). Tiến's work for weeks 2–5 is in open
-pull requests #91–#102, waiting for the team's review;
-not merged or tagged yet.
+**Week 5 (13/10/2026).** The Project Proposal v1.1 was submitted on
+11/10/2026 (receipt in `docs/evidence/`). Tiến's work for weeks 2–5
+(#91–#102, reviewed by Minh) and Duy Anh's UC05/UC06 with the UC07/UC08
+specifications and diagrams (#107–#112, reviewed by Tiến) are merged into
+`main`. Not tagged yet; `v0.1` is planned for 17/10.
 
 **Built (in pull requests)**
 

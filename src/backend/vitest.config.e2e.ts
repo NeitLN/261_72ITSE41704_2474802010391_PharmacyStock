@@ -12,6 +12,12 @@ try {
 const testDatabase = process.env.DB_TEST_NAME ?? 'pharmacy_stock_test';
 process.env.DB_NAME = testDatabase;
 process.env.AUTH_MODE = 'dev';
+// Fixed values so the sign-in tests do not depend on a developer's .env.
+const authEnv = {
+  JWT_SECRET: 'e2e-test-secret',
+  SEED_PASSWORD: 'Test-password-1',
+};
+Object.assign(process.env, authEnv);
 
 export default defineConfig({
   plugins: [tsconfigPaths()],
@@ -20,7 +26,7 @@ export default defineConfig({
     root: './',
     include: ['**/*.e2e-spec.ts'],
     globalSetup: ['./test/e2e/global-setup.ts'],
-    env: { DB_NAME: testDatabase, AUTH_MODE: 'dev' },
+    env: { DB_NAME: testDatabase, AUTH_MODE: 'dev', ...authEnv },
     // One shared database: run the files one after another.
     fileParallelism: false,
     testTimeout: 30_000,

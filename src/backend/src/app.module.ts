@@ -8,6 +8,7 @@ import { CatalogueModule } from './catalogue/catalogue.module.js';
 import { dataSourceOptions } from './database/data-source-options.js';
 import { PartiesModule } from './parties/parties.module.js';
 import { PrescriptionsModule } from './prescriptions/prescriptions.module.js';
+import { DispensingModule } from './dispensing/dispensing.module.js';
 import { ReceivingModule } from './receiving/receiving.module.js';
 import { StockModule } from './stock/stock.module.js';
 import { SuppliersModule } from './suppliers/suppliers.module.js';
@@ -24,6 +25,7 @@ import { SuppliersModule } from './suppliers/suppliers.module.js';
     SuppliersModule,
     PartiesModule,
     PrescriptionsModule,
+    DispensingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -569,6 +569,8 @@ function PrescriptionDetailsModal({
 }) {
   const { message, modal } = App.useApp();
   const [verifyNote, setVerifyNote] = useState('');
+  // Two states: the note box is open, and the request is on its way.
+  const [reviewing, setReviewing] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const fetchPrescription = useCallback(
     () =>
@@ -587,6 +589,7 @@ function PrescriptionDetailsModal({
       await prescriptionsApi.verify(prescription.id, verifyNote || undefined);
       message.success('Prescription verified.');
       setVerifyNote('');
+      setReviewing(false);
       reload();
       onChanged();
     } catch (error) {
@@ -662,7 +665,7 @@ function PrescriptionDetailsModal({
           />
           <Space style={{ marginTop: 16 }} wrap>
             {prescription.status === 'received' &&
-              (verifying ? (
+              (reviewing ? (
                 <Space>
                   <Input
                     placeholder="Review note (optional)"
@@ -675,7 +678,7 @@ function PrescriptionDetailsModal({
                   </Button>
                 </Space>
               ) : (
-                <Button type="primary" onClick={() => setVerifying(true)}>
+                <Button type="primary" onClick={() => setReviewing(true)}>
                   Verify
                 </Button>
               ))}

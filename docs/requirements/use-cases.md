@@ -22,8 +22,8 @@ Requirements: [`functional-requirements.md`](functional-requirements.md).
 | UC02 | [Manage suppliers](use-cases/UC02-manage-suppliers.md) | Manager | Tiến (A) | Must | Week 5 | Built (#95), awaiting test run |
 | UC03 | [Record a goods receipt](use-cases/UC03-record-goods-receipt.md) | Manager | Tiến (A) | Must | Week 5 | Built (#99), awaiting test run |
 | UC04 | [Look up stock and batch history](use-cases/UC04-look-up-stock.md) | All roles | Tiến (A) | Must | Week 6 | Specified |
-| UC05 | Take in a prescription | Pharmacist | Duy Anh (B) | Must | Week 5 | Not started (#40) |
-| UC06 | Dispense against a prescription | Pharmacist | Duy Anh (B) | Must | Week 5 | Not started (#41) |
+| UC05 | Take in a prescription | Pharmacist | Duy Anh (B) | Must | Week 5 | Built (#40), awaiting test run |
+| UC06 | Dispense against a prescription | Pharmacist | Duy Anh (B) | Must | Week 5 | Built (#41), awaiting test run |
 | UC07 | Record a sale | Cashier | Duy Anh (B) | Must | Week 7 | Not started |
 | UC08 | Process a return | Cashier | Duy Anh (B) | Must | Week 7 | Not started |
 | UC09 | Conduct a stock take | Manager | Minh (C) | Must | Week 7 | Not started |

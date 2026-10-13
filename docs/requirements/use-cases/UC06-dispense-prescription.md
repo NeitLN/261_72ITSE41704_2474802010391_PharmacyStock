@@ -5,7 +5,7 @@
 | **Owner** | Bùi Duy Anh (B) |
 | **Priority** | Must |
 | **Primary actor** | Pharmacist |
-| **Status** | Draft — not built yet (issues #41, #42) |
+| **Status** | Built — awaiting review (issues #40, #41, #42) |
 | **Related rules** | BR01, BR02, BR03 (via the ledger), BR04, BR07, BR10 |
 | **Requirements** | FR-16, FR-17, FR-18, FR-19, FR-20, FR-21, FR-22, FR-23, FR-45 |
 | **Decisions** | DEC-01 (expiry boundary), DEC-02 (shortage), DEC-03 (valid prescription), DEC-05 (only the hand-over moves stock), DEC-07 (batch order) |

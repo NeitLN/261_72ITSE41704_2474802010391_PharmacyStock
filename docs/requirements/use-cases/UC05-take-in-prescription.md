@@ -5,7 +5,7 @@
 | **Owner** | Bùi Duy Anh (B) |
 | **Priority** | Must |
 | **Primary actor** | Pharmacist |
-| **Status** | Draft — not built yet (issues #40, #42) |
+| **Status** | Built — awaiting review (issues #40, #41, #42) |
 | **Related rules** | BR04, BR10 (checked at verification and at dispensing, UC06) |
 | **Requirements** | FR-13, FR-14, FR-15, FR-44 |
 | **Decisions** | DEC-03 (valid prescription) |

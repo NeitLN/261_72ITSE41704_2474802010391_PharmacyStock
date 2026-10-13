@@ -194,3 +194,70 @@ exist. Points marked _(fill in)_ need the team's own account.
 | Sign-in (JWT) replacing `DevAuthGuard`; CI with PostgreSQL | Minh (C) | Thu 15/10 |
 | Follow up DEC-09, DEC-10 with the pharmacist | Tiến (A) | Sun 18/10 |
 | Weekly contribution check (PR list and contributor graph) at the Wednesday meeting | Tiến (A) | Wed 14/10 |
+
+---
+
+## Week 5 — Session 2
+
+**Date:** 13/10/2026
+**Present:** Duy Anh
+
+**Done** (in open pull requests waiting for review; nothing merged)
+
+- First work in the repository under my own account. Set up the project
+  locally with Claude Code's help: Docker database, migrations and demo seed,
+  backend and web client running; opencode works in a separate git worktree
+  with its own ports and test database so the two tools do not overwrite
+  each other.
+- Customers and prescribers API for the quick-create of UC05, with the web
+  client (#107).
+- UC05 take in a prescription and verify it: computed valid-until (BR10),
+  the DEC-03 patient checks, edit returns to RECEIVED (#108).
+- UC06 dispense: `FefoAllocator` and `ExpiryPolicy` as pure classes (BR01,
+  BR02), the hand-over through `StockLedger` with the prescription locked
+  first, partial supply with a note (DEC-02) and the request ID (FR-23)
+  (#109, label `stock-integrity`).
+- UC05 and UC06 specifications (#108); UC07 and UC08 specifications as the
+  design for weeks 6–7 (#110, task #15 from week 2, late); sequence diagrams
+  for dispensing, billing and returns and a use-case diagram (#111, tasks
+  #31 and #23 from weeks 3–4, late).
+- Tests: 74 unit and 97 e2e passing at the tip of #109, including two
+  hand-overs racing for the last units (exactly one wins).
+- Tried the whole flow in the browser: verified a prescription for 100 ORS
+  with 23 in stock; the preview showed the shortage; a partial hand-over took
+  11 from ORS27052 then 12 from ORS28091 (FEFO), the status became
+  PARTIALLY_DISPENSED and the ledger still balanced. Clicking found a bug —
+  the Verify button spun for ever — fixed in #108.
+- Reviewed #98 (Minh): request changes — a merge conflict in `docs/README.md`
+  and three recommendations that DEC-04, DEC-06 and DEC-08 have replaced.
+- AI tools used today: Claude Code (plan, implementation, tests, review of
+  opencode's work) and opencode (smaller tasks from written task cards) — to be
+  declared in Appendix B; rows in `docs/ai-use-log.md`.
+
+**Decided**
+
+- UC05 and UC06 go to review as three stacked pull requests (#107 → #108 →
+  #109) so each stays reviewable; merge in that order and delete each branch
+  so the next one retargets to `main`.
+- FEFO and expiry are pure domain classes in `src/backend/src/issuing/`, so
+  the sale in UC07 reuses them.
+
+**Not done / blocked**
+
+- Weeks 1–4 tasks were not done on time; #15, #23 and #31 are done late
+  today (#110, #111), and #5 and #6 are closed after reading the pharmacist
+  review of week 4. #14 waits for Tiến's view. I did not write Proposal
+  sections 2.1–2.3; #22 and #24 are closed as not done.
+- #106 ("Revert stock ledger") looks like an accidental click after #96 was
+  merged; it should be closed — to raise with Minh.
+- #107, #108, #109 and #111 were reviewed and merged by Tiến on 13/10; #110
+  and this entry wait for the requested fixes.
+
+**Next — rest of week 5**
+
+| Task | Owner | By |
+|---|---|---|
+| Review and merge #107 → #108 → #109, then #110 and #111 | Tiến (A) | Fri 16/10 |
+| Fix review comments on #107–#110 within a day | Duy Anh (B) | As they come |
+| Re-review #98 after the fixes; review Minh's next pull requests | Duy Anh (B) | Fri 16/10 |
+| Week 5 row in `docs/progress/week-05.md` and `docs/ai-use-log.md` | Duy Anh (B) | Sat 17/10 |

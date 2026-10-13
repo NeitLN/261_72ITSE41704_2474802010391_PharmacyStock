@@ -1,13 +1,12 @@
 import { Card, Tabs, Typography } from 'antd';
+import { DispensePanel } from './DispensePanel';
 import { PrescriptionsPanel } from './PrescriptionsPanel';
 
-/**
- * UC05 prescriptions and UC06 dispensing, one tab each.
- * The dispense tab arrives with OC-05; it only appends an item below.
- */
+/** UC05 prescriptions and UC06 dispensing, one tab each. */
 export function DispensingPage() {
   const items = [
     { key: 'prescriptions', label: 'Prescriptions', children: <PrescriptionsPanel /> },
+    { key: 'dispense', label: 'Dispense', children: <DispensePanel /> },
   ];
   return (
     <Card>

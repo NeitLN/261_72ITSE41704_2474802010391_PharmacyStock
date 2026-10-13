@@ -64,6 +64,7 @@ user depends on `AUTH_MODE`:
 Sample users: `manager`, `pharmacist`, `cashier`, password `SEED_PASSWORD`
 (`npm run seed`). Services, controllers and tests that use `@CurrentUser()`
 do not depend on the mode; `test/auth.e2e-spec.ts` runs in `jwt` mode.
+Design: [`access-control.md`](access-control.md).
 
 ## Running the tests
 

@@ -244,12 +244,14 @@ exist. Points marked _(fill in)_ need the team's own account.
 
 **Not done / blocked**
 
-- Weeks 1–4 tasks were not done on time; #15 and #31 are done late today,
-  #23 (use-case diagram) is in progress, #14 waits for Tiến's view. I did
-  not write Proposal sections 2.1–2.3; #22 and #24 are closed as not done.
+- Weeks 1–4 tasks were not done on time; #15, #23 and #31 are done late
+  today (#110, #111), and #5 and #6 are closed after reading the pharmacist
+  review of week 4. #14 waits for Tiến's view. I did not write Proposal
+  sections 2.1–2.3; #22 and #24 are closed as not done.
 - #106 ("Revert stock ledger") looks like an accidental click after #96 was
   merged; it should be closed — to raise with Minh.
-- Waiting for review of #107–#111.
+- #107, #108, #109 and #111 were reviewed and merged by Tiến on 13/10; #110
+  and this entry wait for the requested fixes.
 
 **Next — rest of week 5**
 

@@ -22,10 +22,11 @@ dispense by FEFO, with data surviving a restart
 | Requirements and plan aligned with Proposal v1.1; UC01–UC04 specifications | Tiến | #101, #92 | Awaiting review |
 | 63 test cases; README; screens aligned with v1.1 | Tiến | #102 | Awaiting review |
 | First journal entry; decision options (DEC 4, 6, 8, 9); NFRs; UC09–12, UC16 specs; access-control design | Minh | #98 and branches `docs/w02-c1…`, `docs/w02-c3…`, `docs/w04-c1…` | #98 awaiting review; others not yet in pull requests |
-| Customers and prescribers API for the UC05 quick-create | Duy Anh | #107 | Awaiting review (13/10) |
-| UC05 prescription intake and verification | Duy Anh | #108 | Awaiting review (13/10) |
-| UC06 dispensing by FEFO through the ledger; BR01–BR03 tests incl. concurrent hand-overs | Duy Anh | #109 | Awaiting review (13/10) |
-| Late week 2–4 tasks: UC07/UC08 specifications (#15); use-case and sequence diagrams (#23, #31) | Duy Anh | #110, #111 | Awaiting review (13/10) |
+| Customers and prescribers API for the UC05 quick-create | Duy Anh | #107 | Merged (13/10) |
+| UC05 prescription intake and verification | Duy Anh | #108 | Merged (13/10) |
+| UC06 dispensing by FEFO through the ledger; BR01–BR03 tests incl. concurrent hand-overs | Duy Anh | #109 | Merged (13/10) |
+| Late week 2–4 task: use-case and sequence diagrams (#23, #31) | Duy Anh | #111 | Merged (13/10) |
+| Late week 2 task: UC07/UC08 specifications (#15) | Duy Anh | #110 | Awaiting review |
 | Sign-in (UC16), CI, integration test, tag `v0.1` | Minh | — | Not started in the repository |
 
 Automated tests at the tip of Tiến's pull requests: 31 unit and 61 end-to-end,

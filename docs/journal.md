@@ -111,6 +111,20 @@ keeps the session-by-session detail.
 
 ---
 
+## Week 2 — Decision meeting (held offline, recorded late)
+
+**Date:** around 26/09/2026, the date planned for it. The exact date was not
+written down at the time; this entry was added on 12/10/2026.
+**Present:** _(fill in)_
+
+The team met in person to discuss the open business decisions (plan §8.1).
+No minutes were taken on the day, so this repository has no record of what
+was decided at the meeting itself. The decisions were settled afterwards in
+Proposal v1.1 as DEC-01 to DEC-10 and reviewed by a practising pharmacist in
+week 4; see `docs/requirements/business-decisions.md`.
+
+---
+
 ## Weeks 3–4 — summary written on 12/10/2026
 
 **Recorded by:** Tiến (A). Nothing was committed to the repository between

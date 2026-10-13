@@ -24,8 +24,8 @@ Requirements: [`functional-requirements.md`](functional-requirements.md).
 | UC04 | [Look up stock and batch history](use-cases/UC04-look-up-stock.md) | All roles | Tiến (A) | Must | Week 6 | Specified |
 | UC05 | Take in a prescription | Pharmacist | Duy Anh (B) | Must | Week 5 | Not started (#40) |
 | UC06 | Dispense against a prescription | Pharmacist | Duy Anh (B) | Must | Week 5 | Not started (#41) |
-| UC07 | Record a sale | Cashier | Duy Anh (B) | Must | Week 7 | Not started |
-| UC08 | Process a return | Cashier | Duy Anh (B) | Must | Week 7 | Not started |
+| UC07 | [Record a sale](use-cases/UC07-record-sale.md) | Cashier | Duy Anh (B) | Must | Week 7 | Specified |
+| UC08 | [Process a return](use-cases/UC08-process-return.md) | Cashier | Duy Anh (B) | Must | Week 7 | Specified |
 | UC09 | Conduct a stock take | Manager | Minh (C) | Must | Week 7 | Not started |
 | UC10 | Review low-stock alerts | Manager | Minh (C) | Must | Week 7 | Not started |
 | UC11 | Review expiry alerts, batch status and quarantined stock | Manager | Minh (C) | Must | Week 7 | Not started |

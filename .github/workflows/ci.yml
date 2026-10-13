@@ -1,0 +1,124 @@
+# Continuous integration (W04-C2, issue #35; NFR-11).
+#
+# Every pull request and every push to main must pass: migrations on an empty
+# PostgreSQL 18 database, the seed, then build, lint, unit and e2e tests for
+# the backend, and lint and build for the frontend. Branch protection on main
+# can then require the "Backend" and "Frontend" checks.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# A new push to the same branch cancels the run that is still going.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: pharmacy_app
+          POSTGRES_PASSWORD: ci_only_password
+          POSTGRES_DB: pharmacy_stock
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U pharmacy_app -d pharmacy_stock"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    # The same variables as src/backend/.env.example, for the CI database.
+    # The values only exist inside this job.
+    env:
+      NODE_ENV: test
+      DB_HOST: localhost
+      DB_PORT: '5432'
+      DB_USERNAME: pharmacy_app
+      DB_PASSWORD: ci_only_password
+      DB_NAME: pharmacy_stock
+      DB_TEST_NAME: pharmacy_stock_test
+      JWT_SECRET: ci-only-secret
+      SEED_PASSWORD: Ci-only-password-1
+
+    defaults:
+      run:
+        working-directory: src/backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: src/backend/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      # migration:run builds first, so this also proves the code compiles.
+      - name: Migrations on an empty database
+        run: npm run migration:run
+
+      - name: No migration left pending
+        run: |
+          npm run --silent typeorm -- migration:show | tee migrations.txt
+          if grep -q '\[ \]' migrations.txt; then
+            echo "A migration was not applied." >&2
+            exit 1
+          fi
+
+      - name: Seed with the demo data set
+        run: npm run seed
+
+      - name: Unit tests
+        run: npm test
+
+      # Creates pharmacy_stock_test, applies the migrations and resets it
+      # before each file (test/e2e/global-setup.ts).
+      - name: End-to-end tests
+        run: npm run test:e2e
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        working-directory: src/frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: src/frontend/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build

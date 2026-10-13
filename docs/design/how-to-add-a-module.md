@@ -48,15 +48,21 @@ fix the date and Asia/Ho_Chi_Minh is applied in one place.
 
 ## Who is the user right now
 
-Until sign-in (UC16, issues #43 and #44) exists, the backend runs with
-`AUTH_MODE=dev`: `DevAuthGuard` reads the `X-Dev-User` header, loads that
-seeded user with its role and permissions, and puts an `Actor` on the
-request. The header bar of the UI has a *Dev user* switch. Sample users:
-`manager`, `pharmacist`, `cashier` (`npm run seed`).
+`AuthGuard` (`src/backend/src/auth/auth.guard.ts`) authenticates every route
+that is not `@Public()` and puts an `Actor` on the request. How it finds the
+user depends on `AUTH_MODE`:
 
-The JWT guard of UC16 replaces `DevAuthGuard` and must produce the same
-`Actor`. Services, controllers and tests that use `@CurrentUser()` do not
-change; the e2e helper `as('pharmacist')` is the only test code that will.
+- `jwt` (the default): `POST /api/auth/login` checks the password and returns
+  a token valid for 8 hours; every request sends
+  `Authorization: Bearer <token>`. The user and permissions are read again on
+  each request, so locking an account or changing a role applies at once.
+- `dev`: `DevAuthGuard` reads the `X-Dev-User` header, with no password. Kept
+  until the sign-in page (#44) is merged, and for the e2e helper
+  `as('pharmacist')`. Refused when `NODE_ENV=production`.
+
+Sample users: `manager`, `pharmacist`, `cashier`, password `SEED_PASSWORD`
+(`npm run seed`). Services, controllers and tests that use `@CurrentUser()`
+do not depend on the mode; `test/auth.e2e-spec.ts` runs in `jwt` mode.
 
 ## Running the tests
 

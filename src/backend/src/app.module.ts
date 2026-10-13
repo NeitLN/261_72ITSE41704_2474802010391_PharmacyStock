@@ -6,6 +6,7 @@ import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
 import { CatalogueModule } from './catalogue/catalogue.module.js';
 import { dataSourceOptions } from './database/data-source-options.js';
+import { PartiesModule } from './parties/parties.module.js';
 import { ReceivingModule } from './receiving/receiving.module.js';
 import { StockModule } from './stock/stock.module.js';
 import { SuppliersModule } from './suppliers/suppliers.module.js';
@@ -20,6 +21,7 @@ import { SuppliersModule } from './suppliers/suppliers.module.js';
     CatalogueModule,
     ReceivingModule,
     SuppliersModule,
+    PartiesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

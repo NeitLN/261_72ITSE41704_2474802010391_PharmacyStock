@@ -1,41 +1,29 @@
-import type { INestApplication } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
-import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { DataSource } from 'typeorm';
-import { AppModule } from '../src/app.module.js';
-import { configureApp } from '../src/app.setup.js';
-import { as, resetDatabase } from './e2e/helpers.js';
-import { PartiesModule } from '../src/parties/parties.module.js';
+import {
+  as,
+  createTestApp,
+  resetDatabase,
+  type TestApp,
+} from './e2e/helpers.js';
 
 /**
- * OC-01 customers and prescribers through the HTTP API, on the e2e database.
- *
- * The spec boots AppModule plus PartiesModule without editing
- * `app.module.ts` (owned by Claude at merge time): one line,
- * `PartiesModule` in `AppModule.imports`, wires these routes in production.
+ * Customers and prescribers through the HTTP API, on the e2e database:
+ * the quick-create of UC05 (FR-15).
  */
-describe('OC-01 parties (e2e)', () => {
-  let app: INestApplication;
-  let dataSource: DataSource;
-  const http = () => request(app.getHttpServer());
+describe('UC05 customers and prescribers (e2e)', () => {
+  let t: TestApp;
+  const http = () => t.http();
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      imports: [AppModule, PartiesModule],
-    }).compile();
-    app = moduleRef.createNestApplication();
-    configureApp(app);
-    await app.init();
-    dataSource = app.get(DataSource);
+    t = await createTestApp();
   });
 
   afterAll(async () => {
-    await app.close();
+    await t.app.close();
   });
 
   beforeEach(async () => {
-    await resetDatabase(dataSource);
+    await resetDatabase(t.dataSource);
   });
 
   const customer = {

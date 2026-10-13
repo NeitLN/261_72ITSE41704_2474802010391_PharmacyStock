@@ -10,7 +10,6 @@ import { PrescribersService } from './prescribers.service.js';
 /**
  * UC05 quick-create of customers and prescribers (FR-15).
  * StockModule is imported for the Clock, following CatalogueModule.
- * NOTE for the merge (Claude): add `PartiesModule` to `AppModule.imports`.
  */
 @Module({
   imports: [TypeOrmModule.forFeature([Customer, Prescriber]), StockModule],

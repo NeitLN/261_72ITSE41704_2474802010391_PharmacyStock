@@ -85,7 +85,7 @@ week is **Duy Anh**; the reviewer fills the rest by Sunday
 
 | Member | Delivered (self-report, with links) | Reviewer's findings | Revisions (issue, severity, due) |
 |---|---|---|---|
-| Duy Anh (B) | 13/10: #107, #108, #109 (UC05, UC06, BR01–BR03 tests — 74 unit, 97 e2e passing; flow tried in the browser); #110, #111 (late tasks #15, #23, #31); review of #98 (changes requested); first journal entry and AI-use rows (this PR). #22, #24 closed as not done by me. | Tiến: | |
+| Duy Anh (B) | 13/10: #107, #108, #109 (UC05, UC06, BR01–BR03 tests — 74 unit, 97 e2e passing; flow tried in the browser); #110, #111 (late tasks #15, #23, #31); review of #98 (changes requested); first journal entry (this PR); my AI-use rows to follow, written by me. #22, #24 closed as not done by me. | Tiến: | |
 | Minh (C) | | Tiến: | |
 | Tiến (A) | #93–#102 (see *Delivered so far*) | Minh: | |
 

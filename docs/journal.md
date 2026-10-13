@@ -230,9 +230,8 @@ exist. Points marked _(fill in)_ need the team's own account.
   the Verify button spun for ever — fixed in #108.
 - Reviewed #98 (Minh): request changes — a merge conflict in `docs/README.md`
   and three recommendations that DEC-04, DEC-06 and DEC-08 have replaced.
-- AI tools used today: Claude Code (plan, implementation, tests, review of
-  opencode's work) and opencode (smaller tasks from written task cards) — to be
-  declared in Appendix B; rows in `docs/ai-use-log.md`.
+- AI tools used today: Claude Code and opencode — I will record my own
+  rows in `docs/ai-use-log.md` before the end of the week (Appendix B).
 
 **Decided**
 

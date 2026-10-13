@@ -17,7 +17,7 @@ import {
   dispensingApi,
   type ExpiryWarning,
 } from '../api/dispensing';
-import { toApiError } from '../api/errors';
+import { type FieldError, toApiError } from '../api/errors';
 import {
   DISPENSABLE_STATUSES,
   type Prescription,
@@ -27,6 +27,30 @@ import {
 import { useLoad } from '../api/useLoad';
 
 const NO_OPTIONS: PrescriptionSummary[] = [];
+
+type ItemErrors = Record<string, { quantity?: string; note?: string }>;
+
+/**
+ * Maps the server's `items.N.quantity` / `items.N.partialSupplyNote` errors
+ * back to the prescription item they belong to. N indexes the items sent,
+ * which skip items with nothing to hand over.
+ */
+function errorsByItem(
+  errors: FieldError[],
+  sentItems: Array<{ prescriptionItemId: string }>,
+): ItemErrors {
+  const byItem: ItemErrors = {};
+  for (const e of errors) {
+    const m = /^items\.(\d+)\.(quantity|partialSupplyNote)$/.exec(e.field);
+    if (!m) continue;
+    const itemId = sentItems[Number(m[1])]?.prescriptionItemId;
+    if (!itemId) continue;
+    byItem[itemId] ??= {};
+    if (m[2] === 'quantity') byItem[itemId].quantity = e.message;
+    else byItem[itemId].note = e.message;
+  }
+  return byItem;
+}
 
 function WarningTag({ warning }: { warning: ExpiryWarning }) {
   return (
@@ -57,9 +81,7 @@ export function DispensePanel() {
   const [requestId, setRequestId] = useState<string | null>(null);
   const [result, setResult] = useState<DispenseResult | null>(null);
   const [topError, setTopError] = useState<string | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<
-    Record<string, { quantity?: string; note?: string }>
-  >({});
+  const [fieldErrors, setFieldErrors] = useState<ItemErrors>({});
 
   const fetchOptions = useCallback(
     () => prescriptionsApi.list({ search: search || undefined }),
@@ -104,18 +126,17 @@ export function DispensePanel() {
     setPreviewing(true);
     setTopError(null);
     setFieldErrors({});
+    const sentItems = prescription.items
+      .filter((item) => (quantities[item.id] ?? 0) > 0)
+      .map((item) => ({ prescriptionItemId: item.id, quantity: quantities[item.id] }));
     try {
-      setPreview(
-        await dispensingApi.preview({
-          prescriptionId: prescription.id,
-          items: prescription.items
-            .filter((item) => (quantities[item.id] ?? 0) > 0)
-            .map((item) => ({ prescriptionItemId: item.id, quantity: quantities[item.id] })),
-        }),
-      );
+      setPreview(await dispensingApi.preview({ prescriptionId: prescription.id, items: sentItems }));
     } catch (error) {
+      // e.g. BR07 "more than outstanding" on items.N.quantity: show it under that item.
+      const apiError = toApiError(error);
       setPreview(null);
-      setTopError(toApiError(error).message);
+      setFieldErrors(errorsByItem(apiError.errors, sentItems));
+      setTopError(apiError.message);
     } finally {
       setPreviewing(false);
     }
@@ -153,17 +174,7 @@ export function DispensePanel() {
       setRequestId(null);
     } catch (error) {
       const apiError = toApiError(error);
-      const byItem: Record<string, { quantity?: string; note?: string }> = {};
-      for (const e of apiError.errors) {
-        const m = /^items\.(\d+)\.(quantity|partialSupplyNote)$/.exec(e.field);
-        if (!m) continue;
-        const itemId = sentItems[Number(m[1])]?.prescriptionItemId;
-        if (!itemId) continue;
-        byItem[itemId] ??= {};
-        if (m[2] === 'quantity') byItem[itemId].quantity = e.message;
-        else byItem[itemId].note = e.message;
-      }
-      setFieldErrors(byItem);
+      setFieldErrors(errorsByItem(apiError.errors, sentItems));
       setTopError(apiError.message);
     } finally {
       setConfirming(false);

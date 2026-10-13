@@ -1,9 +1,26 @@
 # Option papers — decisions 4, 6, 8 and 9
 
 **Author:** Minh (C) · **Written:** 12/10/2026 · **Task:** W02-C2 (#17)
-**Status of every decision below: proposed, not decided.** The team decides at
-a meeting; the decision, the date and who was present are then recorded in
-[`../../README.md`](../../README.md) and in the journal.
+
+> **Superseded — do not build from these recommendations.** These are the
+> week 2 options. The decisions were settled in Proposal v1.1 and reviewed by
+> a practising pharmacist; the record is
+> [`../business-decisions.md`](../business-decisions.md). Where they differ,
+> the settled decision wins:
+>
+> - **Decision 4** recommended (a), returned stock never sold again.
+>   **DEC-04** instead puts a return into the quarantine of its original batch
+>   as PENDING_ASSESSMENT; a manager releases it or rejects it to pending
+>   destruction (BR11).
+> - **Decision 6** subtracted every return from net issued. **DEC-06**
+>   subtracts only returns released back to sellable stock, and renames the
+>   report the *stock movement report*.
+> - **Decision 8** used a reorder level of 0 to mean "not tracked". **DEC-08**
+>   uses a separate on/off switch per medicine and adds an OUT_OF_STOCK alert.
+> - **Decision 9** matches NFR-01 to NFR-03 in
+>   [`../functional-requirements.md`](../functional-requirements.md).
+>
+> The paper is kept as the record of the options considered.
 
 Each paper gives the question, the options with their consequences, a
 recommendation and what changes if the team picks something else. Sources are

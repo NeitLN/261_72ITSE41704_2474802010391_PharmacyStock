@@ -261,3 +261,67 @@ exist. Points marked _(fill in)_ need the team's own account.
 | Fix review comments on #107–#110 within a day | Duy Anh (B) | As they come |
 | Re-review #98 after the fixes; review Minh's next pull requests | Duy Anh (B) | Fri 16/10 |
 | Week 5 row in `docs/progress/week-05.md` and `docs/ai-use-log.md` | Duy Anh (B) | Sat 17/10 |
+
+---
+
+## Week 5 — Session 3
+
+**Date:** 14/10/2026
+**Present:** Minh
+
+**Done**
+
+- Sign-in (UC16) and CI are committed on their own branches, each waiting for
+  review by Duy Anh: backend sign-in with bcryptjs and an 8-hour JWT (#43),
+  the sign-in page with a menu filtered by role (#44), and the CI workflow
+  with a PostgreSQL 18 service (#35). Tests at the tip of #44: 79 unit and
+  110 e2e passing; the sign-in page was also tried in Chromium with all three
+  roles.
+- First manual test runs (W05-C3, #45), as the runner of Tiến's week 5 cases,
+  on `main` at `8c535ec` after `docker compose down -v` and `npm run seed`.
+  The runs were driven by a Playwright script that clicks through the web
+  client as the sample manager; I checked the database with psql and kept
+  the screenshots. Six lines in `tests/manual/runs.md`:
+  TC-01 Pass, TC-03 Pass, TC-45 Pass, TC-46 Pass, TC-02 Fail (twice).
+- Data survived a restart: after `docker compose restart` and restarting the
+  API, the TC-01 receipt and its batch were unchanged.
+- Regression pack R defined in `tests/manual/test-cases.md` (#36): the
+  fifteen cases of plan §6.5 plus TC-50 for BR11.
+
+**Defect found**
+
+- **TC-02, goods receipt quantity (S3, proposed).** In the receipt form,
+  typing `0` or `-1` turns the quantity into `1`, and `2.5` into `3`, when the
+  field is left; no error is shown and the receipt saves with the changed
+  number. The API refuses all of these values, so only the form is wrong: it
+  corrects the number instead of rejecting it (FR-07, NFR-04). Proposed S3
+  because the corrected number is visible before saving; Tiến may raise it to
+  S2 since a wrong quantity can reach stock unnoticed. Owner: Tiến (UC03).
+  Issue to be opened with the evidence `TC-02-*-2026-10-14.png`; it is
+  retested by me after the fix.
+
+**v0.1 sign-off (W05-C3) — not signed yet**
+
+| v0.1 criterion | State on 14/10 |
+|---|---|
+| Sign in | Built and tested on #43/#44; not merged |
+| Receive stock (UC03) | Merged; TC-01, 03, 46 pass; TC-02 fails (S3) |
+| Take in a prescription (UC05) | Merged; TC-47, TC-58 not run yet (runner Tiến) |
+| Dispense it (UC06) | Merged; TC-04, 06, 09 not run yet (runner Tiến) |
+| Data survives a restart | Checked for a goods receipt |
+| No S1 or S2 open | None known; TC-02 is proposed S3 |
+
+The tag waits for #43 and #44 to merge and for Tiến's runs of the UC05/UC06
+cases. The S3 defect does not block it (plan §6.4) and goes into the release
+note.
+
+**Next**
+
+| Task | Owner | By |
+|---|---|---|
+| Review #43, #44 and the CI pull request | Duy Anh (B) | Thu 15/10 |
+| Turn on the required CI checks once CI is on `main` | Tiến (A) | After merge |
+| Run TC-04, 06, 09, 47, 58 on `main` | Tiến (A) | Fri 16/10 |
+| Fix the TC-02 form defect | Tiến (A) | Week 6 |
+| Re-run TC-02; run the sign-in cases TC-42, TC-43 | Minh (C); Duy Anh (B) | After the fixes merge |
+| Tag `v0.1` with the release note | Minh (C) | When the above pass |

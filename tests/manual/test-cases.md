@@ -86,3 +86,24 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 The *Automated* column names e2e or unit tests in `src/backend` that check the
 same behaviour at API level. They support the manual run; they do not replace
 it.
+
+## Regression pack R
+
+Run before every tag (`v0.1`, `v0.2`, `v1.0`), starting on the Thursday of the
+tag week, on a freshly seeded database (plan §6.5). About two hours with the
+reset. Each run is a new line in [`runs.md`](runs.md); a case whose feature is
+not merged yet is recorded as `Blocked`, not skipped.
+
+| Area | Cases |
+|---|---|
+| Goods receipts (UC03) | TC-01, TC-03 |
+| Dispensing rules (UC06: BR01, BR02, BR03, BR04) | TC-04, TC-06, TC-07, TC-09, TC-12 |
+| Sales and returns (UC07, UC08: DEC-05, BR05, BR11) | TC-15, TC-16, TC-35, TC-50 |
+| Stock control (UC09, UC10) | TC-19, TC-21 |
+| Access (FR-39, UC16) | TC-28, TC-43 |
+| End to end | TC-31 |
+
+Sixteen cases: the fifteen of plan §6.5, plus TC-50 because BR11 (returns go
+to quarantine) became a Must rule in Proposal v1.1. BR10 (prescription
+validity) is not in the pack by hand; its e2e tests run in CI on every pull
+request.

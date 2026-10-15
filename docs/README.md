@@ -62,3 +62,8 @@ as DEC-01 to DEC-10, reviewed by a practising pharmacist in week 4. Record:
 [`requirements/business-decisions.md`](requirements/business-decisions.md).
 DEC-09 and DEC-10 are being confirmed with the reviewer in week 5; until then
 they are team assumptions.
+
+The week 2 option papers for decisions 4, 6, 8 and 9 are kept as the record of
+the options considered; DEC-04, DEC-06 and DEC-08 replace their
+recommendations: [`requirements/decisions/options-4-6-8-9.md`](requirements/decisions/options-4-6-8-9.md).
+Sources quoted: [`requirements/sources.md`](requirements/sources.md).

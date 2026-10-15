@@ -52,17 +52,19 @@ fix the date and Asia/Ho_Chi_Minh is applied in one place.
 that is not `@Public()` and puts an `Actor` on the request. How it finds the
 user depends on `AUTH_MODE`:
 
-- `jwt` (the default): `POST /api/auth/login` checks the password and returns
-  a token valid for 8 hours; every request sends
-  `Authorization: Bearer <token>`. The user and permissions are read again on
-  each request, so locking an account or changing a role applies at once.
-- `dev`: `DevAuthGuard` reads the `X-Dev-User` header, with no password. Kept
-  until the sign-in page (#44) is merged, and for the e2e helper
-  `as('pharmacist')`. Refused when `NODE_ENV=production`.
+- `jwt` (the default, and what `.env.example` sets): `POST /api/auth/login`
+  checks the password and returns a token valid for 8 hours; every request
+  sends `Authorization: Bearer <token>`. The user and permissions are read
+  again on each request, so locking an account or changing a role applies at
+  once. In the web client, `useAuth()` / `useMe()` give the user and `can()`.
+- `dev`: `DevAuthGuard` reads the `X-Dev-User` header, with no password. Used
+  only by the e2e helper `as('pharmacist')`. Refused when
+  `NODE_ENV=production`.
 
 Sample users: `manager`, `pharmacist`, `cashier`, password `SEED_PASSWORD`
 (`npm run seed`). Services, controllers and tests that use `@CurrentUser()`
 do not depend on the mode; `test/auth.e2e-spec.ts` runs in `jwt` mode.
+Design: [`access-control.md`](access-control.md).
 
 ## Running the tests
 

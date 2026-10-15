@@ -206,11 +206,13 @@ The three accounts sign in with the password in `SEED_PASSWORD` in
 local use only. Running the seed again gives a password to accounts created
 before sign-in existed and never changes one that was already set.
 
-The sign-in API is built (UC16, issue #43); the sign-in page is issue #44.
-Until that page is merged, `.env.example` keeps `AUTH_MODE=dev`, and the web
-client has a **Dev user** switch in the header bar that chooses which account
-to act as, with no password. This mode is for a developer's machine only. Set
-`AUTH_MODE=jwt` to require a real sign-in. Details:
+Open the web client and sign in; each role sees only its own screens. A
+session lasts 8 hours or until the tab is closed.
+
+**If your `.env` predates sign-in:** copy `JWT_SECRET`, `SEED_PASSWORD` and
+`AUTH_MODE=jwt` from `.env.example`, then run `npm run seed` once so the
+existing accounts get the password. `AUTH_MODE=dev` (the old *Dev user*
+switch, no password) is now used only by the e2e tests. Details:
 [`docs/design/how-to-add-a-module.md`](docs/design/how-to-add-a-module.md).
 
 ## Commands
@@ -268,11 +270,12 @@ not merged or tagged yet.
 - Demo seed: 60 medicines, 10 suppliers, 120 batches with relative dates (#100)
 - UC16 sign-in API: bcryptjs password hashes, 8-hour JWT, the user re-read on
   every request, one message for a wrong password or unknown user (#43)
+- UC16 sign-in page: menu and screens filtered by role, sign-out, return to
+  sign-in when the session ends (#44)
 - 79 unit and 110 e2e tests passing
 
 **Not built yet**
 
-- Sign-in page (UC16, #44) — a dev user switch stands in
 - UC04, UC07–UC12 and the Should use cases UC13–UC15
 
 ### Scope against the course targets
@@ -284,7 +287,7 @@ Targets are those expected of a three-person team
 |---|---|---|---|
 | Use cases end-to-end | 13–16 | 13 Must + 3 Should | 5 (UC01–03, UC05, UC06) |
 | Domain classes | 16–22 | 25 | 25 in the schema |
-| User roles | 3+ | 3 | Checked in services; sign-in API built, page pending |
+| User roles | 3+ | 3 | Sign-in with a password; checked in services; menu by role |
 | Business rules beyond CRUD | 6+ | 8 Must + 2 Should + 1 Could | BR01, BR02, BR03, BR05, BR07, BR10; BR04 in part |
 | Documented test cases | 20+ | 63 | 63 planned; 0 manual runs |
 

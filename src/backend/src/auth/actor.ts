@@ -1,4 +1,5 @@
 import { PermissionDenied } from '../common/errors.js';
+import type { User } from '../entities/index.js';
 import type { Permission, RoleCode } from './permissions.js';
 
 /**
@@ -23,4 +24,15 @@ export function assertPermission(actor: Actor, permission: Permission): void {
   if (!actor.permissions.has(permission)) {
     throw new PermissionDenied(permission);
   }
+}
+
+/** Builds the Actor from a user loaded with `role.permissions`. */
+export function toActor(user: User): Actor {
+  return {
+    id: user.id,
+    username: user.username,
+    fullName: user.fullName,
+    role: user.role.code as RoleCode,
+    permissions: new Set(user.role.permissions.map((p) => p.code)),
+  };
 }

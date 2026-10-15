@@ -265,6 +265,8 @@ not merged or tagged yet.
 - UC03 goods receipts through the ledger (#99)
 - UC05 prescription intake and verification with computed validity (FR-44, BR10) (#40)
 - UC06 dispensing through the ledger with FEFO preview — BR01, BR02, BR07 (#41)
+- CI on every pull request: migrations on an empty PostgreSQL 18 database,
+  seed, build, lint, unit and e2e tests, and the frontend build (#35)
 - Demo seed: 60 medicines, 10 suppliers, 120 batches with relative dates (#100)
 - UC16 sign-in API: bcryptjs password hashes, 8-hour JWT, the user re-read on
   every request, one message for a wrong password or unknown user (#43)
@@ -275,7 +277,6 @@ not merged or tagged yet.
 **Not built yet**
 
 - UC04, UC07–UC12 and the Should use cases UC13–UC15
-- CI workflow
 
 ### Scope against the course targets
 

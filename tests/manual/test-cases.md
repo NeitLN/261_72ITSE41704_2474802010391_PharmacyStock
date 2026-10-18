@@ -2,7 +2,7 @@
 
 The 63 planned test cases of Proposal v1.1, Appendix C. Purpose and expected
 result are as submitted; steps are refined by the owner before the first run.
-The first manual runs were recorded on 14/10/2026 (TC-01, 02, 03, 45, 46).
+The first manual runs were recorded on 14/10/2026 (TC-01, 02, 03, 45, 46) and 18/10/2026 (TC-42, 43).
 Automated tests exist for the built use cases (column *Automated*), but a
 manual run by someone other than the author is what closes a feature issue
 (`docs/plan/00-tong-quan.md` §6.6).
@@ -61,8 +61,8 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-39 | 6 | UC09 | Stock take with no differences | Counted = system for every line | Approved; no adjustment posted | Minh | Duy Anh | — | Not run |
 | TC-40 | 8 | UC13 / BR09 *(S)* | Sale after a scheduled price change | Price changes tomorrow; sell tomorrow | Valued at the new price | Tiến | Minh | — | Not run |
 | TC-41 | 8 | UC13 / BR09 *(S)* | Price change after a sale | Sell, then change the price | Past sale and report unchanged | Tiến | Minh | UC01-05 (price history) | Not run |
-| TC-42 | 5 | UC16 | Wrong password; locked account | Sign in with a wrong password; with a locked user | Generic message; refused | Minh | Duy Anh | — | Not run |
-| TC-43 | 5 | UC16 | Menu by role and session expiry | Sign in as each role; let the session expire | Correct menu; redirect when expired | Minh | Duy Anh | — | Not run |
+| TC-42 | 5 | UC16 | Wrong password; locked account | Sign in with a wrong password; with a locked user | Generic message; refused | Minh | Duy Anh | UC16-03, UC16-05 | Pass |
+| TC-43 | 5 | UC16 | Menu by role and session expiry | Sign in as each role; let the session expire | Correct menu; redirect when expired | Minh | Duy Anh | UC16-01, UC16-08, UC16-09 | Pass |
 | TC-44 | 8 | UC15 *(S)* | Create user, change role, lock | As manager | Applied; audit entry written | Minh | Duy Anh | — | Not run |
 | TC-45 | 5 | UC01 | Duplicate medicine code | Add `Para500` when `PARA500` exists | Refused on the code field | Tiến | Minh | UC01-02 | Pass |
 | TC-46 | 5 | UC01 / UC02 | Deactivated medicine or supplier in a receipt | Deactivate, then use it on a receipt | Refused | Tiến | Minh | UC03-09 | Pass |

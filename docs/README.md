@@ -9,6 +9,7 @@
 | [`journal.md`](journal.md) | Session-by-session record of what changed, who did it and what is next | Every session |
 | [`requirements/`](requirements/) | Use cases and their specifications, business rules, business decisions (DEC-01–10) and the pharmacist review, functional and non-functional requirements — all as in Proposal v1.1 | Kept current |
 | [`design/`](design/) | Domain model, stock ledger and lock protocol, how to add a module | Kept current |
+| [`report/`](report/outline.md) | Final Report outline: each chapter and appendix with its writer and the week of its draft and final version | Week 5, then weeks 8–10 |
 | [`diagrams/`](diagrams/) | Use case, class, sequence and ER diagrams; wireframes. Keep the editable source and an exported image. | Week 4 |
 
 Reports submitted for assessment are written in English and follow the course
@@ -62,3 +63,8 @@ as DEC-01 to DEC-10, reviewed by a practising pharmacist in week 4. Record:
 [`requirements/business-decisions.md`](requirements/business-decisions.md).
 DEC-09 and DEC-10 are being confirmed with the reviewer in week 5; until then
 they are team assumptions.
+
+The week 2 option papers for decisions 4, 6, 8 and 9 are kept as the record of
+the options considered; DEC-04, DEC-06 and DEC-08 replace their
+recommendations: [`requirements/decisions/options-4-6-8-9.md`](requirements/decisions/options-4-6-8-9.md).
+Sources quoted: [`requirements/sources.md`](requirements/sources.md).

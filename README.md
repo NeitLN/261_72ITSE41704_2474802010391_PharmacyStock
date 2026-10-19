@@ -25,7 +25,7 @@ Weeks 1–4 were written on 12/10/2026 from the existing evidence and say so.
 | 2 | 21/09–27/09 | Requirements | Partly delivered | `561af37`…`afbd3d9`, #91, #92 | [week 2](docs/progress/week-02.md) |
 | 3 | 28/09–04/10 | **Project Proposal (20%)** | Delivered 04/10 | #19–#21 | [week 3](docs/progress/week-03.md) |
 | 4 | 05/10–11/10 | Design and foundations | Not delivered in week 4; Proposal v1.1 resubmitted 11/10 | [receipt](docs/evidence/proposal-resubmission-receipt-2026-10-11.png) | [week 4](docs/progress/week-04.md) |
-| 5 | 12/10–18/10 | Release `v0.1` | In progress | #93–#102, #98 | [week 5](docs/progress/week-05.md) |
+| 5 | 12/10–18/10 | Release `v0.1` | Flow and CI on `main`; tag late (#45) | #93–#102, #98, #107–#120 | [week 5](docs/progress/week-05.md) |
 | 6 | 19/10–25/10 | Test-case table with real runs | — | — | — |
 | 7 | 26/10–01/11 | Release `v0.2`, Must-core gate, Appendix D | — | — | — |
 | 8 | 02/11–08/11 | Hardening, updated design | — | — | — |
@@ -201,10 +201,18 @@ medicines below their reorder level and one batch on hold. All names and
 numbers are fictional. `SEED_DEMO=false npm run seed` writes only the
 accounts and reference data.
 
-Sign-in (UC16) is not built yet. Until it is, the backend runs with
-`AUTH_MODE=dev` and the web client has a **Dev user** switch in the header bar
-that chooses which account to act as; there are no passwords. This mode is for
-a developer's machine only. Details:
+The three accounts sign in with the password in `SEED_PASSWORD` in
+`src/backend/.env` — `Pharmacy@2026` if you copied `.env.example`. It is for
+local use only. Running the seed again gives a password to accounts created
+before sign-in existed and never changes one that was already set.
+
+Open the web client and sign in; each role sees only its own screens. A
+session lasts 8 hours or until the tab is closed.
+
+**If your `.env` predates sign-in:** copy `JWT_SECRET`, `SEED_PASSWORD` and
+`AUTH_MODE=jwt` from `.env.example`, then run `npm run seed` once so the
+existing accounts get the password. `AUTH_MODE=dev` (the old *Dev user*
+switch, no password) is now used only by the e2e tests. Details:
 [`docs/design/how-to-add-a-module.md`](docs/design/how-to-add-a-module.md).
 
 ## Commands
@@ -241,11 +249,14 @@ tests/         manual test cases and test evidence
 
 ## Current status
 
-**Week 5 (13/10/2026).** The Project Proposal v1.1 was submitted on
-11/10/2026 (receipt in `docs/evidence/`). Tiến's work for weeks 2–5
-(#91–#102, reviewed by Minh) and Duy Anh's UC05/UC06 with the UC07/UC08
-specifications and diagrams (#107–#112, reviewed by Tiến) are merged into
-`main`. Not tagged yet; `v0.1` is planned for 17/10.
+**Week 6 (20/10/2026).** The Project Proposal v1.1 was submitted on
+11/10/2026 (receipt in `docs/evidence/`). The `v0.1` flow is on `main`: sign
+in, catalogue, goods receipt, prescription intake and FEFO dispensing, with CI
+running the migrations, the seed and all tests. Six manual test cases have
+passed, run by someone other than their author, five more are recorded in
+#124, and one has failed (TC-02, bug #125, fix in #126). The `v0.1` tag was
+planned for 17/10 and is late: it follows #124 (week 5 report:
+[`docs/progress/week-05.md`](docs/progress/week-05.md)).
 
 **Built (in pull requests)**
 
@@ -258,14 +269,18 @@ specifications and diagrams (#107–#112, reviewed by Tiến) are merged into
 - UC03 goods receipts through the ledger (#99)
 - UC05 prescription intake and verification with computed validity (FR-44, BR10) (#40)
 - UC06 dispensing through the ledger with FEFO preview — BR01, BR02, BR07 (#41)
+- CI on every pull request: migrations on an empty PostgreSQL 18 database,
+  seed, build, lint, unit and e2e tests, and the frontend build (#35)
 - Demo seed: 60 medicines, 10 suppliers, 120 batches with relative dates (#100)
-- 74 unit and 97 e2e tests passing
+- UC16 sign-in API: bcryptjs password hashes, 8-hour JWT, the user re-read on
+  every request, one message for a wrong password or unknown user (#43)
+- UC16 sign-in page: menu and screens filtered by role, sign-out, return to
+  sign-in when the session ends (#44)
+- 79 unit and 110 e2e tests passing
 
 **Not built yet**
 
-- Sign-in (UC16) — a dev user switch stands in
 - UC04, UC07–UC12 and the Should use cases UC13–UC15
-- CI workflow
 
 ### Scope against the course targets
 
@@ -276,7 +291,7 @@ Targets are those expected of a three-person team
 |---|---|---|---|
 | Use cases end-to-end | 13–16 | 13 Must + 3 Should | 5 (UC01–03, UC05, UC06) |
 | Domain classes | 16–22 | 25 | 25 in the schema |
-| User roles | 3+ | 3 | Checked in services; sign-in not built |
+| User roles | 3+ | 3 | Sign-in with a password; checked in services; menu by role |
 | Business rules beyond CRUD | 6+ | 8 Must + 2 Should + 1 Could | BR01, BR02, BR03, BR05, BR07, BR10; BR04 in part |
 | Documented test cases | 20+ | 63 | 63 planned; 0 manual runs |
 

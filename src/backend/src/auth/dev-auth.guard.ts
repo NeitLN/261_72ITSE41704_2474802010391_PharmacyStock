@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import type { Repository } from 'typeorm';
 import { Unauthenticated } from '../common/errors.js';
 import { User } from '../entities/index.js';
-import type { RoleCode } from './permissions.js';
+import { toActor } from './actor.js';
 import { type AuthenticatedRequest, IS_PUBLIC } from './decorators.js';
 
 export const DEV_USER_HEADER = 'x-dev-user';
@@ -56,13 +56,7 @@ export class DevAuthGuard implements CanActivate {
       throw new Unauthenticated(`Unknown or locked user "${username}".`);
     }
 
-    request.user = {
-      id: user.id,
-      username: user.username,
-      fullName: user.fullName,
-      role: user.role.code as RoleCode,
-      permissions: new Set(user.role.permissions.map((p) => p.code)),
-    };
+    request.user = toActor(user);
     return true;
   }
 }

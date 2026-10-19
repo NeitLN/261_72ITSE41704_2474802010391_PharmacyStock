@@ -2,18 +2,23 @@ import {
   AlertOutlined,
   FileTextOutlined,
   MedicineBoxOutlined,
+  LogoutOutlined,
   SettingOutlined,
   ShopOutlined,
   ShoppingCartOutlined,
 } from '@ant-design/icons';
-import { Layout, Menu, Typography } from 'antd';
+import { Button, Layout, Menu, Space, Tag, Typography } from 'antd';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { DevUserSwitcher } from '../auth/DevUserSwitcher';
+import { canOpen } from '../auth/access';
+import { useAuth } from '../auth/authContext';
 
 const { Header, Sider, Content } = Layout;
 
-/** Navigation entries map one-to-one onto the planned use case groups. */
-const menuItems = [
+/**
+ * Navigation entries map one-to-one onto the planned use case groups. Each
+ * user sees only the screens their role may open (src/auth/access.ts).
+ */
+const allMenuItems = [
   {
     key: '/catalogue',
     icon: <MedicineBoxOutlined />,
@@ -46,8 +51,16 @@ const menuItems = [
   },
 ];
 
+const ROLE_LABELS: Record<string, string> = {
+  MANAGER: 'Manager',
+  PHARMACIST: 'Pharmacist',
+  CASHIER: 'Cashier',
+};
+
 export function MainLayout() {
   const { pathname } = useLocation();
+  const { user, can, signOut } = useAuth();
+  const menuItems = allMenuItems.filter((item) => canOpen(item.key, can));
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -57,7 +70,15 @@ export function MainLayout() {
         <Typography.Title level={4} style={{ color: '#fff', margin: 0 }}>
           Pharmacy Stock &amp; Prescription Dispensing
         </Typography.Title>
-        <DevUserSwitcher />
+        {user && (
+          <Space>
+            <Typography.Text style={{ color: '#fff' }}>{user.fullName}</Typography.Text>
+            <Tag color="cyan">{ROLE_LABELS[user.role] ?? user.role}</Tag>
+            <Button icon={<LogoutOutlined />} onClick={() => void signOut()}>
+              Sign out
+            </Button>
+          </Space>
+        )}
       </Header>
       <Layout>
         <Sider width={260} theme="light">

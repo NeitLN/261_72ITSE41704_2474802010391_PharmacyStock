@@ -12,7 +12,7 @@ Plans and task details live in [`../plan/`](../plan/) (Vietnamese) and on the
 | 2 | 21/09–27/09 | Requirements | Partly delivered (Tiến); B and C: no repository evidence | [week-02](week-02.md) |
 | 3 | 28/09–04/10 | **Project Proposal (20%)** | Delivered 04/10; no repository activity | [week-03](week-03.md) |
 | 4 | 05/10–11/10 | Design and foundations | Not delivered in week 4; Proposal v1.1 resubmitted 11/10 | [week-04](week-04.md) |
-| 5 | 12/10–18/10 | Release `v0.1` | In progress | [week-05](week-05.md) |
+| 5 | 12/10–18/10 | Release `v0.1` | Flow and CI delivered; 11 test cases passed (5 of them in #124); tag `v0.1` late (#45) | [week-05](week-05.md) |
 | 6–10 | 19/10–22/11 | — | Not started | — |
 
 ## Running contribution record (for Appendix C)
@@ -27,7 +27,7 @@ a record, not a ranking.
 | 2 | 10 commits; PR #91, #92 opened | — | — |
 | 3 | Proposal v1.0 submitted; no commits | — | — |
 | 4 | Pharmacist review; Proposal v1.1 resubmitted; no commits | — | — |
-| 5 (to 12/10) | 34 commits; PR #93–#102 opened | — | 6 commits; PR #98 opened |
+| 5 | 43 commits; 11 PRs merged; 6 reviews | 23 commits; 8 PRs merged; 6 reviews; 2 test runs | 13 commits; 6 PRs merged; 12 reviews; 6 test runs |
 
 A new week's report starts from [`_template.md`](_template.md).
 

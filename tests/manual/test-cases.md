@@ -2,9 +2,10 @@
 
 The 63 planned test cases of Proposal v1.1, Appendix C. Purpose and expected
 result are as submitted; steps are refined by the owner before the first run.
-**No case has been run yet** — automated tests exist for the built use cases
-(column *Automated*), but a manual run by someone other than the author is
-what closes a feature issue (`docs/plan/00-tong-quan.md` §6.6).
+The first manual runs were recorded on 14/10/2026 (TC-01, 02, 03, 45, 46) and 18/10/2026 (TC-42, 43).
+Automated tests exist for the built use cases (column *Automated*), but a
+manual run by someone other than the author is what closes a feature issue
+(`docs/plan/00-tong-quan.md` §6.6).
 
 Every run is recorded in [`runs.md`](runs.md) (one line per run: date, runner,
 commit, actual result, verdict, bug link). This table only shows the latest
@@ -19,9 +20,9 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 
 | ID | Week | Covers | Purpose | Data / steps | Expected result | Author | Runner | Automated | Result |
 |---|---|---|---|---|---|---|---|---|---|
-| TC-01 | 5 | UC03 | Receive a valid batch | Active medicine and supplier; record a receipt of 10 units of a new batch | Sellable stock +10; the receipt, its line, the batch and one RECEIPT movement are linked | Tiến | Minh | UC03-01 | Not run |
-| TC-02 | 5 | UC03 | Invalid received quantity | Quantity 0, −1, `ten`, 2.5 | Error under the quantity field; nothing saved | Tiến | Minh | UC03-03 | Not run |
-| TC-03 | 5 | UC03 | Duplicate supplier document | Record HD-0001 for supplier X, then again | Refused under *Supplier document no.*; stock not increased twice | Tiến | Minh | UC03-06 | Not run |
+| TC-01 | 5 | UC03 | Receive a valid batch | Active medicine and supplier; record a receipt of 10 units of a new batch | Sellable stock +10; the receipt, its line, the batch and one RECEIPT movement are linked | Tiến | Minh | UC03-01 | Pass |
+| TC-02 | 5 | UC03 | Invalid received quantity | Quantity 0, −1, `ten`, 2.5 | Error under the quantity field; nothing saved | Tiến | Minh | UC03-03 | Fail |
+| TC-03 | 5 | UC03 | Duplicate supplier document | Record HD-0001 for supplier X, then again | Refused under *Supplier document no.*; stock not increased twice | Tiến | Minh | UC03-06 | Pass |
 | TC-04 | 5 | UC06 / BR01 | FEFO across two batches | A = 3 (expires first), B = 8; dispense 7 | A = 0, B = 4; two dispense lines | Duy Anh | Tiến | — | Not run |
 | TC-05 | 6 | UC06 / BR01 | Skip a batch with no stock | Earliest batch holds 0, next holds 5; dispense 2 | Taken from the next batch | Duy Anh | Tiến | — | Not run |
 | TC-06 | 5 | UC06 / BR02 | Only an expired batch available | Single batch, expiry before the business date | Refused; nothing changes | Duy Anh | Tiến | — | Not run |
@@ -60,11 +61,11 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-39 | 6 | UC09 | Stock take with no differences | Counted = system for every line | Approved; no adjustment posted | Minh | Duy Anh | — | Not run |
 | TC-40 | 8 | UC13 / BR09 *(S)* | Sale after a scheduled price change | Price changes tomorrow; sell tomorrow | Valued at the new price | Tiến | Minh | — | Not run |
 | TC-41 | 8 | UC13 / BR09 *(S)* | Price change after a sale | Sell, then change the price | Past sale and report unchanged | Tiến | Minh | UC01-05 (price history) | Not run |
-| TC-42 | 5 | UC16 | Wrong password; locked account | Sign in with a wrong password; with a locked user | Generic message; refused | Minh | Duy Anh | — | Not run |
-| TC-43 | 5 | UC16 | Menu by role and session expiry | Sign in as each role; let the session expire | Correct menu; redirect when expired | Minh | Duy Anh | — | Not run |
+| TC-42 | 5 | UC16 | Wrong password; locked account | Sign in with a wrong password; with a locked user | Generic message; refused | Minh | Duy Anh | UC16-03, UC16-05 | Pass |
+| TC-43 | 5 | UC16 | Menu by role and session expiry | Sign in as each role; let the session expire | Correct menu; redirect when expired | Minh | Duy Anh | UC16-01, UC16-08, UC16-09 | Pass |
 | TC-44 | 8 | UC15 *(S)* | Create user, change role, lock | As manager | Applied; audit entry written | Minh | Duy Anh | — | Not run |
-| TC-45 | 5 | UC01 | Duplicate medicine code | Add `Para500` when `PARA500` exists | Refused on the code field | Tiến | Minh | UC01-02 | Not run |
-| TC-46 | 5 | UC01 / UC02 | Deactivated medicine or supplier in a receipt | Deactivate, then use it on a receipt | Refused | Tiến | Minh | UC03-09 | Not run |
+| TC-45 | 5 | UC01 | Duplicate medicine code | Add `Para500` when `PARA500` exists | Refused on the code field | Tiến | Minh | UC01-02 | Pass |
+| TC-46 | 5 | UC01 / UC02 | Deactivated medicine or supplier in a receipt | Deactivate, then use it on a receipt | Refused | Tiến | Minh | UC03-09 | Pass |
 | TC-47 | 5 | UC05 | Multi-item prescription; missing patient, strength or dose | Save a complete prescription; then omit each field | Saved; or field errors | Duy Anh | Tiến | — | Not run |
 | TC-48 | 6 | UC04 | Lookup and batch history | Search; open a medicine with expired and valid batches; open a batch | Sellable vs expired correct; history ordered with running balance | Tiến | Minh | — | Not run |
 | TC-49 | 7 | UC14 | Duplicate prescriber licence | Quick-create a prescriber with an existing licence | Refused | Duy Anh | Tiến | — | Not run |
@@ -86,3 +87,24 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 The *Automated* column names e2e or unit tests in `src/backend` that check the
 same behaviour at API level. They support the manual run; they do not replace
 it.
+
+## Regression pack R
+
+Run before every tag (`v0.1`, `v0.2`, `v1.0`), starting on the Thursday of the
+tag week, on a freshly seeded database (plan §6.5). About two hours with the
+reset. Each run is a new line in [`runs.md`](runs.md); a case whose feature is
+not merged yet is recorded as `Blocked`, not skipped.
+
+| Area | Cases |
+|---|---|
+| Goods receipts (UC03) | TC-01, TC-03 |
+| Dispensing rules (UC06: BR01, BR02, BR03, BR04) | TC-04, TC-06, TC-07, TC-09, TC-12 |
+| Sales and returns (UC07, UC08: DEC-05, BR05, BR11) | TC-15, TC-16, TC-35, TC-50 |
+| Stock control (UC09, UC10) | TC-19, TC-21 |
+| Access (FR-39, UC16) | TC-28, TC-43 |
+| End to end | TC-31 |
+
+Sixteen cases: the fifteen of plan §6.5, plus TC-50 because BR11 (returns go
+to quarantine) became a Must rule in Proposal v1.1. BR10 (prescription
+validity) is not in the pack by hand; its e2e tests run in CI on every pull
+request.

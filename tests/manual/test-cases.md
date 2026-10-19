@@ -23,12 +23,12 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-01 | 5 | UC03 | Receive a valid batch | Active medicine and supplier; record a receipt of 10 units of a new batch | Sellable stock +10; the receipt, its line, the batch and one RECEIPT movement are linked | Tiến | Minh | UC03-01 | Pass |
 | TC-02 | 5 | UC03 | Invalid received quantity | Quantity 0, −1, `ten`, 2.5 | Error under the quantity field; nothing saved | Tiến | Minh | UC03-03 | Fail |
 | TC-03 | 5 | UC03 | Duplicate supplier document | Record HD-0001 for supplier X, then again | Refused under *Supplier document no.*; stock not increased twice | Tiến | Minh | UC03-06 | Pass |
-| TC-04 | 5 | UC06 / BR01 | FEFO across two batches | A = 3 (expires first), B = 8; dispense 7 | A = 0, B = 4; two dispense lines | Duy Anh | Tiến | — | Not run |
+| TC-04 | 5 | UC06 / BR01 | FEFO across two batches | A = 3 (expires first), B = 8; dispense 7 | A = 0, B = 4; two dispense lines | Duy Anh | Tiến | — | Pass |
 | TC-05 | 6 | UC06 / BR01 | Skip a batch with no stock | Earliest batch holds 0, next holds 5; dispense 2 | Taken from the next batch | Duy Anh | Tiến | — | Not run |
-| TC-06 | 5 | UC06 / BR02 | Only an expired batch available | Single batch, expiry before the business date | Refused; nothing changes | Duy Anh | Tiến | — | Not run |
+| TC-06 | 5 | UC06 / BR02 | Only an expired batch available | Single batch, expiry before the business date | Refused; nothing changes | Duy Anh | Tiến | — | Pass |
 | TC-07 | 6 | UC06 / BR02 | Issue on the exact expiry day | Batch expiry = business date | Refused — pharmacy policy (DEC-01) | Duy Anh | Tiến | — | Not run |
 | TC-08 | 6 | UC06 / BR01 | Expired batch A, valid batch B | A expired, B in date with enough | Only B used | Duy Anh | Tiến | — | Not run |
-| TC-09 | 5 | UC06 / BR03, BR07 | Shortage | 4 sellable, 5 requested; then 4 submitted with the treatment confirmation | First refused showing 4 sellable; then 4 issued, 1 outstanding (DEC-02) | Duy Anh | Tiến | — | Not run |
+| TC-09 | 5 | UC06 / BR03, BR07 | Shortage | 4 sellable, 5 requested; then 4 submitted with the treatment confirmation | First refused showing 4 sellable; then 4 issued, 1 outstanding (DEC-02) | Duy Anh | Tiến | — | Pass |
 | TC-10 | 6 | UC06 / BR03 | Issue the exact remaining quantity | 4 sellable, 4 requested | Succeeds; stock 0 | Duy Anh | Tiến | BR03-U1 (ledger) | Not run |
 | TC-11 | 6 | UC06 | Invalid quantity | 0, negative | Refused; no change | Duy Anh | Tiến | — | Not run |
 | TC-12 | 6 | UC06 / BR04 | Non-OTC medicine without a prescription | Dispense a controlled medicine with no prescription | Refused, field named | Duy Anh | Tiến | — | Not run |
@@ -66,7 +66,7 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-44 | 8 | UC15 *(S)* | Create user, change role, lock | As manager | Applied; audit entry written | Minh | Duy Anh | — | Not run |
 | TC-45 | 5 | UC01 | Duplicate medicine code | Add `Para500` when `PARA500` exists | Refused on the code field | Tiến | Minh | UC01-02 | Pass |
 | TC-46 | 5 | UC01 / UC02 | Deactivated medicine or supplier in a receipt | Deactivate, then use it on a receipt | Refused | Tiến | Minh | UC03-09 | Pass |
-| TC-47 | 5 | UC05 | Multi-item prescription; missing patient, strength or dose | Save a complete prescription; then omit each field | Saved; or field errors | Duy Anh | Tiến | — | Not run |
+| TC-47 | 5 | UC05 | Multi-item prescription; missing patient, strength or dose | Save a complete prescription; then omit each field | Saved; or field errors | Duy Anh | Tiến | — | Pass |
 | TC-48 | 6 | UC04 | Lookup and batch history | Search; open a medicine with expired and valid batches; open a batch | Sellable vs expired correct; history ordered with running balance | Tiến | Minh | — | Not run |
 | TC-49 | 7 | UC14 | Duplicate prescriber licence | Quick-create a prescriber with an existing licence | Refused | Duy Anh | Tiến | — | Not run |
 | TC-50 | 7 | UC08 / BR11 | Return of an unexpired item | Return 1 unit | Goes to quarantine, not sellable | Duy Anh | Tiến | — | Not run |
@@ -77,7 +77,7 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-55 | 7 | UC07 / BR03 | Sale with insufficient stock | Sell more than sellable | Refused with the available quantity | Duy Anh | Tiến | — | Not run |
 | TC-56 | 7 | UC11 | Write off an expired batch | Write off with a reason | Moved to pending destruction; not destroyed | Minh | Duy Anh | — | Not run |
 | TC-57 | 6 | UC06 / BR02 | FEFO picks a batch inside the alert window | Earliest batch expires in 30 days | Warning with days left; issue allowed | Duy Anh | Tiến | — | Not run |
-| TC-58 | 5 | UC05 / BR04 | Dispense unverified; edit after verification | Dispense a RECEIVED prescription; edit a VERIFIED one | Refused; status back to RECEIVED | Duy Anh | Tiến | — | Not run |
+| TC-58 | 5 | UC05 / BR04 | Dispense unverified; edit after verification | Dispense a RECEIVED prescription; edit a VERIFIED one | Refused; status back to RECEIVED | Duy Anh | Tiến | — | Pass |
 | TC-59 | 7 | UC06 / UC07 | Cancel a draft dispensing and an unpaid sale | Cancel each with a reason | No stock movement; quantities unchanged | Duy Anh | Tiến | — | Not run |
 | TC-60 | 7 | UC06 / BR01 | Earlier-expiring batch on hold or recalled | Put the first FEFO batch on hold | Skipped; next eligible batch used | Duy Anh | Tiến | LOCK-02 (ledger) | Not run |
 | TC-61 | 8 | UC11 / BR11 *(S)* | Release one quarantined return, reject another, record destruction | Two returns in quarantine | Released units sellable; rejected units pending destruction until destroyed | Minh | Duy Anh | — | Not run |

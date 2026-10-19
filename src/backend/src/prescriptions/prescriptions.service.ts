@@ -4,7 +4,6 @@ import { DataSource, type EntityManager, In } from 'typeorm';
 import { type Actor, assertPermission } from '../auth/actor.js';
 import { Permission } from '../auth/permissions.js';
 import {
-  BusinessRuleViolation,
   Conflict,
   type FieldError,
   NotFound,
@@ -20,21 +19,16 @@ import {
   PrescriptionItem,
   PrescriptionStatus,
 } from '../entities/index.js';
-import { addDays, Clock } from '../stock/clock.js';
+import { Clock } from '../stock/clock.js';
 import type {
   ListPrescriptionsQuery,
   PrescriptionDto,
   VerifyPrescriptionDto,
 } from './dto/prescription.dto.js';
-
-/** Validity period of a prescription in days from the issue date (FR-14, BR10). */
-export const PRESCRIPTION_VALIDITY_DAYS = 5;
+import { PrescriptionValidator } from './prescription-validator.js';
 
 /** Children under this age in months need age in months, weight and an accompanying adult (FR-13). */
 const CHILD_AGE_MONTHS = 72;
-
-/** Only these statuses may be edited or verified; a dispensed one keeps its history (BR07). */
-const EDITABLE = [PrescriptionStatus.RECEIVED, PrescriptionStatus.VERIFIED];
 
 export interface PrescriptionSummaryView {
   id: string;
@@ -170,13 +164,7 @@ export class PrescriptionsService {
     assertPermission(actor, Permission.PRESCRIPTION_MANAGE);
     await this.dataSource.transaction(async (manager) => {
       const current = await this.lockPrescription(manager, id);
-      if (!EDITABLE.includes(current.status)) {
-        throw new BusinessRuleViolation(
-          'BR07',
-          'PRESCRIPTION_NOT_EDITABLE',
-          'A prescription that has been dispensed or cancelled cannot be edited.',
-        );
-      }
+      PrescriptionValidator.assertEditable(current.status);
       const details = await this.checkDetails(manager, dto, id);
       await manager.delete(PrescriptionItem, { prescription: { id } });
       await manager.update(
@@ -204,30 +192,17 @@ export class PrescriptionsService {
     assertPermission(actor, Permission.PRESCRIPTION_MANAGE);
     await this.dataSource.transaction(async (manager) => {
       const current = await this.lockPrescription(manager, id);
-      if (current.status !== PrescriptionStatus.RECEIVED) {
-        throw new BusinessRuleViolation(
-          'FR-44',
-          'PRESCRIPTION_NOT_RECEIVED',
-          'Only a prescription waiting for review can be verified.',
-        );
-      }
-      if (this.clock.today() > current.validUntil) {
-        throw new BusinessRuleViolation(
-          'BR10',
-          'PRESCRIPTION_EXPIRED',
-          `This prescription was valid until ${current.validUntil}.`,
-        );
-      }
       const prescriber = await manager.findOneByOrFail(Prescriber, {
         id: current.prescriber.id,
       });
-      if (!prescriber.isActive) {
-        throw new BusinessRuleViolation(
-          'BR04',
-          'PRESCRIBER_INACTIVE',
-          'The prescriber has been deactivated; this prescription cannot be verified.',
-        );
-      }
+      PrescriptionValidator.assertVerifiable(
+        {
+          status: current.status,
+          validUntil: current.validUntil,
+          prescriberActive: prescriber.isActive,
+        },
+        this.clock.today(),
+      );
       await manager.update(
         Prescription,
         { id },
@@ -303,7 +278,7 @@ export class PrescriptionsService {
     return {
       referenceNumber: dto.referenceNumber,
       issuedDate: dto.issuedDate,
-      validUntil: addDays(dto.issuedDate, PRESCRIPTION_VALIDITY_DAYS),
+      validUntil: PrescriptionValidator.validUntil(dto.issuedDate),
       customer: { id: dto.customerId },
       prescriber: { id: dto.prescriberId },
       patientAgeYears: dto.patientAgeYears ?? null,
@@ -461,7 +436,7 @@ export class PrescriptionsService {
       referenceNumber: p.referenceNumber,
       issuedDate: p.issuedDate,
       validUntil: p.validUntil,
-      isExpired: today > p.validUntil,
+      isExpired: PrescriptionValidator.isExpired(p.validUntil, today),
       status: p.status,
       customer: {
         id: p.customer.id,

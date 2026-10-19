@@ -27,6 +27,7 @@ import {
   type BatchCandidate,
   FefoAllocator,
 } from '../issuing/fefo-allocator.js';
+import { PrescriptionValidator } from '../prescriptions/prescription-validator.js';
 import { Clock } from '../stock/clock.js';
 import { type LedgerTransaction, StockLedger } from '../stock/stock-ledger.js';
 import type {
@@ -86,11 +87,6 @@ interface Planned {
   lines: AllocatedLine<BatchCandidate>[];
   available: number;
 }
-
-const DISPENSABLE = [
-  PrescriptionStatus.VERIFIED,
-  PrescriptionStatus.PARTIALLY_DISPENSED,
-];
 
 /**
  * UC06 — dispense against a verified prescription.
@@ -319,31 +315,16 @@ export class DispensingService {
     });
   }
 
-  /** FR-19, FR-21, DEC-03: only a verified prescription, in date, from an active prescriber. */
+  /** BR04, BR10 (`PrescriptionValidator`); the prescriber must be loaded. */
   private checkPrescription(prescription: Prescription, today: string): void {
-    if (!DISPENSABLE.includes(prescription.status)) {
-      throw new BusinessRuleViolation(
-        'BR04',
-        'PRESCRIPTION_NOT_DISPENSABLE',
-        prescription.status === PrescriptionStatus.RECEIVED
-          ? 'This prescription has not been verified by a pharmacist yet.'
-          : 'This prescription cannot be dispensed any more.',
-      );
-    }
-    if (today > prescription.validUntil) {
-      throw new BusinessRuleViolation(
-        'BR10',
-        'PRESCRIPTION_EXPIRED',
-        `This prescription was valid until ${prescription.validUntil}.`,
-      );
-    }
-    if (!prescription.prescriber.isActive) {
-      throw new BusinessRuleViolation(
-        'BR04',
-        'PRESCRIBER_INACTIVE',
-        'The prescriber has been deactivated; this prescription cannot be dispensed.',
-      );
-    }
+    PrescriptionValidator.assertDispensable(
+      {
+        status: prescription.status,
+        validUntil: prescription.validUntil,
+        prescriberActive: prescription.prescriber.isActive,
+      },
+      today,
+    );
   }
 
   /**
@@ -377,15 +358,12 @@ export class DispensingService {
     });
     if (errors.length > 0) throw new ValidationFailed(errors);
 
-    const overDispensed: FieldError[] = [];
+    PrescriptionValidator.assertWithinPrescribed(
+      items,
+      dto.items.map((request) => request.quantity),
+    );
     const inactive: FieldError[] = [];
     items.forEach((item, index) => {
-      if (dto.items[index].quantity > outstanding(item)) {
-        overDispensed.push({
-          field: `items.${index}.quantity`,
-          message: `Only ${outstanding(item)} of ${item.quantityPrescribed} prescribed are still outstanding.`,
-        });
-      }
       if (!item.medicine.isActive) {
         inactive.push({
           field: `items.${index}.prescriptionItemId`,
@@ -393,14 +371,6 @@ export class DispensingService {
         });
       }
     });
-    if (overDispensed.length > 0) {
-      throw new BusinessRuleViolation(
-        'BR07',
-        'OVER_PRESCRIBED_QUANTITY',
-        'A quantity is more than the prescription still allows.',
-        overDispensed,
-      );
-    }
     if (inactive.length > 0) {
       throw new BusinessRuleViolation(
         'FR-02',
@@ -463,9 +433,7 @@ export class DispensingService {
   }
 }
 
-function outstanding(item: PrescriptionItem): number {
-  return item.quantityPrescribed - item.quantityDispensed;
-}
+const outstanding = PrescriptionValidator.outstanding;
 
 function medicineRef(item: PrescriptionItem): MedicineRef {
   return {

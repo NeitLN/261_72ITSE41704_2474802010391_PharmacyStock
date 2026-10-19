@@ -7,7 +7,8 @@ checked before and during review.
 | Diagram | Source | State |
 |---|---|---|
 | 1. Dispense against a prescription (UC06) | The code in #109: `DispensingService`, `FefoAllocator`, `StockLedger` | **As built** |
-| 2. Bill a dispensing (UC07) | [UC07 specification](../requirements/use-cases/UC07-record-sale.md) | Design for #50 — update when built |
+| 2a. Over-the-counter sale (UC07) | [UC07 specification](../requirements/use-cases/UC07-record-sale.md), scenario table | Design gate for #50 (week 6) — update when built |
+| 2b. Bill a dispensing (UC07) | Same | Design gate for #50 (week 6) — update when built |
 | 3. Process a return (UC08) | [UC08 specification](../requirements/use-cases/UC08-process-return.md) | Design for #58 — update when built |
 
 Every diagram follows the same transaction pattern: one `StockLedger.run`
@@ -82,43 +83,131 @@ prescription queue there, so the outstanding quantity one of them reads is
 still true when it is written (BR07, TC-54); a repeat of the same request
 waits for the first and then finds its stored result.
 
-## 2. Bill a dispensing (UC07) — design
+## 2. Record a sale (UC07) — design
 
-The medicines already left the shelf at the hand-over. Billing records the
-money only: **no** stock movement (DEC-05, FR-26, TC-52).
+One `POST /sales` records both forms; a sale may hold over-the-counter lines,
+a billed prescription, or both. The cart lives in the browser until payment
+is confirmed, so adding, changing or cancelling it moves and reserves nothing
+(DEC-05, FR-45). Scenario rows (UC07-S01…S16) are in the
+[UC07 specification](../requirements/use-cases/UC07-record-sale.md#scenario-table).
+
+Lock order inside the transaction, the same as UC06 so the two cannot
+deadlock each other: the billed **prescription's unbilled dispense lines**
+first (the document row two cashiers could both touch), then the request ID,
+then the ledger's order — medicines in one call, ascending id, then eligible
+batches.
+
+### 2a. Over-the-counter sale
+
+Stock leaves at the confirmed payment, by FEFO, only for medicines classified
+OTC (DEC-09, BR01, BR02, BR03).
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor K as Cashier
     participant UI as SalesPage
+    participant C as SalesController
+    participant S as SalesService
+    participant PB as PriceBook
+    participant F as FefoAllocator
+    participant L as StockLedger
+    participant DB as PostgreSQL
+
+    K->>UI: add medicines and quantities to the cart (browser only)
+    K->>UI: Confirm payment
+    UI->>C: POST /sales {requestId, otcLines[{medicineId, quantity}], customerId?}
+    C->>S: record(actor, dto)
+    S->>S: assertPermission(SALE_CREATE)
+    S->>L: run(work)
+    L->>DB: BEGIN
+    S->>DB: find ProcessedRequest(requestId)
+    alt request already done (FR-23)
+        S-->>C: stored receipt — same hash replays, other content gets 409
+    else new request
+        S->>DB: read medicines of the cart
+        S->>S: each medicine active and classified OTC, else 422 BR04 on that line (A1, A4)
+        S->>PB: pricesOn(medicines, businessDate)
+        S->>S: every medicine has a price in force, else 422 on that line (A4)
+        S->>L: lockMedicines(all medicine ids)
+        L->>DB: SELECT medicines FOR UPDATE (ascending id)
+        S->>L: lockEligibleBatches(medicine, businessDate)
+        L->>DB: SELECT ACTIVE, unexpired, sellable batches FOR UPDATE, FEFO order
+        S->>F: allocate per line (lines of one medicine share what is left)
+        alt any shortage (BR03, A2, A3, A9)
+            S-->>L: throw BusinessRuleViolation BR03 — rollback, 422 with available
+        else enough stock
+            S->>DB: INSERT sale (receipt number, sold by, customer?)
+            loop each batch line
+                S->>DB: INSERT sale_line (batch, quantity, unit price, line total)
+                S->>L: post(SALE, −quantity, source = sale line)
+                L->>DB: INSERT stock_movement, UPDATE batch qtySellable (CHECK ≥ 0)
+            end
+            S->>DB: UPDATE sale.totalAmount = Σ line totals (integer đồng)
+            S->>DB: INSERT processed_request(requestId, hash, result)
+        end
+    end
+    L->>DB: COMMIT
+    S-->>UI: 201 receipt — number, lines per batch, unit prices, total
+```
+
+### 2b. Bill a dispensing
+
+The medicines already left the shelf at the hand-over. Billing records the
+money only: **no** stock movement (DEC-05, FR-26, TC-52). The schema has no
+separate "dispensing" row: a hand-over is the set of `DispenseLine`s of one
+prescription, so the cashier bills a prescription, and every dispense line
+of it whose `sale_id` is still empty goes on the bill.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor K as Cashier
+    participant UI as SalesPage
+    participant C as SalesController
     participant S as SalesService
     participant PB as PriceBook
     participant L as StockLedger
     participant DB as PostgreSQL
 
-    K->>UI: Bill a dispensing → choose an unbilled hand-over
-    UI->>S: POST /sales {requestId, dispensing, OTC lines?}
+    K->>UI: Bill a dispensing
+    UI->>C: GET /sales/billable
+    C->>S: billable(actor)
+    S->>DB: prescriptions with dispense lines where sale_id IS NULL
+    S-->>UI: reference, patient, hand-over time, medicines and quantities
+    K->>UI: choose one, Confirm payment
+    UI->>C: POST /sales {requestId, prescriptionId, otcLines?}
+    C->>S: record(actor, dto)
     S->>S: assertPermission(SALE_CREATE)
     S->>L: run(work)
     L->>DB: BEGIN
-    S->>DB: SELECT dispense lines FOR UPDATE
+    S->>DB: SELECT dispense lines of the prescription WHERE sale_id IS NULL FOR UPDATE
     S->>DB: find ProcessedRequest(requestId)
-    alt already billed (UC07 A5) or request reused
-        S-->>UI: 422 already billed / 409 / stored result
-    else not billed
-        S->>PB: price of each medicine on the sale date (decision 12)
-        S->>DB: INSERT sale (receipt number), one sale line per dispense line
-        S->>DB: UPDATE dispense_line.sale_id
+    alt request already done (FR-23)
+        S-->>UI: stored receipt — or 409 for other content
+    else no unbilled line left (A5: another cashier billed it first)
+        S-->>L: throw BusinessRuleViolation — rollback, 422 "already billed"
+    else unbilled lines found
+        S->>PB: pricesOn(medicines, businessDate) (decision 12)
+        S->>DB: INSERT sale (receipt number, customer = the patient)
+        loop each dispense line
+            S->>DB: INSERT sale_line (same batch and quantity, unit price, line total)
+            S->>DB: UPDATE dispense_line.sale_id = sale
+        end
         Note over S,L: no StockLedger.post — stock left once, at the hand-over
         opt OTC lines in the same sale
-            S->>L: lockMedicines → lockEligibleBatches → post(SALE, −q) per batch
+            S->>L: lockMedicines → lockEligibleBatches → post(SALE, −q) per batch, as in 2a
         end
-        S->>DB: INSERT processed_request
+        S->>DB: UPDATE sale.totalAmount, INSERT processed_request
     end
     L->>DB: COMMIT
     S-->>UI: 201 receipt — lines, unit prices, total
 ```
+
+Why the dispense lines are locked first: two cashiers billing the same
+prescription queue on those rows; the second one, once the first commits,
+finds no line with an empty `sale_id` and is refused (A5, TC-52) instead of
+billing it twice.
 
 ## 3. Process a return (UC08) — design
 

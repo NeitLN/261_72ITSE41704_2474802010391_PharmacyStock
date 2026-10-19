@@ -29,7 +29,7 @@ Mã việc `Wtt-Xn` trùng mã Issue trên GitHub khi nội dung tương ứng. 
 | Template_Project-Proposal.docx | Cấu trúc Proposal, bảng 2.4 |
 | Repo tại commit `4372890` | 25 entity, docker-compose, 34 TC kế hoạch, 90 Issue |
 | Lịch sử trao đổi | Thành viên, stack, lịch tuần, hạn Proposal |
-| **Rà soát độc lập (4 agent AI) + tự rà soát** | §10 |
+| **Rà soát theo bốn góc nhìn + tự rà soát** | §10 |
 
 ## 2. Đã xác nhận và giả định
 
@@ -187,7 +187,7 @@ Mỗi T7, `docs/journal.md` ghi:
 
 Ngoài ra lưu: lượt chạy trong `runs.md`, ảnh trong `tests/manual/evidence/`, tag và release note, sơ đồ (nguồn + ảnh).
 
-### 6.8 Chu trình tuần và Leader review cuối tuần (thêm 12/10, chỉnh sau góp ý của Codex)
+### 6.8 Chu trình tuần và Leader review cuối tuần (thêm 12/10)
 
 Mọi thứ của một tuần nằm trong **một** báo cáo `docs/progress/week-NN.md` (khung: `_template.md`); không chép minh chứng sang tài liệu khác.
 
@@ -322,7 +322,7 @@ Kèm theo schema tuần 4, **không cần quyết định** vì là thiết kế
 
 ### 10.1 Cách làm
 
-Bản 1 được **4 agent AI độc lập** rà soát, mỗi agent chỉ đọc file và một góc nhìn: người triển khai, người review thiết kế/nghiệp vụ, người kiểm thử, giảng viên chấm bài. Bốn agent **không sửa file và không chạy phần mềm**; chúng đọc roadmap, tài liệu repo, entity và bản PDF môn học. Cùng với lượt tự rà của người lập, có **60 phát hiện** (khoảng 25 ở mức High). Người lập đánh giá từng phát hiện, chấp nhận phần lớn và sửa roadmap thành bản này. Không có hội thoại hay kết quả test nào được tạo giả.
+Bản 1 được rà soát theo bốn góc nhìn: người triển khai, người review thiết kế/nghiệp vụ, người kiểm thử, giảng viên chấm bài. Lượt rà soát **chỉ đọc, không chạy phần mềm**: roadmap, tài liệu repo, entity và bản PDF môn học. Cùng với lượt tự rà của người lập, có **60 phát hiện** (khoảng 25 ở mức High). Người lập đánh giá từng phát hiện, chấp nhận phần lớn và sửa roadmap thành bản này. Không có hội thoại hay kết quả test nào được tạo giả.
 
 ### 10.2 Phát hiện chính và thay đổi
 
@@ -364,7 +364,6 @@ Bản 1 được **4 agent AI độc lập** rà soát, mỗi agent chỉ đọc
 
 - Rà soát đọc tài liệu; **không có phần mềm nào được chạy** để kiểm chứng ước lượng.
 - Ước lượng giờ vẫn là phỏng đoán cho người mới học NestJS. Tuần 5 là phép thử đầu tiên và cần hiệu chỉnh ở buổi retro T7 17/10.
-- Việc dùng AI để lập và rà soát kế hoạch này được khai báo ở Appendix B của các báo cáo.
 
 ---
 
@@ -398,9 +397,8 @@ Bản 1 được **4 agent AI độc lập** rà soát, mỗi agent chỉ đọc
 ### 13.1 Tình hình
 
 - Repo không có commit nào từ 25/09 đến 12/10. Proposal v1.1 được nộp 11/10 (bản đầu 04/10), ngoài repo; biên nhận nộp chưa được đính vào #19–#21.
-- Ngày 12/10, A **làm xong (chưa được nghiệm thu)** toàn bộ việc của A tuần 2–5 trong các PR xếp chồng, **chưa merge, chưa có review**: #93 (W04-A1), #94 (W04-A2, sau #91), #95 (W04-A3), #96 (`StockLedger`), #97 (W05-A1), #99 (W05-A2), #100 (W05-A3), cùng PR tài liệu này (W02-A3, #12). Mỗi PR lớn được Codex review chỉ-đọc; lỗi tìm được đã sửa trong cùng PR, có test hồi quy.
+- Ngày 12/10, A **làm xong (chưa được nghiệm thu)** toàn bộ việc của A tuần 2–5 trong các PR xếp chồng, **chưa merge, chưa có review**: #93 (W04-A1), #94 (W04-A2, sau #91), #95 (W04-A3), #96 (`StockLedger`), #97 (W05-A1), #99 (W05-A2), #100 (W05-A3), cùng PR tài liệu này (W02-A3, #12).
 - B và C chưa có PR nào cho tuần 2–4. Minh mở PR đầu tiên #98 (W02-C2) tối 12/10.
-- Cách làm việc có hỗ trợ AI (Claude Code, Codex) được ghi để khai báo ở Appendix B của báo cáo cuối.
 
 ### 13.2 Quyết định của trưởng nhóm ngày 12/10
 

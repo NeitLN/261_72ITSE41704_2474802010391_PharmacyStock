@@ -25,7 +25,7 @@ Weeks 1–4 were written on 12/10/2026 from the existing evidence and say so.
 | 2 | 21/09–27/09 | Requirements | Partly delivered | `561af37`…`afbd3d9`, #91, #92 | [week 2](docs/progress/week-02.md) |
 | 3 | 28/09–04/10 | **Project Proposal (20%)** | Delivered 04/10 | #19–#21 | [week 3](docs/progress/week-03.md) |
 | 4 | 05/10–11/10 | Design and foundations | Not delivered in week 4; Proposal v1.1 resubmitted 11/10 | [receipt](docs/evidence/proposal-resubmission-receipt-2026-10-11.png) | [week 4](docs/progress/week-04.md) |
-| 5 | 12/10–18/10 | Release `v0.1` | In progress | #93–#102, #98 | [week 5](docs/progress/week-05.md) |
+| 5 | 12/10–18/10 | Release `v0.1` | Flow and CI on `main`; tag late (#45) | #93–#102, #98, #107–#120 | [week 5](docs/progress/week-05.md) |
 | 6 | 19/10–25/10 | Test-case table with real runs | — | — | — |
 | 7 | 26/10–01/11 | Release `v0.2`, Must-core gate, Appendix D | — | — | — |
 | 8 | 02/11–08/11 | Hardening, updated design | — | — | — |
@@ -249,10 +249,14 @@ tests/         manual test cases and test evidence
 
 ## Current status
 
-**Week 5 (12/10/2026).** The Project Proposal v1.1 was submitted on
-11/10/2026 (receipt in `docs/evidence/`). Tiến's work for weeks 2–5 is in open
-pull requests #91–#102, reviewed by Codex and waiting for the team's review;
-not merged or tagged yet.
+**Week 6 (20/10/2026).** The Project Proposal v1.1 was submitted on
+11/10/2026 (receipt in `docs/evidence/`). The `v0.1` flow is on `main`: sign
+in, catalogue, goods receipt, prescription intake and FEFO dispensing, with CI
+running the migrations, the seed and all tests. Six manual test cases have
+passed, run by someone other than their author, five more are recorded in
+#124, and one has failed (TC-02, bug #125, fix in #126). The `v0.1` tag was
+planned for 17/10 and is late: it follows #124 (week 5 report:
+[`docs/progress/week-05.md`](docs/progress/week-05.md)).
 
 **Built (in pull requests)**
 

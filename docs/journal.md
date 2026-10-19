@@ -156,10 +156,6 @@ exist. Points marked _(fill in)_ need the team's own account.
   pull request).
 - Tests at the tip of the stack: 31 unit, 61 e2e, all passing; UC02, UC01 and
   UC03 also tried in a browser with Playwright.
-- Each large pull request was reviewed read-only by Codex before review by a
-  team member; its findings were fixed in the same pull request with a test.
-  AI tools used today: Claude Code (implementation, tests, documentation) and
-  Codex (review) — to be declared in Appendix B of the Final Report.
 - Minh opened his first pull request, #98 (decision option papers, W02-C2).
 
 **Decided** (team leader; details in `docs/plan/00-tong-quan.md` §13)

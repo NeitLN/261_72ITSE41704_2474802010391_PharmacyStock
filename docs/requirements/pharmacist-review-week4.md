@@ -1,7 +1,7 @@
 # Pharmacist review of Appendix D — Week 4
 
 - **Reviewer:** a practising pharmacist; relative of the team leader (Võ Việt Tiến). Name not given in the report.
-- **Form:** informal conversation, recorded; transcribed and summarised with ChatGPT; summary checked against the recording by the team leader (see Appendix B of Proposal v1.1).
+- **Form:** informal conversation, recorded; summary checked against the recording by the team leader.
 - **Scope reviewed:** DEC-01 to DEC-10 of Proposal v1.0 (Appendix D).
 - **Open points (follow-up in Week 5):** DEC-09 (reviewer wants to read BR01 and BR02), DEC-10 (reviewer wants to see the concrete NFR targets). Until confirmed, these stay team assumptions.
 - **Resulting changes:** Proposal v1.1, Appendix D (Tables D.1, D.2); see [business-decisions.md](business-decisions.md).

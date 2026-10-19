@@ -9,6 +9,7 @@
 | [`journal.md`](journal.md) | Session-by-session record of what changed, who did it and what is next | Every session |
 | [`requirements/`](requirements/) | Use cases and their specifications, business rules, business decisions (DEC-01–10) and the pharmacist review, functional and non-functional requirements — all as in Proposal v1.1 | Kept current |
 | [`design/`](design/) | Domain model, stock ledger and lock protocol, how to add a module | Kept current |
+| [`report/`](report/outline.md) | Final Report outline: each chapter and appendix with its writer and the week of its draft and final version | Week 5, then weeks 8–10 |
 | [`diagrams/`](diagrams/) | Use case, class, sequence and ER diagrams; wireframes. Keep the editable source and an exported image. | Week 4 |
 
 Reports submitted for assessment are written in English and follow the course

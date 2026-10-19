@@ -6,6 +6,10 @@
 
 > **Reviewer** theo vòng mới từ 12/10 (A do C duyệt, B do A, C do B; `00-tong-quan.md` §6.2).
 
+## Kết quả tuần (chốt 20/10/2026)
+
+Đạt 4/5 tiêu chí nghiệm thu (§8); **thiếu tag `v0.1`**. Chi tiết, số liệu và leader review: [`../progress/week-05.md`](../progress/week-05.md).
+
 ## Cập nhật 12/10/2026
 
 - **A**: W05-A1 UC01 → PR #97 · W05-A2 UC03 → PR #99 · W05-A3 seed → PR #100 (thêm 12 bệnh nhân và 7 bác sĩ để UC05 của B chọn được ngay). Chờ C review và người khác tác giả chạy TC-01, 03, 45, 46, 49.
@@ -22,9 +26,9 @@ Unit test BR01–03 và e2e đồng thời cơ bản xanh trong CI. **C tag `v0.
 
 ## 2. Điều kiện bắt đầu
 
-- [ ] Migration, lát cắt mẫu UC02, `CurrentUser`, `StockLedger`, `FefoAllocator`, CI trên `main` (tuần 4)
+- [x] Migration, lát cắt mẫu UC02, `CurrentUser`, `StockLedger`, `FefoAllocator`, CI trên `main` (tuần 4) — có trên `main` muộn: #94–#96 ngày 12/10, `FefoAllocator` #109 ngày 13/10, CI #115 ngày 15/10
 - [x] 63 TC có expected; `runs.md` sẵn sàng (12/10)
-- [ ] **T2 12/10: buổi ngồi cặp 1 giờ** A với B và C (đi qua lát cắt mẫu + `StockLedger` + mẫu phân quyền)
+- [ ] **T2 12/10: buổi ngồi cặp 1 giờ** A với B và C (đi qua lát cắt mẫu + `StockLedger` + mẫu phân quyền) — không có ghi chép là đã diễn ra
 
 ## 3. Việc theo thành viên
 
@@ -80,11 +84,11 @@ Mỗi người merge vào `main` **≥ 2 lần/tuần**; không giữ nhánh qu�
 
 ## 8. Nghiệm thu cuối tuần
 
-- [ ] Trên UI: đăng nhập → nhập hàng → nhận đơn → cấp FEFO; restart backend → số lượng trên đúng như §3 W05-B2
-- [ ] CI xanh gồm e2e song song; 0 S1/S2 mở
-- [ ] ≥ 8 TC có lượt Pass do người khác tác giả chạy
-- [ ] Tag `v0.1` tồn tại
-- [ ] Mỗi người ≥ 2 PR có nội dung merge và ≥ 2 review
+- [x] Trên UI: đăng nhập → nhập hàng → nhận đơn → cấp FEFO; restart backend → số lượng trên đúng như §3 W05-B2 — TC-42/43 (lượt 7–8), TC-01 có restart (lượt 2), TC-04 A=0, B=4 (lượt 9, #124)
+- [x] CI xanh gồm e2e song song; 0 S1/S2 mở — CI #115 xanh trên `main`; lỗi mở duy nhất #125 là S3
+- [x] ≥ 8 TC có lượt Pass do người khác tác giả chạy — 11: TC-01, 03, 42, 43, 45, 46 trên `main`; TC-04, 06, 09, 47, 58 trong #124. TC-02 Fail → #125
+- [ ] Tag `v0.1` tồn tại — **chưa**, trễ hạn 17/10; #45 (Minh), sau khi merge #124
+- [x] Mỗi người ≥ 2 PR có nội dung merge và ≥ 2 review — Tiến 11 PR · 6 review; Duy Anh 8 · 6; Minh 6 · 12 (`docs/progress/week-05.md`)
 
 ## 9. Nếu không đạt
 

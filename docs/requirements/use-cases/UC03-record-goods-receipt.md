@@ -73,7 +73,7 @@ The same batch number with the **same** expiry date tops up the existing batch
 | ID | Requirement | Test cases |
 |---|---|---|
 | FR-06 | Record a receipt with supplier, document number, receipt date and lines; each line creates or tops up a batch and posts one RECEIPT movement in the same transaction. | TC-01 |
-| FR-07 | Refuse a line whose quantity is not a positive integer, whose unit cost is negative, whose expiry is not after the receipt date, or whose medicine or supplier is inactive. | TC-02, TC-46, TC-49 |
+| FR-07 | Refuse a line whose quantity is not a positive integer, whose unit cost is negative, whose expiry is not after the receipt date, or whose medicine or supplier is inactive. | TC-02, TC-46, TC-64 |
 | FR-08 | Refuse a receipt whose document number is already recorded for the same supplier. | TC-03 |
 | FR-09 | If any line or the database write fails, save no part of the receipt. | TC-25 |
 | FR-12 | Write every stock change as exactly one movement; never edit or delete one. | TC-16, TC-19, TC-25 |

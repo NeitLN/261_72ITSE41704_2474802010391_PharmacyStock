@@ -187,7 +187,7 @@ describe('UC03 goods receipts (e2e)', () => {
     expect(await counts()).toEqual({ receipts: 0, batches: 0, movements: 0 });
   });
 
-  it('UC03-04 expiry on or before the receipt date is refused on its line (TC-49)', async () => {
+  it('UC03-04 expiry on or before the receipt date is refused on its line (TC-64)', async () => {
     const res = await post(
       receipt({
         lines: [

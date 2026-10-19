@@ -1,8 +1,9 @@
 # Manual test cases
 
-The 63 planned test cases of Proposal v1.1, Appendix C. Purpose and expected
-result are as submitted; steps are refined by the owner before the first run.
-The first manual runs were recorded on 14/10/2026 (TC-01, 02, 03, 45, 46) and 18/10/2026 (TC-42, 43).
+The 63 planned test cases of Proposal v1.1, Appendix C, plus TC-64 (added
+20/10/2026, #129). Purpose and expected result are as submitted; steps are
+refined by the owner before the first run.
+The first manual runs were recorded on 14/10/2026 (TC-01, 02, 03, 45, 46), 18/10/2026 (TC-42, 43) and 20/10/2026 (TC-04, 06, 09, 47, 58).
 Automated tests exist for the built use cases (column *Automated*), but a
 manual run by someone other than the author is what closes a feature issue
 (`docs/plan/00-tong-quan.md` §6.6).
@@ -83,6 +84,7 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-61 | 8 | UC11 / BR11 *(S)* | Release one quarantined return, reject another, record destruction | Two returns in quarantine | Released units sellable; rejected units pending destruction until destroyed | Minh | Duy Anh | — | Not run |
 | TC-62 | 7 | UC06, UC07 / BR03 | Cashier sale and dispensing race for the last units | 20 runs | One succeeds, the other refused with the new quantity; never negative | Duy Anh | Tiến | — | Not run |
 | TC-63 | 7 | UC10 | Monitoring off; expired or quarantined units present | Switch monitoring off; separately hold expired and quarantined stock | No alert when off; those units not counted as sellable | Minh | Duy Anh | — | Not run |
+| TC-64 | 6 | UC03 | Expiry not after the receipt date | Receipt dated today with a line expiring today, then one expiring yesterday | Error under that line's expiry date; nothing saved | Tiến | Minh | UC03-04 | Not run |
 
 The *Automated* column names e2e or unit tests in `src/backend` that check the
 same behaviour at API level. They support the manual run; they do not replace

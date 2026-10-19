@@ -26,7 +26,7 @@ needs a passing run by someone other than the author in `tests/manual/runs.md`.
 |---|---|---|---|---|---|
 | FR-05 | The system shall allow a manager to create, edit and deactivate a supplier with name, phone number and address, where name and phone number are mandatory. | Must | UC02 | TC-46 | Built (#95) |
 | FR-06 | The system shall allow a manager to record a goods receipt with supplier, supplier document number, receipt date and one or more lines (medicine, batch number, expiry date, quantity, unit cost); each line shall create or top up a batch and post one RECEIPT movement in the same transaction. | Must | UC03 | TC-01 | Built (#99) |
-| FR-07 | The system shall refuse a receipt line whose quantity is not a positive integer, whose unit cost is negative, whose expiry date is not after the receipt date, or whose medicine or supplier is inactive. | Must | UC03 | TC-02, 46 | Built (#99) |
+| FR-07 | The system shall refuse a receipt line whose quantity is not a positive integer, whose unit cost is negative, whose expiry date is not after the receipt date, or whose medicine or supplier is inactive. | Must | UC03 | TC-02, 46, 64 | Built (#99) |
 | FR-08 | The system shall refuse a goods receipt whose document number is already recorded for the same supplier. | Must | UC03 | TC-03 | Built (#99) |
 | FR-09 | If any line or the database write fails, the system shall save no part of the receipt, dispensing, sale or return. | Must | UC03, 06–08 | TC-25 | Ledger and UC03 built (#96, #99) |
 | FR-10 | The system shall let any signed-in user search medicines by code, name or category and see the sellable quantity (without expired, quarantined, on-hold, recalled or rejected stock), plus each batch with number, expiry date, status and quantity in each stock state. | Must | UC04 | TC-48 | Week 6 |
@@ -96,6 +96,10 @@ FR-39 is in place for UC01–03 (permission matrix, `Actor`, `assertPermission`,
 |---|---|---|---|
 | FR-42 | The system shall accept quantities in a pack unit and convert them to base units (BR06). | Could | UC03, 06 |
 | FR-43 | The system shall export the expiry and stock movement reports to Excel or PDF. | Could | UC11, 12 |
+
+FR-42 and FR-43 have no test case on purpose: they are *Could* items, built
+only if time remains after `v1.0` (week 9). If one is built, it gets a test
+case in the same pull request; if not, Chapter 4 lists it as not done.
 
 ## Non-functional requirements (ISO/IEC 25010)
 

@@ -248,7 +248,7 @@ export class GoodsReceiptsService {
     return this.view(this.dataSource.manager, id);
   }
 
-  /** FR-07, TC-49: expiry after the receipt date; the receipt date not in the future. */
+  /** FR-07, TC-64: expiry after the receipt date; the receipt date not in the future. */
   private checkDates(dto: CreateGoodsReceiptDto): void {
     const errors: FieldError[] = [];
     if (dto.receiptDate > this.clock.today()) {

@@ -19,7 +19,7 @@ hardest to notice by hand. The e2e tests run on their own `_test` database.
 
 ## Manual test cases
 
-`manual/test-cases.md` holds the 63 test cases of Proposal v1.1 (Appendix C)
+`manual/test-cases.md` holds the 63 test cases of Proposal v1.1 (Appendix C) and TC-64
 with author, runner and expected result; `manual/runs.md` is the append-only
 log of every run. Screenshots and other evidence go in `manual/evidence/`,
 named after the test case ID.

@@ -35,7 +35,7 @@ Unit test BR01–03 và e2e đồng thời cơ bản xanh trong CI. **C tag `v0.
 | Mã | Việc | Giờ | Reviewer | Phụ thuộc | Đầu ra / nghiệm thu | Issue |
 |---|---|---|---|---|---|---|
 | W05-A1 | **UC01 Danh mục thuốc**: CRUD + **đặt giá bán hiện hành** (ghi `MedicinePrice` không có ngày kết thúc); nhóm thuốc và đơn vị là **dữ liệu seed** | 4 | C | W04-A3 | Thêm/sửa/ngừng; mã trùng báo lỗi đúng trường (TC-45) | #37 |
-| W05-A2 | **UC03 Nhập hàng** qua `StockLedger`: nhiều dòng, tạo/cộng lô theo QĐ 17; hạn phải sau ngày nhập (TC-49); chặn trùng chứng từ (TC-03); e2e rollback khi lỗi giữa chừng | 5 | C + B | A1, W04-B3 | TC-01 Pass do C chạy; e2e rollback pass | #38 |
+| W05-A2 | **UC03 Nhập hàng** qua `StockLedger`: nhiều dòng, tạo/cộng lô theo QĐ 17; hạn phải sau ngày nhập (TC-64; trước 20/10 ghi nhầm là TC-49, #129); chặn trùng chứng từ (TC-03); e2e rollback khi lỗi giữa chừng | 5 | C + B | A1, W04-B3 | TC-01 Pass do C chạy; e2e rollback pass | #38 |
 | W05-A3 | **Seed thực tế — xong T4 14/10**: ~15 nhóm, ~60 thuốc có giá, ~10 NCC, ~120 lô với **ngày tương đối so với ngày seed** (đã hết hạn, sắp hết, còn dài), 3 tài khoản vai trò | 3 | B | W05-A1 | `npm run seed` chạy lặp lại được trên DB trống | #39 |
 | — | A: giữ schema/seed 1 · khung chương báo cáo (chương → người viết) 0,5 · ngồi cặp 1 · họp 2,5 · review 2 (người thứ hai `stock-integrity`) · sửa lỗi 1 | 8 | — | — | `docs/report/outline.md` | — |
 | W05-B1 | **UC05 Nhận đơn — bản tối thiểu**: chọn khách hàng/bác sĩ **có sẵn** (tạo nhanh để UC14 tuần 7), nhiều dòng thuốc, validation | 4 | A | W04-A3 | Tạo đơn nhiều thuốc trên UI (TC-47 do A chạy) | #40 |
@@ -44,7 +44,7 @@ Unit test BR01–03 và e2e đồng thời cơ bản xanh trong CI. **C tag `v0.
 | — | B: ngồi cặp 1 · họp 2,5 · review 1,5 · sửa lỗi 2 | 7 | — | — | — | — |
 | W05-C1 | **Xác thực backend**: JWT + `bcryptjs`; guard thật thay guard tạm; `assertPermission` dùng ma trận; seed vai trò + permission; README mục *Sample accounts* | 4 | B | W04-C1 | Cashier gọi API cấp phát → 403; sai mật khẩu → 401 | #43 |
 | W05-C2 | **Xác thực giao diện**: trang đăng nhập, AuthContext, interceptor axios gắn token, 401 → về trang đăng nhập, menu lọc theo vai trò | 4 | B | C1 | TC-43 Pass do A chạy; trang của A, B vẫn hoạt động sau khi bật guard | #44 |
-| W05-C3 | **Kiểm thử tích hợp** (C là người chạy): T5 UC01/UC03 (TC-01, 03, 45, 49), T6 UC05/UC06 (TC-04 cùng A, 06, 09); ghi `runs.md`; lập bug; **ký nghiệm thu + tag `v0.1`** | 4 | A | A2, B2, C2 | Lượt chạy thật trong `runs.md`; 0 S1/S2 mở | #45 |
+| W05-C3 | **Kiểm thử tích hợp** (C là người chạy): T5 UC01/UC03 (TC-01, 03, 45, 64), T6 UC05/UC06 (TC-04 cùng A, 06, 09); ghi `runs.md`; lập bug; **ký nghiệm thu + tag `v0.1`** | 4 | A | A2, B2, C2 | Lượt chạy thật trong `runs.md`; 0 S1/S2 mở | #45 |
 | — | C: ngồi cặp 1 · họp 2,5 · review 1,5 · sửa lỗi 3 | 8 | — | — | — | — |
 
 ## 4. Phân bổ giờ
@@ -79,7 +79,7 @@ Mỗi người merge vào `main` **≥ 2 lần/tuần**; không giữ nhánh qu�
 ## 7. Bàn giao và minh chứng
 
 - Tag `v0.1` + release note (UC đã chạy; hạn chế đã biết; lỗi S3/S4 còn mở).
-- `runs.md`: TC-01, 03, 04, 06, 09, 43, 45, 47, 49 có lượt chạy, **kể cả lần Fail rồi Pass**.
+- `runs.md`: TC-01, 03, 04, 06, 09, 43, 45, 47, 64 có lượt chạy, **kể cả lần Fail rồi Pass**.
 - Ảnh luồng v0.1 với dữ liệu seed.
 
 ## 8. Nghiệm thu cuối tuần

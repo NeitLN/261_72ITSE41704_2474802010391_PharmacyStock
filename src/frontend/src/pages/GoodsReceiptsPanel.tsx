@@ -15,6 +15,7 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import { useCallback, useState } from 'react';
 import { showApiError, toApiError } from '../api/errors';
+import { decimal, wholeNumber } from '../forms/numberRules';
 import {
   type GoodsReceipt,
   type GoodsReceiptInput,
@@ -239,11 +240,12 @@ function ReceiptFormModal({
                   <Form.Item
                     name={[field.name, 'quantity']}
                     label={index === 0 ? 'Quantity' : undefined}
-                    rules={[{ required: true, message: 'Quantity is required.' }]}
+                    rules={[
+                      { required: true, message: 'Quantity is required.' },
+                      wholeNumber('Quantity', { min: 1, max: 1_000_000 }),
+                    ]}
                   >
                     <InputNumber<number>
-                      min={1}
-                      precision={0}
                       aria-label={`Line ${index + 1} quantity`}
                       style={{ width: 110 }}
                     />
@@ -251,11 +253,12 @@ function ReceiptFormModal({
                   <Form.Item
                     name={[field.name, 'unitCost']}
                     label={index === 0 ? 'Unit cost (VND)' : undefined}
-                    rules={[{ required: true, message: 'Unit cost is required.' }]}
+                    rules={[
+                      { required: true, message: 'Unit cost is required.' },
+                      decimal('Unit cost', { min: 0, max: 100_000_000, decimals: 2 }),
+                    ]}
                   >
                     <InputNumber<number>
-                      min={0}
-                      precision={2}
                       aria-label={`Line ${index + 1} unit cost`}
                       style={{ width: 140 }}
                     />

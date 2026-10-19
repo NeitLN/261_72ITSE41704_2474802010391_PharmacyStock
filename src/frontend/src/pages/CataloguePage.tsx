@@ -29,6 +29,7 @@ import {
   type Reference,
 } from '../api/medicines';
 import { useLoad } from '../api/useLoad';
+import { wholeNumber } from '../forms/numberRules';
 
 const NO_MEDICINES: Medicine[] = [];
 const NO_REFERENCE = { categories: [] as Reference[], units: [] as Reference[] };
@@ -378,24 +379,33 @@ function MedicineFormModal({ medicine, reference, onClose, onSaved }: MedicineFo
           <Form.Item
             name="currentPrice"
             label="Selling price (VND per base unit)"
-            rules={[{ required: true, message: 'Price is required.' }]}
+            rules={[
+              { required: true, message: 'Price is required.' },
+              wholeNumber('Price', { min: 1 }),
+            ]}
           >
             <InputNumber<number>
-              min={1}
-              precision={0}
               style={{ width: 200 }}
               formatter={(v) => `${v ?? ''}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.')}
               parser={(v) => Number((v ?? '').replace(/\./g, ''))}
             />
           </Form.Item>
-          <Form.Item name="reorderLevel" label="Reorder level">
-            <InputNumber min={0} precision={0} style={{ width: 130 }} />
+          <Form.Item
+            name="reorderLevel"
+            label="Reorder level"
+            rules={[wholeNumber('Reorder level', { min: 0 })]}
+          >
+            <InputNumber style={{ width: 130 }} />
           </Form.Item>
           <Form.Item name="lowStockMonitored" label="Low-stock alerts" valuePropName="checked">
             <Switch />
           </Form.Item>
-          <Form.Item name="expiryAlertDays" label="Expiry alert (days)">
-            <InputNumber min={0} max={3650} precision={0} style={{ width: 130 }} />
+          <Form.Item
+            name="expiryAlertDays"
+            label="Expiry alert (days)"
+            rules={[wholeNumber('Expiry alert', { min: 0, max: 3650 })]}
+          >
+            <InputNumber style={{ width: 130 }} />
           </Form.Item>
         </Space>
         {formError && <Typography.Text type="danger">{formError}</Typography.Text>}

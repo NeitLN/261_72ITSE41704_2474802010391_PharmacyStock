@@ -11,17 +11,39 @@ import {
 } from '@nestjs/common';
 import { type FieldError, ValidationFailed } from './errors.js';
 
-/** Flattens class-validator errors into dotted field paths, e.g. `lines.0.quantity`. */
+/**
+ * Constraints that say the value is missing. When one fails, its message is
+ * the one the user needs; "must be a string" on top of it is noise.
+ */
+const MISSING = ['isDefined', 'isNotEmpty', 'arrayMinSize', 'arrayNotEmpty'];
+
+/**
+ * The one message shown under a field (#47): "required" if the value is
+ * missing, else the first message written for people, else the first one.
+ * class-validator's own defaults start with the property name.
+ */
+function messageFor(error: ValidationError): string | undefined {
+  const constraints = error.constraints ?? {};
+  const missing = MISSING.find((key) => key in constraints);
+  if (missing) return constraints[missing];
+  const messages = Object.values(constraints);
+  return (
+    messages.find((m) => !m.startsWith(`${error.property} `)) ?? messages[0]
+  );
+}
+
+/**
+ * Flattens class-validator errors into dotted field paths, e.g.
+ * `lines.0.quantity`, with one message per field.
+ */
 export function toFieldErrors(
   errors: ValidationError[],
   parent = '',
 ): FieldError[] {
   return errors.flatMap((error) => {
     const field = parent ? `${parent}.${error.property}` : error.property;
-    const own = Object.values(error.constraints ?? {}).map((message) => ({
-      field,
-      message,
-    }));
+    const message = messageFor(error);
+    const own = message ? [{ field, message }] : [];
     return [...own, ...toFieldErrors(error.children ?? [], field)];
   });
 }

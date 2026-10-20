@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { QueryFailedError } from 'typeorm';
 import { describe, expect, it, vi } from 'vitest';
 import { AllExceptionsFilter } from './all-exceptions.filter.js';
@@ -33,11 +33,11 @@ describe('AllExceptionsFilter (NFR-04)', () => {
   });
 
   it.each([
-    ['23505', 409, 'DUPLICATE'],
-    ['23514', 422, 'CONSTRAINT_VIOLATED'],
-    ['55P03', 409, 'BUSY'],
-    ['40P01', 409, 'BUSY'],
-  ])('maps PostgreSQL error %s to %i %s', (pg, status, code) => {
+    ['ERR-07', '23505', 409, 'DUPLICATE'],
+    ['ERR-09', '23514', 422, 'CONSTRAINT_VIOLATED'],
+    ['ERR-10', '55P03', 409, 'BUSY'],
+    ['ERR-10', '40P01', 409, 'BUSY'],
+  ])('%s maps PostgreSQL error %s to %i %s', (_, pg, status, code) => {
     expect(filter.toBody(pgError(pg))).toMatchObject({
       statusCode: status,
       code,
@@ -65,6 +65,47 @@ describe('AllExceptionsFilter (NFR-04)', () => {
     expect(filter.toBody(new NotFoundException())).toMatchObject({
       statusCode: 404,
       code: 'HTTP_404',
+    });
+  });
+
+  it('ERR-03 answers a body that is not JSON like any invalid input, without parser details (#47)', () => {
+    // What the Express adapter makes of body-parser's SyntaxError.
+    const parse = new BadRequestException(
+      'Expected double-quoted property name in JSON at position 13',
+    );
+    expect(filter.toBody(parse)).toEqual({
+      statusCode: 400,
+      code: 'VALIDATION_FAILED',
+      message: 'The request body is not valid JSON.',
+      errors: [],
+    });
+    expect(filter.toBody(new BadRequestException('URI malformed'))).toEqual({
+      statusCode: 400,
+      code: 'VALIDATION_FAILED',
+      message: 'The request could not be read.',
+      errors: [],
+    });
+  });
+
+  it.each([
+    [
+      'a refused socket',
+      Object.assign(new Error('connect'), { code: 'ECONNREFUSED' }),
+    ],
+    [
+      'a dropped socket',
+      Object.assign(new Error('read'), { code: 'ECONNRESET' }),
+    ],
+    ['a server shutdown', pgError('57P01')],
+    ['a broken connection', pgError('08006')],
+  ])('ERR-08 answers %s with 503 and no internals (#47)', (_, error) => {
+    vi.spyOn(filter['logger'], 'error').mockImplementation(() => {});
+    expect(filter.toBody(error)).toEqual({
+      statusCode: 503,
+      code: 'DATABASE_UNAVAILABLE',
+      message:
+        'The database cannot be reached right now. Please try again in a moment.',
+      errors: [],
     });
   });
 });
@@ -97,6 +138,48 @@ describe('toFieldErrors', () => {
     ).toEqual([
       { field: 'name', message: 'Name is required.' },
       { field: 'lines.0.quantity', message: 'Must be positive.' },
+    ]);
+  });
+
+  it('ERR-01 keeps one message per field: "required" when the value is missing (#47)', () => {
+    expect(
+      toFieldErrors([
+        {
+          property: 'name',
+          constraints: {
+            maxLength: 'name must be shorter than or equal to 200 characters',
+            isNotEmpty: 'Name is required.',
+            isString: 'name must be a string',
+          },
+          children: [],
+        },
+      ]),
+    ).toEqual([{ field: 'name', message: 'Name is required.' }]);
+  });
+
+  it('ERR-02 prefers the message written for people over a default one (#47)', () => {
+    expect(
+      toFieldErrors([
+        {
+          property: 'quantity',
+          constraints: {
+            max: 'quantity must not be greater than 1000000',
+            isInt: 'Quantity must be a whole number of base units.',
+          },
+          children: [],
+        },
+        {
+          property: 'note',
+          constraints: { isString: 'note must be a string' },
+          children: [],
+        },
+      ]),
+    ).toEqual([
+      {
+        field: 'quantity',
+        message: 'Quantity must be a whole number of base units.',
+      },
+      { field: 'note', message: 'note must be a string' },
     ]);
   });
 });

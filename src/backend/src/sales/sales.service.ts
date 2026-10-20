@@ -94,9 +94,14 @@ export class SalesService {
       const manager = tx.manager;
       const today = this.clock.today();
 
+      // An id sent in the body that does not exist is an error on its
+      // field, as everywhere else (#47). Medicines are never deleted, so the
+      // answer still holds under the lock that follows.
+      await this.checkMedicinesExist(manager, dto);
+
       // Step 1 of the lock order, and also before the request ID is looked
       // up: a repeat of the same request waits for the first one here and
-      // then finds its stored receipt. An unknown medicine is a 404.
+      // then finds its stored receipt.
       await tx.lockMedicines(dto.otcLines.map((l) => l.medicineId));
 
       const done = await manager.findOneBy(ProcessedRequest, {
@@ -249,8 +254,34 @@ export class SalesService {
   ): Promise<Customer | null> {
     if (!customerId) return null;
     const customer = await manager.findOneBy(Customer, { id: customerId });
-    if (!customer) throw new NotFound('Customer', customerId);
+    if (!customer) {
+      throw ValidationFailed.field(
+        'customerId',
+        'This customer does not exist.',
+      );
+    }
     return customer;
+  }
+
+  private async checkMedicinesExist(
+    manager: EntityManager,
+    dto: SaleDto,
+  ): Promise<void> {
+    const found = new Set(
+      (
+        await manager.findBy(Medicine, {
+          id: In(dto.otcLines.map((l) => l.medicineId)),
+        })
+      ).map((m) => m.id.toLowerCase()),
+    );
+    const errors: FieldError[] = dto.otcLines
+      .map((line, index) => ({ line, index }))
+      .filter(({ line }) => !found.has(line.medicineId.toLowerCase()))
+      .map(({ index }) => ({
+        field: `otcLines.${index}.medicineId`,
+        message: 'This medicine does not exist.',
+      }));
+    if (errors.length > 0) throw new ValidationFailed(errors);
   }
 
   /**

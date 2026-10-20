@@ -125,6 +125,11 @@ export class StockMovement {
   @JoinColumn({ name: 'performed_by_id' })
   performedBy: Relation<User>;
 
-  @CreateDateColumn({ type: 'timestamptz' })
+  /**
+   * When the row was written. `clock_timestamp()`, not `now()`: `now()` is
+   * when the transaction began, so a sale that began first and waited for a
+   * lock would appear before the receipt whose stock it took (UC04).
+   */
+  @CreateDateColumn({ type: 'timestamptz', default: () => 'clock_timestamp()' })
   occurredAt: Date;
 }

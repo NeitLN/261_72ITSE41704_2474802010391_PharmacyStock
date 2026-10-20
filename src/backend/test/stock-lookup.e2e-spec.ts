@@ -400,10 +400,11 @@ describe('UC04 stock lookup (e2e)', () => {
     }
   });
 
-  it('UC04-13 sellable and the last balance always equal the ledger (BR05)', async () => {
+  it('UC04-13 the last balance equals the ledger for every batch; sellable counts only eligible batches (BR05)', async () => {
     const id = await medicine('INV', 'Invariant medicine');
     const a = await batch(id, 'IA', 4, '2026-12-31');
     const b = await batch(id, 'IB', 9, '2027-06-30');
+    const old = await batch(id, 'IX', 7, '2026-10-10');
     await dispense(id, 'RX-0013', 6);
     await t
       .http()
@@ -418,9 +419,69 @@ describe('UC04 stock lookup (e2e)', () => {
     expect(await findLedgerMismatches(t.dataSource)).toEqual([]);
     const lastBalance = async (batchId: string) =>
       (await history(batchId)).body.movements.at(-1).balanceSellable as number;
+    for (const batchId of [a, b, old]) {
+      const row = await t.dataSource
+        .getRepository(Batch)
+        .findOneByOrFail({ id: batchId });
+      expect(await lastBalance(batchId)).toBe(row.qtySellable);
+    }
+    // The expired batch keeps its 7 in the ledger but adds nothing to sellable.
+    expect(await lastBalance(old)).toBe(7);
     const total = (await lastBalance(a)) + (await lastBalance(b));
     expect(total).toBe(6);
-    expect((await list({ search: 'INV' })).body.items[0].sellable).toBe(total);
+    expect((await list({ search: 'INV' })).body.items[0]).toMatchObject({
+      sellable: total,
+      expired: 7,
+    });
+  });
+
+  it('UC04-14 history follows the order movements were written, not when their transaction began', async () => {
+    const id = await medicine('ORDER', 'Ordering medicine');
+    const b = await batch(id, 'O1', 5, '2027-06-30');
+
+    // A sale-like transaction begins first and waits; a receipt begins
+    // later and commits; then the waiting one takes 2 of the new stock.
+    let release!: () => void;
+    const receiptDone = new Promise<void>((resolve) => (release = resolve));
+    const waiting = ledger.run(async (tx) => {
+      await tx.manager.query('SELECT 1');
+      await receiptDone;
+      await tx.lockMedicines([id]);
+      await tx.lockBatches([b]);
+      await tx.post(manager, {
+        batchId: b,
+        type: MovementType.SALE,
+        deltaSellable: -2,
+        sourceDocumentType: SourceDocumentType.SALE_LINE,
+        sourceDocumentId: DOC,
+      });
+    });
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    await ledger.run(async (tx) => {
+      await tx.lockMedicines([id]);
+      await tx.lockBatches([b]);
+      await tx.post(manager, {
+        batchId: b,
+        type: MovementType.RECEIPT,
+        deltaSellable: 10,
+        sourceDocumentType: SourceDocumentType.GOODS_RECEIPT,
+        sourceDocumentId: DOC,
+      });
+    });
+    release();
+    await waiting;
+
+    const { movements } = (await history(b)).body;
+    expect(
+      movements.map((m: { deltaSellable: number; balanceSellable: number }) => [
+        m.deltaSellable,
+        m.balanceSellable,
+      ]),
+    ).toEqual([
+      [5, 5],
+      [10, 15],
+      [-2, 13],
+    ]);
   });
 
   /** Records, verifies and hands over a one-line prescription through the API. */

@@ -26,11 +26,12 @@ import {
   SourceDocumentType,
   StockMovement,
 } from '../entities/index.js';
+import { type ExpiryWarning, ExpiryPolicy } from '../issuing/expiry-policy.js';
 import {
   type AllocatedLine,
   FefoAllocator,
 } from '../issuing/fefo-allocator.js';
-import { Clock } from '../stock/clock.js';
+import { businessDateOf, Clock } from '../stock/clock.js';
 import { type LedgerTransaction, StockLedger } from '../stock/stock-ledger.js';
 import type { OtcLineDto, SaleDto } from './dto/sale.dto.js';
 import { fromXu, lineTotal, toXu } from './money.js';
@@ -61,6 +62,12 @@ export interface SaleLineView {
   lineTotal: string;
   /** True when the line bills an earlier hand-over and moved no stock (DEC-05). */
   billed: boolean;
+  /**
+   * BR02, FR-16: the batch sold over the counter expires within the
+   * medicine's alert window, with the days left on the sale date. Null for a
+   * billed line: its warning was shown at the hand-over.
+   */
+  warning: ExpiryWarning | null;
 }
 
 /** The receipt (UC07 step 6). Money is a `numeric(12,2)` string. */
@@ -260,14 +267,23 @@ export class SalesService {
       this.dataSource.manager,
       sale.lines.map((l) => l.id),
     );
-    const lines = sale.lines.map((line) => ({
-      medicine: line.batch.medicine,
-      batch: line.batch,
-      quantity: line.quantity,
-      unitPrice: line.unitPrice,
-      lineTotal: line.lineTotal,
-      billed: !moved.has(line.id),
-    }));
+    const saleDate = businessDateOf(sale.soldAt);
+    const lines = sale.lines.map((line) => {
+      const billed = !moved.has(line.id);
+      return {
+        medicine: line.batch.medicine,
+        batch: line.batch,
+        quantity: line.quantity,
+        unitPrice: line.unitPrice,
+        lineTotal: line.lineTotal,
+        billed,
+        warning: billed
+          ? null
+          : ExpiryPolicy.warningFor(line.batch.expiryDate, saleDate, {
+              alertDays: line.batch.medicine.expiryAlertDays,
+            }),
+      };
+    });
     return view(sale, lines);
   }
 
@@ -497,6 +513,7 @@ export class SalesService {
       quantity: number,
       unitPrice: string,
       billedLine: boolean,
+      warning: ExpiryWarning | null,
     ): Promise<SaleLine> => {
       const amount = lineTotal(unitPrice, quantity);
       total += toXu(amount);
@@ -507,6 +524,7 @@ export class SalesService {
         unitPrice,
         lineTotal: amount,
         billed: billedLine,
+        warning,
       });
       return manager.save(
         manager.create(SaleLine, {
@@ -527,6 +545,7 @@ export class SalesService {
         d.quantity,
         prices.get(d.batch.medicine.id)!,
         true,
+        null,
       );
     }
     if (billed) {
@@ -545,6 +564,7 @@ export class SalesService {
           allocated.quantity,
           p.unitPrice,
           false,
+          allocated.warning,
         );
         await tx.post(actor, {
           batchId: allocated.batch.id,
@@ -734,6 +754,7 @@ function view(sale: Sale, lines: SaleLineView[]): SaleView {
       unitPrice: l.unitPrice,
       lineTotal: l.lineTotal,
       billed: l.billed,
+      warning: l.warning,
     })),
     totalAmount: sale.totalAmount,
   };

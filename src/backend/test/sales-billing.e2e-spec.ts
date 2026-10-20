@@ -215,6 +215,8 @@ describe('UC07 billing a dispensing (e2e)', () => {
       ['A', 3, '1800.00', true],
       ['B', 4, '1800.00', true],
     ]);
+    // The near-expiry warning belongs to the hand-over, not the bill.
+    expect(res.body.lines.every((l: { warning: unknown }) => l.warning === null)).toBe(true);
     // Stock fell once, at the hand-over: billing posted nothing.
     expect(await movementCount()).toBe(movementsBefore);
     expect([await qty(a), await qty(b)]).toEqual([0, 4]);

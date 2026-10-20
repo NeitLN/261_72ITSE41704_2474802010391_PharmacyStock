@@ -525,4 +525,29 @@ describe('UC07 over-the-counter sale (e2e)', () => {
     expect(await qty(a)).toBe(2);
     await expectBalanced();
   });
+
+  it('UC07-23 BR02 FR-16: a batch inside the alert window is sold with a warning showing the days left', async () => {
+    // 13/10 → 12/11 is 30 days, inside the 90-day window; 30/06/2027 is not.
+    await receive('NEAR', 2, '2026-11-12');
+    await receive('FAR', 10, '2027-06-30');
+
+    const res = await sell([{ medicineId: otc.id, quantity: 3 }]);
+
+    expect(res.status).toBe(201);
+    expect(
+      res.body.lines.map((l: { batch: { batchNumber: string }; quantity: number; warning: unknown }) => [
+        l.batch.batchNumber,
+        l.quantity,
+        l.warning,
+      ]),
+    ).toEqual([
+      ['NEAR', 2, { kind: 'WITHIN_ALERT_WINDOW', daysLeft: 30 }],
+      ['FAR', 1, null],
+    ]);
+    const again = await t
+      .http()
+      .get(`/api/sales/${res.body.id}`)
+      .set(as('cashier'));
+    expect(again.body).toEqual(res.body);
+  });
 });

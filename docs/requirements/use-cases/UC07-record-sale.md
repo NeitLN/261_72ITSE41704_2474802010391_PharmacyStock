@@ -5,7 +5,7 @@
 | **Owner** | Bùi Duy Anh (B) |
 | **Priority** | Must |
 | **Primary actor** | Cashier |
-| **Status** | Over-the-counter sale built (`SalesService`, `POST /api/sales`, `GET /api/sales/:id`, e2e UC07-01…14); billing a dispensing next (issue #50) |
+| **Status** | Built (issue #50): over-the-counter sale and billing a dispensing in `SalesService` (`POST /api/sales`, `GET /api/sales/billable`, `GET /api/sales/:id`); e2e UC07-01…22 |
 | **Related rules** | BR01, BR02, BR03 (via the ledger), BR04, BR09 *(S)* |
 | **Requirements** | FR-24, FR-25, FR-26, FR-23, FR-45 |
 | **Decisions** | DEC-05 (stock leaves once), DEC-09 (OTC only), decision 12 (price on the sale date), DEC-01, DEC-07 |
@@ -121,14 +121,17 @@ changed in one place if the team or the pharmacist reviewer decides otherwise.
 
 | Route | Permission | Body / response |
 |---|---|---|
-| `GET /api/sales/billable` | `sale.create` | Prescriptions with unbilled dispense lines: id, reference, patient, last hand-over time, lines (medicine, batch, quantity) |
+| `GET /api/sales/billable` | `sale.create` | Prescriptions with unbilled dispense lines, the latest hand-over first: `[{ id, referenceNumber, customer, lastDispensedAt, lines: [{ dispenseLineId, medicine, batch, quantity, dispensedAt }] }]` |
 | `POST /api/sales` | `sale.create` | `{ requestId, prescriptionId?, otcLines?: [{ medicineId, quantity }], customerId? }` — at least one of `prescriptionId` and `otcLines`. 201: the receipt `{ id, receiptNumber, soldAt, customer, lines: [{ medicine, batch, quantity, unitPrice, lineTotal, billed }], totalAmount }` |
 | `GET /api/sales/:id` | `sale.create` | The receipt, to show or print again |
 
 Money goes out as decimal strings (`"12500.00"`), as in the rest of the API.
 Errors use the existing format: 400 per field (`otcLines.0.quantity`), 403,
-404, 409 (request ID reused with other content), 422 with the rule (BR03,
-BR04, "already billed").
+404, 409 (request ID reused with other content), 422 with the rule and a
+code: `INSUFFICIENT_STOCK` (BR03), `NOT_OVER_THE_COUNTER` (BR04),
+`MEDICINE_INACTIVE`, `NO_PRICE_IN_FORCE`, `ALREADY_BILLED` (A5) and
+`NOTHING_TO_BILL` (a prescription with no hand-over yet). A billed
+prescription is paid for its own patient: another `customerId` is a 400.
 
 ## Scenario table
 

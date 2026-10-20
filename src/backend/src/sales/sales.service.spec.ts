@@ -73,18 +73,21 @@ describe('Sale request payload hash (FR-23)', () => {
   it('UC07-U4 ignores the request ID and the order of the lines', () => {
     const reordered = dto({
       requestId: '00000000-0000-4000-8000-000000000001',
-      otcLines: [...dto().otcLines].reverse(),
+      otcLines: [...(dto().otcLines ?? [])].reverse(),
     });
     expect(hashSalePayload(reordered)).toBe(hashSalePayload(dto()));
   });
 
-  it('UC07-U5 changes when a quantity or the customer changes', () => {
+  it('UC07-U5 changes when a quantity, the customer or the billed prescription changes', () => {
     const base = hashSalePayload(dto());
     expect(
       hashSalePayload(dto({ otcLines: [{ medicineId: MED_A, quantity: 3 }] })),
     ).not.toBe(base);
     expect(
       hashSalePayload(dto({ customerId: '0b6f1c9e-5d7a-4c3b-8e2f-6a9d4b1c2e03' })),
+    ).not.toBe(base);
+    expect(
+      hashSalePayload(dto({ prescriptionId: '3a4b5c6d-7e8f-4a0b-9c1d-2e3f4a5b6c7d' })),
     ).not.toBe(base);
   });
 });
@@ -121,6 +124,22 @@ describe('SalesService checks before touching stock', () => {
         },
       ],
     });
+    expect(ledger.run).not.toHaveBeenCalled();
+  });
+
+  it('UC07-U8 needs a cart line or a prescription to bill; billing lists need sale.create', async () => {
+    const { sales, ledger } = service();
+    const attempt = sales.record(
+      actor(RoleCode.CASHIER),
+      dto({ otcLines: undefined }),
+    );
+    await expect(attempt).rejects.toThrow(ValidationFailed);
+    await expect(attempt).rejects.toMatchObject({
+      errors: [{ field: 'otcLines' }],
+    });
+    await expect(sales.billable(actor(RoleCode.PHARMACIST))).rejects.toThrow(
+      PermissionDenied,
+    );
     expect(ledger.run).not.toHaveBeenCalled();
   });
 });

@@ -16,6 +16,12 @@ export class SalesController {
     return this.sales.record(actor, dto);
   }
 
+  /** Hand-overs from UC06 waiting for payment. Declared before `:id`. */
+  @Get('billable')
+  billable(@CurrentUser() actor: Actor) {
+    return this.sales.billable(actor);
+  }
+
   /** The receipt again, to show or print. */
   @Get(':id')
   get(@CurrentUser() actor: Actor, @UuidParam() id: string) {

@@ -33,6 +33,7 @@ import {
   prescriptionsApi,
 } from '../api/prescriptions';
 import { useLoad } from '../api/useLoad';
+import { decimal, wholeNumber } from '../forms/numberRules';
 import { QuickCreateCustomerModal } from './QuickCreateCustomerModal';
 import { QuickCreatePrescriberModal } from './QuickCreatePrescriberModal';
 
@@ -416,8 +417,12 @@ function PrescriptionFormModal({
 
         <Row gutter={12}>
           <Col span={8}>
-            <Form.Item name="patientAgeYears" label="Age (years)">
-              <InputNumber<number> min={0} precision={0} style={{ width: '100%' }} />
+            <Form.Item
+              name="patientAgeYears"
+              label="Age (years)"
+              rules={[wholeNumber('Age', { min: 0, max: 150 })]}
+            >
+              <InputNumber<number> style={{ width: '100%' }} />
             </Form.Item>
           </Col>
         </Row>
@@ -425,13 +430,21 @@ function PrescriptionFormModal({
           <Card size="small" title="Child under 72 months" style={{ marginBottom: 16 }}>
             <Row gutter={12}>
               <Col span={8}>
-                <Form.Item name="patientAgeMonths" label="Age (months)">
-                  <InputNumber<number> min={0} precision={0} style={{ width: '100%' }} />
+                <Form.Item
+                  name="patientAgeMonths"
+                  label="Age (months)"
+                  rules={[wholeNumber('Age in months', { min: 0, max: 71 })]}
+                >
+                  <InputNumber<number> style={{ width: '100%' }} />
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item name="patientWeightKg" label="Weight (kg)">
-                  <InputNumber<number> min={0} precision={2} style={{ width: '100%' }} />
+                <Form.Item
+                  name="patientWeightKg"
+                  label="Weight (kg)"
+                  rules={[decimal('Weight', { min: 0.1, max: 200, decimals: 2 })]}
+                >
+                  <InputNumber<number> style={{ width: '100%' }} />
                 </Form.Item>
               </Col>
               <Col span={8}>
@@ -475,11 +488,12 @@ function PrescriptionFormModal({
                   <Form.Item
                     name={[field.name, 'quantityPrescribed']}
                     label={index === 0 ? 'Quantity' : undefined}
-                    rules={[{ required: true, message: 'Quantity is required.' }]}
+                    rules={[
+                      { required: true, message: 'Quantity is required.' },
+                      wholeNumber('Quantity', { min: 1, max: 100_000 }),
+                    ]}
                   >
                     <InputNumber<number>
-                      min={1}
-                      precision={0}
                       aria-label={`Line ${index + 1} quantity`}
                       style={{ width: 100 }}
                     />
@@ -501,11 +515,12 @@ function PrescriptionFormModal({
                   <Form.Item
                     name={[field.name, 'daysOfUse']}
                     label={index === 0 ? 'Days' : undefined}
-                    rules={[{ required: true, message: 'Days of use is required.' }]}
+                    rules={[
+                      { required: true, message: 'Days of use is required.' },
+                      wholeNumber('Days of use', { min: 1, max: 365 }),
+                    ]}
                   >
                     <InputNumber<number>
-                      min={1}
-                      precision={0}
                       aria-label={`Line ${index + 1} days of use`}
                       style={{ width: 80 }}
                     />

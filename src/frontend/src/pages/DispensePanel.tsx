@@ -18,6 +18,7 @@ import {
   type ExpiryWarning,
 } from '../api/dispensing';
 import { type FieldError, toApiError } from '../api/errors';
+import { wholeNumberError } from '../forms/numberRules';
 import {
   DISPENSABLE_STATUSES,
   type Prescription,
@@ -123,6 +124,20 @@ export function DispensePanel() {
 
   async function runPreview() {
     if (!prescription) return;
+    // Clients check numbers first (#127): a bad quantity keeps the value the
+    // user typed and never reaches the server. 0 is valid (nothing this time).
+    const typeErrors: ItemErrors = {};
+    for (const item of prescription.items) {
+      const error = wholeNumberError('Quantity', quantities[item.id] ?? null, {
+        min: 0,
+        max: item.quantityOutstanding,
+      });
+      if (error) (typeErrors[item.id] ??= {}).quantity = error;
+    }
+    if (Object.keys(typeErrors).length > 0) {
+      setFieldErrors(typeErrors);
+      return;
+    }
     setPreviewing(true);
     setTopError(null);
     setFieldErrors({});
@@ -249,9 +264,6 @@ export function DispensePanel() {
                       render: (_, item) => (
                         <div>
                           <InputNumber<number>
-                            min={0}
-                            max={item.quantityOutstanding}
-                            precision={0}
                             disabled={item.quantityOutstanding === 0}
                             value={quantities[item.id] ?? 0}
                             onChange={(v) => changeQuantity(item.id, v)}

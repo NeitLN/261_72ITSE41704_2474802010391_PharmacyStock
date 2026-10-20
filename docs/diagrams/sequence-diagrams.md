@@ -7,7 +7,7 @@ checked before and during review.
 | Diagram | Source | State |
 |---|---|---|
 | 1. Dispense against a prescription (UC06) | The code in #109: `DispensingService`, `FefoAllocator`, `StockLedger` | **As built** |
-| 2a. Over-the-counter sale (UC07) | [UC07 specification](../requirements/use-cases/UC07-record-sale.md), scenario table | Design gate for #50 (week 6) — update when built |
+| 2a. Over-the-counter sale (UC07) | The code: `SalesService`, `FefoAllocator`, `StockLedger`, `PriceBook` | **As built** — matches the design |
 | 2b. Bill a dispensing (UC07) | Same | Design gate for #50 (week 6) — update when built |
 | 3. Process a return (UC08) | [UC08 specification](../requirements/use-cases/UC08-process-return.md) | Design for #58 — update when built |
 
@@ -95,7 +95,11 @@ Lock order inside the transaction, the same as UC06 so the two cannot
 deadlock each other: the billed **prescription's unbilled dispense lines**
 first (the document row two cashiers could both touch), then the request ID,
 then the ledger's order — medicines in one call, ascending id, then eligible
-batches.
+batches. An over-the-counter sale has no document row, so it locks its
+medicines before looking up the request ID: a repeat of the same request
+waits there and then finds the stored receipt. The receipt number is drawn
+under a transaction-level advisory lock taken after every row lock, so it
+cannot form a cycle with them.
 
 ### 2a. Over-the-counter sale
 
@@ -118,32 +122,33 @@ sequenceDiagram
     K->>UI: Confirm payment
     UI->>C: POST /sales {requestId, otcLines[{medicineId, quantity}], customerId?}
     C->>S: record(actor, dto)
-    S->>S: assertPermission(SALE_CREATE)
+    S->>S: assertPermission(SALE_CREATE), one line per medicine, else 400
     S->>L: run(work)
     L->>DB: BEGIN
+    S->>L: lockMedicines(all medicine ids)
+    L->>DB: SELECT medicines FOR UPDATE (ascending id), unknown id 404
     S->>DB: find ProcessedRequest(requestId)
     alt request already done (FR-23)
         S-->>C: stored receipt — same hash replays, other content gets 409
     else new request
         S->>DB: read medicines of the cart
-        S->>S: each medicine active and classified OTC, else 422 BR04 on that line (A1, A4)
+        S->>S: each medicine classified OTC and active, else 422 BR04 / FR-02 on that line (A1, A4)
         S->>PB: pricesOn(medicines, businessDate)
         S->>S: every medicine has a price in force, else 422 on that line (A4)
-        S->>L: lockMedicines(all medicine ids)
-        L->>DB: SELECT medicines FOR UPDATE (ascending id)
         S->>L: lockEligibleBatches(medicine, businessDate)
         L->>DB: SELECT ACTIVE, unexpired, sellable batches FOR UPDATE, FEFO order
         S->>F: allocate per line (lines of one medicine share what is left)
         alt any shortage (BR03, A2, A3, A9)
             S-->>L: throw BusinessRuleViolation BR03 — rollback, 422 with available
         else enough stock
-            S->>DB: INSERT sale (receipt number, sold by, customer?)
+            S->>DB: pg_advisory_xact_lock, next RC-YYYYMMDD-NNNN of the business day
+            S->>DB: INSERT sale (receipt number, sold by, customer?, sold at = Clock)
             loop each batch line
                 S->>DB: INSERT sale_line (batch, quantity, unit price, line total)
                 S->>L: post(SALE, −quantity, source = sale line)
                 L->>DB: INSERT stock_movement, UPDATE batch qtySellable (CHECK ≥ 0)
             end
-            S->>DB: UPDATE sale.totalAmount = Σ line totals (integer đồng)
+            S->>DB: UPDATE sale.totalAmount = Σ line totals (whole xu, no float)
             S->>DB: INSERT processed_request(requestId, hash, result)
         end
     end

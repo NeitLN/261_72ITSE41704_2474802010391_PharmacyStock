@@ -140,15 +140,17 @@ export class StockLookupService {
 
     const totals = `
       WITH totals AS (
+        -- bigint: a medicine's total over many batches can pass the int
+        -- range even though each batch fits (converted with Number()).
         SELECT m.id,
           COALESCE(SUM(b."qtySellable") FILTER (
-            WHERE b.status = 'active' AND b."expiryDate" > $1::date), 0)::int AS sellable,
+            WHERE b.status = 'active' AND b."expiryDate" > $1::date), 0)::bigint AS sellable,
           COALESCE(SUM(b."qtySellable") FILTER (
-            WHERE b.status = 'active' AND b."expiryDate" <= $1::date), 0)::int AS expired,
+            WHERE b.status = 'active' AND b."expiryDate" <= $1::date), 0)::bigint AS expired,
           COALESCE(SUM(b."qtySellable") FILTER (
-            WHERE b.status <> 'active'), 0)::int AS held,
-          COALESCE(SUM(b."qtyQuarantine"), 0)::int AS quarantine,
-          COALESCE(SUM(b."qtyPendingDestruction"), 0)::int AS "pendingDestruction",
+            WHERE b.status <> 'active'), 0)::bigint AS held,
+          COALESCE(SUM(b."qtyQuarantine"), 0)::bigint AS quarantine,
+          COALESCE(SUM(b."qtyPendingDestruction"), 0)::bigint AS "pendingDestruction",
           MIN(b."expiryDate") FILTER (
             WHERE b.status = 'active' AND b."expiryDate" > $1::date
               AND b."qtySellable" > 0)::text AS "nextExpiry"
@@ -197,11 +199,11 @@ export class StockLookupService {
             name: r.unitName as string,
           },
         },
-        sellable: r.sellable as number,
-        expired: r.expired as number,
-        held: r.held as number,
-        quarantine: r.quarantine as number,
-        pendingDestruction: r.pendingDestruction as number,
+        sellable: Number(r.sellable),
+        expired: Number(r.expired),
+        held: Number(r.held),
+        quarantine: Number(r.quarantine),
+        pendingDestruction: Number(r.pendingDestruction),
         nextExpiry: (r.nextExpiry as string | null) ?? null,
       })),
       total: count,
@@ -271,9 +273,9 @@ export class StockLookupService {
     const rows = await this.dataSource.query<Array<Record<string, unknown>>>(
       `SELECT sm.id, sm."occurredAt", sm.type, sm.reason,
          sm."deltaSellable", sm."deltaQuarantine", sm."deltaPendingDestruction",
-         (SUM(sm."deltaSellable") OVER w)::int AS "balanceSellable",
-         (SUM(sm."deltaQuarantine") OVER w)::int AS "balanceQuarantine",
-         (SUM(sm."deltaPendingDestruction") OVER w)::int AS "balancePendingDestruction",
+         (SUM(sm."deltaSellable") OVER w)::bigint AS "balanceSellable",
+         (SUM(sm."deltaQuarantine") OVER w)::bigint AS "balanceQuarantine",
+         (SUM(sm."deltaPendingDestruction") OVER w)::bigint AS "balancePendingDestruction",
          sm."sourceDocumentType", sm."sourceDocumentId",
          u.id AS "userId", u."fullName" AS "userName",
          r.id AS "reversesId", r.type AS "reversesType", r."occurredAt" AS "reversesAt",
@@ -308,9 +310,9 @@ export class StockLookupService {
         deltaSellable: r.deltaSellable as number,
         deltaQuarantine: r.deltaQuarantine as number,
         deltaPendingDestruction: r.deltaPendingDestruction as number,
-        balanceSellable: r.balanceSellable as number,
-        balanceQuarantine: r.balanceQuarantine as number,
-        balancePendingDestruction: r.balancePendingDestruction as number,
+        balanceSellable: Number(r.balanceSellable),
+        balanceQuarantine: Number(r.balanceQuarantine),
+        balancePendingDestruction: Number(r.balancePendingDestruction),
         reason: r.reason as string | null,
         performedBy: { id: r.userId as string, fullName: r.userName as string },
         source: {

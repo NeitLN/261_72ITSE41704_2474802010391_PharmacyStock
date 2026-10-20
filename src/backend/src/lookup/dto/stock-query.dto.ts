@@ -49,6 +49,7 @@ export class StockQuery {
   @Type(() => Number)
   @IsInt({ message: 'Page must be a whole number.' })
   @Min(1, { message: 'Page must be at least 1.' })
+  @Max(100_000, { message: 'Page must be at most 100000.' })
   page?: number;
 
   @IsOptional()

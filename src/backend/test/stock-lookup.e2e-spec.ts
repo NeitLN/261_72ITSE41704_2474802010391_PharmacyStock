@@ -382,6 +382,10 @@ describe('UC04 stock lookup (e2e)', () => {
     expect((await history(unknown)).status).toBe(404);
     expect((await detail('not-an-id')).status).toBe(400);
 
+    const huge = await list({ page: '1e308' });
+    expect(huge.status).toBe(400);
+    expect(huge.body.errors[0].field).toBe('page');
+
     const bad = await list({ state: 'empty', pageSize: 500, page: 0 });
     expect(bad.status).toBe(400);
     expect(

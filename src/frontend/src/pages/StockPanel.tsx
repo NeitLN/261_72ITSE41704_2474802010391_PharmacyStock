@@ -192,6 +192,8 @@ export function StockPanel() {
           total: stock.total,
           onChange: setPage,
           hideOnSinglePage: true,
+          // The page size is fixed (UC04 decisions), so no size picker.
+          showSizeChanger: false,
           showTotal: (total) => `${total} medicines`,
         }}
         locale={{ emptyText: 'No medicine matches these filters.' }}
@@ -351,7 +353,8 @@ function BatchHistoryModal({ batchId, onClose }: { batchId: string | null; onClo
       title: 'Document',
       render: (_, m) => (
         <Space direction="vertical" size={0}>
-          <span>{m.source.reference ?? '—'}</span>
+          {/* Returns and stock takes have no readable number yet: show the id. */}
+          <span>{m.source.reference ?? m.source.id}</span>
           {m.reason && (
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
               {m.reason}

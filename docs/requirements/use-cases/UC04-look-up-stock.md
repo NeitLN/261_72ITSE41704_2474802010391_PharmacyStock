@@ -110,5 +110,5 @@ in the last column, and the rows with a TC are also run by hand.
 | S10 | Error | No match | `items: []`, `total: 0` — the screen shows an empty state (A1) | UC04-10 |
 | S11 | Error | Unknown medicine or batch id; malformed id; unknown `state` | 404 / 400 on the field | UC04-11, NFR-04 |
 | S12 | Error | No session | 401; manager, pharmacist and cashier all get 200 | UC04-12 |
-| S13 | Invariant | After receipts, dispensing and sales | For every batch, sellable in the list and the last running balance equal the sum of its movements (`findLedgerMismatches` finds nothing) | UC04-13, BR05 |
+| S13 | Invariant | After receipts, dispensing and sales, with one batch expired | Two different checks: for **every** batch, the last running balance equals the sum of its movements and the quantities cached on the batch (`findLedgerMismatches` finds nothing, BR05); the list's **sellable** equals the sum of the last balances of only the eligible batches (ACTIVE, not expired) — an expired batch keeps its balance but adds nothing to sellable | UC04-13, BR05 |
 | S14 | Performance | 5,000 batches | First page of the list in ≤ 1 s | TC-29 (week 8, measured by hand) |

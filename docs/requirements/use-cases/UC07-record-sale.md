@@ -5,7 +5,7 @@
 | **Owner** | Bùi Duy Anh (B) |
 | **Priority** | Must |
 | **Primary actor** | Cashier |
-| **Status** | Draft — not built yet (issue #50) |
+| **Status** | Design gate, week 6 — sequence and scenario table agreed before the code (issue #50) |
 | **Related rules** | BR01, BR02, BR03 (via the ledger), BR04, BR09 *(S)* |
 | **Requirements** | FR-24, FR-25, FR-26, FR-23, FR-45 |
 | **Decisions** | DEC-05 (stock leaves once), DEC-09 (OTC only), decision 12 (price on the sale date), DEC-01, DEC-07 |
@@ -105,11 +105,54 @@ dispensed against a prescription or paid for, and never both counted twice.
   lines at the same unit price (one per batch), so a return in UC08 can go
   back to the right batch.
 
-## Open questions
+## Decisions for the build
 
-- Can a sale bill **part** of a dispensing (some dispense lines only), or is
-  a dispensing always billed whole? Assumed whole; FR-26 does not say.
-- Is a receipt number a running number per day or across the whole system?
-  The schema only requires it to be unique.
-- Who may cancel a paid sale? Not covered; a paid sale is corrected only by a
-  return (UC08).
+The open questions of the draft, settled for #50 as assumptions; each can be
+changed in one place if the team or the pharmacist reviewer decides otherwise.
+
+| Question | Taken for the build | Why |
+|---|---|---|
+| Bill part of a dispensing? | No. The schema has no "dispensing" row: a hand-over is the dispense lines of one prescription. The cashier bills a **prescription**, and every dispense line of it not yet billed (`sale_id` empty) goes on the bill. A later hand-over of the same prescription is billed by a later sale. | FR-26 bills "a completed dispensing"; billing whole avoids part-paid hand-overs |
+| Receipt number | `RC-YYYYMMDD-NNNN`, a running number per business day (Asia/Ho_Chi_Minh), e.g. `RC-20261019-0001`. `HD-` is already used for supplier invoices in UC03. | Readable on paper; unique by the column constraint |
+| Cancel a paid sale | Not possible. A paid sale is corrected only by a return (UC08). Before payment, cancelling is closing the cart in the browser after a confirmation: nothing was stored, so there is nothing to record (A8). TC-59 asks for a reason; the dialog asks for it, but it is not stored, because there is no draft row to attach it to — storing it would need a draft-sale table, which the schema does not have. | DEC-05: only the confirmed payment is a stock event |
+| OTC rule | Only medicines classified OTC (DEC-09). DEC-09 is still open with the pharmacist reviewer (business-decisions.md); if it changes, only the classification check changes. | Spec and FR-25 as submitted |
+
+## Interface (for #50)
+
+| Route | Permission | Body / response |
+|---|---|---|
+| `GET /api/sales/billable` | `sale.create` | Prescriptions with unbilled dispense lines: id, reference, patient, last hand-over time, lines (medicine, batch, quantity) |
+| `POST /api/sales` | `sale.create` | `{ requestId, prescriptionId?, otcLines?: [{ medicineId, quantity }], customerId? }` — at least one of `prescriptionId` and `otcLines`. 201: the receipt `{ id, receiptNumber, soldAt, customer, lines: [{ medicine, batch, quantity, unitPrice, lineTotal, billed }], totalAmount }` |
+| `GET /api/sales/:id` | `sale.create` | The receipt, to show or print again |
+
+Money goes out as decimal strings (`"12500.00"`), as in the rest of the API.
+Errors use the existing format: 400 per field (`otcLines.0.quantity`), 403,
+404, 409 (request ID reused with other content), 422 with the rule (BR03,
+BR04, "already billed").
+
+## Scenario table
+
+The design-gate table (plan §6.1, D15): every row becomes an automated test
+named in the last column, and the rows with a TC are also run by hand.
+
+| ID | Kind | Scenario | Expected | Test |
+|---|---|---|---|---|
+| S01 | Normal | OTC sale of one medicine; the earliest-expiring batch has enough | One sale line on that batch, one `SALE` movement, total = price × quantity, receipt `RC-…-0001` | UC07-01, TC-35 |
+| S02 | Normal | OTC sale larger than the first batch | Two sale lines at the same unit price, earliest expiry first (BR01, DEC-07) | UC07-02, BR01 |
+| S03 | Normal | Bill a prescription handed over in UC06 | One sale line per dispense line, dispense lines linked to the sale, **no** new movement, stock unchanged | UC07-03, TC-15, TC-52 |
+| S04 | Normal | Bill a prescription and add OTC lines in the same sale | Billed lines move nothing; OTC lines move stock; one total | UC07-04 |
+| S05 | Edge | Price changed today vs. yesterday | The line carries the price in force on the business date; a later change does not alter the stored sale | UC07-05 (BR09 *(S)*) |
+| S06 | Edge | Quantity equals exactly the sellable quantity | Accepted; the batch reaches 0 | UC07-06 |
+| S07 | Edge | A batch expires exactly today | Not eligible (BR02: expiry must be after the business date) | UC07-07, BR02 |
+| S08 | Error | A prescription-only or controlled medicine in the OTC cart | 422 BR04 on that line; nothing saved | UC07-08, TC-36 |
+| S09 | Error | More than the sellable quantity | 422 BR03 with the quantity available; nothing saved | UC07-09 |
+| S10 | Error | Only expired, on-hold or recalled batches left | Treated as S09 | UC07-10, DEC-07 |
+| S11 | Error | Deactivated medicine, or no price in force | 422 on that line | UC07-11 |
+| S12 | Error | Bill a prescription already billed | 422 "already billed"; the first sale unchanged | UC07-12, A5 |
+| S13 | Error | Same request ID again / with other content | Same receipt, nothing posted twice / 409 | UC07-13, TC-27, FR-23 |
+| S14 | Error | Pharmacist (no `sale.create`) calls the API | 403 | UC07-14, A10 |
+| S15 | Error | Empty sale, quantity 0, −1 or 2.5, unknown medicine | 400 on the field (`otcLines.0.quantity`) / 404 | UC07-15, NFR-04 |
+| S16 | Concurrency | A sale and a dispensing take the last units at the same moment; two cashiers bill the same prescription | Exactly one succeeds, the other 422; stock never negative; no 500 (BR03) | UC07-16, TC-62, NFR-08 |
+
+After every test that moves stock, `findLedgerMismatches` must find nothing
+(BR05).

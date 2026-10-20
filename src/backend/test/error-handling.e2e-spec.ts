@@ -20,7 +20,12 @@ interface Ids {
   customerId: string;
   prescriberId: string;
   prescriptionId: string;
+  prescriptionReference: string;
   itemId: string;
+  /** Second records, to collide with the first ones on update (ERR-07). */
+  medicine2Id: string;
+  prescriber2Id: string;
+  prescription2Id: string;
 }
 
 /**
@@ -46,6 +51,12 @@ interface Row {
     path?: (ids: Ids) => string;
     body?: (ids: Ids) => object;
     field?: string;
+  };
+  /** A unique value that is already taken (ERR-07): 409 on its field. */
+  duplicate?: {
+    path?: (ids: Ids) => string;
+    body: (ids: Ids) => object;
+    field: string;
   };
 }
 
@@ -137,6 +148,16 @@ const ROWS: Row[] = [
       }),
       field: 'categoryId',
     },
+    duplicate: {
+      body: (ids) => ({
+        code: 'errmed1',
+        name: 'Same code, other case',
+        categoryId: ids.categoryId,
+        baseUnitId: ids.unitId,
+        currentPrice: 1000,
+      }),
+      field: 'code',
+    },
   },
   {
     endpoint: 'PATCH /medicines/:id',
@@ -150,6 +171,11 @@ const ROWS: Row[] = [
     wrongType: () => ({ reorderLevel: 'ten' }),
     wrongTypeFields: ['reorderLevel'],
     unknown: { path: () => `/api/medicines/${NOBODY}` },
+    duplicate: {
+      path: (ids) => `/api/medicines/${ids.medicine2Id}`,
+      body: () => ({ code: 'ERRMED1' }),
+      field: 'code',
+    },
   },
   {
     endpoint: 'POST /goods-receipts',
@@ -181,6 +207,15 @@ const ROWS: Row[] = [
       }),
       field: 'lines.0.medicineId',
     },
+    duplicate: {
+      body: (ids) => ({
+        supplierId: ids.supplierId,
+        documentNumber: 'ERR-HD-0',
+        receiptDate: '2026-10-20',
+        lines: [receiptLine(ids, { batchNumber: 'ERR-B9' })],
+      }),
+      field: 'documentNumber',
+    },
   },
   {
     endpoint: 'POST /customers',
@@ -196,6 +231,19 @@ const ROWS: Row[] = [
     unknown: {},
   },
   {
+    endpoint: 'PATCH /customers/:id',
+    method: 'patch',
+    path: (ids) => `/api/customers/${ids.customerId}`,
+    role: 'pharmacist',
+    forbidden: 'cashier',
+    valid: () => ({ phone: '0900 000 123' }),
+    missing: { fullName: null },
+    missingFields: ['fullName'],
+    wrongType: () => ({ dateOfBirth: 'yesterday' }),
+    wrongTypeFields: ['dateOfBirth'],
+    unknown: { path: () => `/api/customers/${NOBODY}` },
+  },
+  {
     endpoint: 'POST /prescribers',
     method: 'post',
     path: () => '/api/prescribers',
@@ -207,6 +255,28 @@ const ROWS: Row[] = [
     wrongType: () => ({ licenceNumber: 5, fullName: 'Dr. Le Van Hai' }),
     wrongTypeFields: ['licenceNumber'],
     unknown: {},
+    duplicate: {
+      body: () => ({ licenceNumber: 'CCHN-ERR-1', fullName: 'Dr. Copy' }),
+      field: 'licenceNumber',
+    },
+  },
+  {
+    endpoint: 'PATCH /prescribers/:id',
+    method: 'patch',
+    path: (ids) => `/api/prescribers/${ids.prescriberId}`,
+    role: 'pharmacist',
+    forbidden: 'cashier',
+    valid: () => ({ clinicName: 'Quang Family Clinic' }),
+    missing: { fullName: null },
+    missingFields: ['fullName'],
+    wrongType: () => ({ licenceNumber: 5 }),
+    wrongTypeFields: ['licenceNumber'],
+    unknown: { path: () => `/api/prescribers/${NOBODY}` },
+    duplicate: {
+      path: (ids) => `/api/prescribers/${ids.prescriber2Id}`,
+      body: () => ({ licenceNumber: 'CCHN-ERR-1' }),
+      field: 'licenceNumber',
+    },
   },
   {
     endpoint: 'POST /prescriptions',
@@ -233,6 +303,11 @@ const ROWS: Row[] = [
       body: (ids) => prescription(ids, { customerId: NOBODY }),
       field: 'customerId',
     },
+    duplicate: {
+      body: (ids) =>
+        prescription(ids, { referenceNumber: ids.prescriptionReference }),
+      field: 'referenceNumber',
+    },
   },
   {
     endpoint: 'PUT /prescriptions/:id',
@@ -253,6 +328,12 @@ const ROWS: Row[] = [
       prescription(ids, { items: [item(ids, { daysOfUse: 2.5 })] }),
     wrongTypeFields: ['items.0.daysOfUse'],
     unknown: { path: () => `/api/prescriptions/${NOBODY}` },
+    duplicate: {
+      path: (ids) => `/api/prescriptions/${ids.prescription2Id}`,
+      body: (ids) =>
+        prescription(ids, { referenceNumber: ids.prescriptionReference }),
+      field: 'referenceNumber',
+    },
   },
   {
     endpoint: 'POST /prescriptions/:id/verify',
@@ -413,9 +494,36 @@ describe('Error handling, endpoint × invalid input (e2e)', () => {
       prescription(ids),
     );
     ids.prescriptionId = rx.id;
+    ids.prescriptionReference = rx.referenceNumber;
     ids.itemId = rx.items[0].id;
     // Verified, so a dispensing reaches the item checks.
     await post(`/api/prescriptions/${rx.id}/verify`, 'pharmacist', {});
+
+    // Second records and a first receipt, for the duplicate cases (ERR-07).
+    ids.medicine2Id = (
+      await post('/api/medicines', 'manager', {
+        code: 'ERRMEDB',
+        name: 'Error medicine B',
+        categoryId: ids.categoryId,
+        baseUnitId: ids.unitId,
+        currentPrice: 1000,
+      })
+    ).id;
+    ids.prescriber2Id = (
+      await post('/api/prescribers', 'pharmacist', {
+        licenceNumber: 'CCHN-ERR-B',
+        fullName: 'Dr. Pham Thi Mai',
+      })
+    ).id;
+    ids.prescription2Id = (
+      await post('/api/prescriptions', 'pharmacist', prescription(ids))
+    ).id;
+    await post('/api/goods-receipts', 'manager', {
+      supplierId: ids.supplierId,
+      documentNumber: 'ERR-HD-0',
+      receiptDate: '2026-10-20',
+      lines: [receiptLine(ids)],
+    });
   });
 
   afterAll(async () => {
@@ -497,6 +605,99 @@ describe('Error handling, endpoint × invalid input (e2e)', () => {
       const res = await send(row, row.valid(ids), row.forbidden);
       expect(res.status).toBe(403);
       expect(res.body.code).toBe('PERMISSION_DENIED');
+    });
+
+    it.skipIf(!row.duplicate)(
+      'ERR-07 a unique value already taken is 409 on its field',
+      async () => {
+        const dup = row.duplicate!;
+        const res = await send(
+          row,
+          dup.body(ids),
+          row.role,
+          dup.path ? dup.path(ids) : row.path(ids),
+        );
+        expect(res.status).toBe(409);
+        expect(fields(res.body)).toEqual([dup.field]);
+      },
+    );
+  });
+
+  /** Routes with no body: only the id in the path, the session and the role. */
+  describe.each([
+    ['medicines', 'deactivate', 'pharmacist'],
+    ['medicines', 'activate', 'pharmacist'],
+    ['suppliers', 'deactivate', 'pharmacist'],
+    ['suppliers', 'activate', 'pharmacist'],
+    ['prescribers', 'deactivate', 'cashier'],
+    ['prescribers', 'activate', 'cashier'],
+  ] as const)('POST /%s/:id/%s', (resource, action, forbidden) => {
+    const own = () =>
+      ({
+        medicines: ids.medicineId,
+        suppliers: ids.supplierId,
+        prescribers: ids.prescriberId,
+      })[resource];
+    const call = (id: string, role: Role | null) => {
+      const req = t.http().post(`/api/${resource}/${id}/${action}`);
+      return role ? req.set(as(role)) : req;
+    };
+
+    it('ERR-02 a malformed id is 400 on the id', async () => {
+      const res = await call('not-an-id', 'manager');
+      expect(res.status).toBe(400);
+      expect(fields(res.body)).toEqual(['id']);
+    });
+
+    it('ERR-04 an unknown id is 404', async () => {
+      const res = await call(NOBODY, 'manager');
+      expect(res.status).toBe(404);
+      expect(res.body.code).toBe('NOT_FOUND');
+    });
+
+    it('ERR-05 without a session is 401', async () => {
+      expect((await call(own(), null)).status).toBe(401);
+    });
+
+    it('ERR-06 a role without the permission is 403', async () => {
+      const res = await call(own(), forbidden);
+      expect(res.status).toBe(403);
+      expect(res.body.code).toBe('PERMISSION_DENIED');
+    });
+  });
+
+  /** Sign-in is public, so only the body cases apply. */
+  describe('POST /auth/login', () => {
+    const login = (body: object | string) => {
+      const req = t.http().post('/api/auth/login');
+      return typeof body === 'string'
+        ? req.set('Content-Type', 'application/json').send(body)
+        : req.send(body);
+    };
+
+    it('ERR-01 missing username and password are 400, one message each', async () => {
+      const res = await login({});
+      expect(res.status).toBe(400);
+      expect(res.body.errors).toEqual([
+        { field: 'username', message: 'Enter your username.' },
+        { field: 'password', message: 'Enter your password.' },
+      ]);
+    });
+
+    it('ERR-02 values of the wrong type are 400 on their fields', async () => {
+      const res = await login({ username: 5, password: ['x'] });
+      expect(res.status).toBe(400);
+      expect(fields(res.body)).toEqual(['password', 'username']);
+    });
+
+    it('ERR-05 signing out needs a session like any other route', async () => {
+      expect((await t.http().post('/api/auth/logout')).status).toBe(401);
+    });
+
+    it('ERR-03 a body that is not JSON is 400 VALIDATION_FAILED', async () => {
+      const res = await login('{"username": ');
+      expect(res.status).toBe(400);
+      expect(res.body.message).toBe('The request body is not valid JSON.');
     });
   });
 });

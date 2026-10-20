@@ -79,12 +79,18 @@ describe('AllExceptionsFilter (NFR-04)', () => {
       message: 'The request body is not valid JSON.',
       errors: [],
     });
-    expect(filter.toBody(new BadRequestException('URI malformed'))).toEqual({
-      statusCode: 400,
-      code: 'VALIDATION_FAILED',
-      message: 'The request could not be read.',
-      errors: [],
-    });
+    // A malformed address is not blamed on the body, even if it says JSON.
+    for (const message of [
+      'URI malformed',
+      "Failed to decode param 'JSON%FF'",
+    ]) {
+      expect(filter.toBody(new BadRequestException(message))).toEqual({
+        statusCode: 400,
+        code: 'VALIDATION_FAILED',
+        message: 'The request could not be read.',
+        errors: [],
+      });
+    }
   });
 
   it.each([
@@ -180,6 +186,41 @@ describe('toFieldErrors', () => {
         message: 'Quantity must be a whole number of base units.',
       },
       { field: 'note', message: 'note must be a string' },
+    ]);
+  });
+
+  it('ERR-02 reports a wrong kind of value before a length or range message (#47)', () => {
+    expect(
+      toFieldErrors([
+        {
+          property: 'name',
+          constraints: {
+            maxLength: 'name must be shorter than or equal to 200 characters',
+            isString: 'name must be a string',
+          },
+          children: [],
+        },
+        {
+          property: 'quantity',
+          constraints: {
+            min: 'Quantity must be at least 1.',
+            isInt: 'Quantity must be a whole number of base units.',
+          },
+          children: [],
+        },
+        {
+          property: 'supplierId',
+          constraints: { isUuid: 'Choose a supplier.' },
+          children: [],
+        },
+      ]),
+    ).toEqual([
+      { field: 'name', message: 'name must be a string' },
+      {
+        field: 'quantity',
+        message: 'Quantity must be a whole number of base units.',
+      },
+      { field: 'supplierId', message: 'Choose a supplier.' },
     ]);
   });
 });

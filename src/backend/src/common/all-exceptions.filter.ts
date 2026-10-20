@@ -119,12 +119,17 @@ export class AllExceptionsFilter implements ExceptionFilter {
     // a body that is not JSON or a malformed address. Same code as any
     // invalid input, without the parser's wording (positions, tokens).
     if (exception instanceof BadRequestException) {
+      // URIError first: its text quotes the path, which may contain "JSON".
+      const badAddress = /^(Failed to decode param|URI malformed)/.test(
+        exception.message,
+      );
       return {
         statusCode: 400,
         code: 'VALIDATION_FAILED',
-        message: /JSON/i.test(exception.message)
-          ? 'The request body is not valid JSON.'
-          : 'The request could not be read.',
+        message:
+          !badAddress && /JSON/.test(exception.message)
+            ? 'The request body is not valid JSON.'
+            : 'The request could not be read.',
         errors: [],
       };
     }

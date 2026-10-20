@@ -18,14 +18,43 @@ import { type FieldError, ValidationFailed } from './errors.js';
 const MISSING = ['isDefined', 'isNotEmpty', 'arrayMinSize', 'arrayNotEmpty'];
 
 /**
- * The one message shown under a field (#47): "required" if the value is
- * missing, else the first message written for people, else the first one.
- * class-validator's own defaults start with the property name.
+ * Constraints about the kind of value. When one fails, a length or range
+ * message on top of it ("must be at least 1" for `"ten"`) is misleading.
+ */
+const WRONG_TYPE = [
+  'isString',
+  'isInt',
+  'isNumber',
+  'isBoolean',
+  'isUuid',
+  'isArray',
+  'isObject',
+  'isEmail',
+  'isEnum',
+  'isIn',
+  'isCalendarDate',
+  'isIso8601',
+  'isDateString',
+  'matches',
+];
+
+/**
+ * The one message shown under a field (#47), in this order: "required" if
+ * the value is missing; else what is wrong with its kind; else the first
+ * message written for people; else the first one. class-validator's own
+ * defaults start with the property name.
  */
 function messageFor(error: ValidationError): string | undefined {
   const constraints = error.constraints ?? {};
-  const missing = MISSING.find((key) => key in constraints);
-  if (missing) return constraints[missing];
+  // Constraint names differ in case between versions (isUUID, isISO8601).
+  const named = (wanted: string) =>
+    Object.keys(constraints).find(
+      (k) => k.toLowerCase() === wanted.toLowerCase(),
+    );
+  const first = (list: string[]) =>
+    list.map(named).find((k): k is string => k !== undefined);
+  const chosen = first(MISSING) ?? first(WRONG_TYPE);
+  if (chosen) return constraints[chosen];
   const messages = Object.values(constraints);
   return (
     messages.find((m) => !m.startsWith(`${error.property} `)) ?? messages[0]

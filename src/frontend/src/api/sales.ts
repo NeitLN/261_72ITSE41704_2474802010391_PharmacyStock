@@ -28,6 +28,27 @@ export interface SaleLine {
   billed: boolean;
 }
 
+/** One dispense line of a UC06 hand-over that no sale has billed yet. */
+export interface BillableLine {
+  dispenseLineId: string;
+  medicine: { id: string; code: string; name: string };
+  batch: { id: string; batchNumber: string; expiryDate: string };
+  quantity: number;
+  /** When this line was handed over, ISO string. */
+  dispensedAt: string;
+}
+
+/** A prescription whose hand-over is still waiting for payment (UC07). */
+export interface BillablePrescription {
+  id: string;
+  referenceNumber: string;
+  customer: { id: string; code: string; fullName: string };
+  /** The most recent hand-over of this prescription, ISO string. */
+  lastDispensedAt: string;
+  /** Every unbilled dispense line; billing pays them all in one sale. */
+  lines: BillableLine[];
+}
+
 /** The stored sale, as the receipt shows it. */
 export interface Sale {
   id: string;
@@ -40,6 +61,15 @@ export interface Sale {
 }
 
 export const salesApi = {
+  /**
+   * Hand-overs waiting for payment: dispense lines of one prescription with
+   * no sale yet. Billing records money only — no stock movement (DEC-05).
+   */
+  billable: () =>
+    apiClient
+      .get<BillablePrescription[]>('/sales/billable')
+      .then((r) => r.data),
+
   /**
    * Shortage → 422 BR03 INSUFFICIENT_STOCK with `otcLines.N.quantity`;
    * prescription-only or controlled medicine → 422 BR04 (DEC-09);

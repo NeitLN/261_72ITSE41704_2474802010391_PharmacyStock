@@ -350,7 +350,19 @@ export function SalesCartPanel() {
   );
 }
 
-function ReceiptView({ sale, onNew }: { sale: Sale; onNew: () => void }) {
+/**
+ * The receipt both sales tabs share. `newText` only relabels the closing
+ * button ("New sale" in the cart, "Bill another" when billing a hand-over).
+ */
+export function ReceiptView({
+  sale,
+  onNew,
+  newText = 'New sale',
+}: {
+  sale: Sale;
+  onNew: () => void;
+  newText?: string;
+}) {
   return (
     <Space direction="vertical" style={{ width: '100%' }}>
       <Descriptions size="small" title={`Receipt ${sale.receiptNumber}`}>
@@ -394,7 +406,7 @@ function ReceiptView({ sale, onNew }: { sale: Sale; onNew: () => void }) {
         </Descriptions.Item>
       </Descriptions>
       <Button type="primary" onClick={onNew}>
-        New sale
+        {newText}
       </Button>
     </Space>
   );

@@ -22,7 +22,7 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | ID | Week | Covers | Purpose | Data / steps | Expected result | Author | Runner | Automated | Result |
 |---|---|---|---|---|---|---|---|---|---|
 | TC-01 | 5 | UC03 | Receive a valid batch | Active medicine and supplier; record a receipt of 10 units of a new batch | Sellable stock +10; the receipt, its line, the batch and one RECEIPT movement are linked | Tiến | Minh | UC03-01 | Pass |
-| TC-02 | 5 | UC03 | Invalid received quantity | Quantity 0, −1, `ten`, 2.5 | Error under the quantity field; nothing saved | Tiến | Minh | UC03-03 | Fail |
+| TC-02 | 5 | UC03 | Invalid received quantity | Quantity 0, −1, `ten`, 2.5 | Error under the quantity field; nothing saved | Tiến | Minh | UC03-03 | Pass |
 | TC-03 | 5 | UC03 | Duplicate supplier document | Record HD-0001 for supplier X, then again | Refused under *Supplier document no.*; stock not increased twice | Tiến | Minh | UC03-06 | Pass |
 | TC-04 | 5 | UC06 / BR01 | FEFO across two batches | A = 3 (expires first), B = 8; dispense 7 | A = 0, B = 4; two dispense lines | Duy Anh | Tiến | — | Pass |
 | TC-05 | 6 | UC06 / BR01 | Skip a batch with no stock | Earliest batch holds 0, next holds 5; dispense 2 | Taken from the next batch | Duy Anh | Tiến | — | Not run |

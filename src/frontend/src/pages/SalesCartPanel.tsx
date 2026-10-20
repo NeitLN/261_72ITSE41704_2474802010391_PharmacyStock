@@ -20,6 +20,7 @@ import {
   xuToVndString,
 } from '../api/sales';
 import { useLoad } from '../api/useLoad';
+import { WarningTag } from './DispensePanel';
 
 const NO_OTC: Medicine[] = [];
 
@@ -397,6 +398,10 @@ export function ReceiptView({
             title: 'Line total',
             align: 'right',
             render: (_, l) => formatVnd(l.lineTotal),
+          },
+          {
+            title: 'Warning',
+            render: (_, l) => (l.warning ? <WarningTag warning={l.warning} /> : '—'),
           },
         ]}
       />

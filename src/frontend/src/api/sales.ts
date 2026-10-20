@@ -1,4 +1,5 @@
 import { apiClient } from './client';
+import type { ExpiryWarning } from './dispensing';
 
 /** One over-the-counter line of a cart, sent to POST /api/sales. */
 export interface OtcLineInput {
@@ -26,6 +27,8 @@ export interface SaleLine {
   lineTotal: string;
   /** True when the line bills a UC06 hand-over and moves no stock (DEC-05, FR-26). */
   billed: boolean;
+  /** BR02, FR-16: the batch sold expires within the alert window; null for a billed line. */
+  warning: ExpiryWarning | null;
 }
 
 /** One dispense line of a UC06 hand-over that no sale has billed yet. */

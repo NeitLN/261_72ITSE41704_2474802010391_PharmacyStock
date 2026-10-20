@@ -52,7 +52,8 @@ function errorsByItem(
   return byItem;
 }
 
-function WarningTag({ warning }: { warning: ExpiryWarning }) {
+/** BR02, FR-16: how a near-expiry batch is flagged, here and on the sales receipt. */
+export function WarningTag({ warning }: { warning: ExpiryWarning }) {
   return (
     <Tag color="orange">
       {warning.kind === 'WITHIN_ALERT_WINDOW'

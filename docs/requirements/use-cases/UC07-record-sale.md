@@ -5,7 +5,7 @@
 | **Owner** | Bùi Duy Anh (B) |
 | **Priority** | Must |
 | **Primary actor** | Cashier |
-| **Status** | Design gate, week 6 — sequence and scenario table agreed before the code (issue #50) |
+| **Status** | Over-the-counter sale built (`SalesService`, `POST /api/sales`, `GET /api/sales/:id`, e2e UC07-01…14); billing a dispensing next (issue #50) |
 | **Related rules** | BR01, BR02, BR03 (via the ledger), BR04, BR09 *(S)* |
 | **Requirements** | FR-24, FR-25, FR-26, FR-23, FR-45 |
 | **Decisions** | DEC-05 (stock leaves once), DEC-09 (OTC only), decision 12 (price on the sale date), DEC-01, DEC-07 |

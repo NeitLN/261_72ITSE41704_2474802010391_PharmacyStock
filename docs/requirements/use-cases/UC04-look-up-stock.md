@@ -5,7 +5,7 @@
 | **Owner** | Võ Việt Tiến (A) |
 | **Priority** | Must |
 | **Primary actor** | Manager, Pharmacist, Cashier |
-| **Status** | Design gate for #46 (week 6): decisions, interface and scenario table below |
+| **Status** | Built (#46): `StockLookupService`, *Stock* tab of *Catalogue & batches*; scenario rows S01–S13 automated as UC04-01…13; awaiting TC-48 |
 | **Related rules** | BR02, BR05, DEC-07, DEC-08 (what counts as sellable) |
 | **Requirements** | FR-10, FR-11 |
 

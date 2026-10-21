@@ -49,6 +49,8 @@ Commit the HTML and the PNG together.
 | Reports › Expiry and batch status | UC11 | design (week-7 gate) | Tiến | to do |
 | Reports › Movement report | UC12 | design (week-7 gate) | Tiến | to do |
 
-UI design is Tiến's; Duy Anh reviews every wireframe pull request and may
-change or extend the wireframes; Minh helps when needed. The other built
+UI design is Tiến's; Duy Anh reviews every wireframe pull request, may
+change or extend the wireframes, and develops the design further (motion and
+interaction details, [`ui-design.md` §5.1](../../design/ui-design.md#51-motion-and-interaction-details--duy-anh));
+Minh helps when needed. The other built
 screens get as-built wireframes in week 8 with the report draft ([`ui-design.md` §2](../../design/ui-design.md#2-screen-inventory)).

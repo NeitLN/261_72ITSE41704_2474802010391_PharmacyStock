@@ -4,8 +4,9 @@ How the web client is organised, what each screen does and for whom, how it
 behaves when something goes wrong, and the conventions every screen follows.
 Written 22/10/2026 from the screens that exist and the use-case
 specifications; the week-7 screens are designed here **before** they are
-built (§7). **Owner of the UI design: Tiến; Duy Anh reviews and refines it;
-Minh helps when needed.** The UC owner still writes the API contract and the
+built (§7). **Owner of the UI design: Tiến. Duy Anh reviews it, proposes changes and
+develops it further — motion and animation, interaction details, visual
+polish (§5.1). Minh helps when needed.** The UC owner still writes the API contract and the
 sequence of their feature. Status: **built** = on `main`; *in review* = open pull request;
 *planned* = not built.
 
@@ -131,6 +132,19 @@ Every screen handles these; the API side is in [`error-handling.md`](error-handl
 - **Accessibility.** Inputs inside tables carry an `aria-label` naming their
   row ("Hand over Paracetamol 500 mg"); buttons are real buttons; rows that
   open something have a button or link, not only a click on the row.
+
+### 5.1 Motion and interaction details — Duy Anh
+
+To be designed by Duy Anh in week 7 and applied to the screens in week 8
+(hardening). What it should settle, at least:
+
+- which moments get motion: opening a drawer or modal, a row added to a
+  table, a result panel (receipt, hand-over recorded), a refused line;
+- durations and easing, kept short so the counter never waits on an
+  animation, and none on repeated actions such as typing quantities;
+- feedback for slow requests (more than about 300 ms): what shows, where;
+- `prefers-reduced-motion`: the same screens without the motion;
+- anything else that makes the screens clearer — Duy Anh's call.
 
 ## 6. Wireframes
 

@@ -16,7 +16,7 @@
 ## 2. Điều kiện bắt đầu
 
 - [ ] UC07 có SaleLine (tuần 6); invariant BR05 có test
-- [ ] **Cổng thiết kế theo từng tính năng, merge trước khi bắt đầu code** (không chỉ trước PR tính năng) — hạn T2 26/10. Mỗi tính năng (UC08 của B; UC11, UC12 của C; lệnh trạng thái lô/cách ly trong ledger của A) có đủ: đặc tả đã review (luồng chính, lỗi, quyền, tác động tới kho), hợp đồng API/lệnh và sequence (người code tính năng làm), và wireframe các trạng thái chính. **Thiết kế UI (wireframe, `ui-design.md`) do Tiến làm, Duy Anh review và góp ý chỉnh sửa, Minh hỗ trợ khi cần** (quyết định của trưởng nhóm 22/10). Checklist: [`ui-design.md` §7](../design/ui-design.md#7-feature-design-gate). Đặc tả UC11, UC12 nằm trong #145 (C), cần merge trước
+- [ ] **Cổng thiết kế theo từng tính năng, merge trước khi bắt đầu code** (không chỉ trước PR tính năng) — hạn T2 26/10. Mỗi tính năng (UC08 của B; UC11, UC12 của C; lệnh trạng thái lô/cách ly trong ledger của A) có đủ: đặc tả đã review (luồng chính, lỗi, quyền, tác động tới kho), hợp đồng API/lệnh và sequence (người code tính năng làm), và wireframe các trạng thái chính. **Thiết kế UI (wireframe, `ui-design.md`) do Tiến làm; Duy Anh review, góp ý chỉnh sửa và phát triển thêm (chuyển động, hiệu ứng tương tác, độ trau chuốt giao diện); Minh hỗ trợ khi cần** (quyết định của trưởng nhóm 22/10). Checklist: [`ui-design.md` §7](../design/ui-design.md#7-feature-design-gate). Đặc tả UC11, UC12 nằm trong #145 (C), cần merge trước
 - [ ] Không còn S1 mở
 
 ## 3. Việc theo thành viên
@@ -46,7 +46,7 @@
 | B | 10 + hợp đồng 0,5 | 2 | 1,5 + review UI 1 | 1 | 1,5 | 2,5 | **20** |
 | C | 12 + hợp đồng 0,5 | 1,5 | 1,5 | 2 (gồm hỗ trợ UI) | — | 2,5 | **20** |
 
-*Thiết kế* (thêm 22/10): Tiến làm thiết kế UI cho mọi màn — wireframe các trạng thái chính của UC08, UC11, UC12 trước T2 26/10, và wireframe *as-built* + ảnh các màn đã có ở tuần 8 cùng bản nháp báo cáo — cùng cổng thiết kế của A1. Duy Anh review các PR thiết kế UI (ngoại lệ của vòng review: thiết kế UI của Tiến do Duy Anh duyệt), Minh hỗ trợ khi cần. *Hợp đồng* là phần API/lệnh và sequence của tính năng do chính người code tính năng viết. Phần chung (sơ đồ class, ERD, data dictionary, `ui-design.md`, bộ wireframe) đã làm trong tuần 6 (#151).
+*Thiết kế* (thêm 22/10): Tiến làm thiết kế UI cho mọi màn — wireframe các trạng thái chính của UC08, UC11, UC12 trước T2 26/10, và wireframe *as-built* + ảnh các màn đã có ở tuần 8 cùng bản nháp báo cáo — cùng cổng thiết kế của A1. Duy Anh review các PR thiết kế UI (ngoại lệ của vòng review: thiết kế UI của Tiến do Duy Anh duyệt) và phát triển thêm: quy ước chuyển động và hiệu ứng tương tác (`ui-design.md` §5.1) ở tuần 7, áp dụng vào các màn ở tuần 8 khi làm vững; Minh hỗ trợ khi cần. *Hợp đồng* là phần API/lệnh và sequence của tính năng do chính người code tính năng viết. Phần chung (sơ đồ class, ERD, data dictionary, `ui-design.md`, bộ wireframe) đã làm trong tuần 6 (#151).
 
 ## 5. Lịch
 

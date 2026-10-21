@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="../kit.css"><title>Goods receipt</title></head>
+<body>
+<div class="frame">
+  <span class="label">UC03 Suppliers › Goods receipts — record a receipt: field errors (form) and the duplicate document (server) drawn together; on screen they come one after the other <span class="tag">as-built · Tiến · 22/10/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Catalogue &amp; batches</div><div class="on">Suppliers &amp; receipts</div><div>Prescriptions &amp; dispensing</div></div>
+    <div class="page">
+      <h1>Suppliers &amp; goods receipts</h1>
+      <div class="tabs"><div>Suppliers</div><div class="on">Goods receipts</div></div>
+      <div class="row"><span class="muted">Each line adds stock to a batch through the stock ledger. Receipts are never edited.</span><span class="btn primary">+ Record receipt</span></div>
+      <table>
+        <tr><th>Receipt date</th><th>Document</th><th>Supplier</th><th class="num">Lines</th><th class="num">Total cost</th><th></th></tr>
+        <tr><td>2026-10-20</td><td>HD-00024</td><td>Binh Minh Medical Supply</td><td class="num">5</td><td class="num">1.362.472 ₫</td><td><span class="btn">Details</span></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="overlay"></div>
+  <div class="modal" style="top: 100px; left: 120px; width: 1040px">
+    <h2>Record goods receipt</h2>
+    <div class="row"><span>Supplier*</span><span class="field wide">An Khang Pharma Distribution ▾</span><span>Supplier document no.*</span><span class="field error">HD-0001</span><span>Receipt date*</span><span class="field">2026-10-22</span><span>Note</span><span class="field"></span></div>
+    <div class="row"><span class="err" style="margin-left: 390px">Document HD-0001 is already recorded for this supplier.</span></div>
+    <table>
+      <tr><th>Medicine*</th><th>Batch no.*</th><th>Expiry date*</th><th class="num">Quantity*</th><th class="num">Unit cost (VND)*</th><th></th></tr>
+      <tr><td>PARA500 — Paracetamol 500 mg ▾</td><td>P2601</td><td>2027-06-30</td><td class="num">10</td><td class="num">800</td><td>🗑</td></tr>
+      <tr><td>AMOX500 — Amoxicillin 500 mg ▾</td><td>A-77</td><td>2026-10-22<br><span class="err">Expiry date must be after the receipt date.</span></td><td class="num">2.5<br><span class="err">Quantity must be a whole number.</span></td><td class="num">1500</td><td>🗑</td></tr>
+    </table>
+    <div class="row"><span class="btn">+ Add line</span><span style="margin-left: auto"><b>Total cost: 8.000 ₫</b></span></div>
+    <div class="row" style="justify-content: flex-end"><span class="btn">Cancel</span><span class="btn primary">Save receipt</span></div>
+  </div>
+  <div class="note" data-n="1" style="top: 420px; left: 140px">One transaction: if any line is refused nothing is saved (FR-09); errors sit under their line and field.</div>
+  <div class="note" data-n="2" style="top: 60px; right: 20px">Same supplier and document twice is refused (TC-03).</div>
+</div>
+<ol class="notes">
+  <li>UC03 steps 2–4, FR-06/07/09, TC-01, TC-02 (2.5 refused, #125), TC-64 (expiry after the receipt date).</li>
+  <li>UC03 A1, FR-08, TC-03 · <code>goods_receipt.create</code> (manager only).</li>
+</ol>
+</body>
+</html>

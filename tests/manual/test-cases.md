@@ -44,7 +44,7 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-21 | 6 | UC10 | Low-stock thresholds | Reorder level 10: sellable 11, 10, 9 and 0 | LOW_STOCK at and below 10, OUT_OF_STOCK at 0 (DEC-08) | Minh | Duy Anh | — | Not run |
 | TC-22 | 7 | UC11 | Expiry window boundaries | Batches before, inside and after the 90-day window | Correct list and quantities | Minh | Duy Anh | — | Not run |
 | TC-23 | 7 | UC12 | Two periods with sales, returns and releases | Seeded transactions over two months | Net quantity issued matches a hand calculation (DEC-06) | Minh | Duy Anh | — | Not run |
-| TC-24 | 8 | UC04 | Restart application and database | Record a receipt and an issue; restart the API and the container | No data lost | Tiến | Minh | — | Not run |
+| TC-24 | 8 | UC04 | Restart application and database | Record a receipt and an issue; restart the API and the container | No data lost | Tiến | Minh | — | Pass |
 | TC-25 | 8 | UC03 / UC06 | Failure in the middle of a transaction | A receipt whose second line fails inside the transaction | Full rollback; no partial document | Tiến | Minh | UC03-08, BR03-01 | Not run |
 | TC-26 | 8 | UC06 / BR03 | Two sessions request 4 of the last 5 | Two concurrent dispensings, 20 runs | Only one succeeds each time; never negative | Duy Anh | Tiến | BR03-02 (ledger) | Not run |
 | TC-27 | 8 | UC06 | Resubmit the same dispensing | Same request ID twice | No duplicate | Duy Anh | Tiến | — | Not run |
@@ -73,7 +73,7 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-50 | 7 | UC08 / BR11 | Return of an unexpired item | Return 1 unit | Goes to quarantine, not sellable | Duy Anh | Tiến | — | Not run |
 | TC-51 | 8 | UC09 / BR08 *(S)* | Counter approves own stock take | Same user counts and approves | Refused | Minh | Duy Anh | — | Not run |
 | TC-52 | 7 | UC07 | Billing creates no stock movement | Bill a dispensing; compare the ledger | Ledger unchanged by billing | Duy Anh | Tiến | — | Not run |
-| TC-53 | 8 | Access | Every role × every endpoint | Automated matrix | Only permitted calls succeed | Minh | Duy Anh | partial: UC01-09, UC02-08, UC03-12 | Not run |
+| TC-53 | 8 | Access | Every role × every endpoint | Automated matrix | Only permitted calls succeed | Minh | Duy Anh | `access-matrix.e2e-spec.ts` (35 endpoints × 3 roles, and no session) | Not run |
 | TC-54 | 8 | UC06 / BR07 | Two pharmacists dispense the same item | Concurrent dispensing of the last outstanding quantity, 20 runs | Total never above prescribed | Duy Anh | Tiến | — | Not run |
 | TC-55 | 7 | UC07 / BR03 | Sale with insufficient stock | Sell more than sellable | Refused with the available quantity | Duy Anh | Tiến | — | Pass |
 | TC-56 | 7 | UC11 | Write off an expired batch | Write off with a reason | Moved to pending destruction; not destroyed | Minh | Duy Anh | — | Not run |

@@ -31,7 +31,7 @@ Requirements: [`functional-requirements.md`](functional-requirements.md).
 | UC11 | Review expiry alerts, batch status and quarantined stock | Manager | Minh (C) | Must | Week 7 | Not started |
 | UC12 | Produce a stock movement report | Manager | Minh (C) | Must | Week 7 | Not started |
 | UC13 | [Manage medicine prices](use-cases/UC13-manage-medicine-prices.md) | Manager | Tiến (A) | Should | Week 8 (if the gate passes) | Specified; price history in place (#97) |
-| UC14 | Manage customers and prescribers (separate screens) | Pharmacist | Duy Anh (B) | Should | Week 9 | Not started; quick-create in UC05 is Must |
+| UC14 | Manage customers and prescribers (separate screens) | Pharmacist | Duy Anh (B) | Should | Week 9 | [Spec](use-cases/UC14-manage-customers-and-prescribers.md); API built with the UC05 quick-create (Must); screens wait for the Must-core gate (#104) |
 | UC15 | Manage users, roles and permissions | Manager | Minh (C) | Should | Week 9 | Not started |
 | UC16 | Sign in and sign out | All roles | Minh (C) | Must | Week 5 | Not started (#43, #44); a temporary dev user switch stands in |
 

@@ -138,6 +138,14 @@ export function DispensePanel() {
       setFieldErrors(typeErrors);
       return;
     }
+    // Every quantity 0: nothing to preview. Say what to do instead of the
+    // API's generic "Some fields are not valid." on a field the page has no
+    // place for (`items`).
+    if (!prescription.items.some((item) => (quantities[item.id] ?? 0) > 0)) {
+      setFieldErrors({});
+      setTopError('Enter how many to hand over now for at least one item.');
+      return;
+    }
     setPreviewing(true);
     setTopError(null);
     setFieldErrors({});

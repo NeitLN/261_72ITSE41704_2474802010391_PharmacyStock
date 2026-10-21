@@ -12,6 +12,7 @@ import { DispensingModule } from './dispensing/dispensing.module.js';
 import { ReceivingModule } from './receiving/receiving.module.js';
 import { SalesModule } from './sales/sales.module.js';
 import { StockModule } from './stock/stock.module.js';
+import { StockTakeModule } from './stocktake/stocktake.module.js';
 import { SuppliersModule } from './suppliers/suppliers.module.js';
 
 @Module({
@@ -28,6 +29,7 @@ import { SuppliersModule } from './suppliers/suppliers.module.js';
     PrescriptionsModule,
     DispensingModule,
     SalesModule,
+    StockTakeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

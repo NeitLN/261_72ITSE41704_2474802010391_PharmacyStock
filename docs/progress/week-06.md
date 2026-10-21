@@ -48,8 +48,21 @@ for UC09 and UC10; Minh's TC-48 run, which waits for #139.
 
 ## Meetings
 
-**Wednesday 21/10 — early-warning check.** _(to be filled in: present, scope
-still realistic, blockers, who reviews what, actions)_
+**Wednesday 21/10 — early-warning check (online, Discord).** Present: Tiến,
+Duy Anh, Minh. Scope: the week is still realistic — UC04, UC07, UC09 and
+UC10 all planned to land this week. Blockers: code conflicts between pull
+requests that touch the same files (UC07 billing with the error-handling
+changes in `sales.service.ts`), and stacked pull requests waiting for review
+one after another (Minh's #145 → #146 → #147). Reviews: the usual rotation —
+Minh reviews Tiến, Tiến reviews Duy Anh, Duy Anh reviews Minh — by Friday
+23/10.
+
+| Action | Owner | By |
+|---|---|---|
+| Review UC09/UC10: #145, #146, #147, #148 | Duy Anh | Fri 23/10 |
+| Review #141–#144 | Tiến | Fri 23/10 — done 22/10 (#141 changes requested, #142–#144 approved) |
+| Run TC-48 once #139 is merged | Minh | Sat 24/10 |
+| Run Minh's cases TC-19, 20, 21, 39 once UC09/UC10 are merged | Duy Anh | Sun 25/10 |
 
 **Saturday 24/10.** _(to be filled in)_
 

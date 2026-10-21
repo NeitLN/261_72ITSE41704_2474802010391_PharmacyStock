@@ -1,5 +1,6 @@
 import {
   type ArgumentsHost,
+  BadRequestException,
   Catch,
   type ExceptionFilter,
   HttpException,
@@ -60,6 +61,32 @@ const PG_ERRORS: Record<
 };
 
 /**
+ * Codes of a database that cannot be reached: the pg driver's socket errors
+ * and PostgreSQL's connection-exception and shutdown classes (08, 57P0x).
+ */
+const DATABASE_DOWN = new Set([
+  'ECONNREFUSED',
+  'ECONNRESET',
+  'ETIMEDOUT',
+  'EHOSTUNREACH',
+  '08000',
+  '08001',
+  '08003',
+  '08006',
+  '57P01',
+  '57P02',
+  '57P03',
+]);
+
+/** The error code of a driver error, wherever TypeORM put it. */
+function errorCode(exception: unknown): string | undefined {
+  if (exception instanceof QueryFailedError) {
+    return (exception.driverError as { code?: string }).code;
+  }
+  return (exception as { code?: unknown } | null)?.code as string | undefined;
+}
+
+/**
  * Turns every error into `{ statusCode, code, message, errors }` and never
  * sends a stack trace (NFR-04). Unknown errors are logged and answered with a
  * generic 500.
@@ -87,6 +114,26 @@ export class AllExceptionsFilter implements ExceptionFilter {
       };
     }
 
+    // Input is checked by the validation pipe, which throws ValidationFailed,
+    // so a plain BadRequestException can only come from the Express adapter:
+    // a body that is not JSON or a malformed address. Same code as any
+    // invalid input, without the parser's wording (positions, tokens).
+    if (exception instanceof BadRequestException) {
+      // URIError first: its text quotes the path, which may contain "JSON".
+      const badAddress = /^(Failed to decode param|URI malformed)/.test(
+        exception.message,
+      );
+      return {
+        statusCode: 400,
+        code: 'VALIDATION_FAILED',
+        message:
+          !badAddress && /JSON/.test(exception.message)
+            ? 'The request body is not valid JSON.'
+            : 'The request could not be read.',
+        errors: [],
+      };
+    }
+
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
       return {
@@ -97,9 +144,20 @@ export class AllExceptionsFilter implements ExceptionFilter {
       };
     }
 
+    const code = errorCode(exception);
+    if (code && DATABASE_DOWN.has(code)) {
+      this.logger.error(`Database unreachable (${code})`);
+      return {
+        statusCode: 503,
+        code: 'DATABASE_UNAVAILABLE',
+        message:
+          'The database cannot be reached right now. Please try again in a moment.',
+        errors: [],
+      };
+    }
+
     if (exception instanceof QueryFailedError) {
-      const pgCode = (exception.driverError as { code?: string }).code;
-      const known = pgCode ? PG_ERRORS[pgCode] : undefined;
+      const known = code ? PG_ERRORS[code] : undefined;
       if (known) {
         return {
           statusCode: known.status,

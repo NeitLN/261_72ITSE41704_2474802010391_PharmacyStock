@@ -26,14 +26,14 @@ Requirements: [`functional-requirements.md`](functional-requirements.md).
 | UC06 | [Dispense against a prescription](use-cases/UC06-dispense-prescription.md) | Pharmacist | Duy Anh (B) | Must | Week 5 | Built (#109), awaiting test run |
 | UC07 | [Record a sale](use-cases/UC07-record-sale.md) | Cashier | Duy Anh (B) | Must | Week 7 | Specified |
 | UC08 | [Process a return](use-cases/UC08-process-return.md) | Cashier | Duy Anh (B) | Must | Week 7 | Specified |
-| UC09 | Conduct a stock take | Manager | Minh (C) | Must | Week 7 | Not started |
-| UC10 | Review low-stock alerts | Manager | Minh (C) | Must | Week 7 | Not started |
-| UC11 | Review expiry alerts, batch status and quarantined stock | Manager | Minh (C) | Must | Week 7 | Not started |
-| UC12 | Produce a stock movement report | Manager | Minh (C) | Must | Week 7 | Not started |
+| UC09 | [Conduct a stock take](use-cases/UC09-conduct-stock-take.md) | Manager | Minh (C) | Must | Week 6 | Design gate for #52 |
+| UC10 | [Review low-stock alerts](use-cases/UC10-review-low-stock-alerts.md) | Manager | Minh (C) | Must | Week 6 | Design gate for #53 |
+| UC11 | [Review expiry alerts, batch status and quarantined stock](use-cases/UC11-expiry-batch-status-quarantine.md) | Manager | Minh (C) | Must | Week 7 | Specified |
+| UC12 | [Produce a stock movement report](use-cases/UC12-stock-movement-report.md) | Manager | Minh (C) | Must | Week 7 | Specified |
 | UC13 | [Manage medicine prices](use-cases/UC13-manage-medicine-prices.md) | Manager | Tiến (A) | Should | Week 8 (if the gate passes) | Specified; price history in place (#97) |
 | UC14 | Manage customers and prescribers (separate screens) | Pharmacist | Duy Anh (B) | Should | Week 9 | Not started; quick-create in UC05 is Must |
 | UC15 | Manage users, roles and permissions | Manager | Minh (C) | Should | Week 9 | Not started |
-| UC16 | Sign in and sign out | All roles | Minh (C) | Must | Week 5 | Not started (#43, #44); a temporary dev user switch stands in |
+| UC16 | [Sign in and sign out](use-cases/UC16-sign-in-and-sign-out.md) | All roles | Minh (C) | Must | Week 5 | Built (#116, #117); TC-42, TC-43 Pass |
 
 ## User roles
 

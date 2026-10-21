@@ -4,7 +4,9 @@ How the web client is organised, what each screen does and for whom, how it
 behaves when something goes wrong, and the conventions every screen follows.
 Written 22/10/2026 from the screens that exist and the use-case
 specifications; the week-7 screens are designed here **before** they are
-built (§7). Status: **built** = on `main`; *in review* = open pull request;
+built (§7). **Owner of the UI design: Tiến; Duy Anh reviews and refines it;
+Minh helps when needed.** The UC owner still writes the API contract and the
+sequence of their feature. Status: **built** = on `main`; *in review* = open pull request;
 *planned* = not built.
 
 Related: [use cases](../requirements/use-cases.md) ·
@@ -140,8 +142,10 @@ report uses. Wireframes of screens built before 22/10 are marked **as-built**
 
 ## 7. Feature design gate
 
-From week 7 a feature starts coding only after a pull request with these is
-merged (plan `tuan-07.md` §2). Reviewer: the usual rotation.
+From week 7 a feature starts coding only after these are merged (plan
+`tuan-07.md` §2). The UC owner writes the specification, contract, sequence
+and scenario table (reviewed in the usual rotation); Tiến draws the
+wireframes and updates §1–§2 (reviewed by Duy Anh).
 
 - [ ] **Specification** reviewed: main flow, error flows, permissions, and the
       effect on stock (which movement, which state) — in

@@ -45,9 +45,10 @@ Commit the HTML and the PNG together.
 | Catalogue › Stock | UC04 | as-built | Tiến | [catalogue-stock.png](catalogue-stock.png) |
 | Suppliers › Suppliers | UC02 | as-built | Tiến | [suppliers.png](suppliers.png) |
 | Suppliers › Goods receipts | UC03 | as-built | Tiến | [goods-receipt.png](goods-receipt.png) |
-| Sales › Returns | UC08 | design (week-7 gate) | Duy Anh | to do |
-| Reports › Expiry and batch status | UC11 | design (week-7 gate) | Minh | to do |
-| Reports › Movement report | UC12 | design (week-7 gate) | Minh | to do |
+| Sales › Returns | UC08 | design (week-7 gate) | Tiến | to do |
+| Reports › Expiry and batch status | UC11 | design (week-7 gate) | Tiến | to do |
+| Reports › Movement report | UC12 | design (week-7 gate) | Tiến | to do |
 
-The other built screens get as-built wireframes in week 8 with the report
-draft ([`ui-design.md` §2](../../design/ui-design.md#2-screen-inventory)).
+UI design is Tiến's; Duy Anh reviews every wireframe pull request and may
+change or extend the wireframes; Minh helps when needed. The other built
+screens get as-built wireframes in week 8 with the report draft ([`ui-design.md` §2](../../design/ui-design.md#2-screen-inventory)).

@@ -7,8 +7,8 @@ specifications; the week-7 screens are designed here **before** they are
 built (§7). **Owner of the UI design: Tiến. Duy Anh reviews it, proposes changes and
 develops it further — motion and animation, interaction details, visual
 polish (§5.1). Minh helps when needed.** The UC owner still writes the API contract and the
-sequence of their feature. Status: **built** = on `main`; *in review* = open pull request;
-*planned* = not built.
+sequence of their feature. The plan for weeks 7–9 is in §8. Status: **built** = on `main`;
+*in review* = open pull request; *planned* = not built.
 
 Related: [use cases](../requirements/use-cases.md) ·
 [sequence diagrams](../diagrams/sequence-diagrams.md) ·
@@ -40,7 +40,8 @@ After sign-in the user lands on the first menu entry their role can open.
 
 One row per screen (tab). Wireframes live in
 [`../diagrams/wireframes/`](../diagrams/wireframes/README.md); screenshots
-with seeded data are taken for the report in week 8.
+with seeded data are taken for the report on `v1.0` in week 9 (the list of
+screenshots is made in week 8).
 
 | Screen | UC | Owner | API | Manual TC | Status | Wireframe |
 |---|---|---|---|---|---|---|
@@ -173,3 +174,27 @@ wireframes and updates §1–§2 (reviewed by Duy Anh).
       manual TCs.
 - [ ] A row added to the screen inventory (§2) and, for new permissions, to
       §1.
+
+## 8. UI/UX roadmap, weeks 7–9
+
+Decided by Tiến on 22/10/2026. Three rules: a screen works before it is
+polished; a new screen is designed before it is coded (§7); **every UI change
+is merged before the freeze on Mon 09/11** — after it, only bug fixes. The
+look stays Ant Design with the theme tokens in one file; no custom visual
+identity, and no motion beyond the minimum of §5.1.
+
+| Week | Deliverable | Owner | Reviewer | Due | Hours | Issue |
+|---|---|---|---|---|---|---|
+| 7 | Wireframes of UC08, UC11, UC12 (key states) | Tiến | Duy Anh | Mon 26/10 | 3 | #154 |
+| 7 | Shared UI kit `src/frontend/src/ui/`: theme tokens, `StatusTag` from the §5 table, quantity and money formats — used by the UC08, UC11, UC12 screens from the start | Tiến | Duy Anh | Tue 27/10 | 1 | #155 |
+| 7 | Motion and interaction conventions (§5.1) | Duy Anh | Tiến | Sun 01/11 | 1 | #152 |
+| 8 | UX walk-through of every screen against §4 and §5; each gap an S3/S4 issue | Tiến | Duy Anh | Tue 03/11 | 1,5 | #157 |
+| 8 | TC-32 pilot: one person outside the team does the TC-32 tasks, so what they trip on is fixed before the freeze | Minh | Duy Anh | Wed 04/11 | 1 | #159 |
+| 8 | Consistency pass: old screens on the UI kit, empty texts, §5.1 minimum motion, fixes from the walk-through and the pilot | Duy Anh | Tiến | Thu 05/11 | 3 | #158 |
+| 8 | As-built wireframes of the seven built screens | Tiến | Duy Anh | Thu 05/11 | 5,5 | #156 |
+| 8 | Report draft: interface design and navigation (from this document) | Tiến | Minh | Sun 08/11 | 2 | #66 |
+| 9 | Screenshots on `v1.0`; official TC-32 with two people; interface design section finished | each owner; Minh (TC-32); Tiến | rotation | Tue 10/11 | — | #73, #79 |
+
+Why the pilot is in week 8: the official TC-32 (#79) runs after the freeze,
+when its findings could no longer be fixed. Tiến's week 8 is 29 hours
+instead of 20 (plan `tuan-08.md` §4), accepted by him on 22/10.

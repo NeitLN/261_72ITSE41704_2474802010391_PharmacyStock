@@ -46,7 +46,7 @@
 | B | 10 + hợp đồng 0,5 | 2 | 1,5 + review UI 1 | 1 | 1,5 | 2,5 | **20** |
 | C | 12 + hợp đồng 0,5 | 1,5 | 1,5 | 2 (gồm hỗ trợ UI) | — | 2,5 | **20** |
 
-*Thiết kế* (thêm 22/10): Tiến làm thiết kế UI cho mọi màn — wireframe các trạng thái chính của UC08, UC11, UC12 trước T2 26/10, và wireframe *as-built* + ảnh các màn đã có ở tuần 8 cùng bản nháp báo cáo — cùng cổng thiết kế của A1. Duy Anh review các PR thiết kế UI (ngoại lệ của vòng review: thiết kế UI của Tiến do Duy Anh duyệt) và phát triển thêm: quy ước chuyển động và hiệu ứng tương tác (`ui-design.md` §5.1) ở tuần 7, áp dụng vào các màn ở tuần 8 khi làm vững; Minh hỗ trợ khi cần. *Hợp đồng* là phần API/lệnh và sequence của tính năng do chính người code tính năng viết. Phần chung (sơ đồ class, ERD, data dictionary, `ui-design.md`, bộ wireframe) đã làm trong tuần 6 (#151).
+*Thiết kế* (thêm 22/10): Tiến làm thiết kế UI cho mọi màn — wireframe các trạng thái chính của UC08, UC11, UC12 trước T2 26/10 (#154, 3 giờ) và bộ UI dùng chung `src/frontend/src/ui/` (token theme, `StatusTag`, định dạng số lượng và tiền) trước T3 27/10 để màn UC08, UC11, UC12 dùng ngay (#155, 1 giờ); ở tuần 8 là wireframe *as-built* 7 màn đã có, rà UX và phần thiết kế giao diện trong báo cáo (lộ trình UI/UX: `ui-design.md` §8) — cùng cổng thiết kế của A1. Duy Anh review các PR thiết kế UI (ngoại lệ của vòng review: thiết kế UI của Tiến do Duy Anh duyệt) và phát triển thêm: quy ước chuyển động và hiệu ứng tương tác (`ui-design.md` §5.1) ở tuần 7, áp dụng vào các màn ở tuần 8 khi làm vững; Minh hỗ trợ khi cần. *Hợp đồng* là phần API/lệnh và sequence của tính năng do chính người code tính năng viết. Phần chung (sơ đồ class, ERD, data dictionary, `ui-design.md`, bộ wireframe) đã làm trong tuần 6 (#151).
 
 ## 5. Lịch
 

@@ -17,6 +17,7 @@ import {
   MedicineClassification,
   UnitOfMeasure,
 } from '../entities/index.js';
+import { AlertEvaluator } from '../stock/alert-evaluator.js';
 import { Clock } from '../stock/clock.js';
 import type {
   CreateMedicineDto,
@@ -54,6 +55,7 @@ export class MedicinesService {
     @InjectDataSource() private readonly dataSource: DataSource,
     private readonly priceBook: PriceBook,
     private readonly clock: Clock,
+    private readonly alerts: AlertEvaluator,
   ) {}
 
   async list(actor: Actor, query: ListMedicinesQuery): Promise<MedicineView[]> {
@@ -178,6 +180,14 @@ export class MedicinesService {
 
         this.checkClassification(medicine, today);
         await manager.save(medicine);
+        // UC10: a new reorder level or switch takes effect at once (TC-63);
+        // the row is locked above, so this cannot race a stock command.
+        if (
+          dto.reorderLevel !== undefined ||
+          dto.lowStockMonitored !== undefined
+        ) {
+          await this.alerts.evaluate(manager, [medicine.id]);
+        }
         if (dto.currentPrice !== undefined) {
           await this.priceBook.setPrice(
             manager,
@@ -203,13 +213,16 @@ export class MedicinesService {
     active: boolean,
   ): Promise<MedicineView> {
     assertPermission(actor, Permission.CATALOGUE_MANAGE);
-    const manager = this.dataSource.manager;
-    await this.findOrFail(manager, id);
-    await manager.update(Medicine, { id }, { isActive: active });
-    const [view] = await this.withPrices(manager, [
-      await this.findOrFail(manager, id),
-    ]);
-    return view;
+    return this.dataSource.transaction(async (manager) => {
+      await this.lockRow(manager, id);
+      await manager.update(Medicine, { id }, { isActive: active });
+      // UC10: a deactivated medicine is not watched for low stock.
+      await this.alerts.evaluate(manager, [id]);
+      const [view] = await this.withPrices(manager, [
+        await this.findOrFail(manager, id),
+      ]);
+      return view;
+    });
   }
 
   /** Categories and units are seed data (plan W05-A1); the form reads them here. */

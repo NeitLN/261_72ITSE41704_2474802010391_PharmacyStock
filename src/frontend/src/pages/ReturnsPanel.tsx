@@ -6,6 +6,7 @@ import {
   InputNumber,
   Space,
   Table,
+  Tag,
   Typography,
 } from 'antd';
 import { useState } from 'react';
@@ -23,6 +24,21 @@ import { wholeNumberError } from '../forms/numberRules';
 type LineErrors = Record<string, string>;
 
 const SALE_NOT_FOUND = 'Sale not found';
+
+/**
+ * How a return line's assessment state reads on the slip (ui-design.md §5):
+ * the goods wait in quarantine until a manager releases or rejects them.
+ */
+const ASSESSMENT: Record<string, { label: string; color: string }> = {
+  PENDING_ASSESSMENT: { label: 'Pending assessment', color: 'orange' },
+  RELEASED: { label: 'Released', color: 'green' },
+  REJECTED: { label: 'Rejected', color: 'default' },
+};
+
+function AssessmentTag({ status }: { status: string }) {
+  const known = ASSESSMENT[status.toUpperCase()];
+  return <Tag color={known?.color}>{known?.label ?? status}</Tag>;
+}
 
 /**
  * Maps `lines.N.quantity` errors back to the sent return lines; N indexes the
@@ -103,12 +119,23 @@ export function ReturnsPanel() {
 
   function changeQuantity(saleLineId: string, value: number | null) {
     setQuantities((prev) => ({ ...prev, [saleLineId]: value ?? 0 }));
+    // The edited line's error no longer applies, and a top error about the
+    // previous attempt would be stale.
+    setQuantityErrors((prev) => {
+      if (!(saleLineId in prev)) return prev;
+      const next = { ...prev };
+      delete next[saleLineId];
+      return next;
+    });
+    setTopError(null);
     // The content changed: a request ID kept for the old content would be refused.
     setRequestId(null);
   }
 
   function changeReason(value: string) {
     setReason(value);
+    setReasonError(null);
+    setTopError(null);
     setRequestId(null);
   }
 
@@ -389,7 +416,12 @@ function ReturnResultView({
             align: 'right',
             render: (_, line) => formatVnd(line.refund),
           },
-          { title: 'Assessment', dataIndex: 'assessmentStatus' },
+          {
+            title: 'Assessment',
+            render: (_, line) => (
+              <AssessmentTag status={line.assessmentStatus} />
+            ),
+          },
         ]}
       />
       <Descriptions size="small" column={1}>

@@ -38,14 +38,14 @@ const prescription = {
 };
 
 describe('Prescription DTO validation (FR-13, FR-14)', () => {
-  it('UC05-U1 accepts a complete prescription and trims its text', async () => {
+  it('UC05-U11 accepts a complete prescription and trims its text', async () => {
     const { dto, fields } = await errorsOf(PrescriptionDto, prescription);
     expect(fields).toEqual([]);
     expect(dto.referenceNumber).toBe('RX-0001');
     expect(dto.items[0].strength).toBe('500 mg');
   });
 
-  it('UC05-U2 requires at least one item', async () => {
+  it('UC05-U12 requires at least one item', async () => {
     const { fields } = await errorsOf(PrescriptionDto, {
       ...prescription,
       items: [],
@@ -53,7 +53,7 @@ describe('Prescription DTO validation (FR-13, FR-14)', () => {
     expect(fields).toEqual(['items']);
   });
 
-  it('UC05-U3 refuses an item with a missing field or a quantity of zero', async () => {
+  it('UC05-U13 refuses an item with a missing field or a quantity of zero', async () => {
     const { fields } = await errorsOf(PrescriptionDto, {
       ...prescription,
       items: [{ ...item, dose: '   ', quantityPrescribed: 0 }],
@@ -63,7 +63,7 @@ describe('Prescription DTO validation (FR-13, FR-14)', () => {
     );
   });
 
-  it('UC05-U4 refuses a partial issue date and a computed valid-until sent by the client', async () => {
+  it('UC05-U14 refuses a partial issue date and a computed valid-until sent by the client', async () => {
     const { fields } = await errorsOf(PrescriptionDto, {
       ...prescription,
       issuedDate: '2026-10',
@@ -74,7 +74,7 @@ describe('Prescription DTO validation (FR-13, FR-14)', () => {
     );
   });
 
-  it('UC05-U5 records age in months only under 72 months', async () => {
+  it('UC05-U15 records age in months only under 72 months', async () => {
     const { fields } = await errorsOf(PrescriptionDto, {
       ...prescription,
       patientAgeMonths: 72,

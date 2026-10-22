@@ -99,7 +99,7 @@ Business date 2026-10-13 (fixed clock), medicine with `expiryAlertDays: 90`.
 
 | Rule | Unit tests | E2E tests | Manual run in `tests/manual/runs.md` |
 |---|---|---|---|
-| BR01 | 7 (BR01-01…07) | UC06-01 "7 from A=3 (expires first) and B=8 leaves A=0, B=4…" in `test/dispensing.e2e-spec.ts`; BR05-01 "a receipt then a hand-over over two FEFO batches…" in `test/ledger-invariant.e2e-spec.ts` (#123) | TC-04, run 9, 2026-10-20, pass |
+| BR01 | 7 (BR01-01…07) | UC06-01 "7 from A=3 (expires first) and B=8 leaves A=0, B=4…" in `test/dispensing.e2e-spec.ts`; BR05-11 "a receipt then a hand-over over two FEFO batches…" in `test/ledger-invariant.e2e-spec.ts` (#123) | TC-04, run 9, 2026-10-20, pass |
 | BR02 | 9 (BR02-01…09) | UC06-03 "a batch expiring on or before the business date is never issued"; UC06-10 "preview shows the batches and warnings" — both in `test/dispensing.e2e-spec.ts` | TC-06, run 10, 2026-10-20, pass |
 | BR03 | 3 (BR03-U1…U3) | 5 rows (BR03-01…03, UC06-13; UC06-14 is the BR07 check) | TC-09, run 11, 2026-10-20, pass; TC-10, TC-25, TC-26, TC-54 not run |
 

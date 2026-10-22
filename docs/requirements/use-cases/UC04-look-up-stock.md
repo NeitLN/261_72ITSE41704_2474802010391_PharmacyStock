@@ -5,7 +5,7 @@
 | **Owner** | Võ Việt Tiến (A) |
 | **Priority** | Must |
 | **Primary actor** | Manager, Pharmacist, Cashier |
-| **Status** | Design gate for #46 (week 6): decisions, interface and scenario table below |
+| **Status** | Built (#46): `StockLookupService`, *Stock* tab of *Catalogue & batches*; scenario rows S01–S13 and S15 automated as UC04-01…14; awaiting TC-48 |
 | **Related rules** | BR02, BR05, DEC-07, DEC-08 (what counts as sellable) |
 | **Requirements** | FR-10, FR-11 |
 
@@ -71,7 +71,7 @@ Settled for #46 as assumptions; each can be changed in one place.
 | A batch's state on screen | Status first (on hold, recalled, rejected), then *expired* when the expiry date is on or before the business date, else *active* with the days left. | Expiry is not stored as a status (DEC-07) |
 | Filters | Search (code, name, active ingredient; case-insensitive), category, and stock state: *all*, *in stock* (sellable > 0), *out of stock* (sellable = 0), *has expired stock*. Deactivated medicines are hidden unless asked for; their batches and history stay viewable (FR-02). | Plan W06-A1: by medicine, category and status |
 | Paging | The medicine list is paged (50 per page, sorted by name then code) so the first page stays within NFR-01 at 5,000 batches. A batch history is not paged: one batch has tens of movements, not thousands. | NFR-01, TC-29 |
-| Running balance | Computed in the query with `SUM(...) OVER (PARTITION BY batch ORDER BY occurredAt, id)` for each of the three states, never stored. The last row always equals the quantities cached on the batch (BR05). Movements written in the same transaction share `occurredAt`; their order between themselves is by id, so an intermediate balance inside one transaction is not meaningful, but the balance after the transaction is exact. | Design note above; BR05 |
+| Running balance | Computed in the query with `SUM(...) OVER (PARTITION BY batch ORDER BY occurredAt, id)` for each of the three states, never stored. The last row always equals the quantities cached on the batch (BR05). `occurredAt` is stamped with `clock_timestamp()` when the row is written (migration `MovementTimeAtWrite`), not with `now()`, which is when the transaction began: otherwise a sale that began first and waited for the lock would be listed before the receipt whose stock it took, with a negative balance in between (UC04-14). Rows with the same instant are ordered by id. | Design note above; BR05 |
 | Source document | Each movement shows a readable reference: the supplier document number for a receipt, the prescription reference for a dispense line, the receipt number for a sale line, and the document id for the types not built yet (return, stock take). | FR-11 "source document" |
 | Corrections | A reversal shows the type and time of the movement it reverses; the reversed movement shows that it was reversed. Both stay in the list. | A3, BR05 |
 | Who may look | `stock.view`, held by every role. Nothing is written, so there is no request ID and no transaction beyond the read. | Table 2.4 |
@@ -112,3 +112,4 @@ in the last column, and the rows with a TC are also run by hand.
 | S12 | Error | No session | 401; manager, pharmacist and cashier all get 200 | UC04-12 |
 | S13 | Invariant | After receipts, dispensing and sales, with one batch expired | Two different checks: for **every** batch, the last running balance equals the sum of its movements and the quantities cached on the batch (`findLedgerMismatches` finds nothing, BR05); the list's **sellable** equals the sum of the last balances of only the eligible batches (ACTIVE, not expired) — an expired batch keeps its balance but adds nothing to sellable | UC04-13, BR05 |
 | S14 | Performance | 5,000 batches | First page of the list in ≤ 1 s | TC-29 (week 8, measured by hand) |
+| S15 | Concurrency | A sale's transaction begins, waits for the lock while a receipt commits, then takes stock | History lists the receipt before the sale, balances never negative | UC04-14 |

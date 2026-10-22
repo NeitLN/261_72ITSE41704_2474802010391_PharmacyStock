@@ -1,5 +1,6 @@
 import type { MigrationInterface } from 'typeorm';
 import { InitialSchema1791815704381 } from './1791815704381-InitialSchema.js';
+import { MovementTimeAtWrite1792504000000 } from './1792504000000-MovementTimeAtWrite.js';
 import { StockTakeLineCounter1792600000000 } from './1792600000000-StockTakeLineCounter.js';
 
 /**
@@ -9,5 +10,6 @@ import { StockTakeLineCounter1792600000000 } from './1792600000000-StockTakeLine
  */
 export const MIGRATIONS: Array<new () => MigrationInterface> = [
   InitialSchema1791815704381,
+  MovementTimeAtWrite1792504000000,
   StockTakeLineCounter1792600000000,
 ];

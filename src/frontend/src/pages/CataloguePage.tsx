@@ -13,6 +13,7 @@ import {
   Space,
   Switch,
   Table,
+  Tabs,
   Tag,
   Typography,
 } from 'antd';
@@ -30,6 +31,7 @@ import {
 } from '../api/medicines';
 import { useLoad } from '../api/useLoad';
 import { wholeNumber } from '../forms/numberRules';
+import { StockPanel } from './StockPanel';
 
 const NO_MEDICINES: Medicine[] = [];
 const NO_REFERENCE = { categories: [] as Reference[], units: [] as Reference[] };
@@ -40,8 +42,26 @@ const CLASSIFICATION_TAGS: Record<Classification, { color: string; label: string
   controlled: { color: 'red', label: 'Controlled' },
 };
 
-/** UC01 Manage medicine catalogue (FR-01 to FR-03). */
+/** UC01 catalogue and UC04 stock lookup, one tab each. */
 export function CataloguePage() {
+  return (
+    <Card>
+      <Typography.Title level={3} style={{ marginTop: 0 }}>
+        Catalogue &amp; batches
+      </Typography.Title>
+      <Tabs
+        destroyOnHidden
+        items={[
+          { key: 'medicines', label: 'Medicines', children: <MedicinesPanel /> },
+          { key: 'stock', label: 'Stock', children: <StockPanel /> },
+        ]}
+      />
+    </Card>
+  );
+}
+
+/** UC01 Manage medicine catalogue (FR-01 to FR-03). */
+function MedicinesPanel() {
   const { message } = App.useApp();
   const { can } = useMe();
   const canManage = can('catalogue.manage');
@@ -153,11 +173,8 @@ export function CataloguePage() {
   }
 
   return (
-    <Card>
+    <>
       <Space style={{ width: '100%', justifyContent: 'space-between' }} wrap>
-        <Typography.Title level={3} style={{ margin: 0 }}>
-          Medicine catalogue
-        </Typography.Title>
         <Space wrap>
           <Input.Search
             allowClear
@@ -206,7 +223,7 @@ export function CataloguePage() {
           reload();
         }}
       />
-    </Card>
+    </>
   );
 }
 

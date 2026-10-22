@@ -11,6 +11,8 @@ checked before and during review.
 | 2b. Bill a dispensing (UC07) | Same | Design gate for #50 (week 6) — update when built |
 | 3. Process a return (UC08) | [UC08 specification](../requirements/use-cases/UC08-process-return.md) | Design for #58 — update when built |
 | 4. Look up stock and batch history (UC04) | The code: `StockLookupService`, `StockPanel` | **As built** — matches the design |
+| 5. Approve a stock take (UC09) | [UC09 specification](../requirements/use-cases/UC09-conduct-stock-take.md) | Design gate for #52 (week 6) — update when built |
+| 6. Evaluate low-stock alerts (UC10) | [UC10 specification](../requirements/use-cases/UC10-review-low-stock-alerts.md) | Design gate for #53 (week 6) — update when built |
 
 Every diagram that writes (1–3) follows the same transaction pattern: one `StockLedger.run`
 (READ COMMITTED, 5-second lock timeout, one retry on deadlock); the document
@@ -310,4 +312,94 @@ sequenceDiagram
     S->>DB: batch (404 if unknown) and its movements with SUM(delta) OVER (ORDER BY occurredAt, id) per state, the user, the reversal links
     S->>DB: references of the source documents (receipt, prescription, sale) in one query per type
     S-->>UI: movements in time order with running balance and source — last balance = batch quantities
+```
+
+## 5. Approve a stock take (UC09) — design
+
+Counting and posting are apart: the counts are entered and submitted first
+(the system quantity of a line is taken when its count is saved, decision
+15), and only the approval changes stock, in one ledger transaction, by
+someone who counted none of its lines and did not submit it (BR08). Scenario rows UC09-S01…S18 are in the
+[UC09 specification](../requirements/use-cases/UC09-conduct-stock-take.md#scenario-table).
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor P as Pharmacist (counter)
+    actor M as Manager (approver)
+    participant UI as ReportsPage — Stock takes
+    participant C as StockTakesController
+    participant S as StockTakesService
+    participant L as StockLedger
+    participant DB as PostgreSQL
+
+    P->>UI: count sheet — counted quantity, reason where it differs
+    UI->>C: PUT /stock-takes/:id/lines/:lineId {countedQuantity, reason?}
+    C->>S: count(actor, id, lineId, dto)
+    S->>S: assertPermission(STOCK_TAKE_COUNT)
+    S->>DB: SELECT stock_take FOR UPDATE — COUNTING, else 409
+    S->>DB: UPDATE line: counted, reason, countedBy = actor, systemQuantity = batch.qtySellable now
+    P->>UI: Submit
+    UI->>C: POST /stock-takes/:id/submit
+    C->>S: submit(actor, id)
+    S->>DB: SELECT stock_take FOR UPDATE — COUNTING, else 409
+    S->>S: every line counted, every difference has a reason, else 400 naming the lines (FR-30)
+    S->>DB: UPDATE status PENDING_APPROVAL, countedBy, submittedAt
+
+    M->>UI: open, read system / counted / difference / value, Approve
+    UI->>C: POST /stock-takes/:id/approve
+    C->>S: approve(actor, id)
+    S->>S: assertPermission(STOCK_TAKE_APPROVE)
+    S->>L: run(work)
+    L->>DB: BEGIN
+    S->>DB: SELECT stock_take FOR UPDATE — PENDING_APPROVAL, else 409
+    S->>S: actor counted no line and did not submit, else 422 BR08 SAME_COUNTER (FR-32)
+    S->>L: lockMedicines(medicines of the lines with a difference)
+    S->>L: lockBatches(their batches, ascending id)
+    loop each line with counted ≠ system
+        S->>L: post(ADJUSTMENT, counted − system, source = line, reason)
+        L->>DB: INSERT stock_movement, UPDATE batch (CHECK ≥ 0)
+        Note over S,L: below zero → 422 BR03 naming the line, rollback (A6)
+    end
+    S->>DB: UPDATE status APPROVED, approvedBy, approvedAt
+    L->>L: evaluate alerts of the locked medicines (section 6)
+    L->>DB: COMMIT
+    S-->>UI: approved stock take with the movements
+```
+
+## 6. Evaluate low-stock alerts (UC10) — design
+
+The check runs inside `StockLedger.run`, after the command's work and before
+the commit, for every medicine the transaction locked: those rows are locked,
+so two concurrent commands cannot both raise an alert, and no use case can
+forget it. A catalogue change of the reorder level or the switch runs the
+same check; so does the first alert request of a new business date. Scenario
+rows UC10-S01…S15 are in the
+[UC10 specification](../requirements/use-cases/UC10-review-low-stock-alerts.md#scenario-table).
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant L as StockLedger.run
+    participant E as AlertEvaluator
+    participant K as Clock
+    participant DB as PostgreSQL
+
+    L->>E: evaluate(manager, locked medicine ids)
+    E->>K: today() — business date
+    E->>DB: per medicine: lowStockMonitored, reorderLevel, SUM(qtySellable) of ACTIVE batches with expiry > today
+    E->>DB: its unresolved LOW_STOCK / OUT_OF_STOCK alert, if any
+    alt monitoring on and sellable = 0
+        E->>E: wanted = OUT_OF_STOCK
+    else monitoring on and sellable ≤ reorder level
+        E->>E: wanted = LOW_STOCK
+    else
+        E->>E: wanted = none
+    end
+    alt open alert of the wanted type
+        E-->>L: keep it (acknowledgement kept)
+    else
+        E->>DB: UPDATE open alert SET RESOLVED, resolvedAt (if any)
+        E->>DB: INSERT alert of the wanted type with the message (if any)
+    end
 ```

@@ -1,0 +1,237 @@
+import { randomUUID } from 'node:crypto';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { Permission, ROLE_PERMISSIONS, RoleCode } from '../src/auth/permissions.js';
+import { FixedClock } from '../src/stock/clock.js';
+import {
+  as,
+  createTestApp,
+  resetDatabase,
+  type TestApp,
+} from './e2e/helpers.js';
+
+type User = 'manager' | 'pharmacist' | 'cashier';
+const ROLE_OF: Record<User, RoleCode> = {
+  manager: RoleCode.MANAGER,
+  pharmacist: RoleCode.PHARMACIST,
+  cashier: RoleCode.CASHIER,
+};
+
+interface Route {
+  method: 'get' | 'post' | 'put' | 'patch';
+  /** `:name` is replaced by the id of the fixture of that name. */
+  path: string;
+  /** null: any signed-in user. */
+  permission: Permission | null;
+  /** A body that passes validation, so a refusal can only be the permission. */
+  body?: () => object;
+}
+
+/**
+ * TC-53 (FR-39, NFR-05): every role × every endpoint. Each call is sent with
+ * a valid body and real ids, so the only reason left to refuse it is the
+ * role: a role without the permission must get 403, and a role with it must
+ * never get 401 or 403 (it may still get 400, 404, 409 or 422 for business
+ * reasons). Add a row here with every new endpoint.
+ */
+describe('TC-53 role × endpoint matrix (e2e)', () => {
+  const clock = new FixedClock(new Date('2026-10-13T03:00:00Z'));
+  let t: TestApp;
+  const ids: Record<string, string> = {};
+  let unique = 0;
+  const next = () => `${(unique += 1)}`;
+
+  beforeAll(async () => {
+    t = await createTestApp({ clock });
+    await resetDatabase(t.dataSource);
+    const http = (user: User) => ({
+      post: (url: string, body: object = {}) =>
+        t.http().post(url).set(as(user)).send(body),
+    });
+    const ref = await t.http().get('/api/medicines/reference-data').set(as('manager'));
+    ids.category = ref.body.categories[0].id;
+    ids.unit = ref.body.units[0].id;
+    for (const name of ['medicine', 'medicine2']) {
+      ids[name] = (await http('manager').post('/api/medicines', medicineBody())).body.id;
+    }
+    for (const name of ['supplier', 'supplier2']) {
+      ids[name] = (await http('manager').post('/api/suppliers', supplierBody())).body.id;
+    }
+    const receipt = await http('manager').post('/api/goods-receipts', receiptBody(100));
+    expect(receipt.status, JSON.stringify(receipt.body)).toBe(201);
+    ids.receipt = receipt.body.id;
+    ids.batch = receipt.body.lines[0].batch.id;
+    ids.customer = (await http('pharmacist').post('/api/customers', customerBody())).body.id;
+    for (const name of ['prescriber', 'prescriber2']) {
+      ids[name] = (await http('pharmacist').post('/api/prescribers', prescriberBody())).body.id;
+    }
+    const rx = await http('pharmacist').post('/api/prescriptions', prescriptionBody());
+    expect(rx.status, JSON.stringify(rx.body)).toBe(201);
+    ids.prescription = rx.body.id;
+    ids.prescriptionItem = rx.body.items[0].id;
+    await http('pharmacist').post(`/api/prescriptions/${ids.prescription}/verify`, {});
+    const sale = await http('cashier').post('/api/sales', saleBody());
+    expect(sale.status, JSON.stringify(sale.body)).toBe(201);
+    ids.sale = sale.body.id;
+  });
+
+  afterAll(async () => {
+    await t.app.close();
+  });
+
+  function medicineBody() {
+    return {
+      code: `MX${next()}`,
+      name: 'Matrix medicine',
+      categoryId: ids.category,
+      baseUnitId: ids.unit,
+      currentPrice: 1000,
+      classification: 'otc',
+      classificationSource: 'Label: OTC',
+      classificationDate: '2026-10-01',
+    };
+  }
+  function supplierBody() {
+    return { name: `Matrix supplier ${next()}`, phone: '028 3855 1234' };
+  }
+  function receiptBody(quantity = 1) {
+    return {
+      supplierId: ids.supplier,
+      documentNumber: `MX-${next()}`,
+      receiptDate: '2026-10-13',
+      lines: [
+        {
+          medicineId: ids.medicine,
+          batchNumber: `MX${next()}`,
+          expiryDate: '2027-06-30',
+          quantity,
+          unitCost: 800,
+        },
+      ],
+    };
+  }
+  function customerBody() {
+    return {
+      fullName: 'Matrix Customer',
+      phone: '0909 123 456',
+      dateOfBirth: '1990-01-01',
+      address: '1 Matrix Street',
+    };
+  }
+  function prescriberBody() {
+    return { licenceNumber: `CCHN-MX-${next()}`, fullName: 'Dr. Matrix' };
+  }
+  function prescriptionBody() {
+    return {
+      referenceNumber: `RX-MX-${next()}`,
+      issuedDate: '2026-10-13',
+      customerId: ids.customer,
+      prescriberId: ids.prescriber,
+      items: [
+        {
+          medicineId: ids.medicine,
+          strength: '500 mg',
+          quantityPrescribed: 20,
+          dose: '1 tablet twice a day',
+          route: 'oral',
+          daysOfUse: 10,
+        },
+      ],
+    };
+  }
+  function saleBody() {
+    return { requestId: randomUUID(), otcLines: [{ medicineId: ids.medicine, quantity: 1 }] };
+  }
+  function previewBody() {
+    return {
+      prescriptionId: ids.prescription,
+      items: [{ prescriptionItemId: ids.prescriptionItem, quantity: 1 }],
+    };
+  }
+  function dispenseBody() {
+    return { requestId: randomUUID(), ...previewBody() };
+  }
+
+  const P = Permission;
+  const ROUTES: Route[] = [
+    { method: 'get', path: '/api/auth/me', permission: null },
+    // UC01
+    { method: 'get', path: '/api/medicines', permission: P.STOCK_VIEW },
+    { method: 'get', path: '/api/medicines/reference-data', permission: P.STOCK_VIEW },
+    { method: 'get', path: '/api/medicines/:medicine', permission: P.STOCK_VIEW },
+    { method: 'post', path: '/api/medicines', permission: P.CATALOGUE_MANAGE, body: medicineBody },
+    { method: 'patch', path: '/api/medicines/:medicine', permission: P.CATALOGUE_MANAGE, body: () => ({ name: 'Renamed' }) },
+    { method: 'post', path: '/api/medicines/:medicine2/deactivate', permission: P.CATALOGUE_MANAGE },
+    { method: 'post', path: '/api/medicines/:medicine2/activate', permission: P.CATALOGUE_MANAGE },
+    // UC04
+    { method: 'get', path: '/api/stock', permission: P.STOCK_VIEW },
+    { method: 'get', path: '/api/stock/medicines/:medicine', permission: P.STOCK_VIEW },
+    { method: 'get', path: '/api/stock/batches/:batch/movements', permission: P.STOCK_VIEW },
+    // UC02
+    { method: 'get', path: '/api/suppliers', permission: P.SUPPLIER_MANAGE },
+    { method: 'get', path: '/api/suppliers/:supplier', permission: P.SUPPLIER_MANAGE },
+    { method: 'post', path: '/api/suppliers', permission: P.SUPPLIER_MANAGE, body: supplierBody },
+    { method: 'patch', path: '/api/suppliers/:supplier', permission: P.SUPPLIER_MANAGE, body: () => ({ phone: '028 3855 9999' }) },
+    { method: 'post', path: '/api/suppliers/:supplier2/deactivate', permission: P.SUPPLIER_MANAGE },
+    { method: 'post', path: '/api/suppliers/:supplier2/activate', permission: P.SUPPLIER_MANAGE },
+    // UC03
+    { method: 'get', path: '/api/goods-receipts', permission: P.GOODS_RECEIPT_CREATE },
+    { method: 'get', path: '/api/goods-receipts/:receipt', permission: P.GOODS_RECEIPT_CREATE },
+    { method: 'post', path: '/api/goods-receipts', permission: P.GOODS_RECEIPT_CREATE, body: () => receiptBody() },
+    // UC05 and its quick-create (UC14)
+    { method: 'get', path: '/api/customers', permission: P.PRESCRIPTION_MANAGE },
+    { method: 'get', path: '/api/customers/:customer', permission: P.PRESCRIPTION_MANAGE },
+    { method: 'post', path: '/api/customers', permission: P.PRESCRIPTION_MANAGE, body: customerBody },
+    { method: 'patch', path: '/api/customers/:customer', permission: P.PRESCRIPTION_MANAGE, body: () => ({ address: '2 Matrix Street' }) },
+    { method: 'get', path: '/api/prescribers', permission: P.PRESCRIPTION_MANAGE },
+    { method: 'get', path: '/api/prescribers/:prescriber', permission: P.PRESCRIPTION_MANAGE },
+    { method: 'post', path: '/api/prescribers', permission: P.PRESCRIPTION_MANAGE, body: prescriberBody },
+    { method: 'patch', path: '/api/prescribers/:prescriber', permission: P.PRESCRIPTION_MANAGE, body: () => ({ clinicName: 'Matrix Clinic' }) },
+    { method: 'post', path: '/api/prescribers/:prescriber2/deactivate', permission: P.PRESCRIPTION_MANAGE },
+    { method: 'post', path: '/api/prescribers/:prescriber2/activate', permission: P.PRESCRIPTION_MANAGE },
+    { method: 'get', path: '/api/prescriptions', permission: P.PRESCRIPTION_MANAGE },
+    { method: 'get', path: '/api/prescriptions/:prescription', permission: P.PRESCRIPTION_MANAGE },
+    { method: 'post', path: '/api/prescriptions', permission: P.PRESCRIPTION_MANAGE, body: prescriptionBody },
+    { method: 'post', path: '/api/prescriptions/:prescription/verify', permission: P.PRESCRIPTION_MANAGE, body: () => ({ note: 'Checked.' }) },
+    // UC06
+    { method: 'post', path: '/api/dispensings/preview', permission: P.DISPENSE, body: previewBody },
+    { method: 'post', path: '/api/dispensings', permission: P.DISPENSE, body: dispenseBody },
+    // UC07
+    { method: 'post', path: '/api/sales', permission: P.SALE_CREATE, body: saleBody },
+    { method: 'get', path: '/api/sales/:sale', permission: P.SALE_CREATE },
+  ];
+
+  const resolve = (path: string) =>
+    path.replace(/:([a-zA-Z0-9]+)/g, (_, name: string) => {
+      if (!ids[name]) throw new Error(`No fixture named ${name}`);
+      return ids[name];
+    });
+
+  const allowed = (user: User, permission: Permission | null) =>
+    permission === null || ROLE_PERMISSIONS[ROLE_OF[user]].includes(permission);
+
+  for (const user of ['manager', 'pharmacist', 'cashier'] as const) {
+    describe(user, () => {
+      for (const route of ROUTES) {
+        const expected = allowed(user, route.permission) ? 'allowed' : 'refused';
+        it(`${route.method.toUpperCase()} ${route.path} → ${expected}`, async () => {
+          const req = t.http()[route.method](resolve(route.path)).set(as(user));
+          const res = await (route.body ? req.send(route.body()) : req);
+          if (expected === 'refused') {
+            expect(res.status, JSON.stringify(res.body)).toBe(403);
+          } else {
+            expect([401, 403], JSON.stringify(res.body)).not.toContain(res.status);
+            expect(res.status, JSON.stringify(res.body)).toBeLessThan(500);
+          }
+        });
+      }
+    });
+  }
+
+  it('without a session every endpoint except sign-in is 401 (NFR-05)', async () => {
+    for (const route of ROUTES) {
+      const req = t.http()[route.method](resolve(route.path));
+      const res = await (route.body ? req.send(route.body()) : req);
+      expect(res.status, `${route.method} ${route.path}`).toBe(401);
+    }
+  });
+});

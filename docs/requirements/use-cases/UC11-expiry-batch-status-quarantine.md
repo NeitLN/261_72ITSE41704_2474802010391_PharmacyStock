@@ -5,7 +5,7 @@
 | **Owner** | Võ Hoàng Minh (C) |
 | **Priority** | Must (assessing returns and recording destruction are Should) |
 | **Primary actor** | Manager |
-| **Status** | Specified |
+| **Status** | Design gate for #61 (week 7): decisions, interface and scenario table below |
 | **Related rules** | BR02, BR03 (via the ledger), BR05, BR11 |
 | **Requirements** | FR-35, FR-36, FR-48, FR-46 *(S)*, FR-47 *(S)*, FR-39 |
 | **Decisions** | DEC-01 (expiry boundary), DEC-04 (quarantine, pending destruction, destroyed), DEC-07 (batch status), decision 16 (one unresolved expiry alert per batch) |
@@ -138,13 +138,59 @@ TC-22 checks the window boundary: a batch expiring on the business date, the
 day after, the last day of the window and the day after it, and one checked
 at 23:30 and 00:30 Asia/Ho_Chi_Minh.
 
-## Open questions
+## Decisions for the build
 
-1. **Destruction record (FR-47):** no table holds date, method and witness.
-   Options: put them in the `DESTROY` movement's reason text, or add a
-   `destruction_records` table (schema change, Tiến). Recommend the table if
-   FR-47 is built.
-2. **Write-off of part of a batch** (e.g. damaged boxes before expiry) is not
-   in FR-36; damage found in a count goes through UC09.
-3. **Quarantined goods of an expired batch** can only be rejected (release
-   requires not expired); the quarantine list should flag them.
+The open questions of the spec, settled for #61 as assumptions; each can be
+changed in one place. The stock commands are Tiến's ledger commands from #55
+([`stock-ledger.md`](../../design/stock-ledger.md) § *Week 7*); UC11 only
+checks the permission, locks the medicine and calls them.
+
+| Question | Taken for the build | Why |
+|---|---|---|
+| Scope in week 7 | The Must part: the expiry list (FR-35), write-off (FR-36), batch status (FR-48) and expiry alerts. Assessing returns (FR-46) and recording destruction (FR-47) are Should and move to week 8 with #105, after the Must-core gate. | Plan week 7 §8; #105 |
+| What may be written off | The whole sellable quantity of a batch that is **expired or not ACTIVE** (on hold, recalled, rejected), as `writeOff` in #55 enforces: a recalled batch has to leave the shelf too. An active, unexpired batch is refused (`BATCH_STILL_SELLABLE`); damage found on the shelf goes through a stock take (UC09). | #55 contract; open question 2 |
+| Status changes | Through `setBatchStatus`: a reason is always required, REJECTED is final, the same status again is refused. The medicine is locked first, so the UC10 hook re-evaluates its low-stock alert in the same transaction (FR-33). | #55; DEC-07 |
+| Expiry alerts | Per batch with sellable stock, whatever its status: EXPIRING_SOON when business date < expiry ≤ business date + `expiryAlertDays`, EXPIRED when expiry ≤ business date; at most one unresolved per batch (decision 16, partial unique index). Evaluated by the same `AlertEvaluator` as UC10: for the batches of every medicine a ledger command locked, and for all batches on API start and on the first alert request of a new business date. A write-off empties the batch, so its alert resolves in the same transaction. | Decision 16; UC10 decisions |
+| Where expiry alerts are listed | The UC10 alert list (`GET /alerts`) gains the types `expiring_soon` and `expired`; acknowledging works the same way. | One alert list, FR-34 |
+| The expiry list | An `ExpiryReport` (see UC12, *ReportGenerator*): expired first, then expiring soon, by expiry date; medicine, batch, expiry, days left (negative when expired), sellable quantity, value at unit cost, batch status. | FR-35, decision D14 |
+| Permissions | Expiry list and alerts: `alert.manage`. Write-off and status: `batch_status.manage`. Both are the manager's (Table 2.4). | Preconditions |
+| Destruction record (FR-47) | Decided with #105 in week 8: a `destruction_records` table or the movement's reason. Until then, written-off stock stays *pending destruction*, never *destroyed*. | Open question 1 |
+| Quarantined goods of an expired batch | Flagged in the quarantine list (week 8, #105); they can only be rejected. | Open question 3 |
+
+## Interface (for #61)
+
+| Route | Permission | Body / response |
+|---|---|---|
+| `GET /api/reports/expiry?categoryId=` | `alert.manage` | `ExpiryReport`: `{ kind: 'expiry', producedAt, producedBy, rows: [{ batch: { id, batchNumber, expiryDate, status }, medicine: { id, code, name }, state: 'expired' \| 'expiring_soon', daysLeft, sellable, value }] }` |
+| `POST /api/batches/:id/write-off` | `batch_status.manage` | `{ reason }` → `{ batch: { id, batchNumber, qtySellable, qtyPendingDestruction }, movement: { id, deltaSellable, deltaPendingDestruction } }` |
+| `POST /api/batches/:id/status` | `batch_status.manage` | `{ status: 'active' \| 'on_hold' \| 'recalled' \| 'rejected', reason }` → the batch with `status`, `statusReason`, `statusChangedBy`, `statusChangedAt` |
+| `GET /api/alerts?type=expiring_soon\|expired` | `alert.manage` | As UC10, each alert with its batch |
+
+Errors use the existing format: 400 on `reason` or `status`, 403, 404 for an
+unknown batch in the path, 422 with the rule (`BATCH_STILL_SELLABLE`,
+`NOTHING_TO_WRITE_OFF`, `BATCH_STATUS_UNCHANGED`, `BATCH_REJECTED_FINAL`).
+
+On screen: *Stock control & reports* gets an **Expiry** tab (the report, with
+*Write off* on a row that may be written off and *Change status* on every row);
+the expiry alerts show in the alerts tab. Wireframes: Tiến, #154.
+
+## Scenario table
+
+Every row becomes an automated test named in the last column; the rows with
+a TC are also run by hand (by Duy Anh).
+
+| ID | Kind | Scenario | Expected | Test |
+|---|---|---|---|---|
+| S01 | Edge | Alert window 30, business date D: batches expiring D, D+1, D+30, D+31 | D is *expired*; D+1 and D+30 *expiring soon*; D+31 not listed | UC11-01, TC-22 |
+| S02 | Edge | The same batch read at 23:30 and at 00:30 Asia/Ho_Chi_Minh on its expiry day's eve | *Expiring soon* at 23:30, *expired* at 00:30 | UC11-02, TC-22 |
+| S03 | Normal | A batch with no sellable stock | Not listed; no alert | UC11-03 |
+| S04 | Normal | Write off an expired batch of 5 with a reason | One `WRITE_OFF`: sellable 0, pending destruction 5; its EXPIRED alert resolved; nothing recorded as destroyed | UC11-04, TC-56 |
+| S05 | Error | Write off an active batch that has not expired | 422 `BATCH_STILL_SELLABLE`; nothing moves | UC11-05 |
+| S06 | Normal | Write off a recalled batch that has not expired | Allowed: `WRITE_OFF` of its sellable stock | UC11-06 |
+| S07 | Error | Write off a batch with 0 sellable; an empty reason | 422 `NOTHING_TO_WRITE_OFF`; 400 on `reason` | UC11-07 |
+| S08 | Normal | Put the first FEFO batch on hold with a reason | Status, reason, user, time stored; the next batch is issued; the medicine's sellable drops and its low-stock alert is re-evaluated | UC11-08, TC-60 |
+| S09 | Error | Same status again; anything from REJECTED; no reason | 422 `BATCH_STATUS_UNCHANGED`; 422 `BATCH_REJECTED_FINAL`; 400 on `reason` | UC11-09 |
+| S10 | Normal | A batch enters its window, then passes its expiry date | One EXPIRING_SOON alert; on the expiry day it is resolved and one EXPIRED raised; never two unresolved for the batch | UC11-10 |
+| S11 | Normal | The manager acknowledges an expiry alert | ACKNOWLEDGED with user and time | UC11-11 |
+| S12 | Error | A pharmacist or a cashier reads the report, writes off or changes a status | 403 | UC11-12, TC-28 |
+| S13 | Invariant | After S04, S06 and S08 | `findLedgerMismatches` finds nothing (BR05) | UC11-13 |

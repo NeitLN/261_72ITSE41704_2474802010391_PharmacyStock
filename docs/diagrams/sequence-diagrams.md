@@ -13,6 +13,8 @@ checked before and during review.
 | 4. Look up stock and batch history (UC04) | The code: `StockLookupService`, `StockPanel` | **As built** — matches the design |
 | 5. Approve a stock take (UC09) | [UC09 specification](../requirements/use-cases/UC09-conduct-stock-take.md) | Design gate for #52 (week 6) — update when built |
 | 6. Evaluate low-stock alerts (UC10) | [UC10 specification](../requirements/use-cases/UC10-review-low-stock-alerts.md) | Design gate for #53 (week 6) — update when built |
+| 7. Expiry alerts, write-off and batch status (UC11) | [UC11 specification](../requirements/use-cases/UC11-expiry-batch-status-quarantine.md), [ledger commands](../design/stock-ledger.md) | Design gate for #61 (week 7) — update when built |
+| 8. Stock movement report (UC12) | [UC12 specification](../requirements/use-cases/UC12-stock-movement-report.md) | Design gate for #62 (week 7) — update when built |
 
 Every diagram that writes (1–3) follows the same transaction pattern: one `StockLedger.run`
 (READ COMMITTED, 5-second lock timeout, one retry on deadlock); the document
@@ -392,4 +394,69 @@ sequenceDiagram
         E->>DB: UPDATE open alert SET RESOLVED, resolvedAt (if any)
         E->>DB: INSERT alert of the wanted type with the message (if any)
     end
+```
+
+## 7. Expiry alerts, write-off and batch status (UC11) — design
+
+The write-off and the status change are Tiến's ledger commands; their
+sequence, with the lock order, is in
+[`stock-ledger.md`](../design/stock-ledger.md) § *Week 7*. UC11 adds the
+service around them and the expiry alerts, which the same `AlertEvaluator`
+as section 6 raises per batch. Scenario rows UC11-S01…S13 are in the
+[UC11 specification](../requirements/use-cases/UC11-expiry-batch-status-quarantine.md#scenario-table).
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor M as Manager
+    participant S as BatchesService (UC11)
+    participant L as StockLedger
+    participant E as AlertEvaluator
+    participant DB as PostgreSQL
+
+    M->>S: POST /batches/:id/write-off {reason} or /status {status, reason}
+    S->>S: assertPermission(BATCH_STATUS_MANAGE)
+    S->>DB: batch (404 if unknown) and its medicine id
+    S->>L: run(work)
+    L->>DB: BEGIN
+    S->>L: lockMedicines([medicine])
+    alt write-off
+        S->>L: tx.writeOff(actor, batch, reason)
+        Note over L: expired or not ACTIVE, sellable above 0, else 422 (#55)
+    else status
+        S->>L: tx.setBatchStatus(actor, batch, status, reason)
+        Note over L: reason, not the same status, REJECTED final, else 422 (#55)
+    end
+    L->>E: evaluate(locked medicines)
+    E->>DB: low-stock alert of the medicine (section 6)
+    E->>DB: expiry alert of each batch with sellable stock: EXPIRING_SOON, EXPIRED or resolved
+    L->>DB: COMMIT
+    S-->>M: the batch, and the movement for a write-off
+```
+
+## 8. Stock movement report (UC12) — design
+
+Read only: no lock, nothing written. One SQL statement per report sums the
+signed deltas of each movement type per medicine over the period's business
+days, so the figures always come from the movements (DEC-06, BR05). Scenario
+rows UC12-S01…S13 are in the
+[UC12 specification](../requirements/use-cases/UC12-stock-movement-report.md#scenario-table).
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor M as Manager
+    participant UI as ReportsPage — Stock movement
+    participant C as ReportsController
+    participant R as StockMovementReport
+    participant DB as PostgreSQL
+
+    M->>UI: period, category, Run
+    UI->>C: GET /reports/stock-movement?from&to&categoryId
+    C->>R: generate(actor, query) — chosen by kind
+    R->>R: assertPermission(REPORT_VIEW), validate the period, else 400
+    R->>DB: per medicine: SUM(delta) FILTER (type, day of occurredAt in Asia/Ho_Chi_Minh) — opening before from, columns within, closing up to to, cost = SUM(quantity × batch unitCost)
+    R->>R: net issued = dispensed + sold − released, check closing against the columns per row
+    R->>R: totals, sort by cost of net issued, stamp producedAt and producedBy
+    R-->>UI: rows, totals, any row whose check failed flagged
 ```

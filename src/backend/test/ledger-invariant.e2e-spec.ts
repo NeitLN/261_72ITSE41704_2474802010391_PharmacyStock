@@ -24,6 +24,9 @@ import {
 } from './e2e/helpers.js';
 
 /**
+ * Numbered BR05-11 and up: BR05-01…06 are the ledger-level tests in
+ * `stock-ledger.e2e-spec.ts`.
+ *
  * BR05 (FR-12): the ledger only grows and every cached batch quantity is the
  * sum of its movement deltas. Proven end to end through the real API: a
  * receipt feeds the stock, a verified prescription is dispensed across two
@@ -182,7 +185,7 @@ describe('BR05 append-only ledger (e2e)', () => {
     expect(await findLedgerMismatches(t.dataSource)).toEqual([]);
   };
 
-  it('BR05-01 a receipt then a hand-over over two FEFO batches posts exactly the right movements and keeps the ledger balanced', async () => {
+  it('BR05-11 a receipt then a hand-over over two FEFO batches posts exactly the right movements and keeps the ledger balanced', async () => {
     // Step 1: one receipt with two lines -> exactly two receipt movements.
     const receipt = await receive([
       { batchNumber: 'A', expiryDate: '2027-01-31', quantity: 3 },
@@ -222,7 +225,7 @@ describe('BR05 append-only ledger (e2e)', () => {
     await expectBalanced();
   });
 
-  it('BR05-02 posted movements can be neither updated nor deleted; the database refuses both', async () => {
+  it('BR05-12 posted movements can be neither updated nor deleted; the database refuses both', async () => {
     const receipt = await receive([
       { batchNumber: 'A', expiryDate: '2027-06-30', quantity: 5 },
     ]);
@@ -240,7 +243,7 @@ describe('BR05 append-only ledger (e2e)', () => {
     await expectBalanced();
   });
 
-  it('BR05-03 a failed hand-over (more than in stock, BR03) leaves no movement, no dispense line and no batch change', async () => {
+  it('BR05-13 a failed hand-over (more than in stock, BR03) leaves no movement, no dispense line and no batch change', async () => {
     const stock = await receive([
       { batchNumber: 'A', expiryDate: '2027-06-30', quantity: 3 },
     ]);
@@ -262,7 +265,7 @@ describe('BR05 append-only ledger (e2e)', () => {
     await expectBalanced();
   });
 
-  it('BR05-04 resending the same requestId dispenses once; the second reply does not move the ledger again', async () => {
+  it('BR05-14 resending the same requestId dispenses once; the second reply does not move the ledger again', async () => {
     const stock = await receive([
       { batchNumber: 'A', expiryDate: '2027-06-30', quantity: 10 },
     ]);
@@ -281,7 +284,7 @@ describe('BR05 append-only ledger (e2e)', () => {
     await expectBalanced();
   });
 
-  it('BR05-05 a receipt, a hand-over and an over-the-counter sale post one movement per batch line and keep the ledger balanced', async () => {
+  it('BR05-15 a receipt, a hand-over and an over-the-counter sale post one movement per batch line and keep the ledger balanced', async () => {
     const receipt = await receive([
       { batchNumber: 'A', expiryDate: '2027-01-31', quantity: 3 },
       { batchNumber: 'B', expiryDate: '2027-03-31', quantity: 8 },
@@ -324,7 +327,7 @@ describe('BR05 append-only ledger (e2e)', () => {
     await expectBalanced();
   });
 
-  it('BR05-06 a sale larger than the stock is refused and leaves no movement, no sale line and no batch change', async () => {
+  it('BR05-16 a sale larger than the stock is refused and leaves no movement, no sale line and no batch change', async () => {
     const stock = await receive([
       { batchNumber: 'A', expiryDate: '2027-06-30', quantity: 3 },
     ]);
@@ -344,7 +347,7 @@ describe('BR05 append-only ledger (e2e)', () => {
     await expectBalanced();
   });
 
-  it('BR05-07 resending the same requestId sells once; the second reply does not move the ledger again', async () => {
+  it('BR05-17 resending the same requestId sells once; the second reply does not move the ledger again', async () => {
     const stock = await receive([
       { batchNumber: 'A', expiryDate: '2027-06-30', quantity: 10 },
     ]);

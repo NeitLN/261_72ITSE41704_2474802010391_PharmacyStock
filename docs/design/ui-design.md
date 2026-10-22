@@ -136,16 +136,69 @@ Every screen handles these; the API side is in [`error-handling.md`](error-handl
 
 ### 5.1 Motion and interaction details — Duy Anh
 
-To be designed by Duy Anh in week 7 and applied to the screens in week 8
-(hardening). What it should settle, at least:
+*Draft, week 7 (#152). Applied to the screens in week 8 (#158).*
 
-- which moments get motion: opening a drawer or modal, a row added to a
-  table, a result panel (receipt, hand-over recorded), a refused line;
-- durations and easing, kept short so the counter never waits on an
-  animation, and none on repeated actions such as typing quantities;
-- feedback for slow requests (more than about 300 ms): what shows, where;
-- `prefers-reduced-motion`: the same screens without the motion;
-- anything else that makes the screens clearer — Duy Anh's call.
+**Principle.** Motion only shows that something moved or changed state —
+a panel opened, a result arrived, a line was refused. It is never
+decoration, and the counter never waits for it: nothing a user repeats many
+times (typing quantities, adding a line, paging) is animated. The library
+already animates its drawers, modals, messages and form errors; we keep its
+timings and add as little as possible.
+
+**Timings** come from the Ant Design tokens, so there is one source:
+`motionDurationFast` 0.1 s, `motionDurationMid` 0.2 s,
+`motionDurationSlow` 0.3 s; easing `motionEaseOut` when something appears.
+Nothing lasts longer than 0.3 s.
+
+| Moment | What moves | Timing | Why |
+|---|---|---|---|
+| Drawer or modal opens / closes | The library's default slide or zoom | Mid, ease-out | Shows where the detail came from and goes back to |
+| Result panel appears (receipt, hand-over recorded, return recorded) | Fade in, rising 8 px | Mid, ease-out | Marks the moment the stock changed; focus moves to the panel's heading so a keyboard or screen-reader user lands on it |
+| A line is added (cart, prescription, receipt) | Fade in only, no height animation | Fast | The total updates at once; nothing pushes the button the user is about to press |
+| A line is removed | None | — | Instant, so totals are right the moment they change |
+| A field or a line is refused (400/422) | The library's error fade under the field; the first refused field is scrolled into view and focused | Mid | The user sees *which* line to fix; no shaking, which is hard to read and to bear |
+| Status tags, totals, quantities change | None | — | A changed number must be readable at once |
+| Message (toast) | The library's default; 3 s for information, 5 s for warnings that ask for an action ("Your session has expired…") | — | Long enough to read the action |
+
+**Slow requests** (above about 300 ms):
+
+- The button that sent the request shows its spinner at once and is disabled,
+  so it cannot be pressed twice; the request ID already makes a repeat
+  harmless on the server (FR-23).
+- Tables and lists show their loading spinner only after **300 ms**
+  (`Spin` `delay`), so a fast answer does not flicker.
+- No full-page spinner: the rest of the screen stays readable.
+- If the server cannot be reached, §4 applies: the message says so and the
+  retry sends the same request ID.
+
+**Reduced motion.** When the system asks for it
+(`prefers-reduced-motion: reduce`), the theme sets the Ant Design token
+`motion` to `false`, which switches off the library's transitions; our own
+fade-ins live inside `@media (prefers-reduced-motion: no-preference)`. The
+screens are the same, only without movement. Focus moves and scrolling to the
+refused field still happen: they carry meaning, not decoration.
+
+**Interaction details.**
+
+- **Confirm buttons name the action** — *Hand over*, *Pay*, *Confirm payment*,
+  *Confirm return*, *Cancel cart* — never "OK"; the other button says
+  *Back*. A step that moves stock or money always shows what will happen
+  before it is pressed (§3).
+- **Keyboard.** A modal form submits with Enter and closes with Esc, except
+  while saving (the mask and Esc are then ignored). Opening a modal focuses
+  its first field; closing it returns focus to the button that opened it.
+- **After success the next step is one click**: *New sale*, *Bill another*,
+  *New return*, *New dispensing* (the labels already on the screens).
+- **Numbers** keep what was typed and say what is wrong under the field
+  (#127); an empty quantity is 0, meaning "not this time".
+- **Long lists** keep the search box and the column headers in view while
+  scrolling, so the cashier does not lose the filter.
+
+**For week 8 (#158).** One small module, `src/frontend/src/ui/motion.ts`, with
+the 300 ms loading delay, a `useReducedMotion()` hook that feeds the theme's
+`motion` token, and a `ResultPanel` wrapper (fade-in and focus) used by the
+receipt, the hand-over result and the return result. Screens then use these
+three instead of their own timings.
 
 ## 6. Wireframes
 

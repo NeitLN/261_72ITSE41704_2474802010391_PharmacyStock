@@ -5,7 +5,7 @@
 | **Owner** | Bùi Duy Anh (B) |
 | **Priority** | Must |
 | **Primary actor** | Cashier |
-| **Status** | Draft — not built yet (issue #58) |
+| **Status** | Design gate, week 7 — decisions, interface and scenario table agreed before the code (issue #58) |
 | **Related rules** | BR11, BR05, BR03 (via the ledger) |
 | **Requirements** | FR-27, FR-28, FR-23 |
 | **Decisions** | DEC-04 (returns go to quarantine), decision 13 (a return does not restore the prescription) |
@@ -23,7 +23,7 @@ again by mistake.
 - The cashier is signed in; the role holds `return.create`.
 - The sale exists (UC07) and has at least one line with quantity still
   returnable (sold − already returned > 0).
-- The ledger supports the `RETURN` movement into quarantine (Tiến, W07-A1).
+- The ledger offers `receiveReturn` (Tiến, W07-A1, #55).
 
 ## Postconditions
 
@@ -92,12 +92,65 @@ release to sellable stock, or reject to pending destruction (DEC-04).
   line queue there, as prescriptions do in UC06), then the ledger's order:
   medicines in one call, then batches.
 
-## Open questions
+## Decisions for the build
 
-- Can goods be given back after a dispensing that was **not billed**? There
-  is no sale line to return against; assumed out of scope (the pharmacist
-  corrects it before billing).
-- Is there a time limit for returns (e.g. 7 days after the sale)? No
-  requirement sets one.
-- Is the refund recorded as a payment anywhere? The system stores the refund
-  amount on the return; handling cash is outside the system.
+The open questions of the draft, settled for #58 as assumptions; each can be
+changed in one place if the team or the pharmacist reviewer decides otherwise.
+
+| Question | Taken for the build | Why |
+|---|---|---|
+| Goods given back after a hand-over that was **not billed** | Out of scope: there is no sale line to return against. The pharmacist corrects the hand-over before billing. | FR-27 returns against a sale line |
+| Time limit | None. Any line with a returnable quantity can be returned. | No requirement sets one |
+| The refund | Stored on the return (`refundAmount`) and shown; handling the cash is outside the system. | FR-28 asks to compute it |
+| One return, one sale | A return is against one sale; its lines name sale lines of that sale. A sale line is one batch, so the batch of the return is never chosen by the cashier. | DEC-04: back to the original batch |
+| Return number | `RT-YYYYMMDD-NNNN`, running per business day, drawn like the receipt number in UC07. | Readable on paper |
+| Reason | Required on the return, trimmed, 3–500 characters. | A3, TC-16 |
+| Stock effect | `tx.receiveReturn(actor, batchId, quantity, returnLineId)` from the ledger (#55, `docs/design/stock-ledger.md`): one `RETURN` movement, quarantine +q of the sale line's batch, whatever the batch's status or expiry. UC08 never posts a movement itself. | DEC-04, BR11, A6 |
+| A billed line (from a hand-over) | Returned the same way into the batch it was handed over from; the prescription's outstanding quantity is not restored. | A7, decision 13 |
+| Low-stock alerts | Unchanged by a return: quarantine is not sellable stock (DEC-08). The ledger re-evaluates the medicine anyway at the end of the transaction (UC10). | DEC-08 |
+
+## Interface (for #58)
+
+| Route | Permission | Body / response |
+|---|---|---|
+| `GET /api/returns/sales/:receiptNumber` | `return.create` | The sale and what can still be returned: `{ id, receiptNumber, soldAt, customer, lines: [{ saleLineId, medicine, batch, quantitySold, quantityReturned, returnable, unitPrice, billed }] }`. 404 when no sale has that number (A8). |
+| `POST /api/returns` | `return.create` | `{ requestId, saleId, reason, lines: [{ saleLineId, quantity }] }`. 201: the return `{ id, referenceNumber, returnedAt, sale: { id, receiptNumber }, reason, lines: [{ saleLineId, medicine, batch, quantity, unitPrice, refund, assessmentStatus }], refundAmount }` |
+| `GET /api/returns/:id` | `return.create` | The return again, to show or print |
+
+Money goes out as decimal strings, as in UC07. Errors use the existing
+format (#47): 400 per field — `reason`, `lines.N.quantity`, an unknown `saleId`
+or a sale line of another sale on `lines.N.saleLineId`, the same sale line
+twice; 403; 404 for an unknown receipt number or return in the URL; 409 for a
+request ID reused with other content; 422 `RETURN_EXCEEDS_SOLD` (FR-27, TC-17)
+on `lines.N.quantity`, naming the returnable quantity.
+
+Lock order, as in sequence diagram 3: the sale's lines (`FOR UPDATE`, so two
+cashiers returning against one line queue there), then the request ID, then
+the ledger's order — medicines in one call, then each batch inside
+`receiveReturn`; the return number's advisory lock last.
+
+## Scenario table
+
+The design-gate table (plan §6.1, D15). The test names are reserved for the
+build; if a test ends up with another number, this table changes in the same
+pull request.
+
+| ID | Kind | Scenario | Expected | Test |
+|---|---|---|---|---|
+| S01 | Normal | Sold 5, return 2 with a reason | One return line PENDING_ASSESSMENT; one `RETURN` movement, quarantine +2 of the sold batch, sellable unchanged; `quantityReturned` 2; sale PARTIALLY_RETURNED; refund = 2 × unit price | UC08-01, TC-16 |
+| S02 | Normal | Then return the other 3 | Sale RETURNED; the first return untouched | UC08-02 |
+| S03 | Edge | Return exactly the returnable quantity | Accepted; returnable 0 | UC08-02 |
+| S04 | Error | Sold 5, returned 2, return 4 more | 422 `RETURN_EXCEEDS_SOLD` on `lines.0.quantity` with "Only 3 can be returned."; nothing saved | UC08-03, TC-17 |
+| S05 | Normal | A sale of two batches (FEFO split): return from each line | One `RETURN` per line, each into its own batch | UC08-04 |
+| S06 | Edge | The batch has expired, or is recalled, since the sale; a controlled medicine | Still accepted into quarantine (A6); sellable unchanged | UC08-05, TC-50 |
+| S07 | Normal | Return a billed line (from a hand-over) | Accepted into the hand-over's batch; the prescription's outstanding quantity unchanged (decision 13) | UC08-06 |
+| S08 | Error | The same request ID again / with other content | Same return, one movement / 409 | UC08-07, TC-18, FR-23 |
+| S09 | Error | Reason missing; quantity 0, −1 or 2.5; no line; the same sale line twice | 400 on the field; nothing saved | UC08-08, NFR-04 |
+| S10 | Error | A sale line of another sale; an unknown `saleId` | 400 on `lines.N.saleLineId` / `saleId` (#47) | UC08-09 |
+| S11 | Error | Unknown receipt number | 404 "Sale not found" (A8) | UC08-10 |
+| S12 | Error | A pharmacist (no `return.create`) calls the API | 403 (A9) | UC08-11 |
+| S13 | Concurrency | Two cashiers return the last returnable units of one line at once | One 201, one 422 `RETURN_EXCEEDS_SOLD`; never more returned than sold | UC08-12, NFR-08 |
+| S14 | Normal | The return read again; the sale read again | Same return; the sale's lines show what was returned | UC08-13 |
+
+After every test that moves stock, `findLedgerMismatches` must find nothing
+(BR05).

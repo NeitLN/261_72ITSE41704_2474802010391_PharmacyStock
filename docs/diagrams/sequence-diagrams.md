@@ -219,39 +219,49 @@ billing it twice.
 
 The returned quantity goes into the **quarantine** of the original batch,
 never back to sellable stock (BR11, DEC-04). A manager assesses it later in
-UC11.
+UC11. The stock effect is the ledger's `receiveReturn` command (#55,
+[`stock-ledger.md`](../design/stock-ledger.md)); UC08 never writes a movement
+itself. Interface and scenario table:
+[UC08 specification](../requirements/use-cases/UC08-process-return.md).
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor K as Cashier
     participant UI as ReturnsPage
-    participant R as ReturnService
+    participant R as ReturnsService
     participant L as StockLedger
     participant DB as PostgreSQL
 
-    K->>UI: find the sale by receipt number, quantities, reason
-    UI->>R: POST /returns {requestId, saleId, lines, reason}
-    R->>R: assertPermission(RETURN_CREATE)
+    K->>UI: receipt number
+    UI->>R: GET /returns/sales/:receiptNumber
+    R->>DB: sale and lines with sold, returned, returnable, unit price
+    R-->>UI: the sale, or 404 Sale not found (A8)
+    K->>UI: quantity per line, reason
+    UI->>R: POST /returns {requestId, saleId, reason, lines[{saleLineId, quantity}]}
+    R->>R: assertPermission(RETURN_CREATE), DTO checks reason, quantities, one entry per line, else 400
     R->>L: run(work)
     L->>DB: BEGIN
-    R->>DB: SELECT sale lines FOR UPDATE
+    R->>DB: sale exists and every line belongs to it, else 400 on the field (#47)
+    R->>DB: SELECT the sale's lines FOR UPDATE
     R->>DB: find ProcessedRequest(requestId)
     alt repeat (TC-18) or reused ID
-        R-->>UI: stored result / 409
+        R-->>UI: stored result, or 409
     else new return
-        R->>R: quantity ≤ sold − returned (TC-17), line belongs to the sale
-        R->>L: lockMedicines(all) → lockBatches(original batches)
-        R->>DB: INSERT sale_return, return lines PENDING_ASSESSMENT, unit price copied
-        loop each return line
-            R->>L: post(RETURN, deltaQuarantine +q, source = return line)
-            L->>DB: INSERT stock_movement, UPDATE batch qtyQuarantine
+        R->>R: quantity ≤ sold − returned, else 422 RETURN_EXCEEDS_SOLD on that line (A1, TC-17)
+        R->>L: lockMedicines(medicines of the lines)
+        R->>DB: advisory lock, next RT-YYYYMMDD-NNNN, then INSERT sale_return
+        loop each line
+            R->>DB: INSERT return_line PENDING_ASSESSMENT, unit price copied from the sale line
+            R->>L: receiveReturn(actor, batch of the sale line, q, return line)
+            L->>DB: SELECT batch FOR UPDATE, INSERT movement RETURN (quarantine +q), UPDATE batch
         end
-        R->>DB: UPDATE sale_line.quantityReturned, sale status
+        R->>DB: UPDATE sale_line.quantityReturned, sale status, refundAmount
         R->>DB: INSERT processed_request
     end
+    L->>DB: re-evaluate stock-level alerts (UC10), no change since quarantine is not sellable
     L->>DB: COMMIT
-    R-->>UI: 201 return — refund at the original price, goods in quarantine
+    R-->>UI: 201 return with the refund at the original price, goods in quarantine
     Note over K,DB: later, UC11 (manager): RELEASE to sellable, or REJECT to pending destruction
 ```
 

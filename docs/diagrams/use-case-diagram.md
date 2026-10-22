@@ -43,7 +43,7 @@ flowchart LR
     PHARM --> UC04 & UC05 & UC06 & UC09 & UC14 & UC16
     CASH --> UC04 & UC07 & UC08 & UC16
 
-    UC05 -. "«include»" .-> UC14
+    UC14 -. "«extend»" .-> UC05
 ```
 
 Grouped by owner rather than by function, because ownership is how the team
@@ -51,9 +51,13 @@ works: each member builds their slice end to end and the review rotation
 (A→C→B→A) follows the same split
 ([`../requirements/use-cases.md`](../requirements/use-cases.md) §Ownership).
 
-The only `«include»` is UC05 → UC14: quick-create of a patient or prescriber
-is part of taking in a prescription, while the separate management screens
-are UC14 (`use-cases.md`: "quick-create in UC05 is Must").
+The only relationship between use cases is UC14 `«extend»` UC05: when the
+patient or prescriber is not on file yet, the pharmacist may create them from
+the prescription form (quick-create). It is optional — UC05 usually selects
+an existing patient and prescriber — so it is an extension, not an include,
+which would mean every prescription runs through UC14. The separate
+management screens are UC14 itself (`use-cases.md`: "quick-create in UC05
+is Must").
 
 ## How to read
 
@@ -63,8 +67,8 @@ are UC14 (`use-cases.md`: "quick-create in UC05 is Must").
   `use-cases.md`).
 - A dashed border means a Should use case: it starts only after the Must-core
   gate in week 7.
-- A dashed, labelled link is an `«include»`: the flow always uses the other
-  use case.
+- A dashed, labelled link `«extend»` points from the extending use case to
+  the one it may extend: the extension runs only when its condition holds.
 
 ## Specification status
 

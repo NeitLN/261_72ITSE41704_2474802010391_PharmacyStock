@@ -1,4 +1,4 @@
-# Sequence diagrams — dispensing, billing, returns
+# Sequence diagrams — dispensing, billing, returns, stock lookup
 
 Week 4 task W04-B1 (#31), done late. Three flows where stock and money meet,
 drawn so that the lock order and the "stock leaves once" rule (DEC-05) can be
@@ -10,8 +10,9 @@ checked before and during review.
 | 2a. Over-the-counter sale (UC07) | The code: `SalesService`, `FefoAllocator`, `StockLedger`, `PriceBook` | **As built** — matches the design |
 | 2b. Bill a dispensing (UC07) | Same | Design gate for #50 (week 6) — update when built |
 | 3. Process a return (UC08) | [UC08 specification](../requirements/use-cases/UC08-process-return.md) | Design for #58 — update when built |
+| 4. Look up stock and batch history (UC04) | The code: `StockLookupService`, `StockPanel` | **As built** — matches the design |
 
-Every diagram follows the same transaction pattern: one `StockLedger.run`
+Every diagram that writes (1–3) follows the same transaction pattern: one `StockLedger.run`
 (READ COMMITTED, 5-second lock timeout, one retry on deadlock); the document
 row that two users could both touch is locked first; then the ledger's own
 order — medicines in one call, ascending id, then batches; the request ID is
@@ -258,3 +259,45 @@ A return never edits the sale or its movements (BR05): the history of what
 was sold stays readable, and the return is a new document with its own
 movements. Returning dispensed goods does not restore the prescription's
 outstanding quantity (decision 13).
+
+## 4. Look up stock and batch history (UC04) — as built
+
+Read only: no lock, no request ID, nothing written. The two numbers that must
+agree with issuing come from the same rule as `StockLedger.lockEligibleBatches`
+(ACTIVE, expiry after the business date), and the running balance is computed
+from the movements in the query, so it cannot drift from the ledger (BR05).
+Scenario rows (UC04-S01…S14) are in the
+[UC04 specification](../requirements/use-cases/UC04-look-up-stock.md#scenario-table).
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Manager, pharmacist or cashier
+    participant UI as CataloguePage — Stock tab
+    participant C as StockController
+    participant S as StockLookupService
+    participant K as Clock
+    participant DB as PostgreSQL
+
+    U->>UI: search, category, stock state
+    UI->>C: GET /stock?search&categoryId&state&page
+    C->>S: list(actor, query)
+    S->>S: assertPermission(STOCK_VIEW)
+    S->>K: today() — business date, Asia/Ho_Chi_Minh
+    S->>DB: medicines LEFT JOIN batches, SUM per medicine: sellable (ACTIVE, expiry > today), expired, held, quarantine, pending destruction — filter, ORDER BY name, code — LIMIT/OFFSET and COUNT
+    S-->>UI: page of medicines with quantities and total (empty → empty state, A1)
+
+    U->>UI: open a medicine
+    UI->>C: GET /stock/medicines/:id
+    C->>S: medicine(actor, id)
+    S->>DB: medicine (404 if unknown), its batches in FEFO order
+    S->>S: state per batch — status first, then expired (expiry ≤ today), else active with days left
+    S-->>UI: totals and batches with quantity per stock state
+
+    U->>UI: open a batch
+    UI->>C: GET /stock/batches/:id/movements
+    C->>S: history(actor, id)
+    S->>DB: batch (404 if unknown) and its movements with SUM(delta) OVER (ORDER BY occurredAt, id) per state, the user, the reversal links
+    S->>DB: references of the source documents (receipt, prescription, sale) in one query per type
+    S-->>UI: movements in time order with running balance and source — last balance = batch quantities
+```

@@ -69,8 +69,9 @@ are UC14 (`use-cases.md`: "quick-create in UC05 is Must").
 ## Specification status
 
 Checked with `git ls-tree -r --name-only <ref> docs/requirements/use-cases`
-on 13/10/2026 against `origin/main` and the branches named below. "Spec"
-means a file in `docs/requirements/use-cases/`; nothing here is guessed.
+on 20/10/2026 against `origin/main` and the branches named below (UC14 is
+added by the same pull request as this update). "Spec" means a file in
+`docs/requirements/use-cases/`; nothing here is guessed.
 
 | UC | Must/Should | Owner | Spec on `main`? | Spec on a branch | Note |
 |---|---|---|---|---|---|
@@ -78,15 +79,15 @@ means a file in `docs/requirements/use-cases/`; nothing here is guessed.
 | UC02 | Must | A (Tiến) | Yes | — | Built (#95) |
 | UC03 | Must | A (Tiến) | Yes | — | Built (#99) |
 | UC04 | Must | A (Tiến) | Yes | — | Specified |
-| UC05 | Must | B (Duy Anh) | No | `origin/feature/40-uc05-prescriptions` | In review (#108) |
-| UC06 | Must | B (Duy Anh) | No | `origin/feature/40-uc05-prescriptions` | In review (#108) |
-| UC07 | Must | B (Duy Anh) | No | `origin/docs/15-uc07-uc08-specs` | In review (#110) |
-| UC08 | Must | B (Duy Anh) | No | `origin/docs/15-uc07-uc08-specs` | In review (#110) |
+| UC05 | Must | B (Duy Anh) | Yes | — | Built (#108) |
+| UC06 | Must | B (Duy Anh) | Yes | — | Built (#109) |
+| UC07 | Must | B (Duy Anh) | Yes | — | Over-the-counter sale built (#135, #136); billing in review |
+| UC08 | Must | B (Duy Anh) | Yes | — | Specified (#110); built in week 7 (#58) |
 | UC09 | Must | C (Minh) | No | `origin/docs/w02-c3-uc-specs-nfr` | — |
 | UC10 | Must | C (Minh) | No | `origin/docs/w02-c3-uc-specs-nfr` | — |
 | UC11 | Must | C (Minh) | No | `origin/docs/w02-c3-uc-specs-nfr` | — |
 | UC12 | Must | C (Minh) | No | `origin/docs/w02-c3-uc-specs-nfr` | — |
 | UC13 | Should | A (Tiến) | Yes | — | Specified |
-| UC14 | Should | B (Duy Anh) | No | None found | Quick-create in UC05 is Must |
+| UC14 | Should | B (Duy Anh) | Yes | — | Quick-create in UC05 is Must; screens wait for the Must-core gate (#104) |
 | UC15 | Should | C (Minh) | No | None found | — |
-| UC16 | Must | C (Minh) | No | `origin/docs/w02-c3-uc-specs-nfr` | Dev user switch stands in |
+| UC16 | Must | C (Minh) | No | `origin/docs/w02-c3-uc-specs-nfr` | Sign-in built (#116, #117) |

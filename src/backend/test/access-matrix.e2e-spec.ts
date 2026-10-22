@@ -59,6 +59,7 @@ describe('TC-53 role × endpoint matrix (e2e)', () => {
     const receipt = await http('manager').post('/api/goods-receipts', receiptBody(100));
     expect(receipt.status, JSON.stringify(receipt.body)).toBe(201);
     ids.receipt = receipt.body.id;
+    ids.batch = receipt.body.lines[0].batch.id;
     ids.customer = (await http('pharmacist').post('/api/customers', customerBody())).body.id;
     for (const name of ['prescriber', 'prescriber2']) {
       ids[name] = (await http('pharmacist').post('/api/prescribers', prescriberBody())).body.id;
@@ -161,6 +162,10 @@ describe('TC-53 role × endpoint matrix (e2e)', () => {
     { method: 'patch', path: '/api/medicines/:medicine', permission: P.CATALOGUE_MANAGE, body: () => ({ name: 'Renamed' }) },
     { method: 'post', path: '/api/medicines/:medicine2/deactivate', permission: P.CATALOGUE_MANAGE },
     { method: 'post', path: '/api/medicines/:medicine2/activate', permission: P.CATALOGUE_MANAGE },
+    // UC04
+    { method: 'get', path: '/api/stock', permission: P.STOCK_VIEW },
+    { method: 'get', path: '/api/stock/medicines/:medicine', permission: P.STOCK_VIEW },
+    { method: 'get', path: '/api/stock/batches/:batch/movements', permission: P.STOCK_VIEW },
     // UC02
     { method: 'get', path: '/api/suppliers', permission: P.SUPPLIER_MANAGE },
     { method: 'get', path: '/api/suppliers/:supplier', permission: P.SUPPLIER_MANAGE },

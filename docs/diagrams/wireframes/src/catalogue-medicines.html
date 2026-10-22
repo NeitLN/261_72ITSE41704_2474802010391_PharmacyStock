@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="../kit.css"><title>Catalogue — Medicines</title></head>
+<body>
+<div class="frame">
+  <span class="label">UC01 Catalogue › Medicines — list and edit form <span class="tag">as-built · Tiến · 22/10/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div class="on">Catalogue &amp; batches</div><div>Suppliers &amp; receipts</div><div>Prescriptions &amp; dispensing</div><div>Sales &amp; returns</div><div>Stock control &amp; reports</div><div>Users &amp; roles</div></div>
+    <div class="page">
+      <h1>Catalogue &amp; batches</h1>
+      <div class="tabs"><div class="on">Medicines</div><div>Stock</div></div>
+      <div class="row"><span class="field wide">Code, name or ingredient</span><span class="field">All categories ▾</span><span>☐ Show inactive</span><span class="btn primary">+ Add medicine</span></div>
+      <table>
+        <tr><th>Code</th><th>Name</th><th>Category</th><th>Classification</th><th class="num">Price</th><th>Reorder level</th><th>Status</th><th></th></tr>
+        <tr><td>AMOX500</td><td>Amoxicillin 500 mg<br><span class="muted">Amoxicillin · 500 mg</span></td><td>Antibiotics</td><td><span class="tag">Prescription</span></td><td class="num">1.800 ₫ /capsule</td><td>100</td><td><span class="tag">Active</span></td><td><span class="btn">Edit</span> <span class="btn danger">Deactivate</span></td></tr>
+        <tr><td>PARA500</td><td>Paracetamol 500 mg<br><span class="muted">Paracetamol · 500 mg</span></td><td>Analgesics</td><td><span class="tag">OTC</span></td><td class="num">500 ₫ /tablet</td><td><span class="tag">Not monitored</span></td><td><span class="tag">Active</span></td><td><span class="btn">Edit</span> <span class="btn danger">Deactivate</span></td></tr>
+        <tr><td colspan="8" class="muted">… 20 per page</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="overlay"></div>
+  <div class="modal" style="top: 120px; left: 330px; width: 640px">
+    <h2>Edit medicine</h2>
+    <div class="row"><span>Code*</span><span class="field error">para500</span><span class="err">A medicine with code PARA500 already exists.</span></div>
+    <div class="row"><span>Name*</span><span class="field wide">Paracetamol 500 mg</span><span>Active ingredient</span><span class="field">Paracetamol</span></div>
+    <div class="row"><span>Category*</span><span class="field">Analgesics ▾</span><span>Base unit*</span><span class="field">Tablet ▾</span></div>
+    <div class="row"><span>Classification*</span><span class="btn">OTC</span><span class="btn">Prescription</span><span class="btn">Controlled</span><span>Source, date (OTC only)</span></div>
+    <div class="row"><span>Selling price (VND)*</span><span class="field">500</span><span>Reorder level</span><span class="field">0</span><span>Low-stock alerts ◯</span><span>Expiry alert (days)</span><span class="field">90</span></div>
+    <div class="row" style="justify-content: flex-end"><span class="btn">Cancel</span><span class="btn primary">Save</span></div>
+  </div>
+  <div class="note" data-n="1" style="top: 152px; right: 16px">Search matches code, name or ingredient; inactive medicines hidden unless asked.</div>
+  <div class="note" data-n="2" style="top: 250px; left: 990px">A duplicate code (any case) is refused under the field (TC-45).</div>
+  <div class="note" data-n="3" style="top: 470px; left: 990px">Numbers are checked, never silently changed (#125). The base unit is locked once the medicine has stock.</div>
+</div>
+<ol class="notes">
+  <li>UC01 steps 1–2, FR-01/02 · only the manager sees Add, Edit, Deactivate (<code>catalogue.manage</code>); others see the list.</li>
+  <li>UC01 A1, TC-45.</li>
+  <li>FR-03 (price a positive whole number of VND), DEC-09 (OTC needs a source and date), #125.</li>
+</ol>
+</body>
+</html>

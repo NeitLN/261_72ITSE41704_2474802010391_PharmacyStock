@@ -9,7 +9,7 @@ checked before and during review.
 | 1. Dispense against a prescription (UC06) | The code in #109: `DispensingService`, `FefoAllocator`, `StockLedger` | **As built** |
 | 2a. Over-the-counter sale (UC07) | The code: `SalesService`, `FefoAllocator`, `StockLedger`, `PriceBook` | **As built** — matches the design |
 | 2b. Bill a dispensing (UC07) | Same | Design gate for #50 (week 6) — update when built |
-| 3. Process a return (UC08) | [UC08 specification](../requirements/use-cases/UC08-process-return.md), interface and scenario table; ledger contract in `stock-ledger.md` (#55) | Design gate for #58 (week 7) — update when built |
+| 3. Process a return (UC08) | [UC08 specification](../requirements/use-cases/UC08-process-return.md) | Design for #58 — update when built |
 | 4. Look up stock and batch history (UC04) | [UC04 specification](../requirements/use-cases/UC04-look-up-stock.md) | Design gate for #46 (week 6) — update when built |
 
 Every diagram that writes (1–3) follows the same transaction pattern: one `StockLedger.run`

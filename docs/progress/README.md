@@ -13,6 +13,7 @@ Plans and task details live in [`../plan/`](../plan/) (Vietnamese) and on the
 | 3 | 28/09–04/10 | **Project Proposal (20%)** | Delivered 04/10; no repository activity | [week-03](week-03.md) |
 | 4 | 05/10–11/10 | Design and foundations | Not delivered in week 4; Proposal v1.1 resubmitted 11/10 | [week-04](week-04.md) |
 | 5 | 12/10–18/10 | Release `v0.1` | Flow and CI delivered; 11 test cases passed (5 of them in #124); tag `v0.1` late (#45) | [week-05](week-05.md) |
+| 6 | 19/10–25/10 | Prescription rules, sales, stock take | In progress | [week-06](week-06.md) |
 | 6–10 | 19/10–22/11 | — | Not started | — |
 
 ## Running contribution record (for Appendix C)

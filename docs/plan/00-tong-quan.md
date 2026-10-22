@@ -423,6 +423,8 @@ Kế hoạch bám Bảng 2.9 của Proposal v1.1 cho tuần 4–10. Những ch�
 | Bảng 2.3: UC04 phát hành tuần 5; UC13–UC15 tuần 9 | UC04 tuần 6; Should (UC13, màn hình UC14, UC15) tuần 8 nếu qua cổng | Bảng 2.9 và §2.4 của Proposal ghi như vậy; Bảng 2.3 lệch với chúng — theo Bảng 2.9 |
 | §1.4: 90 gói việc | 93 issue (thêm #103–#105 cho mục Should có điều kiện ở tuần 8) | Tách mục Should khỏi issue tuần 7 theo Bảng 2.9 |
 | — | Thêm: báo cáo tuần `docs/progress/`, leader review cuối tuần, nhật ký dùng AI | Làm rõ quá trình cho giảng viên; không đổi phạm vi |
+| Tuần 4: sơ đồ class + ERD (A), wireframe phác thảo (B, C) | Không làm trong tuần 4 (là dòng phụ, không có issue). Sơ đồ class, ERD, data dictionary và `ui-design.md` làm 22/10 (tuần 6); wireframe màn mới vào cổng thiết kế tuần 7; wireframe *as-built* và ảnh ở tuần 8 | Phát hiện khi rà tiêu chí CLO3 ngày 22/10; giao diện đã làm trước khi có wireframe nên wireframe các màn cũ ghi rõ là *as-built* |
+| Thiết kế giao diện do B, C (wireframe tuần 4); B viết phần thiết kế giao diện của báo cáo (§10 F13) | Tiến làm thiết kế UI (wireframe, `ui-design.md`, bộ UI dùng chung) và viết phần thiết kế giao diện; Duy Anh review, góp ý và phát triển thêm (chuyển động, tương tác, độ trau chuốt); Minh hỗ trợ và cho người ngoài nhóm chạy thử TC-32 ở tuần 8. Tuần 8 của Tiến 29 giờ | Quyết định của trưởng nhóm 22/10; chạy thử trước freeze để lỗi khả dụng còn sửa được (lộ trình `ui-design.md` §8) |
 
 Phạm vi (13 UC Must + 3 Should, BR01–BR11, FR-01…48, 63 TC) **không đổi**.
 

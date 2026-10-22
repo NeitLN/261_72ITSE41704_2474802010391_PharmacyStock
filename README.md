@@ -26,7 +26,7 @@ Weeks 1–4 were written on 12/10/2026 from the existing evidence and say so.
 | 3 | 28/09–04/10 | **Project Proposal (20%)** | Delivered 04/10 | #19–#21 | [week 3](docs/progress/week-03.md) |
 | 4 | 05/10–11/10 | Design and foundations | Not delivered in week 4; Proposal v1.1 resubmitted 11/10 | [receipt](docs/evidence/proposal-resubmission-receipt-2026-10-11.png) | [week 4](docs/progress/week-04.md) |
 | 5 | 12/10–18/10 | Release `v0.1` | Flow and CI on `main`; tag late (#45) | #93–#102, #98, #107–#120 | [week 5](docs/progress/week-05.md) |
-| 6 | 19/10–25/10 | Test-case table with real runs | — | — | — |
+| 6 | 19/10–25/10 | Test-case table with real runs | In progress | #121–#148 | [week 6](docs/progress/week-06.md) |
 | 7 | 26/10–01/11 | Release `v0.2`, Must-core gate, Appendix D | — | — | — |
 | 8 | 02/11–08/11 | Hardening, updated design | — | — | — |
 | 9 | 09/11–15/11 | Release `v1.0`, draft report | — | — | — |

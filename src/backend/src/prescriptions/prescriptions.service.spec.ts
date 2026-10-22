@@ -21,7 +21,7 @@ function actor(role: RoleCode): Actor {
 }
 
 describe('PrescriptionsService permissions (FR-39)', () => {
-  it('UC05-U6 refuses a cashier before touching the database', async () => {
+  it('UC05-U16 refuses a cashier before touching the database', async () => {
     const dataSource = {
       transaction: vi.fn(),
       getRepository: vi.fn(),
@@ -52,7 +52,7 @@ describe('PrescriptionsService permissions (FR-39)', () => {
 });
 
 describe('Age in months (FR-13)', () => {
-  it('UC05-U7 counts whole months, not yet the month whose day has not come', () => {
+  it('UC05-U17 counts whole months, not yet the month whose day has not come', () => {
     expect(monthsBetween('2020-10-13', '2026-10-13')).toBe(72);
     expect(monthsBetween('2020-10-14', '2026-10-13')).toBe(71);
     expect(monthsBetween('2026-01-31', '2026-02-28')).toBe(0);

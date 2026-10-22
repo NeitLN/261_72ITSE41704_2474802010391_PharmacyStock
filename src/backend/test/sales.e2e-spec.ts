@@ -358,7 +358,7 @@ describe('UC07 over-the-counter sale (e2e)', () => {
     expect(managerSale.status).toBe(201);
   });
 
-  it('UC07-11 NFR-04: invalid input is reported on its field; an unknown medicine is 404', async () => {
+  it('UC07-11 NFR-04: invalid input, and an unknown medicine or customer, are reported on their field (#47)', async () => {
     const empty = await sell([]);
     expect(empty.status).toBe(400);
     expect(empty.body.errors[0].field).toBe('otcLines');
@@ -379,7 +379,25 @@ describe('UC07 over-the-counter sale (e2e)', () => {
     const unknown = await sell([
       { medicineId: '00000000-0000-4000-8000-000000000000', quantity: 1 },
     ]);
-    expect(unknown.status).toBe(404);
+    expect(unknown.status).toBe(400);
+    expect(unknown.body.errors).toEqual([
+      {
+        field: 'otcLines.0.medicineId',
+        message: 'This medicine does not exist.',
+      },
+    ]);
+
+    const nobody = await t
+      .http()
+      .post('/api/sales')
+      .set(as('cashier'))
+      .send({
+        requestId: randomUUID(),
+        otcLines: [{ medicineId: otc.id, quantity: 1 }],
+        customerId: '00000000-0000-4000-8000-000000000000',
+      });
+    expect(nobody.status).toBe(400);
+    expect(nobody.body.errors[0].field).toBe('customerId');
     expect(await count.sales()).toBe(0);
   });
 

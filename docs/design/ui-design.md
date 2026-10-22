@@ -57,8 +57,8 @@ screenshots is made in week 8).
 | Sales › Returns | UC08 | Duy Anh | planned | TC-16, 17, 18, 50 | *planned* | **design gate, week 7** |
 | Reports › Stock take | UC09 | Minh | `/stock-takes` | TC-19, 20, 39, 51 | *in review #146* | week 8, as-built |
 | Reports › Alerts | UC10 | Minh | `/alerts` | TC-21, 63 | *in review #147* | week 8, as-built |
-| Reports › Expiry and batch status | UC11 | Minh | planned | TC-22, 56, 60 | *planned* | **design gate, week 7** |
-| Reports › Movement report | UC12 | Minh | planned | TC-23 | *planned* | **design gate, week 7** |
+| Reports › Expiry and batch status | UC11 | Minh | `/reports/expiry`, `/batches/:id/write-off`, `/batches/:id/status` | TC-22, 56, 60 | *planned* | **design gate, week 7** |
+| Reports › Movement report | UC12 | Minh | `/reports/stock-movement` | TC-23 | *planned* | **design gate, week 7** |
 | Users & roles | UC15 *(S)* | Minh | planned | TC-44 | *planned, Should* | only if the Must-core gate passes |
 | Patients & prescribers screens | UC14 *(S)* | Duy Anh | `/customers`, `/prescribers` | TC-49 | API built; screens Should | only if the gate passes |
 

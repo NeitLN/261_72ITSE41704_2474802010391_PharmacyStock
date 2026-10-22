@@ -44,6 +44,8 @@ export interface StockTakeLineView {
   };
   countedQuantity: number | null;
   reason: string | null;
+  /** Who saved this count (BR08). */
+  countedBy: UserRef | null;
   /** Hidden (null) while COUNTING, so the book does not steer the count. */
   systemQuantity: number | null;
   difference: number | null;
@@ -230,6 +232,7 @@ export class StockTakesService {
           countedQuantity: dto.countedQuantity,
           reason: dto.reason ?? null,
           systemQuantity: line.batch.qtySellable,
+          countedBy: { id: actor.id },
         },
       );
     });
@@ -318,7 +321,7 @@ export class StockTakesService {
         {
           status: StockTakeStatus.PENDING_APPROVAL,
           countedBy: { id: actor.id },
-          submittedAt: new Date(),
+          submittedAt: this.clock.now(),
         },
       );
     });
@@ -336,15 +339,20 @@ export class StockTakesService {
       const take = await this.lockTake(manager, id, [
         StockTakeStatus.PENDING_APPROVAL,
       ]);
-      if (take.countedBy?.id === actor.id) {
+      const lines = await this.orderedLines(manager, id);
+      // BR08, strict: whoever saved a count or submitted cannot approve.
+      const counters = new Set(
+        lines.map((l) => l.countedBy?.id).filter((u): u is string => !!u),
+      );
+      if (take.countedBy) counters.add(take.countedBy.id);
+      if (counters.has(actor.id)) {
         throw new BusinessRuleViolation(
           'BR08',
           'SAME_COUNTER',
-          'A stock take must be approved by someone other than the user who counted it.',
+          'A stock take must be approved by someone who did not count it.',
         );
       }
 
-      const lines = await this.orderedLines(manager, id);
       const changed = lines
         .map((line, index) => ({ line, index }))
         .filter(({ line }) => line.countedQuantity !== line.systemQuantity);
@@ -378,7 +386,7 @@ export class StockTakesService {
         {
           status: StockTakeStatus.APPROVED,
           approvedBy: { id: actor.id },
-          approvedAt: new Date(),
+          approvedAt: this.clock.now(),
         },
       );
     });
@@ -459,6 +467,7 @@ export class StockTakesService {
       .createQueryBuilder(StockTakeLine, 'l')
       .innerJoinAndSelect('l.batch', 'batch')
       .innerJoinAndSelect('batch.medicine', 'medicine')
+      .leftJoinAndSelect('l.countedBy', 'countedBy')
       .where('l.stock_take_id = :id', { id })
       .orderBy('medicine.name', 'ASC')
       .addOrderBy('batch.expiryDate', 'ASC')
@@ -522,6 +531,7 @@ export class StockTakesService {
           },
           countedQuantity: line.countedQuantity,
           reason: line.reason,
+          countedBy: line.countedBy ? userRef(line.countedBy) : null,
           systemQuantity: blind ? null : line.systemQuantity,
           difference,
           differenceValue:

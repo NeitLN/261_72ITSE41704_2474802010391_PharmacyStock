@@ -29,6 +29,7 @@ export interface StockTakeLine {
   };
   countedQuantity: number | null;
   reason: string | null;
+  countedBy: { id: string; fullName: string } | null;
   /** Null while counting: the book is hidden so it does not steer the count. */
   systemQuantity: number | null;
   difference: number | null;

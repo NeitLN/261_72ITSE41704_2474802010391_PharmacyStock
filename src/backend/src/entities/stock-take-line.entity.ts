@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { StockTake } from './stock-take.entity.js';
 import { Batch } from './batch.entity.js';
+import { User } from './user.entity.js';
 
 /** One counted batch and the discrepancy found against the book quantity. */
 @Entity('stock_take_lines')
@@ -46,4 +47,9 @@ export class StockTakeLine {
   @ManyToOne(() => Batch, { nullable: false })
   @JoinColumn({ name: 'batch_id' })
   batch: Relation<Batch>;
+
+  /** Who saved this count; BR08 refuses them as the approver. */
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'counted_by_id' })
+  countedBy: Relation<User> | null;
 }

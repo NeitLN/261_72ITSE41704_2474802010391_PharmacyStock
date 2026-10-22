@@ -23,14 +23,14 @@
 
 | Mã | Việc | Giờ | Reviewer | Phụ thuộc | Đầu ra / nghiệm thu | Issue |
 |---|---|---|---|---|---|---|
-| W09-A1 | **Ch.1–2** cập nhật theo **cái đã xây dựng**; **chức năng của A** (UC01–04, UC13): mô tả, input/output, **ảnh trên v1.0** | 4,5 | B | tag v1.0 (ảnh) | Mọi chức năng của A có mô tả + ảnh dữ liệu thật | #73 |
+| W09-A1 | **Ch.1–2** cập nhật theo **cái đã xây dựng**; **chức năng của A** (UC01–04, UC13): mô tả, input/output, **ảnh trên v1.0**; **phần thiết kế giao diện/điều hướng hoàn chỉnh** (chuyển từ B1, 22/10) | 5,5 | B | tag v1.0 (ảnh) | Mọi chức năng của A có mô tả + ảnh dữ liệu thật | #73 |
 | W09-A2 | **Ghép bản nháp — chỉ để nhất quán** (thứ tự, đánh số và chú thích hình/bảng, tham chiếu chéo); không viết lại phần của người khác | 3 | C | A1, B1, C3 | Bản nháp đủ chương T7 14/11 | #74 |
 | W09-A3 | **Bảng "góp ý Proposal → hành động → minh chứng"** (từ Issue `proposal-feedback`) đưa vào báo cáo | 1 | B | — | Mọi góp ý có hành động hoặc lý do không làm | #75 (nội dung đổi) |
-| — | A: buổi tập giải thích code 1,5 · họp 2,5 · review 1,5 · sửa lỗi 3 · dự phòng 3 | 11,5 | — | — | — | — |
-| W09-B1 | **Chức năng của B** (UC05–08, UC14) hoàn chỉnh + **ảnh trên v1.0**; phần thiết kế giao diện/điều hướng hoàn chỉnh; **sơ đồ use case + sequence** cho báo cáo (đánh số, chú thích) | 4 | C | tag v1.0 | Hình khớp code | #76 |
+| — | A: buổi tập giải thích code 1,5 · họp 2,5 · review 1,5 · sửa lỗi 3 · dự phòng 2 | 10,5 | — | — | — | — |
+| W09-B1 | **Chức năng của B** (UC05–08, UC14) hoàn chỉnh + **ảnh trên v1.0**; **sơ đồ use case + sequence** cho báo cáo (đánh số, chú thích) | 3 | C | tag v1.0 | Hình khớp code | #76 |
 | W09-B2 | **Kiểm thử khám phá** module của A và C (không theo kịch bản); lập bug | 3 | A | freeze | Lỗi tìm được có Issue và mức | #77 |
 | W09-B3 | **Ma trận truy vết FR → UC → service → test → trạng thái** (đã làm / một phần / chưa, lý do) | 3 | C | — | Ma trận trong báo cáo; mọi FR có trạng thái | #78 |
-| — | B: buổi tập giải thích code 1,5 · họp 2,5 · review 1,5 · sửa lỗi 4,5 | 10 | — | — | — | — |
+| — | B: buổi tập giải thích code 1,5 · họp 2,5 · review 1,5 · sửa lỗi 5,5 | 11 | — | — | — | — |
 | W09-C1 | **TC-32**: 2 người ngoài nhóm làm các tác vụ chính không có hướng dẫn từng bước; ghi thời gian, lỗi, khó khăn; so với ngưỡng NFR khả dụng (QĐ 9) | 3 | B | freeze | Biên bản trong `tests/manual/evidence/`; Pass/Fail theo ngưỡng | #79 |
 | W09-C2 | **TC-33**: clone mới trên máy khác → làm theo README → chạy được (DB, migration, seed, tài khoản mẫu); hoàn thiện **run guide** | 3 | B | — | Run guide trong repo; mọi bước phải sửa đã sửa | #80 |
 | W09-C3 | **Hồi quy cuối — chỉ kiểm thử** (bộ R + TC-31, bắt đầu T4 11/11) → **ký và tag `v1.0`** T6 13/11 (người ký dự phòng: B) | 5 | A | C1, C2 | Tag + release note liệt kê lỗi còn mở | #81 |
@@ -42,8 +42,8 @@
 
 | Người | Test | Review | Sửa lỗi/Dự phòng | Báo cáo | Họp + tập giải thích | **Tổng** |
 |---|---|---|---|---|---|---|
-| A | — | 1,5 | 6 | 8,5 | 4 | **20** |
-| B | 3 | 1,5 | 4,5 | 7 | 4 | **20** |
+| A | — | 1,5 | 5 | 9,5 | 4 | **20** |
+| B | 3 | 1,5 | 5,5 | 6 | 4 | **20** |
 | C | 11 | 1,5 | 1,5 | 2 | 4 | **20** |
 
 ## 5. Lịch

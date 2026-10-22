@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="../kit.css"><title>Suppliers</title></head>
+<body>
+<div class="frame">
+  <span class="label">UC02 Suppliers › Suppliers — list and add form with field errors <span class="tag">as-built · Tiến · 22/10/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Catalogue &amp; batches</div><div class="on">Suppliers &amp; receipts</div><div>Prescriptions &amp; dispensing</div><div>Sales &amp; returns</div><div>Stock control &amp; reports</div></div>
+    <div class="page">
+      <h1>Suppliers &amp; goods receipts</h1>
+      <div class="tabs"><div class="on">Suppliers</div><div>Goods receipts</div></div>
+      <div class="row"><span class="field wide">Search name or phone</span><span>☐ Show inactive</span><span class="btn primary">+ Add supplier</span></div>
+      <table>
+        <tr><th>Name</th><th>Phone</th><th>Address</th><th>Contact</th><th>Status</th><th></th></tr>
+        <tr><td>An Khang Pharma Distribution</td><td>028 0000 1001</td><td>12 Le Loi, District 1</td><td>Ms. Lan</td><td><span class="tag">Active</span></td><td><span class="btn">Edit</span> <span class="btn danger">Deactivate</span></td></tr>
+        <tr><td>Binh Minh Medical Supply</td><td>028 0000 1002</td><td>—</td><td>Mr. Hai</td><td><span class="tag">Inactive</span></td><td><span class="btn">Edit</span> <span class="btn">Activate</span></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="overlay"></div>
+  <div class="modal" style="top: 130px; left: 400px; width: 460px">
+    <h2>Add supplier</h2>
+    <div class="row"><span style="width: 120px">Name*</span><span class="field error wide"></span></div>
+    <div class="row"><span style="width: 120px"></span><span class="err">Name is required.</span></div>
+    <div class="row"><span style="width: 120px">Phone number*</span><span class="field error wide">12ab</span></div>
+    <div class="row"><span style="width: 120px"></span><span class="err">Phone number must be 8–20 characters: digits, spaces, dots, dashes and an optional leading +.</span></div>
+    <div class="row"><span style="width: 120px">Address</span><span class="field wide"></span></div>
+    <div class="row"><span style="width: 120px">Contact person</span><span class="field wide"></span></div>
+    <div class="row"><span style="width: 120px">E-mail</span><span class="field wide"></span></div>
+    <div class="row" style="justify-content: flex-end"><span class="btn">Cancel</span><span class="btn primary">Save</span></div>
+  </div>
+  <div class="note" data-n="1" style="top: 200px; left: 880px">Each error appears under its own field, one message per field (#47); nothing is saved.</div>
+  <div class="note" data-n="2" style="top: 330px; left: 230px">Deactivate asks for confirmation: the supplier can no longer be used on a receipt; history stays.</div>
+</div>
+<ol class="notes">
+  <li>UC02 A1, TC-46, error-handling ERR-01/02.</li>
+  <li>UC02 step 4, FR-05 · <code>supplier.manage</code> (manager only).</li>
+</ol>
+</body>
+</html>

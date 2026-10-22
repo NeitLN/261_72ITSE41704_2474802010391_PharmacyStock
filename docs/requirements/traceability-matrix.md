@@ -108,6 +108,8 @@ OC-18 ticket:
   `BR05-11…`, and #166 renames the prescriptions unit tests `UC05-U1…7` to
   `UC05-U11…17` — this table records the names as of the snapshot commit
   (`af37055`), to be updated when those PRs merge.
+- Run 19 (TC-11, invalid dispensing quantity) is not cited above: it tests
+  input validation (NFR-04), not one FR.
 - Planned weeks come from `docs/plan/tuan-07.md` (W07-B1 UC08, W07-C1 UC11,
   W07-C2 UC12; FR-46/47 week 8; UC13, UC14 screens and UC15 are Should items to
   stop if the week-7 must deadline slips).

@@ -200,7 +200,9 @@ describe('UC09 stock takes (e2e)', () => {
     const approved = await manager.approve(take.id);
     expect(approved.status).toBe(201);
     expect(approved.body.status).toBe(StockTakeStatus.APPROVED);
-    expect(approved.body.approvedAt).toBeTruthy();
+    // Times come from the business clock, not the machine.
+    expect(approved.body.approvedAt).toBe(clock.now().toISOString());
+    expect(approved.body.submittedAt).toBe(clock.now().toISOString());
     expect(approved.body.adjustments).toEqual([
       expect.objectContaining({ lineId: line, batchNumber: 'P1', deltaSellable: -2 }),
     ]);
@@ -329,6 +331,22 @@ describe('UC09 stock takes (e2e)', () => {
     expect(await adjustments()).toHaveLength(0);
     expect(await qty(batch)).toBe(10);
     expect((await manager.get(take.id)).body.status).toBe(StockTakeStatus.PENDING_APPROVAL);
+  });
+
+  it('UC09-11b TC-20 BR08: a manager who counted a line cannot approve, even if someone else submitted', async () => {
+    const p1 = await receive(paraId, 'P1', 10);
+    const p2 = await receive(paraId, 'P2', 5, '2027-12-31');
+    const take = await open([paraId]);
+    await manager.count(take.id, lineOf(take, p1), { countedQuantity: 9, reason: 'Broken' });
+    await pharmacist.count(take.id, lineOf(take, p2), { countedQuantity: 5 });
+    expect((await pharmacist.submit(take.id)).status).toBe(201);
+
+    const view = (await manager.get(take.id)).body;
+    expect(view.lines.map((l: { countedBy: { fullName: string } }) => l.countedBy.fullName).sort()).toHaveLength(2);
+    const res = await manager.approve(take.id);
+    expect(res.status).toBe(422);
+    expect(res.body.code).toBe('SAME_COUNTER');
+    expect(await adjustments()).toHaveLength(0);
   });
 
   it('UC09-12 approving while counting, or twice, is a 409 and posts once', async () => {

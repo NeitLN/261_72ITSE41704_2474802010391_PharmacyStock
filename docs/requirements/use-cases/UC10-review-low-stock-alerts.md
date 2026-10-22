@@ -94,7 +94,7 @@ changed in one place.
 |---|---|---|
 | Where evaluation is triggered | Inside `StockLedger.run`, after the work and before the commit, for every medicine the transaction locked. Those rows are already locked, so two sales cannot both raise an alert, and no use case can forget to call it. | Open question 1; FR-33 "after every movement" |
 | Catalogue changes | When a medicine's reorder level or monitoring switch changes (UC01), the same evaluation runs for it in that transaction. Switching monitoring off resolves an unresolved alert. | Open question 2, TC-63 |
-| Start of the business day | Expiry makes stock unsellable at midnight with no movement. Every monitored medicine is evaluated when the API starts and on the first alert request of a new business date (`Clock.today()`). No scheduler is added. | FR-33 "each business day", decision 10 |
+| Start of the business day | Expiry makes stock unsellable at midnight with no movement. Every monitored medicine is evaluated when the API starts and on the first alert request of a new business date (`Clock.today()`). No scheduler is added. The date of the last evaluation is kept in memory, so after a restart the first request evaluates again; that is harmless with one API instance. | FR-33 "each business day", decision 10 |
 | What counts | Sellable = `qtySellable` of ACTIVE batches with expiry after the business date: the same rule as `lockEligibleBatches` and UC04, so an alert never disagrees with what can be issued. | DEC-08, BR02 |
 | Rule | Monitoring on and sellable = 0 → OUT_OF_STOCK; monitoring on and 0 < sellable ≤ reorder level → LOW_STOCK; otherwise none. | DEC-08 |
 | Deactivated medicines | Treated as not monitored: deactivating one resolves its alert, reactivating it re-evaluates. It can no longer be received, so an alert would ask for something nobody can do. | FR-02 |
@@ -122,10 +122,10 @@ stock hides a shortage (step 4).
 
 | ID | Kind | Scenario | Expected | Test |
 |---|---|---|---|---|
-| S01 | Normal | Reorder level 10, sellable 11 | No alert | UC10-01, TC-21 |
-| S02 | Edge | Sellable falls to exactly 10 | One LOW_STOCK alert | UC10-02, TC-21 |
-| S03 | Normal | Then to 9 | Still one LOW_STOCK alert, the same one | UC10-03, TC-21 |
-| S04 | Normal | Then to 0 | LOW_STOCK resolved, one OUT_OF_STOCK open | UC10-04, TC-21 |
+| S01 | Normal | Reorder level 10, sellable 11 | No alert | UC10-01..04, TC-21 |
+| S02 | Edge | Sellable falls to exactly 10 | One LOW_STOCK alert | UC10-01..04, TC-21 |
+| S03 | Normal | Then to 9 | Still one LOW_STOCK alert, the same one | UC10-01..04, TC-21 |
+| S04 | Normal | Then to 0 | LOW_STOCK resolved, one OUT_OF_STOCK open | UC10-01..04, TC-21 |
 | S05 | Normal | A receipt brings it to 15 | The alert RESOLVED with the time | UC10-05 |
 | S06 | Edge | Monitoring off at sellable 0; and switched off while an alert is open | No alert; the open one is resolved | UC10-06, TC-63 |
 | S07 | Edge | Sellable 12 plus 5 expired, 5 quarantined and 5 on hold, reorder level 10 | No alert: only the 12 count | UC10-07, TC-63 |
@@ -137,3 +137,4 @@ stock hides a shortage (step 4).
 | S13 | Normal | Several alerts | OUT_OF_STOCK first, then by sellable quantity | UC10-13 |
 | S14 | Normal | The reorder level is raised above the sellable quantity | LOW_STOCK raised in the same save | UC10-14 |
 | S15 | Normal | A stock-take approval drops sellable to the level | LOW_STOCK raised in the approval transaction | UC10-15 |
+| S16 | Edge | A monitored medicine with an open alert is deactivated | The alert is resolved | UC10-16 |

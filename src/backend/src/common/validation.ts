@@ -11,17 +11,68 @@ import {
 } from '@nestjs/common';
 import { type FieldError, ValidationFailed } from './errors.js';
 
-/** Flattens class-validator errors into dotted field paths, e.g. `lines.0.quantity`. */
+/**
+ * Constraints that say the value is missing. When one fails, its message is
+ * the one the user needs; "must be a string" on top of it is noise.
+ */
+const MISSING = ['isDefined', 'isNotEmpty', 'arrayMinSize', 'arrayNotEmpty'];
+
+/**
+ * Constraints about the kind of value. When one fails, a length or range
+ * message on top of it ("must be at least 1" for `"ten"`) is misleading.
+ */
+const WRONG_TYPE = [
+  'isString',
+  'isInt',
+  'isNumber',
+  'isBoolean',
+  'isUuid',
+  'isArray',
+  'isObject',
+  'isEmail',
+  'isEnum',
+  'isIn',
+  'isCalendarDate',
+  'isIso8601',
+  'isDateString',
+  'matches',
+];
+
+/**
+ * The one message shown under a field (#47), in this order: "required" if
+ * the value is missing; else what is wrong with its kind; else the first
+ * message written for people; else the first one. class-validator's own
+ * defaults start with the property name.
+ */
+function messageFor(error: ValidationError): string | undefined {
+  const constraints = error.constraints ?? {};
+  // Constraint names differ in case between versions (isUUID, isISO8601).
+  const named = (wanted: string) =>
+    Object.keys(constraints).find(
+      (k) => k.toLowerCase() === wanted.toLowerCase(),
+    );
+  const first = (list: string[]) =>
+    list.map(named).find((k): k is string => k !== undefined);
+  const chosen = first(MISSING) ?? first(WRONG_TYPE);
+  if (chosen) return constraints[chosen];
+  const messages = Object.values(constraints);
+  return (
+    messages.find((m) => !m.startsWith(`${error.property} `)) ?? messages[0]
+  );
+}
+
+/**
+ * Flattens class-validator errors into dotted field paths, e.g.
+ * `lines.0.quantity`, with one message per field.
+ */
 export function toFieldErrors(
   errors: ValidationError[],
   parent = '',
 ): FieldError[] {
   return errors.flatMap((error) => {
     const field = parent ? `${parent}.${error.property}` : error.property;
-    const own = Object.values(error.constraints ?? {}).map((message) => ({
-      field,
-      message,
-    }));
+    const message = messageFor(error);
+    const own = message ? [{ field, message }] : [];
     return [...own, ...toFieldErrors(error.children ?? [], field)];
   });
 }

@@ -1,4 +1,4 @@
-# Sequence diagrams — dispensing, billing, returns
+# Sequence diagrams — dispensing, billing, returns, stock lookup
 
 Week 4 task W04-B1 (#31), done late. Three flows where stock and money meet,
 drawn so that the lock order and the "stock leaves once" rule (DEC-05) can be
@@ -10,10 +10,11 @@ checked before and during review.
 | 2a. Over-the-counter sale (UC07) | The code: `SalesService`, `FefoAllocator`, `StockLedger`, `PriceBook` | **As built** — matches the design |
 | 2b. Bill a dispensing (UC07) | Same | Design gate for #50 (week 6) — update when built |
 | 3. Process a return (UC08) | [UC08 specification](../requirements/use-cases/UC08-process-return.md) | Design for #58 — update when built |
+| 4. Look up stock and batch history (UC04) | [UC04 specification](../requirements/use-cases/UC04-look-up-stock.md) | Design gate for #46 (week 6) — update when built |
 | 5. Approve a stock take (UC09) | [UC09 specification](../requirements/use-cases/UC09-conduct-stock-take.md) | Design gate for #52 (week 6) — update when built |
 | 6. Evaluate low-stock alerts (UC10) | [UC10 specification](../requirements/use-cases/UC10-review-low-stock-alerts.md) | Design gate for #53 (week 6) — update when built |
 
-Every diagram follows the same transaction pattern: one `StockLedger.run`
+Every diagram that writes (1–3) follows the same transaction pattern: one `StockLedger.run`
 (READ COMMITTED, 5-second lock timeout, one retry on deadlock); the document
 row that two users could both touch is locked first; then the ledger's own
 order — medicines in one call, ascending id, then batches; the request ID is
@@ -261,12 +262,54 @@ was sold stays readable, and the return is a new document with its own
 movements. Returning dispensed goods does not restore the prescription's
 outstanding quantity (decision 13).
 
+## 4. Look up stock and batch history (UC04) — design
+
+Read only: no lock, no request ID, nothing written. The two numbers that must
+agree with issuing come from the same rule as `StockLedger.lockEligibleBatches`
+(ACTIVE, expiry after the business date), and the running balance is computed
+from the movements in the query, so it cannot drift from the ledger (BR05).
+Scenario rows (UC04-S01…S14) are in the
+[UC04 specification](../requirements/use-cases/UC04-look-up-stock.md#scenario-table).
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Manager, pharmacist or cashier
+    participant UI as CataloguePage — Stock tab
+    participant C as StockController
+    participant S as StockLookupService
+    participant K as Clock
+    participant DB as PostgreSQL
+
+    U->>UI: search, category, stock state
+    UI->>C: GET /stock?search&categoryId&state&page
+    C->>S: list(actor, query)
+    S->>S: assertPermission(STOCK_VIEW)
+    S->>K: today() — business date, Asia/Ho_Chi_Minh
+    S->>DB: medicines LEFT JOIN batches, SUM per medicine: sellable (ACTIVE, expiry > today), expired, held, quarantine, pending destruction — filter, ORDER BY name, code — LIMIT/OFFSET and COUNT
+    S-->>UI: page of medicines with quantities and total (empty → empty state, A1)
+
+    U->>UI: open a medicine
+    UI->>C: GET /stock/medicines/:id
+    C->>S: medicine(actor, id)
+    S->>DB: medicine (404 if unknown), its batches in FEFO order
+    S->>S: state per batch — status first, then expired (expiry ≤ today), else active with days left
+    S-->>UI: totals and batches with quantity per stock state
+
+    U->>UI: open a batch
+    UI->>C: GET /stock/batches/:id/movements
+    C->>S: history(actor, id)
+    S->>DB: batch (404 if unknown) and its movements with SUM(delta) OVER (ORDER BY occurredAt, id) per state, the user, the reversal links
+    S->>DB: references of the source documents (receipt, prescription, sale) in one query per type
+    S-->>UI: movements in time order with running balance and source — last balance = batch quantities
+```
+
 ## 5. Approve a stock take (UC09) — design
 
 Counting and posting are apart: the counts are entered and submitted first
 (the system quantity of a line is taken when its count is saved, decision
 15), and only the approval changes stock, in one ledger transaction, by
-someone other than the counter (BR08). Scenario rows UC09-S01…S18 are in the
+someone who counted none of its lines and did not submit it (BR08). Scenario rows UC09-S01…S18 are in the
 [UC09 specification](../requirements/use-cases/UC09-conduct-stock-take.md#scenario-table).
 
 ```mermaid
@@ -285,7 +328,7 @@ sequenceDiagram
     C->>S: count(actor, id, lineId, dto)
     S->>S: assertPermission(STOCK_TAKE_COUNT)
     S->>DB: SELECT stock_take FOR UPDATE — COUNTING, else 409
-    S->>DB: UPDATE line: counted, reason, systemQuantity = batch.qtySellable now
+    S->>DB: UPDATE line: counted, reason, countedBy = actor, systemQuantity = batch.qtySellable now
     P->>UI: Submit
     UI->>C: POST /stock-takes/:id/submit
     C->>S: submit(actor, id)
@@ -300,7 +343,7 @@ sequenceDiagram
     S->>L: run(work)
     L->>DB: BEGIN
     S->>DB: SELECT stock_take FOR UPDATE — PENDING_APPROVAL, else 409
-    S->>S: actor ≠ countedBy, else 422 BR08 SAME_COUNTER (FR-32)
+    S->>S: actor counted no line and did not submit, else 422 BR08 SAME_COUNTER (FR-32)
     S->>L: lockMedicines(medicines of the lines with a difference)
     S->>L: lockBatches(their batches, ascending id)
     loop each line with counted ≠ system

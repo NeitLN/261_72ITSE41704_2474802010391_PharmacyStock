@@ -97,7 +97,7 @@ changed in one place.
 | Which lines a stock take gets | One per batch of the chosen medicines that has sellable stock, whatever its status. The counter may add any other batch of those medicines (A3), e.g. one the book holds at 0. | Step 2, A3 |
 | Blind count | While the stock take is COUNTING, the API returns `systemQuantity` and the difference as `null`, for every role. They appear once it is submitted. | Step 2: the book must not steer the count |
 | When the system quantity is taken | When the count of that line is saved: the batch's `qtySellable` at that moment (decision 15). Approval posts *counted − system*, so issues between counting and approval do not become a difference. | Decision 15 |
-| Who is "the counter" | The user who submits (`countedBy`). BR08 compares the approver with that user. | BR08, FR-32 |
+| Who is "the counter" | Everyone who saved a count on any line (stored per line), and the user who submitted (`countedBy`). The approver must be none of them, so a manager cannot count the lines, have someone else press *Submit*, and approve their own count. | BR08, FR-32 (strict reading, review of #146) |
 | Repeated or racing commands | Every command locks the stock take row first (`FOR UPDATE`), then checks its status. A second approve, or a count after submit, is a 409. No request ID is needed: the status change is the guard. | Same pattern as the prescription row in UC06 |
 | Lock order on approval | Stock take row → medicines of the lines (one call, ascending id) → batches (ascending id) → one `ADJUSTMENT` per line with a difference, source `stock_take_line`, reason from the line. | `StockLedger` lock protocol |
 | An adjustment that would go below zero (A6) | The ledger refuses it (BR03); the whole approval rolls back and the error names the line, so it can be recounted after a return to COUNTING. | Open question 2 |
@@ -146,7 +146,7 @@ a TC are also run by hand (by Duy Anh, plan week 6).
 | S08 | Error | Count `-1`, `2.5`, empty | 400 on `countedQuantity`; nothing saved | UC09-08 |
 | S09 | Error | A cashier lists, counts, submits or opens | 403 for each | UC09-09, TC-20, TC-28 |
 | S10 | Error | A pharmacist opens, approves, returns or cancels | 403 for each | UC09-10 |
-| S11 | Edge | The user who submitted approves (BR08) | 422 `SAME_COUNTER`; nothing posted; still PENDING_APPROVAL | UC09-11, TC-51 |
+| S11 | Edge | The user who submitted approves; or the manager counts a line and someone else submits, then the manager approves (BR08) | 422 `SAME_COUNTER` both times; nothing posted; still PENDING_APPROVAL | UC09-11, TC-51, TC-20 |
 | S12 | Edge | Approve while COUNTING; approve twice | 409; one set of movements only | UC09-12 |
 | S13 | Edge | Count or add a line after submit | 409 | UC09-13 |
 | S14 | Error | System 10, counted 2; 5 sold after counting, so −8 would go below zero | 422 (BR03) naming the line; nothing posted | UC09-14, A6 |

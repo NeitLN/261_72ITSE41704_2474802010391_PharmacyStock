@@ -8,7 +8,6 @@ import {
   BusinessRuleViolation,
   Conflict,
   type FieldError,
-  NotFound,
   ValidationFailed,
 } from '../common/errors.js';
 import {
@@ -119,7 +118,7 @@ export class DispensingService {
       where: { id: dto.prescriptionId },
       relations: { prescriber: true },
     });
-    if (!prescription) throw new NotFound('Prescription', dto.prescriptionId);
+    if (!prescription) throw unknownPrescription();
     this.checkPrescription(prescription, today);
     const items = await this.loadItems(manager, dto, false);
 
@@ -428,9 +427,17 @@ export class DispensingService {
       .where('p.id = :id', { id })
       .setLock('pessimistic_write', undefined, ['p'])
       .getOne();
-    if (!prescription) throw new NotFound('Prescription', id);
+    if (!prescription) throw unknownPrescription();
     return prescription;
   }
+}
+
+/** An id sent in the body that does not exist is an error on its field (#47). */
+function unknownPrescription(): ValidationFailed {
+  return ValidationFailed.field(
+    'prescriptionId',
+    'This prescription does not exist.',
+  );
 }
 
 const outstanding = PrescriptionValidator.outstanding;

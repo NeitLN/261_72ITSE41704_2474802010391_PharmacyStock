@@ -64,12 +64,31 @@ function WarningTag({ warning }: { warning: ExpiryWarning }) {
 }
 
 /**
+ * The reason box of "Cancel hand-over". Controlled, so a modal.update of the
+ * OK-button state cannot wipe what was typed.
+ */
+function CancelReason({ onChange }: { onChange: (value: string) => void }) {
+  const [value, setValue] = useState('');
+  return (
+    <Input
+      placeholder="Cancellation reason"
+      value={value}
+      onChange={(e) => {
+        setValue(e.target.value);
+        onChange(e.target.value);
+      }}
+      aria-label="Cancellation reason"
+    />
+  );
+}
+
+/**
  * UC06 Dispense against a prescription: pick a verified prescription, preview
  * the FEFO batches, confirm the hand-over. Every batch, warning and quantity
  * comes from the server; the screen never computes stock.
  */
 export function DispensePanel() {
-  const { modal } = App.useApp();
+  const { message, modal } = App.useApp();
   const [search, setSearch] = useState('');
   const [prescriptionId, setPrescriptionId] = useState<string | undefined>(undefined);
   const [prescription, setPrescription] = useState<Prescription | null>(null);
@@ -172,6 +191,52 @@ export function DispensePanel() {
       content: 'Stock leaves the shelf now. Continue?',
       okText: 'Hand over',
       onOk: () => handOver(),
+    });
+  }
+
+  function cancelHandover() {
+    if (!preview) return;
+    let reason = '';
+    let okEnabled = false;
+    // TC-59: the reason is mandatory; nothing is sent to the server, so the
+    // stock of the previewed batches cannot change.
+    const handle = modal.confirm({
+      title: 'Cancel this hand-over?',
+      content: (
+        <div style={{ marginTop: 8 }}>
+          <Typography.Paragraph type="secondary">
+            Nothing was handed over — stock is unchanged.
+          </Typography.Paragraph>
+          <CancelReason
+            onChange={(v) => {
+              reason = v;
+              const enabled = v.trim().length > 0;
+              if (enabled !== okEnabled) {
+                okEnabled = enabled;
+                handle?.update({
+                  okButtonProps: { danger: true, disabled: !enabled },
+                });
+              }
+            }}
+          />
+        </div>
+      ),
+      okText: 'Cancel hand-over',
+      okButtonProps: { danger: true, disabled: true },
+      onOk: () => {
+        if (!reason.trim()) {
+          return Promise.reject(new Error('A reason is required.'));
+        }
+        // Keep the chosen prescription so the pharmacist can enter the
+        // quantities again; the preview and its request ID no longer apply.
+        setPreview(null);
+        setQuantities({});
+        setNotes({});
+        setRequestId(null);
+        setFieldErrors({});
+        setTopError(null);
+        message.info('Hand-over cancelled — stock is unchanged.');
+      },
     });
   }
 
@@ -310,15 +375,19 @@ export function DispensePanel() {
                   onNote={(itemId, v) => setNotes((prev) => ({ ...prev, [itemId]: v }))}
                   noteErrors={fieldErrors}
                 />
-                <Button
-                  type="primary"
-                  disabled={!canConfirm}
-                  loading={confirming}
-                  onClick={confirmHandover}
-                  style={{ marginTop: 12 }}
-                >
-                  Confirm hand-over
-                </Button>
+                <Space style={{ marginTop: 12 }}>
+                  <Button
+                    type="primary"
+                    disabled={!canConfirm}
+                    loading={confirming}
+                    onClick={confirmHandover}
+                  >
+                    Confirm hand-over
+                  </Button>
+                  <Button danger disabled={confirming} onClick={cancelHandover}>
+                    Cancel hand-over
+                  </Button>
+                </Space>
                 {requestId && (
                   <Typography.Paragraph type="secondary" style={{ marginTop: 8 }}>
                     Retrying sends the same request, so a network failure can never

@@ -1,5 +1,6 @@
 import { Card, Tabs, Typography } from 'antd';
 import { useAuth } from '../auth/authContext';
+import { AlertsPanel } from './AlertsPanel';
 import { PlaceholderPage } from './PlaceholderPage';
 import { StockTakesPanel } from './StockTakesPanel';
 
@@ -12,6 +13,11 @@ export function ReportsPage() {
       label: 'Stock takes',
       children: <StockTakesPanel />,
     },
+    can('alert.manage') && {
+      key: 'alerts',
+      label: 'Low-stock alerts',
+      children: <AlertsPanel />,
+    },
     {
       key: 'later',
       label: 'Coming next',
@@ -20,7 +26,6 @@ export function ReportsPage() {
           title="Not built yet"
           owner="Võ Hoàng Minh (C)"
           useCases={[
-            'UC10 — Review low-stock alerts',
             'UC11 — Review expiry alerts, batch status and quarantined stock',
             'UC12 — Produce a stock movement report',
           ]}

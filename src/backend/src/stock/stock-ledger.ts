@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { DataSource, type EntityManager, QueryFailedError } from 'typeorm';
 import type { Actor } from '../auth/actor.js';
 import { BusinessRuleViolation, Conflict, NotFound } from '../common/errors.js';
@@ -16,6 +16,7 @@ import {
   NO_DELTAS,
   type StockDeltas,
 } from './stock-deltas.js';
+import { AlertEvaluator } from './alert-evaluator.js';
 
 /** What a caller asks the ledger to record. */
 export interface MovementInput extends Partial<StockDeltas> {
@@ -61,10 +62,19 @@ function pgCode(error: unknown): string | undefined {
  *
  * The ledger does not check permissions: the calling service has already
  * checked the actor's permission for its command.
+ *
+ * After the work and before the commit, the low-stock alerts of every
+ * medicine the command locked are evaluated (UC10, FR-33). Those rows are
+ * still locked, so concurrent commands cannot raise two alerts for one
+ * medicine, and no use case has to remember the call.
  */
 @Injectable()
 export class StockLedger {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(
+    private readonly dataSource: DataSource,
+    /** Absent only where the ledger is built by hand (the demo seed). */
+    @Optional() private readonly alerts?: AlertEvaluator,
+  ) {}
 
   async run<T>(work: (tx: LedgerTransaction) => Promise<T>): Promise<T> {
     for (let attempt = 1; ; attempt++) {
@@ -73,7 +83,10 @@ export class StockLedger {
           'READ COMMITTED',
           async (manager) => {
             await manager.query(`SET LOCAL lock_timeout = '5s'`);
-            return work(new LedgerTransaction(manager));
+            const tx = new LedgerTransaction(manager);
+            const result = await work(tx);
+            await this.alerts?.evaluate(manager, tx.lockedMedicineIds);
+            return result;
           },
         );
       } catch (error) {
@@ -94,6 +107,11 @@ export class LedgerTransaction {
   private writes: Promise<unknown> = Promise.resolve();
 
   constructor(readonly manager: EntityManager) {}
+
+  /** The medicines this command has locked (step 1), lower-case. */
+  get lockedMedicineIds(): string[] {
+    return [...this.lockedMedicines];
+  }
 
   /**
    * Step 1: lock the medicines whose batches this command touches. Pass them

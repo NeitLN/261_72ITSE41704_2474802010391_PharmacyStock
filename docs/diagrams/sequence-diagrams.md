@@ -126,8 +126,9 @@ sequenceDiagram
     S->>S: assertPermission(SALE_CREATE), one line per medicine, else 400
     S->>L: run(work)
     L->>DB: BEGIN
+    S->>DB: every medicine and the prescription exist, else 400 on its field (#47)
     S->>L: lockMedicines(all medicine ids)
-    L->>DB: SELECT medicines FOR UPDATE (ascending id), unknown id 404
+    L->>DB: SELECT medicines FOR UPDATE (ascending id)
     S->>DB: find ProcessedRequest(requestId)
     alt request already done (FR-23)
         S-->>C: stored receipt — same hash replays, other content gets 409
@@ -187,6 +188,7 @@ sequenceDiagram
     S->>S: assertPermission(SALE_CREATE), a cart line or a prescription, else 400
     S->>L: run(work)
     L->>DB: BEGIN
+    S->>DB: the prescription and every cart medicine exist, else 400 on its field (#47)
     S->>DB: SELECT dispense lines of the prescription WHERE sale_id IS NULL FOR UPDATE
     opt OTC lines in the same sale
         S->>L: lockMedicines(cart medicine ids), as in 2a

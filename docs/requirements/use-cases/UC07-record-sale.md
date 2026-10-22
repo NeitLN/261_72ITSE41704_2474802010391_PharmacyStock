@@ -128,8 +128,9 @@ changed in one place if the team or the pharmacist reviewer decides otherwise.
 | `GET /api/sales/:id` | `sale.create` | The receipt, to show or print again |
 
 Money goes out as decimal strings (`"12500.00"`), as in the rest of the API.
-Errors use the existing format: 400 per field (`otcLines.0.quantity`), 403,
-404, 409 (request ID reused with other content), 422 with the rule and a
+Errors use the existing format: 400 per field (`otcLines.0.quantity`; also an
+unknown medicine, customer or prescription, #47), 403, 404 (an unknown sale
+in the URL), 409 (request ID reused with other content), 422 with the rule and a
 code: `INSUFFICIENT_STOCK` (BR03), `NOT_OVER_THE_COUNTER` (BR04),
 `MEDICINE_INACTIVE`, `NO_PRICE_IN_FORCE`, `ALREADY_BILLED` (A5) and
 `NOTHING_TO_BILL` (a prescription with no hand-over yet). A billed
@@ -156,7 +157,7 @@ named in the last column, and the rows with a TC are also run by hand.
 | S12 | Error | Bill a prescription already billed | 422 "already billed"; the first sale unchanged | UC07-17, A5 |
 | S13 | Error | Same request ID again / with other content | Same receipt, nothing posted twice / 409 | UC07-09, UC07-20, TC-27, FR-23 |
 | S14 | Error | Pharmacist (no `sale.create`) calls the API | 403 | UC07-10, UC07-21, A10 |
-| S15 | Error | Empty sale, quantity 0, −1 or 2.5, unknown medicine | 400 on the field (`otcLines.0.quantity`) / 404 | UC07-11, UC07-21, NFR-04 |
+| S15 | Error | Empty sale, quantity 0, −1 or 2.5, unknown medicine, customer or prescription | 400 on the field (`otcLines.0.quantity`, `otcLines.0.medicineId`, `customerId`, `prescriptionId`) (#47) | UC07-11, UC07-17, UC07-21, NFR-04 |
 | S16 | Concurrency | A sale and a dispensing take the last units at the same moment; two cashiers bill the same prescription | Exactly one succeeds, the other 422; stock never negative; no 500 (BR03) | UC07-13, UC07-14, UC07-18, TC-62, NFR-08 |
 | S17 | Edge | The earliest batch expires within the alert window (BR02, FR-16) | Sold with a warning showing the days left on its receipt line; a billed line carries none (its warning was shown at the hand-over) | UC07-23, UC07-15 |
 | S18 | Normal | Part of a prescription handed over and billed, the rest handed over later (DEC-02) | The second hand-over appears in the list again and is billed on its own receipt | UC07-19 |

@@ -10,7 +10,7 @@ checked before and during review.
 | 2a. Over-the-counter sale (UC07) | The code: `SalesService`, `FefoAllocator`, `StockLedger`, `PriceBook` | **As built** — matches the design |
 | 2b. Bill a dispensing (UC07) | Same | Design gate for #50 (week 6) — update when built |
 | 3. Process a return (UC08) | [UC08 specification](../requirements/use-cases/UC08-process-return.md) | Design for #58 — update when built |
-| 4. Look up stock and batch history (UC04) | [UC04 specification](../requirements/use-cases/UC04-look-up-stock.md) | Design gate for #46 (week 6) — update when built |
+| 4. Look up stock and batch history (UC04) | The code: `StockLookupService`, `StockPanel` | **As built** — matches the design |
 
 Every diagram that writes (1–3) follows the same transaction pattern: one `StockLedger.run`
 (READ COMMITTED, 5-second lock timeout, one retry on deadlock); the document
@@ -260,7 +260,7 @@ was sold stays readable, and the return is a new document with its own
 movements. Returning dispensed goods does not restore the prescription's
 outstanding quantity (decision 13).
 
-## 4. Look up stock and batch history (UC04) — design
+## 4. Look up stock and batch history (UC04) — as built
 
 Read only: no lock, no request ID, nothing written. The two numbers that must
 agree with issuing come from the same rule as `StockLedger.lockEligibleBatches`

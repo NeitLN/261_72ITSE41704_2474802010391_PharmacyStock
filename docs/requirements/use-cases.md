@@ -21,7 +21,7 @@ Requirements: [`functional-requirements.md`](functional-requirements.md).
 | UC01 | [Manage medicine catalogue](use-cases/UC01-manage-medicine-catalogue.md) | Manager | Tiến (A) | Must | Week 5 | Built (#97), awaiting test run |
 | UC02 | [Manage suppliers](use-cases/UC02-manage-suppliers.md) | Manager | Tiến (A) | Must | Week 5 | Built (#95), awaiting test run |
 | UC03 | [Record a goods receipt](use-cases/UC03-record-goods-receipt.md) | Manager | Tiến (A) | Must | Week 5 | Built (#99), awaiting test run |
-| UC04 | [Look up stock and batch history](use-cases/UC04-look-up-stock.md) | All roles | Tiến (A) | Must | Week 6 | Specified |
+| UC04 | [Look up stock and batch history](use-cases/UC04-look-up-stock.md) | All roles | Tiến (A) | Must | Week 6 | Built (#46), awaiting test run (TC-48) |
 | UC05 | [Take in a prescription](use-cases/UC05-take-in-prescription.md) | Pharmacist | Duy Anh (B) | Must | Week 5 | Built (#108), awaiting test run |
 | UC06 | [Dispense against a prescription](use-cases/UC06-dispense-prescription.md) | Pharmacist | Duy Anh (B) | Must | Week 5 | Built (#109), awaiting test run |
 | UC07 | [Record a sale](use-cases/UC07-record-sale.md) | Cashier | Duy Anh (B) | Must | Week 7 | Specified |

@@ -29,8 +29,8 @@ needs a passing run by someone other than the author in `tests/manual/runs.md`.
 | FR-07 | The system shall refuse a receipt line whose quantity is not a positive integer, whose unit cost is negative, whose expiry date is not after the receipt date, or whose medicine or supplier is inactive. | Must | UC03 | TC-02, 46, 64 | Built (#99) |
 | FR-08 | The system shall refuse a goods receipt whose document number is already recorded for the same supplier. | Must | UC03 | TC-03 | Built (#99) |
 | FR-09 | If any line or the database write fails, the system shall save no part of the receipt, dispensing, sale or return. | Must | UC03, 06–08 | TC-25 | Ledger and UC03 built (#96, #99) |
-| FR-10 | The system shall let any signed-in user search medicines by code, name or category and see the sellable quantity (without expired, quarantined, on-hold, recalled or rejected stock), plus each batch with number, expiry date, status and quantity in each stock state. | Must | UC04 | TC-48 | Week 6 |
-| FR-11 | The system shall show the history of a batch: every movement with type, signed quantity, resulting balance, user, time and source document, in time order. | Must | UC04 | TC-24, 48 | Week 6 |
+| FR-10 | The system shall let any signed-in user search medicines by code, name or category and see the sellable quantity (without expired, quarantined, on-hold, recalled or rejected stock), plus each batch with number, expiry date, status and quantity in each stock state. | Must | UC04 | TC-48 | Built (#46) |
+| FR-11 | The system shall show the history of a batch: every movement with type, signed quantity, resulting balance, user, time and source document, in time order. | Must | UC04 | TC-24, 48 | Built (#46) |
 | FR-12 | The system shall write every stock change as exactly one stock movement, never edit or delete a movement, and record a correction as a new opposite movement that references the original (BR05). | Must | All | TC-16, 19, 25 | Built (#94, #96) |
 
 ## Prescriptions and dispensing — owner Duy Anh (B)

@@ -93,7 +93,7 @@ export class AlertEvaluator {
       relations: { medicine: true },
     });
     const openByMedicine = new Map(open.map((a) => [a.medicine.id, a]));
-    const now = new Date();
+    const now = this.clock.now();
 
     for (const level of levels) {
       const wanted = wantedAlert(level);

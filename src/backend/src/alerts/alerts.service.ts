@@ -128,7 +128,7 @@ export class AlertsService implements OnApplicationBootstrap {
           {
             status: AlertStatus.ACKNOWLEDGED,
             acknowledgedBy: { id: actor.id },
-            acknowledgedAt: new Date(),
+            acknowledgedAt: this.clock.now(),
           },
         );
       }

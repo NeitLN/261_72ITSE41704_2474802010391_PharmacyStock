@@ -191,7 +191,8 @@ describe('UC10 low-stock alerts (e2e)', () => {
     expect(await unresolved(id)).toEqual([]);
     const [resolved] = await alertsOf(id);
     expect(resolved.status).toBe(AlertStatus.RESOLVED);
-    expect(resolved.resolvedAt).toBeTruthy();
+    // Times come from the business clock, not the machine.
+    expect(resolved.resolvedAt).toEqual(TODAY);
   });
 
   it('UC10-06 TC-63: no alert while monitoring is off; switching it off resolves an open one', async () => {
@@ -260,7 +261,7 @@ describe('UC10 low-stock alerts (e2e)', () => {
       status: 'acknowledged',
       acknowledgedBy: expect.objectContaining({ fullName: expect.any(String) }),
     });
-    expect(res.body.acknowledgedAt).toBeTruthy();
+    expect(res.body.acknowledgedAt).toBe(TODAY.toISOString());
 
     await sell(id, 2); // still low: the same alert, still acknowledged
     const [again] = (await list()).body;
@@ -355,7 +356,7 @@ describe('UC10 low-stock alerts (e2e)', () => {
     expect((await unresolved(id))[0].type).toBe(AlertType.LOW_STOCK);
   });
 
-  it('deactivating a monitored medicine resolves its alert', async () => {
+  it('UC10-16 deactivating a monitored medicine resolves its alert', async () => {
     const id = await medicine('DEACT');
     await receive(id, 2);
     expect(await unresolved(id)).toHaveLength(1);

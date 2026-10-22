@@ -16,6 +16,7 @@ import {
   User,
 } from '../entities/index.js';
 import { GoodsReceiptsService } from '../receiving/goods-receipts.service.js';
+import { AlertEvaluator } from '../stock/alert-evaluator.js';
 import { addDays, type Clock } from '../stock/clock.js';
 import { StockLedger } from '../stock/stock-ledger.js';
 import {
@@ -244,6 +245,14 @@ export async function seedDemoData(
       },
     );
   }
+  // UC10: raise the low-stock alerts of the finished data set once, so the
+  // demo shows the medicines that start below their reorder level.
+  const medicineIds = (
+    await dataSource.getRepository(Medicine).find({ select: { id: true } })
+  ).map((m) => m.id);
+  await dataSource.transaction((manager) =>
+    new AlertEvaluator(clock).evaluate(manager, medicineIds),
+  );
   await dataSource.getRepository(AuditLog).save({
     action: DEMO_MARKER,
     entityName: 'seed',

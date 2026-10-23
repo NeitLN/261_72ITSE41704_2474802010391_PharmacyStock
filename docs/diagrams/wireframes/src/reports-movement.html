@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="../kit.css"><title>Stock movement report</title></head>
+<body>
+<div class="frame">
+  <span class="label">UC12 Stock control › Stock movement — 1. the report for a period, with totals and a failed row check <span class="tag">design · Tiến · 23/10/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Catalogue &amp; batches</div><div>Suppliers &amp; receipts</div><div>Prescriptions &amp; dispensing</div><div>Sales &amp; returns</div><div class="on">Stock control &amp; reports</div></div>
+    <div class="page">
+      <h1>Stock control &amp; reports</h1>
+      <div class="tabs"><div>Stock take</div><div>Alerts</div><div>Expiry</div><div class="on">Stock movement</div></div>
+      <div class="row"><span>From*</span><span class="field">2026-10-01</span><span>To*</span><span class="field">2026-10-22</span><span class="field">All categories ▾</span><span class="btn primary">Run</span></div>
+      <p class="muted">Period 2026-10-01 – 2026-10-22 · produced 2026-10-22 09:15 by Sample Manager · sorted by cost of net issued</p>
+      <table style="font-size: 12px">
+        <tr><th>Medicine</th><th class="num">Opening</th><th class="num">Received</th><th class="num">Dispensed</th><th class="num">Sold</th><th class="num">Returned</th><th class="num">Released</th><th class="num">Rejected</th><th class="num">Written off</th><th class="num">Destroyed</th><th class="num">Adjusted</th><th class="num">Closing</th><th class="num">Net issued</th><th class="num">Cost of net issued</th></tr>
+        <tr><td>AMOX500 — Amoxicillin 500 mg</td><td class="num">80</td><td class="num">100</td><td class="num">60</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">120</td><td class="num">60</td><td class="num">60.000 ₫</td></tr>
+        <tr><td>PARA500 — Paracetamol 500 mg</td><td class="num">60</td><td class="num">150</td><td class="num">10</td><td class="num">7</td><td class="num">3</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">−2</td><td class="num">194</td><td class="num">17</td><td class="num">4.760 ₫</td></tr>
+        <tr><td>VITC500 — Vitamin C 500 mg ⚠ <span class="err">check failed</span></td><td class="num">30</td><td class="num">0</td><td class="num">0</td><td class="num">6</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">26</td><td class="num">6</td><td class="num">3.600 ₫</td></tr>
+        <tr><th>Total · 3 medicines</th><th class="num">170</th><th class="num">250</th><th class="num">70</th><th class="num">13</th><th class="num">4</th><th class="num">0</th><th class="num">0</th><th class="num">0</th><th class="num">0</th><th class="num">−2</th><th class="num">340</th><th class="num">83</th><th class="num">68.360 ₫</th></tr>
+      </table>
+      <p class="muted">Opening and closing are the total of the three stock states. Net issued = dispensed + sold − released. Cost is at each batch's unit cost and is <b>not revenue</b>.</p>
+    </div>
+  </div>
+  <div class="note" data-n="1" style="top: 70px; right: 20px">Clicking a row opens its movements (frame 3). Export is a Could (FR-43) and not drawn.</div>
+  <div class="note" data-n="2" style="top: 500px; left: 240px">Row check: opening + changes ≠ closing → the row is shown with a warning and the mismatch is logged (A3).</div>
+</div>
+
+<div class="frame" style="min-height: 360px">
+  <span class="label">UC12 Stock control › Stock movement — 2. a period refused, and a period with nothing in it <span class="tag">design · Tiến · 23/10/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout" style="min-height: 312px">
+    <div class="menu"><div>Catalogue &amp; batches</div><div class="on">Stock control &amp; reports</div></div>
+    <div class="page">
+      <h1>Stock control &amp; reports</h1>
+      <div class="tabs"><div>Stock take</div><div>Alerts</div><div>Expiry</div><div class="on">Stock movement</div></div>
+      <div class="row"><span>From*</span><span class="field">2026-10-22</span><span>To*</span><span class="field error">2026-10-01</span><span class="field">All categories ▾</span><span class="btn primary">Run</span></div>
+      <div class="row"><span class="err" style="margin-left: 190px">The end date must be on or after the start date.</span></div>
+      <p>Another period, 2026-03-01 – 2026-03-31:</p>
+      <div class="box muted" style="text-align: center">No stock or movements in this period.</div>
+    </div>
+  </div>
+  <div class="note" data-n="3" style="top: 70px; right: 20px">Both dates required, from ≤ to, to not after today, at most 366 days (A1).</div>
+</div>
+
+<div class="frame">
+  <span class="label">UC12 Stock control › Stock movement — 3. the movements behind one row <span class="tag">design · Tiến · 23/10/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Catalogue &amp; batches</div><div class="on">Stock control &amp; reports</div></div>
+    <div class="page"><h1>Stock control &amp; reports</h1><div class="tabs"><div>Stock take</div><div>Alerts</div><div>Expiry</div><div class="on">Stock movement</div></div></div>
+  </div>
+  <div class="overlay"></div>
+  <div class="drawer" style="top: 46px; right: 0; bottom: 0; width: 820px">
+    <h2>PARA500 — Paracetamol 500 mg · 2026-10-01 – 2026-10-22 <span class="btn" style="float: right">Close</span></h2>
+    <table>
+      <tr><th>Time</th><th>Type</th><th>Batch</th><th class="num">Sellable</th><th class="num">Quarantine</th><th class="num">Pending</th><th>By</th><th>Document</th></tr>
+      <tr><td>2026-10-03 09:12</td><td>Receipt</td><td>P2601</td><td class="num">+150</td><td class="num"></td><td class="num"></td><td>Sample Manager</td><td>HD-00021</td></tr>
+      <tr><td>2026-10-12 17:40</td><td>Adjustment</td><td>P2512</td><td class="num">−2</td><td class="num"></td><td class="num"></td><td>Sample Manager</td><td>ST-20261012-01</td></tr>
+      <tr><td>2026-10-20 10:15</td><td>Dispense</td><td>P2512</td><td class="num">−10</td><td class="num"></td><td class="num"></td><td>Sample Pharmacist</td><td>RX-20261020-0005</td></tr>
+      <tr><td>2026-10-21 14:32</td><td>Sale</td><td>P2512</td><td class="num">−7</td><td class="num"></td><td class="num"></td><td>Sample Cashier</td><td>RC-20261021-0004</td></tr>
+      <tr><td>2026-10-22 08:55</td><td>Return</td><td>P2512</td><td class="num"></td><td class="num">+3</td><td class="num"></td><td>Sample Cashier</td><td>RT-20261022-0001</td></tr>
+    </table>
+    <p class="muted">Every movement of the period in the order it was written. The sums match the row: received 150, dispensed 10, sold 7, returned 3, adjusted −2.</p>
+  </div>
+  <div class="note" data-n="4" style="top: 380px; left: 230px">A reversal keeps its type and negates the deltas, so it counts in the column of what it reverses (BR05).</div>
+</div>
+<ol class="notes">
+  <li>UC12 steps 1–6, FR-37, DEC-06 · <code>GET /api/reports/stock-movement</code>, <code>report.view</code> (manager).</li>
+  <li>UC12 A3, check per row.</li>
+  <li>UC12 A1 (400 on <code>from</code> / <code>to</code>), A2.</li>
+  <li>UC12 steps 7–8 · <code>GET /api/reports/stock-movement/medicines/:id</code>; day of a movement in Asia/Ho_Chi_Minh (decision 10, TC-23).</li>
+</ol>
+</body>
+</html>

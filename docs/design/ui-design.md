@@ -26,11 +26,11 @@ The menu shows an entry when the user holds **any** permission of that screen
 
 | Menu entry (route) | Tabs | Main actions → permission (API) | Manager | Pharmacist | Cashier |
 |---|---|---|---|---|---|
-| Catalogue & batches (`/catalogue`) | Medicines · Stock *(in review)* | look up, stock, batch history → `stock.view`; add, edit, deactivate, set price → `catalogue.manage` | all | look up | look up |
+| Catalogue & batches (`/catalogue`) | Medicines · Stock | look up, stock, batch history → `stock.view`; add, edit, deactivate, set price → `catalogue.manage` | all | look up | look up |
 | Suppliers & receipts (`/suppliers`) | Suppliers · Goods receipts | suppliers → `supplier.manage`; record a receipt → `goods_receipt.create` | all | — | — |
 | Prescriptions & dispensing (`/dispensing`) | Prescriptions · Dispense | take in, edit, verify; quick-create patient/prescriber → `prescription.manage`; preview, hand over → `dispense` | all | all | — |
-| Sales & returns (`/sales`) | Over-the-counter sale · Bill a dispensing *(in review)* · Returns *(planned)* | sell, bill → `sale.create`; return → `return.create` | all | — | all |
-| Stock control & reports (`/reports`) | Stock take, Alerts *(in review)* · Expiry, Movement report *(planned)* | count → `stock_take.count`; open, approve → `stock_take.approve`; alerts → `alert.manage`; batch status, write-off → `batch_status.manage`; report → `report.view` | all | count only | — |
+| Sales & returns (`/sales`) | Over-the-counter sale · Bill a dispensing *(in review)* · Returns *(being built, #174)* | sell, bill → `sale.create`; return → `return.create` | all | — | all |
+| Stock control & reports (`/reports`) | Stock take · Alerts · Expiry, Stock movement *(planned)* | count → `stock_take.count`; open, approve → `stock_take.approve`; alerts → `alert.manage`; batch status, write-off → `batch_status.manage`; report → `report.view` | all | count only | — |
 | Users & roles (`/administration`) | — | `user.manage` (UC15, Should) | all | — | — |
 | Sign in (`/login`) | — | public | | | |
 
@@ -47,18 +47,18 @@ screenshots is made in week 8).
 |---|---|---|---|---|---|---|
 | Sign in | UC16 | Minh | `POST /auth/login` | TC-42, 43 | built | week 8, as-built |
 | Catalogue › Medicines | UC01 | Tiến | `/medicines` | TC-45, 46 | built | [as-built](../diagrams/wireframes/catalogue-medicines.png) |
-| Catalogue › Stock | UC04 | Tiến | `/stock` | TC-48 | *in review #139* | [as-built](../diagrams/wireframes/catalogue-stock.png) |
+| Catalogue › Stock | UC04 | Tiến | `/stock` | TC-48 | built | [as-built](../diagrams/wireframes/catalogue-stock.png) |
 | Suppliers › Suppliers | UC02 | Tiến | `/suppliers` | TC-46 | built | [as-built](../diagrams/wireframes/suppliers.png) |
 | Suppliers › Goods receipts | UC03 | Tiến | `/goods-receipts` | TC-01, 02, 03, 64 | built | [as-built](../diagrams/wireframes/goods-receipt.png) |
 | Dispensing › Prescriptions | UC05 | Duy Anh | `/prescriptions` | TC-47, 58 | built | week 8, as-built |
 | Dispensing › Dispense | UC06 | Duy Anh | `/dispensings` | TC-04…14, 37, 38, 57 | built | week 8, as-built |
 | Sales › Over-the-counter sale | UC07 | Duy Anh | `POST /sales` | TC-35, 36, 55 | built | week 8, as-built |
 | Sales › Bill a dispensing | UC07 | Duy Anh | `/sales/billable`, `POST /sales` | TC-15, 52 | *in review #141, #142* | week 8, as-built |
-| Sales › Returns | UC08 | Duy Anh | planned | TC-16, 17, 18, 50 | *planned* | **design gate, week 7** |
-| Reports › Stock take | UC09 | Minh | `/stock-takes` | TC-19, 20, 39, 51 | *in review #146* | week 8, as-built |
-| Reports › Alerts | UC10 | Minh | `/alerts` | TC-21, 63 | *in review #147* | week 8, as-built |
-| Reports › Expiry and batch status | UC11 | Minh | `/reports/expiry`, `/batches/:id/write-off`, `/batches/:id/status` | TC-22, 56, 60 | *planned* | **design gate, week 7** |
-| Reports › Movement report | UC12 | Minh | `/reports/stock-movement` | TC-23 | *planned* | **design gate, week 7** |
+| Sales › Returns | UC08 | Duy Anh | planned | TC-16, 17, 18, 50 | *being built, #174* | [design](../diagrams/wireframes/sales-returns.png) |
+| Reports › Stock take | UC09 | Minh | `/stock-takes` | TC-19, 20, 39, 51 | built | week 8, as-built |
+| Reports › Alerts | UC10 | Minh | `/alerts` | TC-21, 63 | built | week 8, as-built |
+| Reports › Expiry and batch status | UC11 | Minh | `/reports/expiry`, `/batches/:id/write-off`, `/batches/:id/status` | TC-22, 56, 60 | *planned* | [design](../diagrams/wireframes/reports-expiry.png) |
+| Reports › Stock movement | UC12 | Minh | `/reports/stock-movement` | TC-23 | *planned* | [design](../diagrams/wireframes/reports-movement.png) |
 | Users & roles | UC15 *(S)* | Minh | planned | TC-44 | *planned, Should* | only if the Must-core gate passes |
 | Patients & prescribers screens | UC14 *(S)* | Duy Anh | `/customers`, `/prescribers` | TC-49 | API built; screens Should | only if the gate passes |
 
@@ -76,7 +76,7 @@ diagrams show the transactions behind them.
 | Return (UC08, *planned*) | sale, line, quantity, reason | **must** confirm | RETURN movement **into quarantine** of the same batch, never back to sellable directly (DEC-04) | request ID |
 | Write off an expired batch (UC11, *planned*) | batch, reason | **must** confirm | WRITE_OFF: sellable → pending destruction; not destroyed yet | — |
 | Change batch status (UC11, *planned*) | batch, new status, reason | confirm | status only, no movement; stock alerts re-evaluated | — |
-| Approve a stock take (UC09, *in review*) | approver ≠ counter | confirm | ADJUSTMENT movements for the differences | — |
+| Approve a stock take (UC09) | approver ≠ counter | confirm | ADJUSTMENT movements for the differences | — |
 
 Rule for new screens: an action that changes stock or money and cannot be
 undone by the same user needs a review step — a preview, the cart, or a

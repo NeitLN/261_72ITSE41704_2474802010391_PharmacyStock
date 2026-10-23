@@ -45,9 +45,9 @@ Commit the HTML and the PNG together.
 | Catalogue › Stock | UC04 | as-built | Tiến | [catalogue-stock.png](catalogue-stock.png) |
 | Suppliers › Suppliers | UC02 | as-built | Tiến | [suppliers.png](suppliers.png) |
 | Suppliers › Goods receipts | UC03 | as-built | Tiến | [goods-receipt.png](goods-receipt.png) |
-| Sales › Returns | UC08 | design (week-7 gate) | Tiến | to do |
-| Reports › Expiry and batch status | UC11 | design (week-7 gate) | Tiến | to do |
-| Reports › Movement report | UC12 | design (week-7 gate) | Tiến | to do |
+| Sales › Returns | UC08 | design (week-7 gate) | Tiến | [sales-returns.png](sales-returns.png) |
+| Reports › Expiry and batch status | UC11 | design (week-7 gate) | Tiến | [reports-expiry.png](reports-expiry.png) |
+| Reports › Stock movement | UC12 | design (week-7 gate) | Tiến | [reports-movement.png](reports-movement.png) |
 
 UI design is Tiến's; Duy Anh reviews every wireframe pull request, may
 change or extend the wireframes, and develops the design further (motion and

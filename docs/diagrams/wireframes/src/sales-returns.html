@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="../kit.css"><title>Sales returns</title></head>
+<body>
+<div class="frame">
+  <span class="label">UC08 Sales › Returns — 1. find the sale; the receipt number is not found <span class="tag">design · Tiến · 23/10/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Cashier <span class="tag">Cashier</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Catalogue &amp; batches</div><div class="on">Sales &amp; returns</div></div>
+    <div class="page">
+      <h1>Sales &amp; returns</h1>
+      <div class="tabs"><div>Over-the-counter sale</div><div>Bill a dispensing</div><div class="on">Returns</div></div>
+      <div class="row"><span>Receipt number</span><span class="field wide error">RC-20261021-0040</span><span class="btn primary">Find</span></div>
+      <div class="row"><span class="err" style="margin-left: 108px">Sale RC-20261021-0040 was not found.</span></div>
+      <div class="box muted">Find a sale by the number on the customer's receipt to see what can be returned.</div>
+    </div>
+  </div>
+  <div class="note" data-n="1" style="top: 70px; right: 20px">Any letter case; spaces are trimmed. Only cashiers and managers see this tab.</div>
+</div>
+
+<div class="frame">
+  <span class="label">UC08 Sales › Returns — 2. the sale's lines; a line asks for more than can be returned and the reason is missing <span class="tag">design · Tiến · 23/10/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Cashier <span class="tag">Cashier</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Catalogue &amp; batches</div><div class="on">Sales &amp; returns</div></div>
+    <div class="page">
+      <h1>Sales &amp; returns</h1>
+      <div class="tabs"><div>Over-the-counter sale</div><div>Bill a dispensing</div><div class="on">Returns</div></div>
+      <div class="row"><span>Receipt number</span><span class="field wide">RC-20261021-0004</span><span class="btn primary">Find</span><span class="muted">Sold 2026-10-21 14:32 · Sample Cashier · walk-in customer</span></div>
+      <table>
+        <tr><th>Medicine</th><th>Batch</th><th class="num">Sold</th><th class="num">Returned</th><th class="num">Can return</th><th class="num">Price paid</th><th class="num">Return now</th><th class="num">Refund</th></tr>
+        <tr><td>PARA500 — Paracetamol 500 mg</td><td>P2512</td><td class="num">7</td><td class="num">0</td><td class="num">7 tablet</td><td class="num">500 ₫</td><td class="num"><span class="field" style="min-width: 70px">3</span></td><td class="num">1.500 ₫</td></tr>
+        <tr><td>VITC500 — Vitamin C 500 mg</td><td>V2603</td><td class="num">6</td><td class="num">2</td><td class="num">4 tablet</td><td class="num">900 ₫</td><td class="num"><span class="field error" style="min-width: 70px">5</span><br><span class="err">Only 4 can be returned.</span></td><td class="num">—</td></tr>
+        <tr><td>AMOX500 — Amoxicillin 500 mg <span class="tag">billed from RX-20261019-0002</span></td><td>A-77</td><td class="num">14</td><td class="num">0</td><td class="num">14 capsule</td><td class="num">1.800 ₫</td><td class="num"><span class="field" style="min-width: 70px">0</span></td><td class="num">0 ₫</td></tr>
+      </table>
+      <div class="row"><span>Reason*</span><span class="field error" style="min-width: 520px"></span></div>
+      <div class="row"><span class="err" style="margin-left: 60px">Say why the goods are returned.</span></div>
+      <div class="row"><span class="box" style="margin: 0">Returned goods go to <b>quarantine</b> of the batch they were sold from. They cannot be sold until a manager assesses them.</span><span style="margin-left: auto"><b>Refund: 1.500 ₫</b></span><span class="btn">Clear</span><span class="btn primary">Record return</span></div>
+    </div>
+  </div>
+  <div class="note" data-n="2" style="top: 52px; right: 260px">More than sold minus already returned is refused on its line; nothing is saved (A1, TC-17).</div>
+  <div class="note" data-n="3" style="top: 52px; right: 20px">Reason required, 3–500 characters (A3). A billed line returns the same way; the prescription is not reopened (A7).</div>
+</div>
+
+<div class="frame">
+  <span class="label">UC08 Sales › Returns — 3. confirmation before anything is recorded <span class="tag">design · Tiến · 23/10/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Cashier <span class="tag">Cashier</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Catalogue &amp; batches</div><div class="on">Sales &amp; returns</div></div>
+    <div class="page"><h1>Sales &amp; returns</h1><div class="tabs"><div>Over-the-counter sale</div><div>Bill a dispensing</div><div class="on">Returns</div></div></div>
+  </div>
+  <div class="overlay"></div>
+  <div class="modal" style="top: 140px; left: 380px; width: 520px">
+    <h2>Record this return?</h2>
+    <p>Sale RC-20261021-0004 · 2 lines · 4 items · refund <b>2.400 ₫</b></p>
+    <table>
+      <tr><th>Medicine</th><th>Batch</th><th class="num">Return</th><th class="num">Refund</th></tr>
+      <tr><td>Paracetamol 500 mg</td><td>P2512</td><td class="num">3 tablet</td><td class="num">1.500 ₫</td></tr>
+      <tr><td>Vitamin C 500 mg</td><td>V2603</td><td class="num">1 tablet</td><td class="num">900 ₫</td></tr>
+    </table>
+    <p class="muted">Reason: Customer bought the wrong strength. The goods go to quarantine; a return cannot be undone here.</p>
+    <div class="row" style="justify-content: flex-end"><span class="btn">Cancel</span><span class="btn primary">Record return</span></div>
+  </div>
+  <div class="note" data-n="4" style="top: 160px; right: 20px">A return changes stock and money and cannot be undone by the cashier, so it is confirmed (ui-design §3).</div>
+</div>
+
+<div class="frame">
+  <span class="label">UC08 Sales › Returns — 4. result <span class="tag">design · Tiến · 23/10/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Cashier <span class="tag">Cashier</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Catalogue &amp; batches</div><div class="on">Sales &amp; returns</div></div>
+    <div class="page">
+      <h1>Sales &amp; returns</h1>
+      <div class="tabs"><div>Over-the-counter sale</div><div>Bill a dispensing</div><div class="on">Returns</div></div>
+      <div class="box"><b>Return RT-20261022-0001 recorded</b><br>Refund 2.400 ₫ at the price paid · against sale RC-20261021-0004 · 2026-10-22 08:55</div>
+      <table>
+        <tr><th>Medicine</th><th>Batch</th><th class="num">Returned</th><th class="num">Refund</th><th>Where it is now</th></tr>
+        <tr><td>Paracetamol 500 mg</td><td>P2512</td><td class="num">3 tablet</td><td class="num">1.500 ₫</td><td><span class="tag">Quarantine · pending assessment</span></td></tr>
+        <tr><td>Vitamin C 500 mg</td><td>V2603</td><td class="num">1 tablet</td><td class="num">900 ₫</td><td><span class="tag">Quarantine · pending assessment</span></td></tr>
+      </table>
+      <div class="row" style="justify-content: flex-end"><span class="btn primary">New return</span></div>
+    </div>
+  </div>
+  <div class="note" data-n="5" style="top: 120px; right: 20px">One RETURN movement per line into quarantine through <code>receiveReturn</code> (#55); the manager assesses it in UC11 (week 8).</div>
+</div>
+<ol class="notes">
+  <li>UC08 step 1, A8 (404 "Sale … was not found."), UC08-10; <code>return.create</code> (cashier, manager), A9.</li>
+  <li>UC08 A1, FR-27, TC-17 · 422 <code>RETURN_EXCEEDS_SOLD</code> on <code>lines.N.quantity</code>.</li>
+  <li>UC08 A3 (400 on <code>reason</code>), A7 and decision 13 (billed lines).</li>
+  <li>ui-design §3 workflow contracts; request ID kept on retry (FR-23, TC-18).</li>
+  <li>UC08 steps 5–6, FR-28, BR11, DEC-04; refund = price paid × quantity.</li>
+</ol>
+</body>
+</html>

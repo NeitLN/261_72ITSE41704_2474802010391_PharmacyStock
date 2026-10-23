@@ -1,6 +1,7 @@
-# Requests the rotation reviewer on every pull request (CONTRIBUTING.md,
-# "Pull requests"): Minh reviews Tiến, Tiến reviews Duy Anh, Duy Anh reviews
-# Minh. Branch protection on main requires one approval before merging.
+# Requests the default reviewer on every pull request (CONTRIBUTING.md,
+# "Pull requests"): Minh for Tiến, Tiến for Duy Anh, Duy Anh for Minh. Since
+# 23/10 any other member may review instead. Branch protection on main
+# requires one approval before merging.
 #
 # pull_request_target runs the copy of this file on main with a token that may
 # request reviewers. It never checks out the pull request's code.

@@ -3,7 +3,7 @@
 > Mốc môn học: **tag `v1.0`**, **báo cáo nháp** — không chấm riêng. Milestone: *Week 09 — Feature freeze — v1.0*. Module tự học: 10.
 > Rubric: cả 5 tiêu chí Final; checklist 12.2 và 12.3.
 
-> **Reviewer** theo vòng mới từ 12/10 (A do C duyệt, B do A, C do B; `00-tong-quan.md` §6.2).
+> **Reviewer**: mặc định theo vòng từ 12/10 (A do C duyệt, B do A, C do B); từ 23/10 bất kỳ thành viên nào khác tác giả cũng được duyệt, miễn là chạy nhánh và ghi đã kiểm gì (`00-tong-quan.md` §6.2).
 
 ## 1. Mục tiêu
 

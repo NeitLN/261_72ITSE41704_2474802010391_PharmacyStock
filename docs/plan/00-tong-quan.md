@@ -132,6 +132,8 @@ Yêu cầu + tiêu chí chấp nhận (FR-xx, luồng thay thế)
 
 Đổi từ tuần 5 (quyết định trưởng nhóm 12/10, thay vòng A→B→C→A của Proposal §2.4). Workflow `.github/workflows/assign-reviewer.yml` tự yêu cầu reviewer chính khi mở PR. Mỗi người chỉ approve bằng tài khoản của chính mình, sau khi đã chạy nhánh.
 
+**Từ 23/10** (quyết định trưởng nhóm): bất kỳ thành viên nào khác tác giả đều được review và approve; bảng trên chỉ là reviewer mặc định mà workflow yêu cầu trước. Review vẫn phải chạy nhánh và ghi lại đã kiểm gì (`CONTRIBUTING.md`, *What a review records*) — approve không nhận xét không được tính là review.
+
 ### 6.3 Checklist review
 
 | Góc | Reviewer phải trả lời "có" |

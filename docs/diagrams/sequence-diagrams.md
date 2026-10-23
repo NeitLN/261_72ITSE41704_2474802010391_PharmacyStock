@@ -9,7 +9,7 @@ checked before and during review.
 | 1. Dispense against a prescription (UC06) | The code in #109: `DispensingService`, `FefoAllocator`, `StockLedger` | **As built** |
 | 2a. Over-the-counter sale (UC07) | The code: `SalesService`, `FefoAllocator`, `StockLedger`, `PriceBook` | **As built** — matches the design |
 | 2b. Bill a dispensing (UC07) | The code: `SalesService.record` with `prescriptionId`, and `SalesService.billable` | **As built** — matches the design |
-| 3. Process a return (UC08) | [UC08 specification](../requirements/use-cases/UC08-process-return.md) | Design for #58 — update when built |
+| 3. Process a return (UC08) | The code: `ReturnsService`, `StockLedger.receiveReturn`, `ReturnsPanel` | **As built** — the medicines are locked before the request ID is looked up, as in UC07 |
 | 4. Look up stock and batch history (UC04) | The code: `StockLookupService`, `StockPanel` | **As built** — matches the design |
 | 5. Approve a stock take (UC09) | [UC09 specification](../requirements/use-cases/UC09-conduct-stock-take.md) | Design gate for #52 (week 6) — update when built |
 | 6. Evaluate low-stock alerts (UC10) | [UC10 specification](../requirements/use-cases/UC10-review-low-stock-alerts.md) | Design gate for #53 (week 6) — update when built |
@@ -228,7 +228,7 @@ prescription queue on those rows; the second one, once the first commits,
 finds no line with an empty `sale_id` and is refused (A5, TC-52) instead of
 billing it twice.
 
-## 3. Process a return (UC08) — design
+## 3. Process a return (UC08) — as built
 
 The returned quantity goes into the **quarantine** of the original batch,
 never back to sellable stock (BR11, DEC-04). A manager assesses it later in
@@ -241,40 +241,43 @@ itself. Interface and scenario table:
 sequenceDiagram
     autonumber
     actor K as Cashier
-    participant UI as ReturnsPage
+    participant UI as ReturnsPanel
     participant R as ReturnsService
     participant L as StockLedger
     participant DB as PostgreSQL
 
     K->>UI: receipt number
     UI->>R: GET /returns/sales/:receiptNumber
-    R->>DB: sale and lines with sold, returned, returnable, unit price
+    R->>DB: sale and lines with sold, returned, returnable, unit price, billed
     R-->>UI: the sale, or 404 Sale not found (A8)
     K->>UI: quantity per line, reason
     UI->>R: POST /returns {requestId, saleId, reason, lines[{saleLineId, quantity}]}
-    R->>R: assertPermission(RETURN_CREATE), DTO checks reason, quantities, one entry per line, else 400
+    R->>R: assertPermission(RETURN_CREATE), DTO checks reason, quantities and one entry per line, else 400
     R->>L: run(work)
     L->>DB: BEGIN
-    R->>DB: sale exists and every line belongs to it, else 400 on the field (#47)
-    R->>DB: SELECT the sale's lines FOR UPDATE
+    R->>DB: the sale exists, else 400 on saleId (#47)
+    R->>DB: SELECT the sale's lines FOR UPDATE (ascending id)
+    R->>R: every line belongs to the sale, else 400 on lines.N.saleLineId
+    R->>L: lockMedicines(medicines of the returned lines)
     R->>DB: find ProcessedRequest(requestId)
     alt repeat (TC-18) or reused ID
         R-->>UI: stored result, or 409
     else new return
         R->>R: quantity ≤ sold − returned, else 422 RETURN_EXCEEDS_SOLD on that line (A1, TC-17)
-        R->>L: lockMedicines(medicines of the lines)
-        R->>DB: advisory lock, next RT-YYYYMMDD-NNNN, then INSERT sale_return
+        R->>L: lockBatches(batches of the returned lines)
+        R->>DB: advisory lock, next RT-YYYYMMDD-NNNN, INSERT sale_return with the refund at the price paid
         loop each line
             R->>DB: INSERT return_line PENDING_ASSESSMENT, unit price copied from the sale line
             R->>L: receiveReturn(actor, batch of the sale line, q, return line)
-            L->>DB: SELECT batch FOR UPDATE, INSERT movement RETURN (quarantine +q), UPDATE batch
+            L->>DB: INSERT movement RETURN (quarantine +q), UPDATE batch
+            R->>DB: UPDATE sale_line.quantityReturned
         end
-        R->>DB: UPDATE sale_line.quantityReturned, sale status, refundAmount
+        R->>DB: UPDATE sale status (partially returned or returned)
         R->>DB: INSERT processed_request
     end
     L->>DB: re-evaluate stock-level alerts (UC10), no change since quarantine is not sellable
     L->>DB: COMMIT
-    R-->>UI: 201 return with the refund at the original price, goods in quarantine
+    R-->>UI: 201 return slip with the refund, goods in quarantine
     Note over K,DB: later, UC11 (manager): RELEASE to sellable, or REJECT to pending destruction
 ```
 

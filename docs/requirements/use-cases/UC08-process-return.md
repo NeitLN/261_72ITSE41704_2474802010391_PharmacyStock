@@ -5,7 +5,7 @@
 | **Owner** | Bùi Duy Anh (B) |
 | **Priority** | Must |
 | **Primary actor** | Cashier |
-| **Status** | Building, week 7 (#58). Part 1: finding the sale by its receipt number (`GET /api/returns/sales/:receiptNumber`). Part 2: recording the return, on the ledger's `receiveReturn` (#55) |
+| **Status** | Built, week 7 (#58): finding the sale (#174), recording the return through the ledger's `receiveReturn` (#55) and the Returns tab; awaiting test runs (TC-16, 17, 18, 50) |
 | **Related rules** | BR11, BR05, BR03 (via the ledger) |
 | **Requirements** | FR-27, FR-28, FR-23 |
 | **Decisions** | DEC-04 (returns go to quarantine), decision 13 (a return does not restore the prescription) |
@@ -142,13 +142,14 @@ pull request.
 | S03 | Edge | Return exactly the returnable quantity | Accepted; returnable 0 | UC08-02 |
 | S04 | Error | Sold 5, returned 2, return 4 more | 422 `RETURN_EXCEEDS_SOLD` on `lines.0.quantity` with "Only 3 can be returned."; nothing saved | UC08-03, TC-17 |
 | S05 | Normal | A sale of two batches (FEFO split): return from each line | One `RETURN` per line, each into its own batch | UC08-04 |
-| S06 | Edge | The batch has expired, or is recalled, since the sale; a controlled medicine | Still accepted into quarantine (A6); sellable unchanged | UC08-05, TC-50 |
+| S06 | Edge | The batch has expired, or is recalled, since the sale; a controlled medicine | Still accepted into quarantine (A6); sellable unchanged | UC08-05 (expired and recalled), UC08-06 (controlled), TC-50 |
 | S07 | Normal | Return a billed line (from a hand-over) | Accepted into the hand-over's batch; the prescription's outstanding quantity unchanged (decision 13) | UC08-06 |
+| S09b | Error | A reason of fewer than 3 characters | 400 on `reason` | UC08-U12 |
 | S08 | Error | The same request ID again / with other content | Same return, one movement / 409 | UC08-07, TC-18, FR-23 |
 | S09 | Error | Reason missing; quantity 0, −1 or 2.5; no line; the same sale line twice | 400 on the field; nothing saved | UC08-08, NFR-04 |
 | S10 | Error | A sale line of another sale; an unknown `saleId` | 400 on `lines.N.saleLineId` / `saleId` (#47) | UC08-09 |
 | S11 | Error | Unknown receipt number | 404 "Sale not found" (A8) | UC08-10 |
-| S12 | Error | A pharmacist (no `return.create`) calls the API | 403 (A9) | UC08-11 |
+| S12 | Error | A pharmacist (no `return.create`) calls the API | 403 (A9), on finding the sale and on recording the return | UC08-11 |
 | S13 | Concurrency | Two cashiers return the last returnable units of one line at once | One 201, one 422 `RETURN_EXCEEDS_SOLD`; never more returned than sold | UC08-12, NFR-08 |
 | S14 | Normal | The return read again; the sale read again | Same return; the sale's lines show what was returned | UC08-13 |
 | S15 | Normal | Find a sale of two batches (FEFO split) by its receipt number, in any letter case | Both lines, earlier expiry first, each with sold = returnable, 0 returned, the price paid, not billed | UC08-14 |

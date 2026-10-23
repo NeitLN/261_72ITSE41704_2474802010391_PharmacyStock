@@ -1,13 +1,15 @@
 import { Card, Tabs, Typography } from 'antd';
+import { BillDispensingPanel } from './BillDispensingPanel';
 import { SalesCartPanel } from './SalesCartPanel';
 
 /**
- * UC07 record a sale. The over-the-counter cart lives in the first tab.
- * Billing a dispensing is added to this page later (#50).
+ * UC07 record a sale: the over-the-counter cart bills stock out of the shelf,
+ * the second tab bills a hand-over already made in UC06 (no stock movement).
  */
 export function SalesPage() {
   const items = [
     { key: 'otc', label: 'Over-the-counter sale', children: <SalesCartPanel /> },
+    { key: 'bill', label: 'Bill a dispensing', children: <BillDispensingPanel /> },
     {
       key: 'returns',
       label: 'Returns (UC08)',

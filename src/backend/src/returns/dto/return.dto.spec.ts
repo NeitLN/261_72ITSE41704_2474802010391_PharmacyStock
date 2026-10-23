@@ -111,4 +111,11 @@ describe('ReturnDto validation (FR-27, FR-23)', () => {
       { field: 'requestId', message: 'Request ID must be a UUID.' },
     ]);
   });
+
+  it('UC08-U12 refuses a reason shorter than 3 characters', async () => {
+    const { errors } = await errorsOf({ reason: ' ok ' });
+    expect(errors).toEqual([
+      { field: 'reason', message: 'Give a reason of at least 3 characters.' },
+    ]);
+  });
 });

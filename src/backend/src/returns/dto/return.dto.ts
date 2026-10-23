@@ -10,6 +10,7 @@ import {
   Max,
   MaxLength,
   Min,
+  MinLength,
   ValidateNested,
 } from 'class-validator';
 import { Trim } from '../../common/transforms.js';
@@ -40,6 +41,7 @@ export class ReturnDto {
   @Trim()
   @IsString()
   @IsNotEmpty({ message: 'Say why the goods are returned.' })
+  @MinLength(3, { message: 'Give a reason of at least 3 characters.' })
   @MaxLength(500)
   reason: string;
 

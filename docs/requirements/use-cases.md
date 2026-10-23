@@ -24,8 +24,8 @@ Requirements: [`functional-requirements.md`](functional-requirements.md).
 | UC04 | [Look up stock and batch history](use-cases/UC04-look-up-stock.md) | All roles | Tiến (A) | Must | Week 6 | Built (#139); TC-48 Pass (run 34), TC-24 Pass (run 27) |
 | UC05 | [Take in a prescription](use-cases/UC05-take-in-prescription.md) | Pharmacist | Duy Anh (B) | Must | Week 5 | Built (#108, #122); TC-47, TC-58 Pass (runs 12, 13) |
 | UC06 | [Dispense against a prescription](use-cases/UC06-dispense-prescription.md) | Pharmacist | Duy Anh (B) | Must | Week 5 | Built (#109, #122); TC-04–14, 37, 38, 57 Pass (runs 9–11, 15–19, 28–33) |
-| UC07 | [Record a sale](use-cases/UC07-record-sale.md) | Cashier | Duy Anh (B) | Must | Week 7 | Over-the-counter sale built (#135, #136), TC-35, 36, 55 Pass (runs 20–22); billing a dispensing in review (#141, #142) |
-| UC08 | [Process a return](use-cases/UC08-process-return.md) | Cashier | Duy Anh (B) | Must | Week 7 | Design gate merged (#160); build waits for `receiveReturn` (#55) |
+| UC07 | [Record a sale](use-cases/UC07-record-sale.md) | Cashier | Duy Anh (B) | Must | Week 7 | Built (#135, #136, #141, #142); TC-35, 36, 55 Pass (runs 20–22); TC-15, 52 (billing) not run yet |
+| UC08 | [Process a return](use-cases/UC08-process-return.md) | Cashier | Duy Anh (B) | Must | Week 7 | Built (#174, #179) on the ledger's `receiveReturn` (#178); TC-16, 17, 18, 50 not run yet |
 | UC09 | [Conduct a stock take](use-cases/UC09-conduct-stock-take.md) | Manager | Minh (C) | Must | Week 6 | Built (#146); TC-19, 20, 39 runs in review (#168) |
 | UC10 | [Review low-stock alerts](use-cases/UC10-review-low-stock-alerts.md) | Manager | Minh (C) | Must | Week 6 | Built (#147); TC-21 run in review (#168) |
 | UC11 | [Review expiry alerts, batch status and quarantined stock](use-cases/UC11-expiry-batch-status-quarantine.md) | Manager | Minh (C) | Must | Week 7 | Design gate merged (#162) |

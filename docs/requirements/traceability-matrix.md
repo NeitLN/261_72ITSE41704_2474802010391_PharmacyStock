@@ -5,7 +5,7 @@ this is that matrix, written early as a living draft so week 9 only has to
 update it. Each FR has one row: where it lives in the code, the automated tests
 that cover it, the manual runs recorded in
 [`tests/manual/runs.md`](../../tests/manual/runs.md), and one status. Snapshot:
-checked against `main` at `1f2f377` on 23/10/2026; PR numbers refer to open
+checked against `main` at `ab5bdc9` on 23/10/2026; PR numbers refer to open
 pull requests, so "In review" means not on `main` yet.
 
 ## How to read
@@ -18,8 +18,9 @@ pull requests, so "In review" means not on `main` yet.
   `src/backend/src/`; dashes mean no test on `main` (tests may exist in an open
   PR).
 - `Manual runs` cites real rows of `runs.md` as `TC-xx run N`; a dash in
-  brackets names the test cases that have no run yet. The TC-19, TC-20, TC-21
-  and TC-39 runs are recorded in open PR #168, not on `main`.
+  brackets names the test cases that have no run yet. A row is `Built` only when
+  every test case it names has a run; otherwise it stays `Built, not run` and
+  cites the runs it has.
 - `Status` uses only: `Built`, `Built, not run` (code and tests on `main`, but
   the manual test cases have no run), `In review #NNN`, `Planned (week N)`,
   `Should — after the gate`, `Could — not built`.
@@ -37,7 +38,7 @@ pull requests, so "In review" means not on `main` yet.
 | FR-09 | Must | UC03, 06–08 | `StockLedger.run` — one transaction per stock-changing command | `goods-receipts.e2e-spec.ts` UC03-08; `stock-ledger.e2e-spec.ts` BR03-01 | — (TC-25) | Built, not run |
 | FR-10 | Must | UC04 | `StockLookupService`, screen `StockPanel` | `stock-lookup.e2e-spec.ts` UC04-01…05, 09…12 | TC-48 run 34 | Built |
 | FR-11 | Must | UC04 | `StockLookupService` batch history | `stock-lookup.e2e-spec.ts` UC04-06, 07, 13, 14 | TC-24 run 27; TC-48 run 34 | Built |
-| FR-12 | Must | All | `StockLedger`, `applyDeltas`, DB triggers on movements | `stock-ledger.e2e-spec.ts` BR05-01…06; `ledger-invariant.e2e-spec.ts` BR05-11…17; `stock/stock-deltas.spec.ts` BR05-U1…U2 | — (TC-16, 19, 25) | Built, not run |
+| FR-12 | Must | All | `StockLedger`, `applyDeltas`, DB triggers on movements | `stock-ledger.e2e-spec.ts` BR05-01…06; `ledger-invariant.e2e-spec.ts` BR05-11…17; `stock/stock-deltas.spec.ts` BR05-U1…U2 | TC-19 run 35; — (TC-16, 25) | Built, not run |
 | FR-13 | Must | UC05 | `PrescriptionsService.create`, screen `PrescriptionsPanel` | `prescriptions.e2e-spec.ts` UC05-01…07; `prescriptions/dto/prescription.dto.spec.ts` UC05-U11…U15 | TC-47 run 12 | Built |
 | FR-14 | Must | UC05 | `PrescriptionsService`, `PrescriptionValidator` | `prescriptions.e2e-spec.ts` UC05-01, 02; `prescriptions/prescription-validator.spec.ts` BR10-01, BR10-02 | TC-38 run 32; TC-47 run 12 | Built |
 | FR-44 | Must | UC05 | `PrescriptionsService.verify` | `prescriptions.e2e-spec.ts` UC05-08…10; `prescriptions/prescription-validator.spec.ts` BR04-01…06 | TC-58 run 13 | Built |
@@ -56,12 +57,12 @@ pull requests, so "In review" means not on `main` yet.
 | FR-26 | Must | UC07 | — (backend in review #141, screen in review #142) | — (tests live in #141) | — (TC-15, 52) | In review #141, #142 |
 | FR-27 | Must | UC08 | — (planned W07-B1; design gate merged in #160) | — | — (TC-16, 17) | Planned (week 7) |
 | FR-28 | Must | UC08 | — (planned W07-B1; design gate merged in #160) | — | — (TC-16, 50) | Planned (week 7) |
-| FR-29 | Must | UC09 | `StockTakesService.open`, `count`, `addLine`; screen `StockTakesPanel` | `stock-takes.e2e-spec.ts` UC09-01, 04, 05, 08, 13 | — (TC-19, 39) | Built, not run |
-| FR-30 | Must | UC09 | `StockTakesService.submit` | `stock-takes.e2e-spec.ts` UC09-06, 07 | — (TC-20) | Built, not run |
-| FR-31 | Must | UC09 | `StockTakesService.approve` — one ADJUSTMENT per batch; screen `StockTakesPanel` | `stock-takes.e2e-spec.ts` UC09-02, 03, 12, 14, 17, 18 | — (TC-19) | Built, not run |
+| FR-29 | Must | UC09 | `StockTakesService.open`, `count`, `addLine`; screen `StockTakesPanel` | `stock-takes.e2e-spec.ts` UC09-01, 04, 05, 08, 13 | TC-19 run 35; TC-39 run 36 | Built |
+| FR-30 | Must | UC09 | `StockTakesService.submit` | `stock-takes.e2e-spec.ts` UC09-06, 07 | TC-20 run 37 | Built |
+| FR-31 | Must | UC09 | `StockTakesService.approve` — one ADJUSTMENT per batch; screen `StockTakesPanel` | `stock-takes.e2e-spec.ts` UC09-02, 03, 12, 14, 17, 18 | TC-19 run 35 | Built |
 | FR-32 | Should | UC09 | `StockTakesService.approve` (BR08, `SAME_COUNTER`) | `stock-takes.e2e-spec.ts` UC09-11, 11b | — (TC-51) | Built, not run |
-| FR-33 | Must | UC10 | `AlertEvaluator.levels`, `AlertEvaluator.evaluate`, `AlertsService`; screen `AlertsPanel` | `alerts.e2e-spec.ts` UC10-01..04, 05…08, 11, 14…16 | — (TC-21, 63) | Built, not run |
-| FR-34 | Must | UC10 | `AlertsService.list`, `AlertsService.acknowledge`; screen `AlertsPanel` | `alerts.e2e-spec.ts` UC10-09, 10, 12, 13 | — (TC-21) | Built, not run |
+| FR-33 | Must | UC10 | `AlertEvaluator.levels`, `AlertEvaluator.evaluate`, `AlertsService`; screen `AlertsPanel` | `alerts.e2e-spec.ts` UC10-01..04, 05…08, 11, 14…16 | TC-21 run 38; — (TC-63) | Built, not run |
+| FR-34 | Must | UC10 | `AlertsService.list`, `AlertsService.acknowledge`; screen `AlertsPanel` | `alerts.e2e-spec.ts` UC10-09, 10, 12, 13 | TC-21 run 38 | Built |
 | FR-35 | Must | UC11 | — (planned W07-C1; design gate merged in #162) | — | — (TC-22) | Planned (week 7) |
 | FR-36 | Must | UC11 | — (planned W07-C1) | — | — (TC-56) | Planned (week 7) |
 | FR-37 | Must | UC12 | — (planned W07-C2) | — | — (TC-23) | Planned (week 7) |
@@ -82,20 +83,19 @@ OC-21 ticket:
 
 | Status | Count | FRs |
 |---|---|---|
-| Built | 22 | FR-01, 02, 03, 05, 06, 07, 08, 10, 11, 13, 14, 16, 17, 18, 19, 20, 21, 22, 24, 25, 38, 44 |
-| Built, not run | 12 | FR-09, 12, 15, 23, 29, 30, 31, 32, 33, 34, 39, 45 |
+| Built | 26 | FR-01, 02, 03, 05, 06, 07, 08, 10, 11, 13, 14, 16, 17, 18, 19, 20, 21, 22, 24, 25, 29, 30, 31, 34, 38, 44 |
+| Built, not run | 8 | FR-09, 12, 15, 23, 32, 33, 39, 45 |
 | In review | 1 | FR-26 (#141, #142) |
 | Planned (week 7) | 6 | FR-27, 28, 35, 36, 37, 48 |
 | Should — after the gate | 5 | FR-04, 40, 41, 46, 47 |
 | Could — not built | 2 | FR-42, 43 |
 
-### Must FRs not Built (18)
+### Must FRs not Built (14)
 
-- `Built, not run` — code and tests are on `main`, the manual cases have no run
-  in `runs.md` (TC-19/TC-20/TC-21/TC-39 runs are recorded in open PR #168):
-  FR-09 (TC-25), FR-12 (TC-16, 19, 25), FR-15 (TC-49), FR-23 (TC-18, 27),
-  FR-29 (TC-19, 39), FR-30 (TC-20), FR-31 (TC-19), FR-33 (TC-21, 63),
-  FR-34 (TC-21), FR-39 (TC-28, 53), FR-45 (TC-59).
+- `Built, not run` — code and tests are on `main`, some manual cases have no
+  run in `runs.md` yet: FR-09 (TC-25), FR-12 (TC-16, 25), FR-15 (TC-49),
+  FR-23 (TC-18, 27), FR-33 (TC-63, needs quarantined stock from #55),
+  FR-39 (TC-28, 53), FR-45 (TC-59).
 - `In review` — FR-26 (UC07 billing, #141/#142).
 - `Planned (week 7)` — FR-27/28 (UC08, W07-B1), FR-35/36/48 (UC11, W07-C1),
   FR-37 (UC12, W07-C2).

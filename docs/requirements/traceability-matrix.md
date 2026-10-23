@@ -5,7 +5,7 @@ this is that matrix, written early as a living draft so week 9 only has to
 update it. Each FR has one row: where it lives in the code, the automated tests
 that cover it, the manual runs recorded in
 [`tests/manual/runs.md`](../../tests/manual/runs.md), and one status. Snapshot:
-checked against `main` at `ab5bdc9` on 23/10/2026; PR numbers refer to open
+checked against `main` at `991f4bb` on 23/10/2026; PR numbers refer to open
 pull requests, so "In review" means not on `main` yet.
 
 ## How to read
@@ -50,13 +50,13 @@ pull requests, so "In review" means not on `main` yet.
 | FR-20 | Must | UC06 | `PrescriptionValidator` (BR07), `DispensingService` | `dispensing.e2e-spec.ts` UC06-06, 14; `prescriptions/prescription-validator.spec.ts` BR07-01…05 | TC-37 run 31 | Built |
 | FR-21 | Must | UC06 | `PrescriptionValidator` (BR10), re-checked at every visit | `dispensing.e2e-spec.ts` UC06-08; `prescriptions.e2e-spec.ts` UC05-11; `prescriptions/prescription-validator.spec.ts` BR10-01…05 | TC-38 run 32 | Built |
 | FR-22 | Must | UC06 | statuses set in `DispensingService` | `dispensing.e2e-spec.ts` UC06-05, 06 | TC-37 run 31 | Built |
-| FR-23 | Must | UC06–08 | request-ID idempotency in `DispensingService` and `SalesService`; the UC08 return part is not built | `dispensing.e2e-spec.ts` UC06-09; `sales.e2e-spec.ts` UC07-09; `sales/sales.service.spec.ts` UC07-U4; `dispensing/dispensing.service.spec.ts` UC06-U3, U4 | — (TC-18, 27) | Built, not run |
+| FR-23 | Must | UC06–08 | request-ID idempotency in `DispensingService`, `SalesService` and `ReturnsService` | `dispensing.e2e-spec.ts` UC06-09; `sales.e2e-spec.ts` UC07-09; `sales/sales.service.spec.ts` UC07-U4; `dispensing/dispensing.service.spec.ts` UC06-U3, U4; `returns.e2e-spec.ts` UC08-07 | — (TC-18, 27) | Built, not run |
 | FR-45 | Must | UC06, 07 | `DispensingService.dispense` → `handOver`; `SalesService.record`; cancel dialogs in `DispensePanel` (`Cancel hand-over`) and `SalesCartPanel` (`Cancel cart`) leave stock unchanged | `dispensing.e2e-spec.ts` UC06-01…05; `sales.e2e-spec.ts` UC07-01 | — (TC-59) | Built, not run |
 | FR-24 | Must | UC07 | `SalesService.record`, screen `SalesCartPanel` | `sales.e2e-spec.ts` UC07-01…14; `sales/sales.service.spec.ts` UC07-U1…U7 | TC-35 run 20; TC-55 run 22 | Built |
 | FR-25 | Must | UC07 | `SalesService.record` OTC classification check | `sales.e2e-spec.ts` UC07-05 | TC-36 run 21 | Built |
-| FR-26 | Must | UC07 | — (backend in review #141, screen in review #142) | — (tests live in #141) | — (TC-15, 52) | In review #141, #142 |
-| FR-27 | Must | UC08 | — (planned W07-B1; design gate merged in #160) | — | — (TC-16, 17) | Planned (week 7) |
-| FR-28 | Must | UC08 | — (planned W07-B1; design gate merged in #160) | — | — (TC-16, 50) | Planned (week 7) |
+| FR-26 | Must | UC07 | `SalesService.record` with `prescriptionId`, `SalesService.billable`; screen `BillDispensingPanel` | `sales-billing.e2e-spec.ts` UC07-15…22 | — (TC-15, 52) | Built, not run |
+| FR-27 | Must | UC08 | `ReturnsService.findSale`, `ReturnsService.record` (`RETURN_EXCEEDS_SOLD`); screen `ReturnsPanel` | `returns.e2e-spec.ts` UC08-01…03, 12, 14 | — (TC-16, 17) | Built, not run |
+| FR-28 | Must | UC08 | `ReturnsService.record` — refund at the price paid; `StockLedger.receiveReturn` into quarantine | `returns.e2e-spec.ts` UC08-01, 04…06 | — (TC-16, 50) | Built, not run |
 | FR-29 | Must | UC09 | `StockTakesService.open`, `count`, `addLine`; screen `StockTakesPanel` | `stock-takes.e2e-spec.ts` UC09-01, 04, 05, 08, 13 | TC-19 run 35; TC-39 run 36 | Built |
 | FR-30 | Must | UC09 | `StockTakesService.submit` | `stock-takes.e2e-spec.ts` UC09-06, 07 | TC-20 run 37 | Built |
 | FR-31 | Must | UC09 | `StockTakesService.approve` — one ADJUSTMENT per batch; screen `StockTakesPanel` | `stock-takes.e2e-spec.ts` UC09-02, 03, 12, 14, 17, 18 | TC-19 run 35 | Built |
@@ -84,9 +84,9 @@ OC-21 ticket:
 | Status | Count | FRs |
 |---|---|---|
 | Built | 26 | FR-01, 02, 03, 05, 06, 07, 08, 10, 11, 13, 14, 16, 17, 18, 19, 20, 21, 22, 24, 25, 29, 30, 31, 34, 38, 44 |
-| Built, not run | 8 | FR-09, 12, 15, 23, 32, 33, 39, 45 |
-| In review | 1 | FR-26 (#141, #142) |
-| Planned (week 7) | 6 | FR-27, 28, 35, 36, 37, 48 |
+| Built, not run | 11 | FR-09, 12, 15, 23, 26, 27, 28, 32, 33, 39, 45 |
+| In review | 0 | — |
+| Planned (week 7) | 4 | FR-35, 36, 37, 48 |
 | Should — after the gate | 5 | FR-04, 40, 41, 46, 47 |
 | Could — not built | 2 | FR-42, 43 |
 
@@ -94,11 +94,9 @@ OC-21 ticket:
 
 - `Built, not run` — code and tests are on `main`, some manual cases have no
   run in `runs.md` yet: FR-09 (TC-25), FR-12 (TC-16, 25), FR-15 (TC-49),
-  FR-23 (TC-18, 27), FR-33 (TC-63, needs quarantined stock from #55),
-  FR-39 (TC-28, 53), FR-45 (TC-59).
-- `In review` — FR-26 (UC07 billing, #141/#142).
-- `Planned (week 7)` — FR-27/28 (UC08, W07-B1), FR-35/36/48 (UC11, W07-C1),
-  FR-37 (UC12, W07-C2).
+  FR-23 (TC-18, 27), FR-26 (TC-15, 52), FR-27 (TC-16, 17), FR-28 (TC-16, 50),
+  FR-33 (TC-63), FR-39 (TC-28, 53), FR-45 (TC-59).
+- `Planned (week 7)` — FR-35/36/48 (UC11, W07-C1), FR-37 (UC12, W07-C2).
 
 ## Reading notes
 

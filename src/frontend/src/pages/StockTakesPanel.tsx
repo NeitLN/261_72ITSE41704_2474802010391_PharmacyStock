@@ -17,7 +17,8 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import { useCallback, useState } from 'react';
 import { type FieldError, toApiError } from '../api/errors';
-import { formatVnd, type Medicine, medicinesApi } from '../api/medicines';
+import { type Medicine, medicinesApi } from '../api/medicines';
+import { formatVnd } from '../ui/format';
 import {
   STOCK_TAKE_STATUS_LABELS,
   type StockTake,

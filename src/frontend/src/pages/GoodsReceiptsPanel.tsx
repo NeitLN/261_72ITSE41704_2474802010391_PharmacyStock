@@ -22,7 +22,8 @@ import {
   type GoodsReceiptSummary,
   goodsReceiptsApi,
 } from '../api/goodsReceipts';
-import { formatVnd, type Medicine, medicinesApi } from '../api/medicines';
+import { type Medicine, medicinesApi } from '../api/medicines';
+import { formatVnd } from '../ui/format';
 import { type Supplier, suppliersApi } from '../api/suppliers';
 import { useLoad } from '../api/useLoad';
 

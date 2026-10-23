@@ -12,7 +12,8 @@ import {
 } from 'antd';
 import { useCallback, useMemo, useState } from 'react';
 import { type FieldError, toApiError } from '../api/errors';
-import { formatVnd, medicinesApi, type Medicine } from '../api/medicines';
+import { medicinesApi, type Medicine } from '../api/medicines';
+import { formatVnd } from '../ui/format';
 import {
   lineEstimateXu,
   type Sale,

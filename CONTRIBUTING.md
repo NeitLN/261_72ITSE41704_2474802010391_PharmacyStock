@@ -51,7 +51,9 @@ changes, edit the issue rather than working around it silently.
 
 ## Pull requests
 
-- One reviewer, and it must not be the author. Rotation (from week 5):
+- One reviewer, and it must not be the author. Since 23/10 any other member
+  may review and approve; the table names the default reviewer, the one the
+  workflow asks first (from week 5):
 
   | Author | Reviewer | Stand-in when the reviewer is away |
   |---|---|---|
@@ -59,8 +61,9 @@ changes, edit the issue rather than working around it silently.
   | Duy Anh (B, `anh7032`) | Tiến (A, `NeitLN`) | Minh |
   | Minh (C, `Jayson135724`) | Duy Anh (B, `anh7032`) | Tiến |
 
-  The workflow `.github/workflows/assign-reviewer.yml` requests the reviewer
-  automatically when the pull request is opened. A PR labelled
+  The workflow `.github/workflows/assign-reviewer.yml` requests the default
+  reviewer automatically when the pull request is opened; whoever reviews
+  first still has to run the branch and record what they checked (below). A PR labelled
   `stock-integrity` also needs Tiến as a second reviewer unless Tiến wrote it.
 - Approve only from your own account, and only after running the branch.
 - The reviewer checks out the branch and runs it, following the author's

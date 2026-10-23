@@ -3,7 +3,7 @@
 > Mốc môn học: **tài liệu thiết kế cập nhật** — không chấm riêng. Milestone: *Week 08 — Hardening*. Module tự học: ôn 4, 9.
 > Rubric: *Implementation & Testing* (xử lý lỗi, lưu trữ, bảo mật, hiệu năng); *System Design* (sơ đồ khớp code); *Report Writing* (bắt đầu viết).
 
-> **Reviewer** theo vòng mới từ 12/10 (A do C duyệt, B do A, C do B; `00-tong-quan.md` §6.2).
+> **Reviewer**: mặc định theo vòng từ 12/10 (A do C duyệt, B do A, C do B); từ 23/10 bất kỳ thành viên nào khác tác giả cũng được duyệt, miễn là chạy nhánh và ghi đã kiểm gì (`00-tong-quan.md` §6.2).
 
 ## 1. Mục tiêu
 

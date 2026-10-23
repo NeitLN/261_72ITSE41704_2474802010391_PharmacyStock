@@ -1,4 +1,4 @@
-# Business rule scenarios — BR01, BR02, BR03, BR04, BR05, BR07, BR10
+# Business rule scenarios — BR01, BR02, BR03, BR04, BR05, BR06, BR07, BR08, BR09, BR10
 
 This table is the design gate for the three issuing rules: it mirrors plan §6.1
 and Definition of Done §6.6 item 2 (#32). Every row is one automated test that
@@ -183,6 +183,35 @@ of 2.000 ₫ in force from 2026-10-01, so an OTC sale can run.
 | BR05-16 | Error | A = 3 | OTC sale of 4 | 422 `INSUFFICIENT_STOCK`, `otcLines.0.quantity` "Only 3 can be sold now."; 1 movement, 0 SALE movements, 0 sale lines, A still 3, ledger balanced | — |
 | BR05-17 | Normal | A = 10; one `requestId` | OTC sale of 3 twice with that `requestId` | Both 201 with an identical body; A 7; exactly one SALE movement | — |
 
+## BR06 Pack-unit conversion
+
+Rule: a quantity entered in a pack unit is converted to base units before any
+stock arithmetic, and a quantity that is not a whole number of base units is
+refused ([business-rules.md](../requirements/business-rules.md), BR06). BR06 is
+*Could*: the reference data seeded by
+`src/backend/src/seed/catalogue-reference.seed.ts` holds base units only
+(`isBaseUnit: true`, `conversionToBase: 1`), and no endpoint takes a pack unit
+yet, so **the pack → base half has no test on `main`**. What the build does
+enforce, at every door a quantity can come in, is the whole-base-unit half.
+
+| Test | Kind | Given | When | Then | TC |
+|---|---|---|---|---|---|
+| UC03-03 | Error | A receipt whose third line asks for `quantity: 2.5` (its first two lines are wrong as well) | `POST /api/goods-receipts` | 400 with an error on `lines.2.quantity`, next to the other line errors; nothing saved | TC-02 |
+| UC07-11 | Error | An OTC sale line with quantity 0, -1 or 2.5 | `POST /api/sales` | 400 on `otcLines.0.quantity` for each | — |
+| UC09-08 | Error | A stock-take line counted -1, 2.5 or not at all | `PUT /api/stock-takes/:id/lines/:lineId` | 400 on `countedQuantity` for each; the saved count stays null | — |
+| UC01-13 | Error | A medicine with a batch already on the book | `PATCH /api/medicines/:id` with another `baseUnitId` | 400 on `baseUnitId`: "The base unit cannot change once the medicine has stock." The unit every stored quantity is counted in cannot move underneath it | — |
+
+Source: `src/backend/test/goods-receipts.e2e-spec.ts` (UC03-03),
+`src/backend/test/sales.e2e-spec.ts` (UC07-11),
+`src/backend/test/stock-takes.e2e-spec.ts` (UC09-08),
+`src/backend/test/medicines.e2e-spec.ts` (UC01-13) (e2e, `npm run test:e2e`).
+
+The ledger adds a programming-error guard: `applyDeltas` refuses a fractional
+delta ("Stock deltas must be whole numbers of base units."), checked by
+`refuses an empty or fractional movement as a programming error` in
+`src/backend/src/stock/stock-deltas.spec.ts` (unit, `npm test`). It guards code,
+not user input, so it does not replace the four checks above.
+
 ## BR07 No over-dispensing
 
 Rule: the total dispensed for a prescription item, over any number of visits,
@@ -218,6 +247,48 @@ Source: `src/backend/src/prescriptions/prescription-validator.spec.ts` (unit,
 Source: `src/backend/test/prescriptions.e2e-spec.ts` (UC05-10),
 `src/backend/test/dispensing.e2e-spec.ts` (UC06-05, UC06-06, UC06-14) (e2e,
 `npm run test:e2e`).
+
+## BR08 Two-person stock take
+
+Rule: a stock take is approved by a user other than the one who counted it, and
+every discrepancy carries a reason
+([business-rules.md](../requirements/business-rules.md), BR08). "Counted" means
+anyone who saved a count on any line or submitted the take, so a manager who
+counted a single line cannot approve even when a pharmacist submitted it. BR08
+has no unit spec: the checks live in `StockTakesService` and are exercised
+through the API.
+
+Business date `2026-10-12`; the book holds 10 of batch P1 unless a row says
+otherwise.
+
+| Test | Kind | Given | When | Then | TC |
+|---|---|---|---|---|---|
+| UC09-02 | Normal | Book 10; counted 8 with a reason; another user approves | `POST /api/stock-takes/:id/approve` | 201, status `approved`, one ADJUSTMENT -2 whose `reason` is the text typed and whose source is `stock_take_line`; stock 8 | TC-19 |
+| UC09-06 | Error | Book 10; counted 8 with a reason of spaces only | `POST /api/stock-takes/:id/submit` | 400 with an error on `lines.0.reason` whose message names the batch (`P1`) and says "give a reason for the difference."; the take stays Counting | TC-20 |
+| UC09-11 | Error | The manager counts the only line and submits; the same manager approves | `POST /api/stock-takes/:id/approve` | 422, code `SAME_COUNTER`, "A stock take must be approved by someone who did not count it."; no movement, stock still 10, status `pending_approval` | TC-51 |
+| UC09-11b | Error | The manager counts line P1, a pharmacist counts P2 and submits; the manager approves | `POST /api/stock-takes/:id/approve` | 422, code `SAME_COUNTER`, no movement — one counted line is enough to disqualify the approver | TC-20 |
+
+Source: `src/backend/test/stock-takes.e2e-spec.ts` (e2e, `npm run test:e2e`).
+
+## BR09 Effective-dated prices
+
+Rule: a sale is valued at the price in force on the sale date, and a price
+change never alters a past sale or report
+([business-rules.md](../requirements/business-rules.md), BR09, decision 12).
+`PriceBook` reads the `medicine_prices` history: the price in force on a date is
+the newest row whose `validFrom` is not after that date. There is no unit spec
+for `PriceBook`; both halves are checked through the API. Scheduling a price
+from UC13 is not built yet, so a change starts on the business day it is saved.
+
+### Through the API — UC01 and UC07
+
+| Test | Kind | Given | When | Then | TC |
+|---|---|---|---|---|---|
+| UC01-05 | Normal | A medicine created on 12/10/2026 at 1500; the same day's price corrected to 1600; then the clock moves to 13/10 and the price changes to 1800 | `PATCH /api/medicines/:id` with `currentPrice` | Same day: still one `medicine_prices` row — the day is corrected, not appended. Next day: 2 rows, `currentPrice` `1800.00`; `PriceBook.pricesOn(…, '2026-10-12')` still `1600.00` | TC-41 |
+| UC07-03 | Normal | Batch A = 10 at `2200.00`; `2500.00` saved with `validFrom` 14/10/2026 | Sell 1 on 13/10, move the clock to 14/10, sell 1 | First line `unitPrice` `2200.00`, second `2500.00`, receipt `RC-20261014-0001`; reading the first sale again still returns `totalAmount` `2200.00` | TC-40, TC-41 |
+
+Source: `src/backend/test/medicines.e2e-spec.ts` (UC01-05),
+`src/backend/test/sales.e2e-spec.ts` (UC07-03) (e2e, `npm run test:e2e`).
 
 ## BR10 Prescription validity
 
@@ -263,6 +334,9 @@ Source: `src/backend/test/prescriptions.e2e-spec.ts` (UC05-11),
 | BR05 | 2 (BR05-U1, U2) | 13 rows (BR05-01…06 in `test/stock-ledger.e2e-spec.ts`, BR05-11…17 in `test/ledger-invariant.e2e-spec.ts`) | TC-16, TC-19, TC-25 not run |
 | BR07 | 5 (BR07-01…05) | 4 rows (UC05-10 "a prescription that has been dispensed cannot be edited", UC06-05 "a smaller hand-over needs a note", UC06-06 "a second visit may take the rest", UC06-14 "two pharmacists dispensing the same item at once") | TC-09, run 11, 2026-10-20, pass; TC-37, run 31, 2026-10-22, pass; TC-54 not run |
 | BR10 | 5 (BR10-01…05) | 2 rows (UC05-11 "past valid-until cannot be verified", UC06-08 "refused after valid-until, checked again at every visit") | TC-38, run 32, 2026-10-22, pass |
+| BR06 | 0 named (no pack-unit test; the ledger guard `refuses an empty or fractional movement as a programming error` in `src/backend/src/stock/stock-deltas.spec.ts` covers code, not input) | 4 rows (UC03-03, UC07-11, UC09-08, UC01-13) | TC-02, run 25, 2026-10-21, pass; no case for pack → base conversion (BR06 is *Could*) |
+| BR08 | 0 (no spec for `src/backend/src/stocktake/`) | 4 rows (UC09-02, UC09-06, UC09-11, UC09-11b) | TC-20, run 37, 2026-10-22, pass; TC-19, run 35, 2026-10-22, pass; TC-51 not run |
+| BR09 | 0 (no spec for `src/backend/src/catalogue/price-book.ts`) | 2 rows (UC01-05, UC07-03) | TC-40, TC-41 not run |
 
 After every test that moves stock, `findLedgerMismatches` must find nothing
 (BR05).

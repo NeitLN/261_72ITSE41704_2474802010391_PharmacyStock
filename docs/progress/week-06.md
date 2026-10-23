@@ -92,7 +92,7 @@ week is **Minh**; the reviewer fills the rest by Sunday
 
 | Member | Delivered (self-report, with links) | Reviewer's findings | Revisions (issue, severity, due) |
 |---|---|---|---|
-| Duy Anh (B) | | Tiến: | |
+| Duy Anh (B) | UC07 over-the-counter sales merged (#121, #135, #136; TC-35/36/55 passing); `PrescriptionValidator` (BR04, BR07, BR10) and BR05 append-only ledger test merged (#122, #123); UC07 billing a dispensing (#141, #142) and documentation/form updates (#132–#134, #143, #144). Completed cross-testing for Minh's cases TC-19, 20, 21, 39 in `tests/manual/runs.md`. Reviews given for Minh's UC09/UC10 stack (#145–#148). Early week 7 prep: UI cancel (#164), 20x concurrency harness (#165), living traceability draft (#167), and UI run evidence (#168). | Tiến: | |
 | Minh (C) | | Tiến: | |
 | Tiến (A) | #137, #138, #139, #140 (UC04, error-handling table, runs 15–22); #126, #130 (bug #125, TC-64); reviews of #121–#123, #132–#136, #141–#144, #147 | Minh: | |
 

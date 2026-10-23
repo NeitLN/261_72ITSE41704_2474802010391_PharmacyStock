@@ -582,37 +582,76 @@ describe('StockLedger (e2e)', () => {
       expect(await findLedgerMismatches(t.dataSource)).toEqual([]);
     });
 
-    it('LEDGER-W7-09 a status change waits for a sale holding the medicine lock, then applies; no deadlock', async () => {
+    it('LEDGER-W7-09 a status change waits on the medicine lock a sale holds, then applies; no deadlock, no retry', async () => {
       const id = await receive('A1', 10);
-      const order: string[] = [];
+      const runs = { sale: 0, status: 0 };
+      let medicineHeld!: () => void;
+      const held = new Promise<void>((resolve) => (medicineHeld = resolve));
 
-      const sale = ledger.run(async (tx) => {
-        await tx.lockMedicines([medicine.id]);
-        const [batch] = await tx.lockEligibleBatches(medicine.id, TODAY);
-        await tx.manager.query('SELECT pg_sleep(0.3)');
-        const movement = await tx.post(manager, {
-          batchId: batch.id,
-          type: MovementType.SALE,
-          deltaSellable: -4,
-          sourceDocumentType: SourceDocumentType.SALE_LINE,
-          sourceDocumentId: DOC,
-        });
-        order.push('sale');
-        return movement;
-      });
-      await new Promise((resolve) => setTimeout(resolve, 50));
-      const hold = setStatus(id, BatchStatus.ON_HOLD, 'Supplier notice').then(
-        (batch) => {
-          order.push('status');
-          return batch;
-        },
-      );
+      const sale = ledger
+        .run(async (tx) => {
+          runs.sale += 1;
+          await tx.lockMedicines([medicine.id]);
+          // Barrier: the medicine is locked and no batch yet.
+          medicineHeld();
+          await tx.manager.query('SELECT pg_sleep(0.3)');
+          const [batch] = await tx.lockEligibleBatches(medicine.id, TODAY);
+          return tx.post(manager, {
+            batchId: batch.id,
+            type: MovementType.SALE,
+            deltaSellable: -4,
+            sourceDocumentType: SourceDocumentType.SALE_LINE,
+            sourceDocumentId: DOC,
+          });
+        })
+        .then(() => Date.now());
+      await held;
+      const asked = Date.now();
+      const hold = ledger
+        .run((tx) => {
+          runs.status += 1;
+          return tx.setBatchStatus(
+            manager,
+            id,
+            BatchStatus.ON_HOLD,
+            'Supplier notice',
+          );
+        })
+        .then(() => Date.now());
 
-      const results = await Promise.allSettled([sale, hold]);
-      expect(results.map((r) => r.status)).toEqual(['fulfilled', 'fulfilled']);
-      expect(order).toEqual(['sale', 'status']);
+      const [saleDone, statusDone] = await Promise.all([sale, hold]);
+      // It waited for the sale's medicine lock (taken before any batch lock)
+      // and finished only after the sale had committed.
+      expect(statusDone - asked).toBeGreaterThanOrEqual(200);
+      expect(statusDone).toBeGreaterThanOrEqual(saleDone);
+      expect(runs).toEqual({ sale: 1, status: 1 });
       expect(await quantities(id)).toEqual([6, 0, 0]);
       expect((await batchRow(id)).status).toBe(BatchStatus.ON_HOLD);
+      expect(await findLedgerMismatches(t.dataSource)).toEqual([]);
+    });
+
+    it('LEDGER-W7-10 overlapping commands in one transaction share one batch; an upper-case id works', async () => {
+      const id = await receive('A1', 10);
+
+      await ledger.run((tx) =>
+        Promise.all([
+          tx.receiveReturn(manager, id, 1, RETURN_LINE),
+          tx.receiveReturn(manager, id.toUpperCase(), 2, RETURN_LINE),
+        ]),
+      );
+      expect(await quantities(id)).toEqual([10, 3, 0]);
+
+      const results = await ledger.run((tx) =>
+        Promise.allSettled([
+          tx.setBatchStatus(manager, id, BatchStatus.REJECTED, 'Failed check'),
+          tx.setBatchStatus(manager, id, BatchStatus.ON_HOLD, 'Notice'),
+        ]),
+      );
+      expect(results.map((r) => r.status)).toEqual(['fulfilled', 'rejected']);
+      expect((results[1] as PromiseRejectedResult).reason).toMatchObject({
+        code: 'BATCH_REJECTED_FINAL',
+      });
+      expect((await batchRow(id)).status).toBe(BatchStatus.REJECTED);
       expect(await findLedgerMismatches(t.dataSource)).toEqual([]);
     });
   });

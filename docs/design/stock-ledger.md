@@ -152,6 +152,7 @@ Each row becomes a test in `test/stock-ledger.e2e-spec.ts`; after every one,
 | LEDGER-W7-07 *(S)* | Reject 2; reject 3 with 2 in quarantine | REJECT to pending destruction / BR03 refused |
 | LEDGER-W7-08 *(S)* | Destroy 5 pending with a reason; destroy more than pending | DESTROY / BR03 refused |
 | LEDGER-W7-09 | Status change while a sale holds the medicine lock | Waits for the sale, then applies; no deadlock (lock order) |
+| LEDGER-W7-10 | Two commands on one batch overlapping inside one transaction; the batch id in upper case | One cached batch: quarantine 1 + 2 = 3; REJECTED then ON_HOLD → the second refused `BATCH_REJECTED_FINAL` |
 
 Manual cases using these commands are run with UC08 (TC-16, 50) and UC11
 (TC-22, 56, 60).

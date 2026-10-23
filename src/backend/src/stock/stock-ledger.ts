@@ -186,7 +186,7 @@ export class LedgerTransaction {
 
   /** Step 2: lock given batches (ascending id) and return them with fresh quantities. */
   async lockBatches(batchIds: string[]): Promise<Batch[]> {
-    const ids = [...new Set(batchIds)];
+    const ids = [...new Set(batchIds.map((id) => id.toLowerCase()))];
     const missing = ids.filter((id) => !this.lockedBatches.has(id));
     if (missing.length > 0) {
       const rows = await this.manager
@@ -206,7 +206,11 @@ export class LedgerTransaction {
       }
       for (const batch of rows) {
         this.requireMedicineLocked(batch.medicine.id);
-        this.lockedBatches.set(batch.id, batch);
+        // Keep the first copy: an overlapping call may have cached it already.
+        this.lockedBatches.set(
+          batch.id,
+          this.lockedBatches.get(batch.id) ?? batch,
+        );
       }
     }
     return ids.map((id) => this.lockedBatches.get(id)!);
@@ -390,6 +394,15 @@ export class LedgerTransaction {
   ): Promise<Batch> {
     const why = requireReason(reason, 'Say why the status changes.');
     const batch = await this.lockBatchOf(batchId);
+    return this.serialized(() => this.changeStatus(actor, batch, status, why));
+  }
+
+  private async changeStatus(
+    actor: Actor,
+    batch: Batch,
+    status: BatchStatus,
+    why: string,
+  ): Promise<Batch> {
     if (batch.status === BatchStatus.REJECTED) {
       throw new BusinessRuleViolation(
         'DEC-07',
@@ -466,6 +479,17 @@ export class LedgerTransaction {
   ): Promise<StockMovement> {
     const why = requireReason(reason, 'Say why the batch is written off.');
     const batch = await this.lockBatchOf(batchId);
+    return this.serialized(() =>
+      this.writeOffNow(actor, batch, why, businessDate),
+    );
+  }
+
+  private writeOffNow(
+    actor: Actor,
+    batch: Batch,
+    why: string,
+    businessDate: string,
+  ): Promise<StockMovement> {
     if (
       batch.status === BatchStatus.ACTIVE &&
       !isExpired(batch, businessDate)
@@ -483,7 +507,7 @@ export class LedgerTransaction {
         `Batch ${batch.batchNumber} has nothing left to write off.`,
       );
     }
-    return this.write(actor, batch, {
+    return this.writeNow(actor, batch, {
       deltaSellable: -batch.qtySellable,
       deltaQuarantine: 0,
       deltaPendingDestruction: batch.qtySellable,
@@ -513,30 +537,32 @@ export class LedgerTransaction {
       select: { id: true, classification: true },
       where: { id: batch.medicine.id },
     });
-    const refusal =
-      medicine.classification === MedicineClassification.CONTROLLED
-        ? 'a controlled medicine that was returned never goes back on the shelf'
-        : isExpired(batch, businessDate)
-          ? `batch ${batch.batchNumber} expired on ${batch.expiryDate}`
-          : batch.status !== BatchStatus.ACTIVE
-            ? `batch ${batch.batchNumber} is ${STATUS_LABEL[batch.status]}`
-            : null;
-    if (refusal) {
-      throw new BusinessRuleViolation(
-        'BR11',
-        'CANNOT_RELEASE',
-        `Cannot release to sellable stock: ${refusal}. Reject it instead.`,
-      );
-    }
-    return this.write(actor, batch, {
-      deltaSellable: quantity,
-      deltaQuarantine: -quantity,
-      deltaPendingDestruction: 0,
-      type: MovementType.RELEASE,
-      sourceDocumentType: SourceDocumentType.RETURN_LINE,
-      sourceDocumentId: returnLineId,
-      reason: null,
-      reversesMovement: null,
+    return this.serialized(() => {
+      const refusal =
+        medicine.classification === MedicineClassification.CONTROLLED
+          ? 'a controlled medicine that was returned never goes back on the shelf'
+          : isExpired(batch, businessDate)
+            ? `batch ${batch.batchNumber} expired on ${batch.expiryDate}`
+            : batch.status !== BatchStatus.ACTIVE
+              ? `batch ${batch.batchNumber} is ${STATUS_LABEL[batch.status]}`
+              : null;
+      if (refusal) {
+        throw new BusinessRuleViolation(
+          'BR11',
+          'CANNOT_RELEASE',
+          `Cannot release to sellable stock: ${refusal}. Reject it instead.`,
+        );
+      }
+      return this.writeNow(actor, batch, {
+        deltaSellable: quantity,
+        deltaQuarantine: -quantity,
+        deltaPendingDestruction: 0,
+        type: MovementType.RELEASE,
+        sourceDocumentType: SourceDocumentType.RETURN_LINE,
+        sourceDocumentId: returnLineId,
+        reason: null,
+        reversesMovement: null,
+      });
     });
   }
 
@@ -594,7 +620,7 @@ export class LedgerTransaction {
    * this transaction already holds it (the same order as `reverse`).
    */
   private async lockBatchOf(batchId: string): Promise<Batch> {
-    const held = this.lockedBatches.get(batchId);
+    const held = this.lockedBatches.get(batchId.toLowerCase());
     if (held) return held;
     const row = await this.manager
       .createQueryBuilder(Batch, 'b')
@@ -604,7 +630,7 @@ export class LedgerTransaction {
       .getOne();
     if (!row) throw new NotFound('Batch', batchId);
     await this.lockMedicines([row.medicine.id]);
-    const [batch] = await this.lockBatches([batchId]);
+    const [batch] = await this.lockBatches([row.id]);
     return batch;
   }
 
@@ -613,7 +639,15 @@ export class LedgerTransaction {
     batch: Batch,
     movement: Parameters<LedgerTransaction['writeNow']>[2],
   ): Promise<StockMovement> {
-    const next = this.writes.then(() => this.writeNow(actor, batch, movement));
+    return this.serialized(() => this.writeNow(actor, batch, movement));
+  }
+
+  /**
+   * Runs `work` after every earlier write of this transaction, so a check
+   * and the write that depends on it always see the same batch state.
+   */
+  private serialized<T>(work: () => Promise<T>): Promise<T> {
+    const next = this.writes.then(work);
     this.writes = next.catch(() => undefined);
     return next;
   }

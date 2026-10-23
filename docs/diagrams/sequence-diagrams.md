@@ -431,7 +431,7 @@ sequenceDiagram
     L->>DB: BEGIN
     S->>L: lockMedicines([medicine])
     alt write-off
-        S->>L: tx.writeOff(actor, batch, reason)
+        S->>L: tx.writeOff(actor, batch, reason, businessDate)
         Note over L: expired or not ACTIVE, sellable above 0, else 422 (#55)
     else status
         S->>L: tx.setBatchStatus(actor, batch, status, reason)

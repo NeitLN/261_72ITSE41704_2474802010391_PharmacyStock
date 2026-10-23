@@ -1,14 +1,21 @@
 import { Injectable, Optional } from '@nestjs/common';
 import { DataSource, type EntityManager, QueryFailedError } from 'typeorm';
 import type { Actor } from '../auth/actor.js';
-import { BusinessRuleViolation, Conflict, NotFound } from '../common/errors.js';
+import {
+  BusinessRuleViolation,
+  Conflict,
+  NotFound,
+  ValidationFailed,
+} from '../common/errors.js';
 import {
   Batch,
   BatchStatus,
   Medicine,
-  type MovementType,
-  type SourceDocumentType,
+  MedicineClassification,
+  MovementType,
+  SourceDocumentType,
   StockMovement,
+  type User,
 } from '../entities/index.js';
 import {
   applyDeltas,
@@ -41,6 +48,33 @@ function pgCode(error: unknown): string | undefined {
   return error instanceof QueryFailedError
     ? (error.driverError as { code?: string }).code
     : undefined;
+}
+
+/** How a batch status reads in a message. */
+const STATUS_LABEL: Record<BatchStatus, string> = {
+  [BatchStatus.ACTIVE]: 'active',
+  [BatchStatus.ON_HOLD]: 'on hold',
+  [BatchStatus.RECALLED]: 'recalled',
+  [BatchStatus.REJECTED]: 'rejected',
+};
+
+/** The trimmed reason, or a 400 on `reason` when there is none. */
+function requireReason(reason: string, message: string): string {
+  const trimmed = reason.trim();
+  if (!trimmed) throw new ValidationFailed([{ field: 'reason', message }]);
+  return trimmed;
+}
+
+/** The calling service validates quantities; this guards the ledger itself. */
+function requirePositive(quantity: number): void {
+  if (!Number.isInteger(quantity) || quantity <= 0) {
+    throw new Error('Quantity must be a positive whole number of base units.');
+  }
+}
+
+/** Expired on `businessDate`: it may no longer be issued (DEC-01, BR02). */
+function isExpired(batch: Batch, businessDate: string): boolean {
+  return batch.expiryDate <= businessDate;
 }
 
 /**
@@ -340,6 +374,238 @@ export class LedgerTransaction {
       reason: reason.trim(),
       reversesMovement: { id: original.id } as StockMovement,
     });
+  }
+
+  /**
+   * Changes a batch's status with a reason (FR-48, DEC-07). ACTIVE, ON_HOLD
+   * and RECALLED change into each other freely; REJECTED is final. No stock
+   * moves: a batch that is not ACTIVE simply stops being eligible for FEFO,
+   * sales and the sellable total. Locks the medicine and the batch itself.
+   */
+  async setBatchStatus(
+    actor: Actor,
+    batchId: string,
+    status: BatchStatus,
+    reason: string,
+  ): Promise<Batch> {
+    const why = requireReason(reason, 'Say why the status changes.');
+    const batch = await this.lockBatchOf(batchId);
+    if (batch.status === BatchStatus.REJECTED) {
+      throw new BusinessRuleViolation(
+        'DEC-07',
+        'BATCH_REJECTED_FINAL',
+        `Batch ${batch.batchNumber} is rejected; a rejected batch keeps that status.`,
+      );
+    }
+    if (batch.status === status) {
+      throw new BusinessRuleViolation(
+        'DEC-07',
+        'BATCH_STATUS_UNCHANGED',
+        `Batch ${batch.batchNumber} is already ${STATUS_LABEL[status]}.`,
+        [{ field: 'status', message: 'Choose a different status.' }],
+      );
+    }
+    await this.manager.update(
+      Batch,
+      { id: batch.id },
+      {
+        status,
+        statusReason: why,
+        statusChangedBy: { id: actor.id },
+        statusChangedAt: () => 'clock_timestamp()',
+      },
+    );
+    const { statusChangedAt } = await this.manager.findOneOrFail(Batch, {
+      select: { id: true, statusChangedAt: true },
+      where: { id: batch.id },
+    });
+    Object.assign(batch, {
+      status,
+      statusReason: why,
+      statusChangedBy: { id: actor.id } as User,
+      statusChangedAt,
+    });
+    return batch;
+  }
+
+  /**
+   * A returned item goes into the quarantine of the batch it was sold from,
+   * whatever that batch's status or expiry (BR11, DEC-04). How much a sale
+   * line can take back is the calling use case's check (UC08).
+   */
+  async receiveReturn(
+    actor: Actor,
+    batchId: string,
+    quantity: number,
+    returnLineId: string,
+  ): Promise<StockMovement> {
+    requirePositive(quantity);
+    const batch = await this.lockBatchOf(batchId);
+    return this.write(actor, batch, {
+      deltaSellable: 0,
+      deltaQuarantine: quantity,
+      deltaPendingDestruction: 0,
+      type: MovementType.RETURN,
+      sourceDocumentType: SourceDocumentType.RETURN_LINE,
+      sourceDocumentId: returnLineId,
+      reason: null,
+      reversesMovement: null,
+    });
+  }
+
+  /**
+   * Moves the whole sellable quantity of a batch that is expired on
+   * `businessDate` or not ACTIVE to pending destruction (FR-36). Damaged
+   * stock of an active, unexpired batch is a stock-take adjustment instead.
+   */
+  async writeOff(
+    actor: Actor,
+    batchId: string,
+    reason: string,
+    businessDate: string,
+  ): Promise<StockMovement> {
+    const why = requireReason(reason, 'Say why the batch is written off.');
+    const batch = await this.lockBatchOf(batchId);
+    if (
+      batch.status === BatchStatus.ACTIVE &&
+      !isExpired(batch, businessDate)
+    ) {
+      throw new BusinessRuleViolation(
+        'FR-36',
+        'BATCH_STILL_SELLABLE',
+        `Batch ${batch.batchNumber} is active and expires on ${batch.expiryDate}; only an expired batch or one that is not active can be written off.`,
+      );
+    }
+    if (batch.qtySellable === 0) {
+      throw new BusinessRuleViolation(
+        'FR-36',
+        'NOTHING_TO_WRITE_OFF',
+        `Batch ${batch.batchNumber} has nothing left to write off.`,
+      );
+    }
+    return this.write(actor, batch, {
+      deltaSellable: -batch.qtySellable,
+      deltaQuarantine: 0,
+      deltaPendingDestruction: batch.qtySellable,
+      type: MovementType.WRITE_OFF,
+      sourceDocumentType: SourceDocumentType.BATCH,
+      sourceDocumentId: batch.id,
+      reason: why,
+      reversesMovement: null,
+    });
+  }
+
+  /**
+   * Returns quarantined units to sellable stock after an assessment
+   * (FR-46). Allowed only for an ACTIVE batch that is not expired on
+   * `businessDate`, of a medicine that is not controlled (DEC-04).
+   */
+  async release(
+    actor: Actor,
+    batchId: string,
+    quantity: number,
+    returnLineId: string,
+    businessDate: string,
+  ): Promise<StockMovement> {
+    requirePositive(quantity);
+    const batch = await this.lockBatchOf(batchId);
+    const medicine = await this.manager.findOneOrFail(Medicine, {
+      select: { id: true, classification: true },
+      where: { id: batch.medicine.id },
+    });
+    const refusal =
+      medicine.classification === MedicineClassification.CONTROLLED
+        ? 'a controlled medicine that was returned never goes back on the shelf'
+        : isExpired(batch, businessDate)
+          ? `batch ${batch.batchNumber} expired on ${batch.expiryDate}`
+          : batch.status !== BatchStatus.ACTIVE
+            ? `batch ${batch.batchNumber} is ${STATUS_LABEL[batch.status]}`
+            : null;
+    if (refusal) {
+      throw new BusinessRuleViolation(
+        'BR11',
+        'CANNOT_RELEASE',
+        `Cannot release to sellable stock: ${refusal}. Reject it instead.`,
+      );
+    }
+    return this.write(actor, batch, {
+      deltaSellable: quantity,
+      deltaQuarantine: -quantity,
+      deltaPendingDestruction: 0,
+      type: MovementType.RELEASE,
+      sourceDocumentType: SourceDocumentType.RETURN_LINE,
+      sourceDocumentId: returnLineId,
+      reason: null,
+      reversesMovement: null,
+    });
+  }
+
+  /** Moves quarantined units to pending destruction after an assessment (FR-46). */
+  async reject(
+    actor: Actor,
+    batchId: string,
+    quantity: number,
+    returnLineId: string,
+  ): Promise<StockMovement> {
+    requirePositive(quantity);
+    const batch = await this.lockBatchOf(batchId);
+    return this.write(actor, batch, {
+      deltaSellable: 0,
+      deltaQuarantine: -quantity,
+      deltaPendingDestruction: quantity,
+      type: MovementType.REJECT,
+      sourceDocumentType: SourceDocumentType.RETURN_LINE,
+      sourceDocumentId: returnLineId,
+      reason: null,
+      reversesMovement: null,
+    });
+  }
+
+  /**
+   * Records that units pending destruction were destroyed (FR-47). The reason
+   * says how and who witnessed it. Until then the stock stays pending.
+   */
+  async destroy(
+    actor: Actor,
+    batchId: string,
+    quantity: number,
+    reason: string,
+  ): Promise<StockMovement> {
+    const why = requireReason(
+      reason,
+      'Say how the stock was destroyed and who witnessed it.',
+    );
+    requirePositive(quantity);
+    const batch = await this.lockBatchOf(batchId);
+    return this.write(actor, batch, {
+      deltaSellable: 0,
+      deltaQuarantine: 0,
+      deltaPendingDestruction: -quantity,
+      type: MovementType.DESTROY,
+      sourceDocumentType: SourceDocumentType.BATCH,
+      sourceDocumentId: batch.id,
+      reason: why,
+      reversesMovement: null,
+    });
+  }
+
+  /**
+   * Locks one batch for a batch command, locking its medicine first unless
+   * this transaction already holds it (the same order as `reverse`).
+   */
+  private async lockBatchOf(batchId: string): Promise<Batch> {
+    const held = this.lockedBatches.get(batchId);
+    if (held) return held;
+    const row = await this.manager
+      .createQueryBuilder(Batch, 'b')
+      .leftJoin('b.medicine', 'medicine')
+      .addSelect('medicine.id')
+      .where('b.id = :batchId', { batchId })
+      .getOne();
+    if (!row) throw new NotFound('Batch', batchId);
+    await this.lockMedicines([row.medicine.id]);
+    const [batch] = await this.lockBatches([batchId]);
+    return batch;
   }
 
   private write(

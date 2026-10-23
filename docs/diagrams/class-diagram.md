@@ -409,6 +409,12 @@ classDiagram
         +createBatch(input) Batch
         +post(actor, movement) StockMovement
         +reverse(actor, movementId, reason) StockMovement
+        +setBatchStatus(actor, batchId, status, reason) Batch
+        +receiveReturn(actor, batchId, quantity, returnLineId) StockMovement
+        +writeOff(actor, batchId, reason, businessDate) StockMovement
+        +release(actor, batchId, quantity, returnLineId, businessDate) StockMovement
+        +reject(actor, batchId, quantity, returnLineId) StockMovement
+        +destroy(actor, batchId, quantity, reason) StockMovement
     }
     class FefoAllocator {
         <<domain>>

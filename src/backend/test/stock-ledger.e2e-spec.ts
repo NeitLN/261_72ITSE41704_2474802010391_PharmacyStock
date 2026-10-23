@@ -1,10 +1,15 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import type { Actor } from '../src/auth/actor.js';
-import { BusinessRuleViolation, Conflict } from '../src/common/errors.js';
+import {
+  BusinessRuleViolation,
+  Conflict,
+  ValidationFailed,
+} from '../src/common/errors.js';
 import {
   Batch,
   BatchStatus,
   type Medicine,
+  MedicineClassification,
   MovementType,
   SourceDocumentType,
   StockMovement,
@@ -363,5 +368,291 @@ describe('StockLedger (e2e)', () => {
       expect(await quantities(id)).toEqual([1, 0, 0]);
       expect(await findLedgerMismatches(t.dataSource)).toEqual([]);
     }
+  });
+
+  describe('batch status and quarantine commands (#55, stock-ledger.md § Week 7)', () => {
+    const RETURN_LINE = '00000000-0000-4000-8000-0000000000e2';
+
+    const batchRow = (id: string) =>
+      t.dataSource.getRepository(Batch).findOneOrFail({
+        where: { id },
+        relations: { statusChangedBy: true },
+      });
+
+    const setStatus = (id: string, status: BatchStatus, reason = 'Check') =>
+      ledger.run((tx) => tx.setBatchStatus(manager, id, status, reason));
+
+    /** Puts `quantity` of batch `id` into quarantine, as a return would. */
+    const returned = (id: string, quantity: number) =>
+      ledger.run((tx) => tx.receiveReturn(manager, id, quantity, RETURN_LINE));
+
+    const eligibleIds = () =>
+      ledger.run(async (tx) => {
+        await tx.lockMedicines([medicine.id]);
+        return (await tx.lockEligibleBatches(medicine.id, TODAY)).map(
+          (b) => b.id,
+        );
+      });
+
+    it('LEDGER-W7-01 a batch put on hold with a reason, then back to active: stored, not issued while held, no movement', async () => {
+      const id = await receive('A1', 10);
+
+      const held = await setStatus(
+        id,
+        BatchStatus.ON_HOLD,
+        ' Supplier notice ',
+      );
+      expect(held.status).toBe(BatchStatus.ON_HOLD);
+      const row = await batchRow(id);
+      expect(row).toMatchObject({
+        status: BatchStatus.ON_HOLD,
+        statusReason: 'Supplier notice',
+      });
+      expect(row.statusChangedBy?.id).toBe(manager.id);
+      expect(row.statusChangedAt).toBeInstanceOf(Date);
+      expect(await eligibleIds()).toEqual([]);
+
+      await setStatus(id, BatchStatus.ACTIVE, 'Notice withdrawn');
+      expect((await batchRow(id)).statusReason).toBe('Notice withdrawn');
+      expect(await eligibleIds()).toEqual([id]);
+
+      expect(await quantities(id)).toEqual([10, 0, 0]);
+      expect(await movementCount()).toBe(1);
+      expect(await findLedgerMismatches(t.dataSource)).toEqual([]);
+    });
+
+    it('LEDGER-W7-02 a status change needs a reason, a new status, and never leaves REJECTED', async () => {
+      const id = await receive('A1', 10);
+
+      const noReason = setStatus(id, BatchStatus.ON_HOLD, '   ');
+      await expect(noReason).rejects.toBeInstanceOf(ValidationFailed);
+      await expect(noReason).rejects.toMatchObject({
+        errors: [{ field: 'reason', message: 'Say why the status changes.' }],
+      });
+      await expect(setStatus(id, BatchStatus.ACTIVE)).rejects.toMatchObject({
+        code: 'BATCH_STATUS_UNCHANGED',
+      });
+
+      await setStatus(id, BatchStatus.REJECTED, 'Failed inspection');
+      await expect(setStatus(id, BatchStatus.ACTIVE)).rejects.toMatchObject({
+        code: 'BATCH_REJECTED_FINAL',
+      });
+      expect((await batchRow(id)).status).toBe(BatchStatus.REJECTED);
+      expect(await movementCount()).toBe(1);
+    });
+
+    it('LEDGER-W7-03 a return goes into quarantine even of an expired, recalled batch; sellable is unchanged', async () => {
+      const id = await receive('A1', 10, '2026-10-01');
+      await setStatus(id, BatchStatus.RECALLED, 'Recall notice');
+
+      const movement = await returned(id, 2);
+
+      expect(movement).toMatchObject({
+        type: MovementType.RETURN,
+        deltaQuarantine: 2,
+        deltaSellable: 0,
+        sourceDocumentType: SourceDocumentType.RETURN_LINE,
+        sourceDocumentId: RETURN_LINE,
+      });
+      expect(await quantities(id)).toEqual([10, 2, 0]);
+      expect(await findLedgerMismatches(t.dataSource)).toEqual([]);
+    });
+
+    it('LEDGER-W7-04 writing off an expired batch moves all its sellable stock to pending destruction', async () => {
+      const id = await receive('A1', 5, '2026-10-12');
+
+      const movement = await ledger.run((tx) =>
+        tx.writeOff(manager, id, ' Expired on the shelf ', TODAY),
+      );
+
+      expect(movement).toMatchObject({
+        type: MovementType.WRITE_OFF,
+        deltaSellable: -5,
+        deltaPendingDestruction: 5,
+        reason: 'Expired on the shelf',
+        sourceDocumentType: SourceDocumentType.BATCH,
+        sourceDocumentId: id,
+      });
+      expect(await quantities(id)).toEqual([0, 0, 5]);
+      expect(await findLedgerMismatches(t.dataSource)).toEqual([]);
+    });
+
+    it('LEDGER-W7-05 an active unexpired batch, an empty one, or no reason cannot be written off', async () => {
+      const active = await receive('A1', 5, '2027-06-30');
+      const writeOff = (id: string, reason = 'Expired') =>
+        ledger.run((tx) => tx.writeOff(manager, id, reason, TODAY));
+
+      await expect(writeOff(active)).rejects.toMatchObject({
+        code: 'BATCH_STILL_SELLABLE',
+      });
+
+      const expired = await receive('A2', 3, '2026-10-01');
+      await expect(writeOff(expired, '')).rejects.toBeInstanceOf(
+        ValidationFailed,
+      );
+      await writeOff(expired);
+      await expect(writeOff(expired)).rejects.toMatchObject({
+        code: 'NOTHING_TO_WRITE_OFF',
+      });
+
+      // A held batch that has not expired can be written off too.
+      await setStatus(active, BatchStatus.ON_HOLD, 'Damaged delivery');
+      await writeOff(active, 'Damaged delivery');
+      expect(await quantities(active)).toEqual([0, 0, 5]);
+      expect(await findLedgerMismatches(t.dataSource)).toEqual([]);
+    });
+
+    it('LEDGER-W7-06 release: allowed for an unexpired active batch, refused when expired, held or controlled', async () => {
+      const id = await receive('A1', 10, '2027-06-30');
+      await returned(id, 3);
+      const release = (batchId: string, quantity = 1) =>
+        ledger.run((tx) =>
+          tx.release(manager, batchId, quantity, RETURN_LINE, TODAY),
+        );
+
+      const movement = await release(id, 2);
+      expect(movement).toMatchObject({
+        type: MovementType.RELEASE,
+        deltaQuarantine: -2,
+        deltaSellable: 2,
+      });
+      expect(await quantities(id)).toEqual([12, 1, 0]);
+
+      await setStatus(id, BatchStatus.ON_HOLD, 'Supplier notice');
+      await expect(release(id)).rejects.toMatchObject({
+        code: 'CANNOT_RELEASE',
+      });
+
+      const expired = await receive('A2', 1, '2026-10-01');
+      await returned(expired, 1);
+      await expect(release(expired)).rejects.toMatchObject({
+        code: 'CANNOT_RELEASE',
+        message: expect.stringContaining('expired on 2026-10-01'),
+      });
+
+      medicine = await createMedicine(t.dataSource, {
+        classification: MedicineClassification.CONTROLLED,
+      });
+      const controlled = await receive('C1', 4, '2027-06-30');
+      await returned(controlled, 1);
+      await expect(release(controlled)).rejects.toMatchObject({
+        code: 'CANNOT_RELEASE',
+        message: expect.stringContaining('controlled'),
+      });
+      expect(await findLedgerMismatches(t.dataSource)).toEqual([]);
+    });
+
+    it('LEDGER-W7-07 reject moves quarantined units to pending destruction, never more than quarantined', async () => {
+      const id = await receive('A1', 10);
+      await returned(id, 2);
+      const reject = (quantity: number) =>
+        ledger.run((tx) => tx.reject(manager, id, quantity, RETURN_LINE));
+
+      await expect(reject(3)).rejects.toMatchObject({
+        rule: 'BR03',
+        code: 'INSUFFICIENT_STOCK',
+      });
+      const movement = await reject(2);
+      expect(movement).toMatchObject({
+        type: MovementType.REJECT,
+        deltaQuarantine: -2,
+        deltaPendingDestruction: 2,
+      });
+      expect(await quantities(id)).toEqual([10, 0, 2]);
+      expect(await findLedgerMismatches(t.dataSource)).toEqual([]);
+    });
+
+    it('LEDGER-W7-08 destroy needs a reason and never takes more than is pending', async () => {
+      const id = await receive('A1', 5, '2026-10-01');
+      await ledger.run((tx) => tx.writeOff(manager, id, 'Expired', TODAY));
+      const destroy = (
+        quantity: number,
+        reason = 'Contractor, witnessed by M. Le',
+      ) => ledger.run((tx) => tx.destroy(manager, id, quantity, reason));
+
+      await expect(destroy(5, ' ')).rejects.toBeInstanceOf(ValidationFailed);
+      await expect(destroy(6)).rejects.toMatchObject({ rule: 'BR03' });
+      const movement = await destroy(5);
+      expect(movement).toMatchObject({
+        type: MovementType.DESTROY,
+        deltaPendingDestruction: -5,
+        reason: 'Contractor, witnessed by M. Le',
+      });
+      expect(await quantities(id)).toEqual([0, 0, 0]);
+      expect(await findLedgerMismatches(t.dataSource)).toEqual([]);
+    });
+
+    it('LEDGER-W7-09 a status change waits on the medicine lock a sale holds, then applies; no deadlock, no retry', async () => {
+      const id = await receive('A1', 10);
+      const runs = { sale: 0, status: 0 };
+      let medicineHeld!: () => void;
+      const held = new Promise<void>((resolve) => (medicineHeld = resolve));
+
+      const sale = ledger
+        .run(async (tx) => {
+          runs.sale += 1;
+          await tx.lockMedicines([medicine.id]);
+          // Barrier: the medicine is locked and no batch yet.
+          medicineHeld();
+          await tx.manager.query('SELECT pg_sleep(0.3)');
+          const [batch] = await tx.lockEligibleBatches(medicine.id, TODAY);
+          return tx.post(manager, {
+            batchId: batch.id,
+            type: MovementType.SALE,
+            deltaSellable: -4,
+            sourceDocumentType: SourceDocumentType.SALE_LINE,
+            sourceDocumentId: DOC,
+          });
+        })
+        .then(() => Date.now());
+      await held;
+      const asked = Date.now();
+      const hold = ledger
+        .run((tx) => {
+          runs.status += 1;
+          return tx.setBatchStatus(
+            manager,
+            id,
+            BatchStatus.ON_HOLD,
+            'Supplier notice',
+          );
+        })
+        .then(() => Date.now());
+
+      const [saleDone, statusDone] = await Promise.all([sale, hold]);
+      // It waited for the sale's medicine lock (taken before any batch lock)
+      // and finished only after the sale had committed.
+      expect(statusDone - asked).toBeGreaterThanOrEqual(200);
+      expect(statusDone).toBeGreaterThanOrEqual(saleDone);
+      expect(runs).toEqual({ sale: 1, status: 1 });
+      expect(await quantities(id)).toEqual([6, 0, 0]);
+      expect((await batchRow(id)).status).toBe(BatchStatus.ON_HOLD);
+      expect(await findLedgerMismatches(t.dataSource)).toEqual([]);
+    });
+
+    it('LEDGER-W7-10 overlapping commands in one transaction share one batch; an upper-case id works', async () => {
+      const id = await receive('A1', 10);
+
+      await ledger.run((tx) =>
+        Promise.all([
+          tx.receiveReturn(manager, id, 1, RETURN_LINE),
+          tx.receiveReturn(manager, id.toUpperCase(), 2, RETURN_LINE),
+        ]),
+      );
+      expect(await quantities(id)).toEqual([10, 3, 0]);
+
+      const results = await ledger.run((tx) =>
+        Promise.allSettled([
+          tx.setBatchStatus(manager, id, BatchStatus.REJECTED, 'Failed check'),
+          tx.setBatchStatus(manager, id, BatchStatus.ON_HOLD, 'Notice'),
+        ]),
+      );
+      expect(results.map((r) => r.status)).toEqual(['fulfilled', 'rejected']);
+      expect((results[1] as PromiseRejectedResult).reason).toMatchObject({
+        code: 'BATCH_REJECTED_FINAL',
+      });
+      expect((await batchRow(id)).status).toBe(BatchStatus.REJECTED);
+      expect(await findLedgerMismatches(t.dataSource)).toEqual([]);
+    });
   });
 });

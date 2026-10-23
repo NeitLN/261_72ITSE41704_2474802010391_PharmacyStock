@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="../kit.css"><title>Expiry and batch status</title></head>
+<body>
+<div class="frame">
+  <span class="label">UC11 Stock control › Expiry — 1. expired first, then expiring soon <span class="tag">design · Tiến · 23/10/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Catalogue &amp; batches</div><div>Suppliers &amp; receipts</div><div>Prescriptions &amp; dispensing</div><div>Sales &amp; returns</div><div class="on">Stock control &amp; reports</div></div>
+    <div class="page">
+      <h1>Stock control &amp; reports</h1>
+      <div class="tabs"><div>Stock take</div><div>Alerts</div><div class="on">Expiry</div><div>Stock movement</div></div>
+      <div class="row"><span class="field">All categories ▾</span><span class="muted">Business date 2026-10-22 · each medicine's own alert window</span></div>
+      <table>
+        <tr><th>Medicine</th><th>Batch</th><th>Expiry</th><th class="num">Days left</th><th class="num">Sellable</th><th class="num">Value at cost</th><th>Status</th><th></th></tr>
+        <tr><td>CETI10 — Cetirizine 10 mg</td><td>C-2609</td><td>2026-10-01</td><td class="num"><b>Expired 21 days ago</b></td><td class="num">6 tablet</td><td class="num">3.600 ₫</td><td><span class="tag">Active</span></td><td><span class="btn">Write off</span> <span class="btn">Change status</span></td></tr>
+        <tr><td>AMOX500 — Amoxicillin 500 mg</td><td>A-71</td><td>2026-10-15</td><td class="num"><b>Expired 7 days ago</b></td><td class="num">12 capsule</td><td class="num">12.000 ₫</td><td><span class="tag">On hold</span></td><td><span class="btn">Write off</span> <span class="btn">Change status</span></td></tr>
+        <tr><td>PARA500 — Paracetamol 500 mg</td><td>P2512</td><td>2026-11-30</td><td class="num">39 days left</td><td class="num">40 tablet</td><td class="num">11.200 ₫</td><td><span class="tag">Active</span></td><td><span class="btn">Change status</span></td></tr>
+        <tr><td>CHLOR4 — Chlorpheniramine 4 mg</td><td>CH-2612</td><td>2026-12-15</td><td class="num">54 days left</td><td class="num">210 tablet</td><td class="num">42.000 ₫</td><td><span class="tag">Active</span></td><td><span class="btn">Change status</span></td></tr>
+        <tr><td>OMEP20 — Omeprazole 20 mg</td><td>O-2701</td><td>2027-01-10</td><td class="num">80 days left</td><td class="num">60 capsule</td><td class="num">54.000 ₫</td><td><span class="tag">Recalled</span></td><td><span class="btn">Write off</span> <span class="btn">Change status</span></td></tr>
+      </table>
+      <p class="muted">Write off is offered for a batch that is expired or not active. Expired, held and recalled batches are never issued.</p>
+    </div>
+  </div>
+  <div class="note" data-n="1" style="top: 70px; right: 20px">The ExpiryReport (UC12's ReportGenerator): expired first, then by expiry date. Days left come from the server business date.</div>
+</div>
+
+<div class="frame">
+  <span class="label">UC11 Stock control › Expiry — 2. write off: confirmation, the reason missing, and a refusal from the server <span class="tag">design · Tiến · 23/10/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Catalogue &amp; batches</div><div class="on">Stock control &amp; reports</div></div>
+    <div class="page"><h1>Stock control &amp; reports</h1><div class="tabs"><div>Stock take</div><div>Alerts</div><div class="on">Expiry</div><div>Stock movement</div></div></div>
+  </div>
+  <div class="overlay"></div>
+  <div class="modal" style="top: 110px; left: 300px; width: 560px">
+    <h2>Write off batch A-71?</h2>
+    <p>Amoxicillin 500 mg · expired 2026-10-15 · on hold</p>
+    <table><tr><th class="num">Sellable now</th><th class="num">To pending destruction</th><th class="num">Value at cost</th></tr><tr><td class="num">12 capsule</td><td class="num">12 capsule</td><td class="num">12.000 ₫</td></tr></table>
+    <p class="muted">The whole quantity moves to pending destruction. It is recorded as destroyed only when the destruction is recorded.</p>
+    <div class="row"><span>Reason*</span><span class="field error" style="min-width: 420px"></span></div>
+    <div class="row"><span class="err" style="margin-left: 60px">Say why the batch is written off.</span></div>
+    <div class="box">Refused by the server when someone sold or wrote off the batch since the list loaded: <i>Batch A-71 has nothing left to write off.</i> The list reloads.</div>
+    <div class="row" style="justify-content: flex-end"><span class="btn">Cancel</span><span class="btn danger">Write off 12 capsule</span></div>
+  </div>
+  <div class="note" data-n="2" style="top: 130px; right: 20px">Write-off is irreversible for the manager, so it is confirmed and names the quantity.</div>
+</div>
+
+<div class="frame">
+  <span class="label">UC11 Stock control › Expiry — 3. change a batch's status; the same status again is refused <span class="tag">design · Tiến · 23/10/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Catalogue &amp; batches</div><div class="on">Stock control &amp; reports</div></div>
+    <div class="page"><h1>Stock control &amp; reports</h1><div class="tabs"><div>Stock take</div><div>Alerts</div><div class="on">Expiry</div><div>Stock movement</div></div></div>
+  </div>
+  <div class="overlay"></div>
+  <div class="modal" style="top: 110px; left: 300px; width: 560px">
+    <h2>Change the status of batch P2512</h2>
+    <p>Paracetamol 500 mg · expires 2026-11-30 · now <span class="tag">Active</span></p>
+    <div class="row"><span>( ) Active</span><span>(•) On hold</span><span>( ) Recalled</span><span>( ) Rejected</span></div>
+    <div class="row"><span>Reason*</span><span class="field" style="min-width: 420px">Supplier quality notice 2026-10-21</span></div>
+    <div class="box">Choosing <b>Rejected</b> shows: <i>Rejected is final. The batch can never be sold or dispensed again.</i><br>Choosing the current status: <i>Batch P2512 is already active.</i></div>
+    <p class="muted">A batch that is not active is left out of dispensing, sales and the sellable total from now; low-stock alerts are checked again.</p>
+    <div class="row" style="justify-content: flex-end"><span class="btn">Cancel</span><span class="btn primary">Change status</span></div>
+  </div>
+  <div class="note" data-n="3" style="top: 130px; right: 20px">No stock moves; status, reason, user and time are stored on the batch (FR-48, DEC-07).</div>
+</div>
+
+<div class="frame" style="min-height: 320px">
+  <span class="label">UC11 Stock control › Expiry — 4. nothing expires within its alert window <span class="tag">design · Tiến · 23/10/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout" style="min-height: 272px">
+    <div class="menu"><div>Catalogue &amp; batches</div><div class="on">Stock control &amp; reports</div></div>
+    <div class="page">
+      <h1>Stock control &amp; reports</h1>
+      <div class="tabs"><div>Stock take</div><div>Alerts</div><div class="on">Expiry</div><div>Stock movement</div></div>
+      <div class="box muted" style="text-align: center">No batch with stock expires within its alert window.</div>
+    </div>
+  </div>
+</div>
+<ol class="notes">
+  <li>UC11 steps 1–2, FR-35, decision D14 · <code>GET /api/reports/expiry</code>, <code>alert.manage</code>.</li>
+  <li>UC11 steps 3–7, FR-36, A4 (400 on <code>reason</code>), A5 (422 <code>NOTHING_TO_WRITE_OFF</code>), A3 (422 <code>BATCH_STILL_SELLABLE</code>, never offered on screen) · <code>tx.writeOff</code> (#55), <code>batch_status.manage</code>.</li>
+  <li>UC11 status sub-flow, FR-48, TC-60 · 422 <code>BATCH_STATUS_UNCHANGED</code>, <code>BATCH_REJECTED_FINAL</code> · <code>tx.setBatchStatus</code> (#55).</li>
+  <li>UC11 A1.</li>
+</ol>
+</body>
+</html>

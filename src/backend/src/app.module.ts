@@ -12,6 +12,7 @@ import { PrescriptionsModule } from './prescriptions/prescriptions.module.js';
 import { DispensingModule } from './dispensing/dispensing.module.js';
 import { LookupModule } from './lookup/lookup.module.js';
 import { ReceivingModule } from './receiving/receiving.module.js';
+import { ReturnsModule } from './returns/returns.module.js';
 import { SalesModule } from './sales/sales.module.js';
 import { StockModule } from './stock/stock.module.js';
 import { StockTakeModule } from './stocktake/stocktake.module.js';
@@ -31,6 +32,7 @@ import { SuppliersModule } from './suppliers/suppliers.module.js';
     PrescriptionsModule,
     DispensingModule,
     SalesModule,
+    ReturnsModule,
     LookupModule,
     StockTakeModule,
     AlertsModule,

@@ -4,7 +4,7 @@ import {
   type OnApplicationBootstrap,
 } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource, In, Not } from 'typeorm';
+import { DataSource, Not } from 'typeorm';
 import { type Actor, assertPermission } from '../auth/actor.js';
 import { Permission } from '../auth/permissions.js';
 import { Conflict, NotFound } from '../common/errors.js';
@@ -25,15 +25,26 @@ export interface AlertView {
   status: AlertStatus;
   message: string;
   medicine: { id: string; code: string; name: string; reorderLevel: number };
-  /** Sellable quantity now, by the same rule as issuing (DEC-08). */
+  /**
+   * Sellable quantity now: of the medicine for a stock-level alert (DEC-08),
+   * of the batch for an expiry alert (UC11).
+   */
   sellable: number;
+  /** The batch of an expiry alert (UC11); null for a stock-level alert. */
+  batch: { id: string; batchNumber: string; expiryDate: string } | null;
   raisedAt: Date;
   acknowledgedBy: { id: string; fullName: string } | null;
   acknowledgedAt: Date | null;
   resolvedAt: Date | null;
 }
 
-const LEVEL_TYPES = [AlertType.LOW_STOCK, AlertType.OUT_OF_STOCK];
+/** Unresolved first, then by urgency: what cannot be issued at all first. */
+const TYPE_RANK: Record<AlertType, number> = {
+  [AlertType.OUT_OF_STOCK]: 0,
+  [AlertType.EXPIRED]: 1,
+  [AlertType.LOW_STOCK]: 2,
+  [AlertType.EXPIRING_SOON]: 3,
+};
 
 /**
  * UC10 Review low-stock alerts (FR-33, FR-34).
@@ -73,14 +84,14 @@ export class AlertsService implements OnApplicationBootstrap {
     const status = query.status ?? 'unresolved';
     const alerts = await this.dataSource.manager.find(StockAlert, {
       where: {
-        type: query.type ? query.type : In(LEVEL_TYPES),
+        ...(query.type ? { type: query.type } : {}),
         ...(status === 'unresolved'
           ? { status: Not(AlertStatus.RESOLVED) }
           : status === 'resolved'
             ? { status: AlertStatus.RESOLVED }
             : {}),
       },
-      relations: { medicine: true, acknowledgedBy: true },
+      relations: { medicine: true, acknowledgedBy: true, batch: true },
       order: { raisedAt: 'DESC' },
       take: 500,
     });
@@ -92,11 +103,12 @@ export class AlertsService implements OnApplicationBootstrap {
         )
       ).map((l) => [l.medicineId, l.sellable]),
     );
-    const views = alerts.map((a) => this.view(a, levels.get(a.medicine.id) ?? 0));
-    // Unresolved first; out of stock before low stock; then the lowest stock.
+    const views = alerts.map((a) =>
+      this.view(a, a.batch ? a.batch.qtySellable : (levels.get(a.medicine.id) ?? 0)),
+    );
+    // Unresolved first; then by urgency (TYPE_RANK); then the lowest stock.
     const rank = (v: AlertView) =>
-      (v.status === AlertStatus.RESOLVED ? 2 : 0) +
-      (v.type === AlertType.OUT_OF_STOCK ? 0 : 1);
+      (v.status === AlertStatus.RESOLVED ? 10 : 0) + TYPE_RANK[v.type];
     return views.sort(
       (a, b) =>
         rank(a) - rank(b) ||
@@ -135,8 +147,9 @@ export class AlertsService implements OnApplicationBootstrap {
     });
     const alert = await this.dataSource.manager.findOneOrFail(StockAlert, {
       where: { id },
-      relations: { medicine: true, acknowledgedBy: true },
+      relations: { medicine: true, acknowledgedBy: true, batch: true },
     });
+    if (alert.batch) return this.view(alert, alert.batch.qtySellable);
     const [level] = await this.evaluator.levels(this.dataSource.manager, [
       alert.medicine.id,
     ]);
@@ -171,6 +184,13 @@ export class AlertsService implements OnApplicationBootstrap {
         reorderLevel: alert.medicine.reorderLevel,
       },
       sellable,
+      batch: alert.batch
+        ? {
+            id: alert.batch.id,
+            batchNumber: alert.batch.batchNumber,
+            expiryDate: alert.batch.expiryDate,
+          }
+        : null,
       raisedAt: alert.raisedAt,
       acknowledgedBy: alert.acknowledgedBy
         ? { id: alert.acknowledgedBy.id, fullName: alert.acknowledgedBy.fullName }

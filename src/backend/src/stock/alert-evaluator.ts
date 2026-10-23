@@ -4,6 +4,7 @@ import { AlertStatus, AlertType, StockAlert } from '../entities/index.js';
 import { Clock } from './clock.js';
 
 const LEVEL_TYPES = [AlertType.LOW_STOCK, AlertType.OUT_OF_STOCK];
+const EXPIRY_TYPES = [AlertType.EXPIRING_SOON, AlertType.EXPIRED];
 
 /** What a medicine's stock says about alerts right now. */
 export interface StockLevel {
@@ -114,6 +115,84 @@ export class AlertEvaluator {
           message: alertMessage(wanted, level),
           medicine: { id: level.medicineId },
           batch: null,
+        });
+      }
+    }
+    await this.evaluateExpiry(manager, ids);
+  }
+
+  /**
+   * UC11: one EXPIRING_SOON or EXPIRED alert per batch with sellable stock
+   * (FR-35, decision 16). Expiry is computed against the business date, never
+   * stored (DEC-01): expired when the expiry date is on or before it,
+   * expiring soon within the medicine's `expiryAlertDays`. A batch emptied by
+   * sales or a write-off has its alert resolved.
+   */
+  private async evaluateExpiry(
+    manager: EntityManager,
+    medicineIds: string[],
+  ): Promise<void> {
+    const today = this.clock.today();
+    const batches = await manager.query<
+      Array<{
+        id: string;
+        batchNumber: string;
+        expiryDate: string;
+        qtySellable: number;
+        medicineId: string;
+        name: string;
+        daysLeft: number;
+        alertDays: number;
+      }>
+    >(
+      `SELECT b.id, b."batchNumber", b."expiryDate"::text AS "expiryDate", b."qtySellable",
+         m.id AS "medicineId", m.name, (b."expiryDate" - $2::date) AS "daysLeft",
+         m."expiryAlertDays" AS "alertDays"
+       FROM batches b
+       JOIN medicines m ON m.id = b.medicine_id
+       WHERE m.id = ANY($1::uuid[])`,
+      [medicineIds, today],
+    );
+    if (batches.length === 0) return;
+    const open = await manager.find(StockAlert, {
+      where: {
+        batch: { id: In(batches.map((b) => b.id)) },
+        type: In(EXPIRY_TYPES),
+        status: Not(AlertStatus.RESOLVED),
+      },
+      relations: { batch: true },
+    });
+    const openByBatch = new Map(open.map((a) => [a.batch!.id, a]));
+    const now = this.clock.now();
+
+    for (const b of batches) {
+      const wanted =
+        b.qtySellable <= 0
+          ? null
+          : b.daysLeft <= 0
+            ? AlertType.EXPIRED
+            : b.daysLeft <= b.alertDays
+              ? AlertType.EXPIRING_SOON
+              : null;
+      const current = openByBatch.get(b.id);
+      if (current && current.type === wanted) continue;
+      if (current) {
+        await manager.update(
+          StockAlert,
+          { id: current.id },
+          { status: AlertStatus.RESOLVED, resolvedAt: now },
+        );
+      }
+      if (wanted) {
+        await manager.insert(StockAlert, {
+          type: wanted,
+          status: AlertStatus.OPEN,
+          message:
+            wanted === AlertType.EXPIRED
+              ? `${b.name}, batch ${b.batchNumber}: expired on ${b.expiryDate}, ${b.qtySellable} still on the book.`
+              : `${b.name}, batch ${b.batchNumber}: expires on ${b.expiryDate} (${b.daysLeft} days), ${b.qtySellable} on the book.`,
+          medicine: { id: b.medicineId },
+          batch: { id: b.id },
         });
       }
     }

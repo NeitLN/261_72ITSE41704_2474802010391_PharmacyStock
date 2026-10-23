@@ -3,6 +3,7 @@ import type { Actor } from '../auth/actor.js';
 import { CurrentUser } from '../auth/decorators.js';
 import { ValidationFailed } from '../common/errors.js';
 import { UuidParam } from '../common/validation.js';
+import { ExpiryReport } from './expiry.report.js';
 import { LowStockReport } from './low-stock.report.js';
 import type { ReportGenerator } from './report-generator.js';
 import { StockMovementReport } from './stock-movement.report.js';
@@ -15,10 +16,12 @@ export class ReportRegistry {
   constructor(
     readonly stockMovement: StockMovementReport,
     lowStock: LowStockReport,
+    expiry: ExpiryReport,
   ) {
     const all: Array<ReportGenerator<object, unknown, unknown>> = [
       stockMovement,
       lowStock,
+      expiry,
     ];
     this.byKind = new Map(all.map((r) => [r.kind, r]));
   }

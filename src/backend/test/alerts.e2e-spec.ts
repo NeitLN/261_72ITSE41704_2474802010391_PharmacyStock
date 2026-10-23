@@ -131,8 +131,16 @@ describe('UC10 low-stock alerts (e2e)', () => {
       .set(as('cashier'))
       .send({ requestId: randomUUID(), otcLines: [{ medicineId, quantity }] });
 
-  const list = (query = '', user: User = 'manager') =>
-    t.http().get(`/api/alerts${query}`).set(as(user));
+  /** Stock-level alerts only, unless the query names a type (UC11 adds expiry). */
+  const list = async (query = '', user: User = 'manager') => {
+    const res = await t.http().get(`/api/alerts${query}`).set(as(user));
+    if (res.status === 200 && !query.includes('type=')) {
+      res.body = res.body.filter(
+        (a: { type: string }) => a.type === 'low_stock' || a.type === 'out_of_stock',
+      );
+    }
+    return res;
+  };
 
   const acknowledge = (id: string, user: User = 'manager') =>
     t.http().post(`/api/alerts/${id}/acknowledge`).set(as(user));
@@ -146,9 +154,12 @@ describe('UC10 low-stock alerts (e2e)', () => {
       order: { raisedAt: 'ASC' },
     });
 
+  /** Unresolved stock-level alerts; expiry alerts (UC11) are tested apart. */
   const unresolved = async (medicineId: string) =>
     (await alertsOf(medicineId)).filter(
-      (a) => a.status !== AlertStatus.RESOLVED,
+      (a) =>
+        a.status !== AlertStatus.RESOLVED &&
+        (a.type === AlertType.LOW_STOCK || a.type === AlertType.OUT_OF_STOCK),
     );
 
   it('UC10-01..04 TC-21: reorder level 10 — sellable 11 none, 10 LOW, 9 the same LOW, 0 OUT_OF_STOCK', async () => {
@@ -323,7 +334,7 @@ describe('UC10 low-stock alerts (e2e)', () => {
     const resolved = await list('?status=resolved');
     expect(resolved.body.map((a: { type: string }) => a.type)).toEqual(['low_stock']);
     expect((await list('?status=open')).status).toBe(400);
-    expect((await list('?type=expired')).status).toBe(400);
+    expect((await list('?type=destroyed')).status).toBe(400);
   });
 
   it('UC10-14 raising the reorder level above the stock raises LOW_STOCK in the same save', async () => {

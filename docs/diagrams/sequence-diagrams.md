@@ -13,8 +13,8 @@ checked before and during review.
 | 4. Look up stock and batch history (UC04) | The code: `StockLookupService`, `StockPanel` | **As built** — matches the design |
 | 5. Approve a stock take (UC09) | [UC09 specification](../requirements/use-cases/UC09-conduct-stock-take.md) | Design gate for #52 (week 6) — update when built |
 | 6. Evaluate low-stock alerts (UC10) | [UC10 specification](../requirements/use-cases/UC10-review-low-stock-alerts.md) | Design gate for #53 (week 6) — update when built |
-| 7. Expiry alerts, write-off and batch status (UC11) | [UC11 specification](../requirements/use-cases/UC11-expiry-batch-status-quarantine.md), [ledger commands](../design/stock-ledger.md) | Design gate for #61 (week 7) — update when built |
-| 8. Stock movement report (UC12) | [UC12 specification](../requirements/use-cases/UC12-stock-movement-report.md) | Design gate for #62 (week 7) — update when built |
+| 7. Expiry alerts, write-off and batch status (UC11) | The code: `BatchesService`, `ExpiryReport`, `AlertEvaluator`; ledger commands of #55 | **As built** — matches the design |
+| 8. Stock movement report (UC12) | The code: `ReportGenerator`, `StockMovementReport`, `ReportsController` | **As built** — matches the design |
 
 Every diagram that writes (1–3) follows the same transaction pattern: one `StockLedger.run`
 (READ COMMITTED, 5-second lock timeout, one retry on deadlock); the document
@@ -418,7 +418,7 @@ sequenceDiagram
     end
 ```
 
-## 7. Expiry alerts, write-off and batch status (UC11) — design
+## 7. Expiry alerts, write-off and batch status (UC11) — as built
 
 The write-off and the status change are Tiến's ledger commands; their
 sequence, with the lock order, is in
@@ -456,7 +456,7 @@ sequenceDiagram
     S-->>M: the batch, and the movement for a write-off
 ```
 
-## 8. Stock movement report (UC12) — design
+## 8. Stock movement report (UC12) — as built
 
 Read only: no lock, nothing written. One SQL statement per report sums the
 signed deltas of each movement type per medicine over the period's business

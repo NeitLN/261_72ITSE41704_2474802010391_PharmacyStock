@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { StockModule } from '../stock/stock.module.js';
+import { ExpiryReport } from './expiry.report.js';
 import { LowStockReport } from './low-stock.report.js';
 import { ReportRegistry, ReportsController } from './reports.controller.js';
 import { StockMovementReport } from './stock-movement.report.js';
@@ -8,7 +9,7 @@ import { StockMovementReport } from './stock-movement.report.js';
 @Module({
   imports: [StockModule],
   controllers: [ReportsController],
-  providers: [StockMovementReport, LowStockReport, ReportRegistry],
+  providers: [StockMovementReport, LowStockReport, ExpiryReport, ReportRegistry],
   exports: [ReportRegistry],
 })
 export class ReportsModule {}

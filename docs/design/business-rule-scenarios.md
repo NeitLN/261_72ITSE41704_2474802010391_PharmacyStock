@@ -1,4 +1,4 @@
-# Business rule scenarios — BR01, BR02, BR03
+# Business rule scenarios — BR01, BR02, BR03, BR04, BR05, BR07, BR10
 
 This table is the design gate for the three issuing rules: it mirrors plan §6.1
 and Definition of Done §6.6 item 2 (#32). Every row is one automated test that
@@ -95,6 +95,163 @@ Business date 2026-10-13 (fixed clock), medicine with `expiryAlertDays: 90`.
 | UC06-13 | Concurrency | Batch A = 5; two verified prescriptions, 5 each | Two concurrent `POST /api/dispensings`, 5 each | One 201, one 422 `INSUFFICIENT_STOCK`; A reaches 0; ledger balanced | — |
 | UC06-14 *(BR07)* | Concurrency | Batch A = 20; one verified prescription prescribing 4 | Two concurrent dispenses of the same item, 4 each | One 201, one 422; `quantityDispensed` stays 4 — never above the prescription | TC-54 |
 
+## BR04 Prescription-only medicines need a verified prescription
+
+Rule: a medicine that is not classified OTC is handed over only against a
+prescription that passed the system checks and a pharmacist's verification,
+and an over-the-counter sale takes only OTC medicines
+([business-rules.md](../requirements/business-rules.md), BR04). The checks are
+DEC-03; DEC-09 keeps prescription and controlled medicines off the cashier's
+counter. `PrescriptionValidator` is called from `PrescriptionsService` and
+`DispensingService`, so both paths appear below.
+
+### Unit level — the validator
+
+Business date `2026-10-19`. The default state is `VERIFIED`, valid until
+`2026-10-20`, prescriber active; a row changes only what it names.
+
+| Test | Kind | Given | When | Then | TC |
+|---|---|---|---|---|---|
+| BR04-01 | Normal | Status `VERIFIED`, then `PARTIALLY_DISPENSED`, prescriber active | `assertDispensable(state, '2026-10-19')` | Both allowed — a partial supply stays open | TC-14 |
+| BR04-02 | Error | Status `RECEIVED` — recorded, not yet verified | `assertDispensable` | Refused, rule BR04, code `PRESCRIPTION_NOT_DISPENSABLE` | TC-13 |
+| BR04-03 | Error | Status `FULLY_DISPENSED`, then `CANCELLED` | `assertDispensable` | Both refused, rule BR04, code `PRESCRIPTION_NOT_DISPENSABLE` | — |
+| BR04-04 | Error | `prescriberActive: false`, status `VERIFIED`; then status `RECEIVED` | `assertDispensable`; `assertVerifiable` | Both refused, rule BR04, code `PRESCRIBER_INACTIVE` — deactivation blocks verification too | — |
+| BR04-05 | Edge | Status `RECEIVED`; then the default `VERIFIED` | `assertVerifiable` | `RECEIVED` passes; `VERIFIED` is refused with rule FR-44, code `PRESCRIPTION_NOT_RECEIVED` | TC-58 |
+| BR04-06 | Edge | Status `FULLY_DISPENSED` and `validUntil` `2026-10-01`, long past | `assertDispensable` | Rule BR04, code `PRESCRIPTION_NOT_DISPENSABLE` — the status is checked before the date, so a closed prescription is never reported as expired | — |
+
+Source: `src/backend/src/prescriptions/prescription-validator.spec.ts` (unit,
+`npm test`).
+
+### Through the API — UC05, UC06 and UC07
+
+| Test | Kind | Given | When | Then | TC |
+|---|---|---|---|---|---|
+| UC05-08 | Normal | A `RECEIVED` prescription | `POST /api/prescriptions/:id/verify` with a note, then the same call again | First: 200, status `verified`, verifier's name stored, note kept, `verifiedAt` `2026-10-13T03:00:00.000Z`. Second: 422 `PRESCRIPTION_NOT_RECEIVED` | TC-58 |
+| UC06-07 | Error | Batch A = 5; a prescription for 2 recorded but not verified | `POST /api/dispensings`, 2 | 422 `PRESCRIPTION_NOT_DISPENSABLE`; batch A still 5 | TC-58 |
+| UC07-05 | Error | OTC medicine with batch A = 10; `Amoxicillin 500 mg` (prescription) and `Diazepam 5 mg` (controlled), 10 each; one sale of 1 of each | `POST /api/sales` as the cashier | 422 `NOT_OVER_THE_COUNTER`, one error per refused line (`otcLines.1.medicineId`, `otcLines.2.medicineId`), the first naming Amoxicillin; no sale saved and no SALE movement — the whole sale rolls back | TC-36 |
+
+Source: `src/backend/test/prescriptions.e2e-spec.ts` (UC05-08),
+`src/backend/test/dispensing.e2e-spec.ts` (UC06-07),
+`src/backend/test/sales.e2e-spec.ts` (UC07-05) (e2e, `npm run test:e2e`).
+
+## BR05 Append-only ledger
+
+Rule: every stock change writes exactly one stock movement; movements are
+never edited or deleted, and a correction is a new opposite movement that
+references the original ([business-rules.md](../requirements/business-rules.md),
+BR05). A trigger and CHECKs in the initial migration enforce the same at the
+database level.
+
+### Unit level — delta math
+
+Source: `src/backend/src/stock/stock-deltas.spec.ts` (unit, `npm test`). Given
+stock of `{ sellable: 5, quarantine: 2, pendingDestruction: 1 }`.
+
+| Test | Kind | Given | When | Then | TC |
+|---|---|---|---|---|---|
+| BR05-U1 | Normal | A release of 2: sellable +2, quarantine −2 in the same delta | `applyDeltas` | One movement moves stock between states: `{ 7, 0, 1 }` | — |
+| BR05-U2 | Normal | A write-off of 3 (sellable −3, pending destruction +3), then its negation | `applyDeltas`, twice | The reversal is the exact negation and restores `{ 5, 2, 1 }` | — |
+
+### Ledger level — the database
+
+Source: `src/backend/test/stock-ledger.e2e-spec.ts` (e2e,
+`npm run test:e2e`). Business date `2026-10-12`; `receive(batch, qty)` defaults
+to expiry `2027-06-30`, received `2026-10-01`.
+
+| Test | Kind | Given | When | Then | TC |
+|---|---|---|---|---|---|
+| BR05-01 | Normal | New batch A1 receiving 10 | `ledger.run` with one RECEIPT | Batch `{ 10, 0, 0 }`, exactly one movement, `findLedgerMismatches` empty | — |
+| BR05-02 | Normal | A1 = 10, then SALE −3, RETURN +2 quarantine, RELEASE −1 quarantine / +1 sellable, REJECT −1 quarantine / +1 pending, WRITE_OFF −2 sellable / +2 pending, DESTROY −3 pending, ADJUSTMENT −1 sellable | One `post` per type | Every state equals its movements: `{ 5, 0, 0 }`, 8 movements, ledger balanced | — |
+| BR05-03 | Normal | A1 = 10, SALE −4 | `reverse(sale, 'Keyed twice')`; then reverse the same sale again; then reverse the reversal | The correction is a new movement (`type` SALE, +4) and A1 is back to 10; the second call is refused with `ALREADY_REVERSED`, reversing a reversal with `Conflict`; 3 rows kept, the original untouched | TC-16 |
+| BR05-04 | Error | A1 = 5, SALE −4, then the receipt is reversed | `reverse(receipt)` | Refused with rule BR03 — the correction would make stock negative; 1 sellable, 2 movements | — |
+| BR05-05 | Error | A1 = 5, one receipt movement | `UPDATE stock_movements SET "deltaSellable" = 50`; `DELETE FROM stock_movements` | Both rejected by the database with "append-only" | — |
+| BR05-06 | Error | A1 = 5, one receipt movement | `reverse(receipt, '  ')` | Refused, code `REASON_REQUIRED` — a correction needs a reason | — |
+
+### Through the API — receipts, hand-overs and sales
+
+Source: `src/backend/test/ledger-invariant.e2e-spec.ts` (e2e,
+`npm run test:e2e`). Fixed clock 10:00 on 13/10/2026; the medicine has a price
+of 2.000 ₫ in force from 2026-10-01, so an OTC sale can run.
+
+| Test | Kind | Given | When | Then | TC |
+|---|---|---|---|---|---|
+| BR05-11 | Normal | Receipt with two lines: A = 3 expiring 2027-01-31, B = 8 expiring 2027-03-31; verified prescription for 7 | Receipt, then verify, then hand over 7 | 2 RECEIPT movements, still 2 after verification, then 2 DISPENSE (A 3, B 4); A 0, B 4, 2 dispense lines, 4 movements, ledger balanced | — |
+| BR05-12 | Error | Receipt of 5 into A | `UPDATE` and `DELETE` on `stock_movements` | Both rejected with "append-only"; still 1 movement, ledger balanced | — |
+| BR05-13 | Error | A = 3; verified prescription for 5 | Hand over 5 | 422 `INSUFFICIENT_STOCK`, `items.0.quantity` "Only 3 can be issued now."; 1 movement, 0 dispense lines, A still 3, ledger balanced | TC-25 |
+| BR05-14 | Normal | A = 10; verified prescription for 3; one `requestId` | Hand over 3 twice with that `requestId` | Both 201 with an identical body; A 7; exactly one DISPENSE movement | — |
+| BR05-15 | Normal | Receipt A = 3 (expires 2027-01-31) and B = 8 (2027-03-31); verified prescription for 2 | Hand over 2, then an OTC sale of 5 | A 1, B 8 after the hand-over (3 movements), then the sale takes A 1 and B 4: A 0, B 4, 2 SALE movements, 5 movements in all, ledger balanced | — |
+| BR05-16 | Error | A = 3 | OTC sale of 4 | 422 `INSUFFICIENT_STOCK`, `otcLines.0.quantity` "Only 3 can be sold now."; 1 movement, 0 SALE movements, 0 sale lines, A still 3, ledger balanced | — |
+| BR05-17 | Normal | A = 10; one `requestId` | OTC sale of 3 twice with that `requestId` | Both 201 with an identical body; A 7; exactly one SALE movement | — |
+
+## BR07 No over-dispensing
+
+Rule: the total dispensed for a prescription item, over any number of visits,
+never exceeds the quantity prescribed; a partial supply records the
+outstanding quantity
+([business-rules.md](../requirements/business-rules.md), BR07, DEC-02).
+
+### Unit level — the validator
+
+Business date `2026-10-19`; the shared item is `quantityPrescribed: 20`,
+`quantityDispensed: 13`.
+
+| Test | Kind | Given | When | Then | TC |
+|---|---|---|---|---|---|
+| BR07-01 | Normal | Prescribed 20, dispensed 13 | `outstanding(item)` | 7 left | TC-37 |
+| BR07-02 | Edge | The same item; a request of exactly the outstanding quantity | `assertWithinPrescribed([item], [7])` | Allowed | TC-37 |
+| BR07-03 | Error | Items: prescribed 10 dispensed 0, and the shared item (20 / 13); request 10 and then 8 | `assertWithinPrescribed` | Rule BR07, code `OVER_PRESCRIBED_QUANTITY`, one error on the offending line: `items.1.quantity` "Only 7 of 20 prescribed are still outstanding." | TC-37 |
+| BR07-04 | Error | Prescribed 5, dispensed 5; a further 1 | `assertWithinPrescribed` | Refused, rule BR07, code `OVER_PRESCRIBED_QUANTITY` — a closed item allows nothing | — |
+| BR07-05 | Edge | Status `RECEIVED`, `VERIFIED`, then `PARTIALLY_DISPENSED`, `FULLY_DISPENSED`, `CANCELLED` | `assertEditable` | The first two may be edited; the last three are refused, rule BR07, code `PRESCRIPTION_NOT_EDITABLE` | TC-58 |
+
+Source: `src/backend/src/prescriptions/prescription-validator.spec.ts` (unit,
+`npm test`).
+
+### Through the API — UC05 and UC06
+
+| Test | Kind | Given | When | Then | TC |
+|---|---|---|---|---|---|
+| UC05-10 | Error | A prescription moved to `PARTIALLY_DISPENSED` | `PUT /api/prescriptions/:id` | 422 `PRESCRIPTION_NOT_EDITABLE` — an edit after dispensing is refused | — |
+| UC06-05 | Normal | A = 4; prescription for 6 | Hand over 4 without a note, then 4 with a partial-supply note | Without the note: 400 on `items.0.partialSupplyNote`. With it: 201, status `partially_dispensed`, dispensed 4, outstanding 2, the note stored on the dispense line | TC-09 |
+| UC06-06 | Normal | A = 20; prescription for 6; 4 already handed over with a note | Hand over 3, then 2, then 1 more | 3: 422 `OVER_PRESCRIBED_QUANTITY` on `items.0.quantity`. 2: 201, status `fully_dispensed`. 1 more: 422 `PRESCRIPTION_NOT_DISPENSABLE`; ledger balanced | TC-37 |
+| UC06-14 | Concurrency | A = 20; verified prescription for 4 | Two concurrent hand-overs of 4 for the same item | One 201 and one 422; `quantityDispensed` stays 4 — never above the prescription | TC-54 |
+
+Source: `src/backend/test/prescriptions.e2e-spec.ts` (UC05-10),
+`src/backend/test/dispensing.e2e-spec.ts` (UC06-05, UC06-06, UC06-14) (e2e,
+`npm run test:e2e`).
+
+## BR10 Prescription validity
+
+Rule: a prescription is dispensed only within issue date + 5 days, computed by
+the system, never edited or extended, and checked again at every visit
+([business-rules.md](../requirements/business-rules.md), BR10).
+
+### Unit level — the validator
+
+Business date `2026-10-19`. `validUntil` is the last day the prescription may
+be used, both to verify and to dispense.
+
+| Test | Kind | Given | When | Then | TC |
+|---|---|---|---|---|---|
+| BR10-01 | Normal | Issued 2026-10-14 | `validUntil('2026-10-14')` | `2026-10-19` — five days from the issue date | TC-38 |
+| BR10-02 | Edge | Issued 2026-10-29, then 2026-12-30 | `validUntil` | `2026-11-03`, then `2027-01-04` — the window crosses a month and a year end | — |
+| BR10-03 | Edge | `validUntil` equals the business date `2026-10-19` | `assertDispensable`; `isExpired('2026-10-19', …)` | Allowed; not expired — the last day still counts | TC-38 |
+| BR10-04 | Error | `validUntil` `2026-10-18` | `assertDispensable`; `isExpired` | Rule BR10, code `PRESCRIPTION_EXPIRED`; expired | TC-38 |
+| BR10-05 | Error | Status `RECEIVED`, `validUntil` `2026-10-18` | `assertVerifiable` | Rule BR10, code `PRESCRIPTION_EXPIRED` — an expired prescription cannot be verified either | TC-38 |
+
+Source: `src/backend/src/prescriptions/prescription-validator.spec.ts` (unit,
+`npm test`).
+
+### Through the API — UC05 and UC06
+
+| Test | Kind | Given | When | Then | TC |
+|---|---|---|---|---|---|
+| UC05-11 | Edge | Prescription issued 2026-10-13, so valid until 2026-10-18 | Clock at 23:30 on 18/10, then at 00:30 on 19/10 (Vietnam); verify | On the last day the list shows `isExpired: false`; after midnight the verify is 422 `PRESCRIPTION_EXPIRED` and the record shows `isExpired: true`, status still `received` | TC-38 |
+| UC06-08 | Edge | A = 10; verified prescription for 4, valid until 2026-10-18 | Hand over 2 at 17:00 on 18/10, then 2 at 00:30 on 19/10 | The first hand-over is 201 (partial, with a note); the second is 422 `PRESCRIPTION_EXPIRED` — the date is checked again at every visit | TC-38 |
+
+Source: `src/backend/test/prescriptions.e2e-spec.ts` (UC05-11),
+`src/backend/test/dispensing.e2e-spec.ts` (UC06-08) (e2e,
+`npm run test:e2e`).
+
 ## Coverage
 
 | Rule | Unit tests | E2E tests | Manual run in `tests/manual/runs.md` |
@@ -102,6 +259,10 @@ Business date 2026-10-13 (fixed clock), medicine with `expiryAlertDays: 90`.
 | BR01 | 7 (BR01-01…07) | UC06-01 "7 from A=3 (expires first) and B=8 leaves A=0, B=4…" in `test/dispensing.e2e-spec.ts`; BR05-11 "a receipt then a hand-over over two FEFO batches…" in `test/ledger-invariant.e2e-spec.ts` (#123) | TC-04, run 9, 2026-10-20, pass |
 | BR02 | 9 (BR02-01…09) | UC06-03 "a batch expiring on or before the business date is never issued"; UC06-10 "preview shows the batches and warnings" — both in `test/dispensing.e2e-spec.ts` | TC-06, run 10, 2026-10-20, pass |
 | BR03 | 3 (BR03-U1…U3) | 5 rows (BR03-01…03, UC06-13; UC06-14 is the BR07 check) | TC-09, run 11, 2026-10-20, pass; TC-10, TC-25, TC-26, TC-54 not run |
+| BR04 | 6 (BR04-01…06) | 3 rows (UC05-08 "a pharmacist verifies a prescription", UC06-07 "a prescription that is not verified cannot be dispensed", UC07-05 "prescription-only and controlled medicines are refused on their lines") | TC-12, run 28, 2026-10-22, pass; TC-13, run 29, 2026-10-22, pass; TC-14, run 30, 2026-10-22, pass; TC-36, run 21, 2026-10-20, pass; TC-58, run 13, 2026-10-20, pass |
+| BR05 | 2 (BR05-U1, U2) | 13 rows (BR05-01…06 in `test/stock-ledger.e2e-spec.ts`, BR05-11…17 in `test/ledger-invariant.e2e-spec.ts`) | TC-16, TC-19, TC-25 not run |
+| BR07 | 5 (BR07-01…05) | 4 rows (UC05-10 "a prescription that has been dispensed cannot be edited", UC06-05 "a smaller hand-over needs a note", UC06-06 "a second visit may take the rest", UC06-14 "two pharmacists dispensing the same item at once") | TC-09, run 11, 2026-10-20, pass; TC-37, run 31, 2026-10-22, pass; TC-54 not run |
+| BR10 | 5 (BR10-01…05) | 2 rows (UC05-11 "past valid-until cannot be verified", UC06-08 "refused after valid-until, checked again at every visit") | TC-38, run 32, 2026-10-22, pass |
 
 After every test that moves stock, `findLedgerMismatches` must find nothing
 (BR05).

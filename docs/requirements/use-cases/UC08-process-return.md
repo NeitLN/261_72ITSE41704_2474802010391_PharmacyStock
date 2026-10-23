@@ -5,7 +5,7 @@
 | **Owner** | Bùi Duy Anh (B) |
 | **Priority** | Must |
 | **Primary actor** | Cashier |
-| **Status** | Design gate, week 7 — decisions, interface and scenario table agreed before the code (issue #58) |
+| **Status** | Building, week 7 (#58). Part 1: finding the sale by its receipt number (`GET /api/returns/sales/:receiptNumber`). Part 2: recording the return, on the ledger's `receiveReturn` (#55) |
 | **Related rules** | BR11, BR05, BR03 (via the ledger) |
 | **Requirements** | FR-27, FR-28, FR-23 |
 | **Decisions** | DEC-04 (returns go to quarantine), decision 13 (a return does not restore the prescription) |
@@ -151,6 +151,7 @@ pull request.
 | S12 | Error | A pharmacist (no `return.create`) calls the API | 403 (A9) | UC08-11 |
 | S13 | Concurrency | Two cashiers return the last returnable units of one line at once | One 201, one 422 `RETURN_EXCEEDS_SOLD`; never more returned than sold | UC08-12, NFR-08 |
 | S14 | Normal | The return read again; the sale read again | Same return; the sale's lines show what was returned | UC08-13 |
+| S15 | Normal | Find a sale of two batches (FEFO split) by its receipt number, in any letter case | Both lines, earlier expiry first, each with sold = returnable, 0 returned, the price paid, not billed | UC08-14 |
 
 After every test that moves stock, `findLedgerMismatches` must find nothing
 (BR05).

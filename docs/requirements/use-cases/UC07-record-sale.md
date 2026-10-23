@@ -5,7 +5,7 @@
 | **Owner** | Bùi Duy Anh (B) |
 | **Priority** | Must |
 | **Primary actor** | Cashier |
-| **Status** | Over-the-counter sale built (`SalesService`, `POST /api/sales`, `GET /api/sales/:id`, e2e UC07-01…14); billing a dispensing next (issue #50) |
+| **Status** | Built (issue #50): over-the-counter sale and billing a dispensing in `SalesService` (`POST /api/sales`, `GET /api/sales/billable`, `GET /api/sales/:id`); e2e UC07-01…22 |
 | **Related rules** | BR01, BR02, BR03 (via the ledger), BR04, BR09 *(S)* |
 | **Requirements** | FR-24, FR-25, FR-26, FR-23, FR-45 |
 | **Decisions** | DEC-05 (stock leaves once), DEC-09 (OTC only), decision 12 (price on the sale date), DEC-01, DEC-07 |
@@ -56,7 +56,9 @@ dispensed against a prescription or paid for, and never both counted twice.
    one `SALE` movement per batch used, stores the sale and its lines with the
    unit price on the sale date, and computes the total.
 6. The system shows the receipt: receipt number, lines with batch, quantity,
-   unit price and line total, and the total.
+   unit price and line total, and the total. A line from a batch that expires
+   within the medicine's alert window carries a warning with the days left
+   (BR02, FR-16), so the cashier can point it out to the customer.
 
 ## Main flow — billing a dispensing
 
@@ -121,14 +123,18 @@ changed in one place if the team or the pharmacist reviewer decides otherwise.
 
 | Route | Permission | Body / response |
 |---|---|---|
-| `GET /api/sales/billable` | `sale.create` | Prescriptions with unbilled dispense lines: id, reference, patient, last hand-over time, lines (medicine, batch, quantity) |
-| `POST /api/sales` | `sale.create` | `{ requestId, prescriptionId?, otcLines?: [{ medicineId, quantity }], customerId? }` — at least one of `prescriptionId` and `otcLines`. 201: the receipt `{ id, receiptNumber, soldAt, customer, lines: [{ medicine, batch, quantity, unitPrice, lineTotal, billed }], totalAmount }` |
+| `GET /api/sales/billable` | `sale.create` | Prescriptions with unbilled dispense lines, the latest hand-over first: `[{ id, referenceNumber, customer, lastDispensedAt, lines: [{ dispenseLineId, medicine, batch, quantity, dispensedAt }] }]` |
+| `POST /api/sales` | `sale.create` | `{ requestId, prescriptionId?, otcLines?: [{ medicineId, quantity }], customerId? }` — at least one of `prescriptionId` and `otcLines`. 201: the receipt `{ id, receiptNumber, soldAt, customer, lines: [{ medicine, batch, quantity, unitPrice, lineTotal, billed, warning }], totalAmount }` |
 | `GET /api/sales/:id` | `sale.create` | The receipt, to show or print again |
 
 Money goes out as decimal strings (`"12500.00"`), as in the rest of the API.
-Errors use the existing format: 400 per field (`otcLines.0.quantity`), 403,
-404, 409 (request ID reused with other content), 422 with the rule (BR03,
-BR04, "already billed").
+Errors use the existing format: 400 per field (`otcLines.0.quantity`; also an
+unknown medicine, customer or prescription, #47), 403, 404 (an unknown sale
+in the URL), 409 (request ID reused with other content), 422 with the rule and a
+code: `INSUFFICIENT_STOCK` (BR03), `NOT_OVER_THE_COUNTER` (BR04),
+`MEDICINE_INACTIVE`, `NO_PRICE_IN_FORCE`, `ALREADY_BILLED` (A5) and
+`NOTHING_TO_BILL` (a prescription with no hand-over yet). A billed
+prescription is paid for its own patient: another `customerId` is a 400.
 
 ## Scenario table
 
@@ -139,20 +145,23 @@ named in the last column, and the rows with a TC are also run by hand.
 |---|---|---|---|---|
 | S01 | Normal | OTC sale of one medicine; the earliest-expiring batch has enough | One sale line on that batch, one `SALE` movement, total = price × quantity, receipt `RC-…-0001` | UC07-01, TC-35 |
 | S02 | Normal | OTC sale larger than the first batch | Two sale lines at the same unit price, earliest expiry first (BR01, DEC-07) | UC07-02, BR01 |
-| S03 | Normal | Bill a prescription handed over in UC06 | One sale line per dispense line, dispense lines linked to the sale, **no** new movement, stock unchanged | UC07-03, TC-15, TC-52 |
-| S04 | Normal | Bill a prescription and add OTC lines in the same sale | Billed lines move nothing; OTC lines move stock; one total | UC07-04 |
-| S05 | Edge | Price changed today vs. yesterday | The line carries the price in force on the business date; a later change does not alter the stored sale | UC07-05 (BR09 *(S)*) |
-| S06 | Edge | Quantity equals exactly the sellable quantity | Accepted; the batch reaches 0 | UC07-06 |
-| S07 | Edge | A batch expires exactly today | Not eligible (BR02: expiry must be after the business date) | UC07-07, BR02 |
-| S08 | Error | A prescription-only or controlled medicine in the OTC cart | 422 BR04 on that line; nothing saved | UC07-08, TC-36 |
-| S09 | Error | More than the sellable quantity | 422 BR03 with the quantity available; nothing saved | UC07-09 |
-| S10 | Error | Only expired, on-hold or recalled batches left | Treated as S09 | UC07-10, DEC-07 |
-| S11 | Error | Deactivated medicine, or no price in force | 422 on that line | UC07-11 |
-| S12 | Error | Bill a prescription already billed | 422 "already billed"; the first sale unchanged | UC07-12, A5 |
-| S13 | Error | Same request ID again / with other content | Same receipt, nothing posted twice / 409 | UC07-13, TC-27, FR-23 |
-| S14 | Error | Pharmacist (no `sale.create`) calls the API | 403 | UC07-14, A10 |
-| S15 | Error | Empty sale, quantity 0, −1 or 2.5, unknown medicine | 400 on the field (`otcLines.0.quantity`) / 404 | UC07-15, NFR-04 |
-| S16 | Concurrency | A sale and a dispensing take the last units at the same moment; two cashiers bill the same prescription | Exactly one succeeds, the other 422; stock never negative; no 500 (BR03) | UC07-16, TC-62, NFR-08 |
+| S03 | Normal | Bill a prescription handed over in UC06 | One sale line per dispense line, dispense lines linked to the sale, **no** new movement, stock unchanged | UC07-15, TC-15, TC-52 |
+| S04 | Normal | Bill a prescription and add OTC lines in the same sale | Billed lines move nothing; OTC lines move stock; one total | UC07-16 |
+| S05 | Edge | Price changed today vs. yesterday | The line carries the price in force on the business date; a later change does not alter the stored sale | UC07-03 (BR09 *(S)*) |
+| S06 | Edge | Quantity equals exactly the sellable quantity | Accepted; the batch reaches 0 | UC07-04 |
+| S07 | Edge | A batch expires exactly today | Not eligible (BR02: expiry must be after the business date) | UC07-04, BR02 |
+| S08 | Error | A prescription-only or controlled medicine in the OTC cart | 422 BR04 on that line; nothing saved | UC07-05, TC-36 |
+| S09 | Error | More than the sellable quantity | 422 BR03 with the quantity available; nothing saved | UC07-06, TC-55 |
+| S10 | Error | Only expired, on-hold or recalled batches left | Treated as S09 | UC07-07, DEC-07 |
+| S11 | Error | Deactivated medicine, or no price in force | 422 on that line | UC07-08, UC07-22 |
+| S12 | Error | Bill a prescription already billed | 422 "already billed"; the first sale unchanged | UC07-17, A5 |
+| S13 | Error | Same request ID again / with other content | Same receipt, nothing posted twice / 409 | UC07-09, UC07-20, TC-27, FR-23 |
+| S14 | Error | Pharmacist (no `sale.create`) calls the API | 403 | UC07-10, UC07-21, A10 |
+| S15 | Error | Empty sale, quantity 0, −1 or 2.5, unknown medicine, customer or prescription | 400 on the field (`otcLines.0.quantity`, `otcLines.0.medicineId`, `customerId`, `prescriptionId`) (#47) | UC07-11, UC07-17, UC07-21, NFR-04 |
+| S16 | Concurrency | A sale and a dispensing take the last units at the same moment; two cashiers bill the same prescription | Exactly one succeeds, the other 422; stock never negative; no 500 (BR03) | UC07-13, UC07-14, UC07-18, TC-62, NFR-08 |
+| S17 | Edge | The earliest batch expires within the alert window (BR02, FR-16) | Sold with a warning showing the days left on its receipt line; a billed line carries none (its warning was shown at the hand-over) | UC07-23, UC07-15 |
+| S18 | Normal | Part of a prescription handed over and billed, the rest handed over later (DEC-02) | The second hand-over appears in the list again and is billed on its own receipt | UC07-19 |
+| S19 | Normal | A named customer; the receipt read again | Customer on the receipt; the same receipt from `GET /api/sales/:id` | UC07-12 |
 
 After every test that moves stock, `findLedgerMismatches` must find nothing
 (BR05).

@@ -8,7 +8,7 @@ checked before and during review.
 |---|---|---|
 | 1. Dispense against a prescription (UC06) | The code in #109: `DispensingService`, `FefoAllocator`, `StockLedger` | **As built** |
 | 2a. Over-the-counter sale (UC07) | The code: `SalesService`, `FefoAllocator`, `StockLedger`, `PriceBook` | **As built** — matches the design |
-| 2b. Bill a dispensing (UC07) | Same | Design gate for #50 (week 6) — update when built |
+| 2b. Bill a dispensing (UC07) | The code: `SalesService.record` with `prescriptionId`, and `SalesService.billable` | **As built** — matches the design |
 | 3. Process a return (UC08) | [UC08 specification](../requirements/use-cases/UC08-process-return.md) | Design for #58 — update when built |
 | 4. Look up stock and batch history (UC04) | The code: `StockLookupService`, `StockPanel` | **As built** — matches the design |
 | 5. Approve a stock take (UC09) | [UC09 specification](../requirements/use-cases/UC09-conduct-stock-take.md) | Design gate for #52 (week 6) — update when built |
@@ -130,8 +130,9 @@ sequenceDiagram
     S->>S: assertPermission(SALE_CREATE), one line per medicine, else 400
     S->>L: run(work)
     L->>DB: BEGIN
+    S->>DB: every medicine and the prescription exist, else 400 on its field (#47)
     S->>L: lockMedicines(all medicine ids)
-    L->>DB: SELECT medicines FOR UPDATE (ascending id), unknown id 404
+    L->>DB: SELECT medicines FOR UPDATE (ascending id)
     S->>DB: find ProcessedRequest(requestId)
     alt request already done (FR-23)
         S-->>C: stored receipt — same hash replays, other content gets 409
@@ -184,29 +185,37 @@ sequenceDiagram
     UI->>C: GET /sales/billable
     C->>S: billable(actor)
     S->>DB: prescriptions with dispense lines where sale_id IS NULL
-    S-->>UI: reference, patient, hand-over time, medicines and quantities
+    S-->>UI: per prescription: reference, patient, last hand-over, lines (medicine, batch, quantity)
     K->>UI: choose one, Confirm payment
     UI->>C: POST /sales {requestId, prescriptionId, otcLines?}
     C->>S: record(actor, dto)
-    S->>S: assertPermission(SALE_CREATE)
+    S->>S: assertPermission(SALE_CREATE), a cart line or a prescription, else 400
     S->>L: run(work)
     L->>DB: BEGIN
+    S->>DB: the prescription and every cart medicine exist, else 400 on its field (#47)
     S->>DB: SELECT dispense lines of the prescription WHERE sale_id IS NULL FOR UPDATE
+    opt OTC lines in the same sale
+        S->>L: lockMedicines(cart medicine ids), as in 2a
+    end
     S->>DB: find ProcessedRequest(requestId)
     alt request already done (FR-23)
         S-->>UI: stored receipt — or 409 for other content
-    else no unbilled line left (A5: another cashier billed it first)
-        S-->>L: throw BusinessRuleViolation — rollback, 422 "already billed"
+    else no unbilled line left
+        S-->>L: 422 ALREADY_BILLED (A5: another cashier billed it first) or NOTHING_TO_BILL (never handed over)
     else unbilled lines found
-        S->>PB: pricesOn(medicines, businessDate) (decision 12)
-        S->>DB: INSERT sale (receipt number, customer = the patient)
+        S->>S: customerId, if sent, must be the patient, else 400
+        S->>PB: pricesOn(billed and cart medicines, businessDate) (decision 12), else 422
+        opt OTC lines in the same sale
+            S->>L: lockEligibleBatches → FEFO per line, else 422 BR03, as in 2a
+        end
+        S->>DB: advisory lock, next receipt number, then INSERT sale (customer = the patient)
         loop each dispense line
             S->>DB: INSERT sale_line (same batch and quantity, unit price, line total)
             S->>DB: UPDATE dispense_line.sale_id = sale
         end
         Note over S,L: no StockLedger.post — stock left once, at the hand-over
         opt OTC lines in the same sale
-            S->>L: lockMedicines → lockEligibleBatches → post(SALE, −q) per batch, as in 2a
+            S->>L: INSERT sale_line and post(SALE, −q) per batch, as in 2a
         end
         S->>DB: UPDATE sale.totalAmount, INSERT processed_request
     end

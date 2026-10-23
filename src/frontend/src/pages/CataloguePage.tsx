@@ -23,12 +23,12 @@ import { showApiError, toApiError } from '../api/errors';
 import { useMe } from '../api/me';
 import {
   type Classification,
-  formatVnd,
   type Medicine,
   type MedicineInput,
   medicinesApi,
   type Reference,
 } from '../api/medicines';
+import { formatVnd } from '../ui/format';
 import { useLoad } from '../api/useLoad';
 import { wholeNumber } from '../forms/numberRules';
 import { StockPanel } from './StockPanel';

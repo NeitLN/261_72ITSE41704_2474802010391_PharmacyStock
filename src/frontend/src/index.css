@@ -1,11 +1,23 @@
 :root {
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family: 'Be Vietnam Pro', 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
 body {
   margin: 0;
+  /* Figures line up in every table and total. */
+  font-variant-numeric: tabular-nums;
 }
 
 #root {
   min-height: 100vh;
+}
+
+/* A visible focus ring for keyboard users, on light and on the dark header. */
+:focus-visible {
+  outline: 2px solid #0d7d6c;
+  outline-offset: 2px;
+}
+
+.ant-layout-header :focus-visible {
+  outline-color: #fff;
 }

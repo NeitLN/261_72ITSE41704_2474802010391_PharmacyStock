@@ -5,7 +5,7 @@
 | **Owner** | Võ Hoàng Minh (C) |
 | **Priority** | Must (assessing returns and recording destruction are Should) |
 | **Primary actor** | Manager |
-| **Status** | Design gate for #61 (week 7): decisions, interface and scenario table below |
+| **Status** | Built (#61): the Must part; FR-46 and FR-47 (Should) with #105. Tests UC11-01…13 in `expiry.e2e-spec.ts` |
 | **Related rules** | BR02, BR03 (via the ledger), BR05, BR11 |
 | **Requirements** | FR-35, FR-36, FR-48, FR-46 *(S)*, FR-47 *(S)*, FR-39 |
 | **Decisions** | DEC-01 (expiry boundary), DEC-04 (quarantine, pending destruction, destroyed), DEC-07 (batch status), decision 16 (one unresolved expiry alert per batch) |

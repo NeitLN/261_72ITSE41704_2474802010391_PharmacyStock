@@ -1,7 +1,7 @@
 import { Card, Tabs, Typography } from 'antd';
 import { useAuth } from '../auth/authContext';
 import { AlertsPanel } from './AlertsPanel';
-import { PlaceholderPage } from './PlaceholderPage';
+import { ExpiryPanel } from './ExpiryPanel';
 import { StockMovementPanel } from './StockMovementPanel';
 import { StockTakesPanel } from './StockTakesPanel';
 
@@ -19,23 +19,15 @@ export function ReportsPage() {
       label: 'Alerts',
       children: <AlertsPanel />,
     },
+    can('alert.manage') && {
+      key: 'expiry',
+      label: 'Expiry',
+      children: <ExpiryPanel />,
+    },
     can('report.view') && {
       key: 'stock-movement',
       label: 'Stock movement',
       children: <StockMovementPanel />,
-    },
-    {
-      key: 'later',
-      label: 'Coming next',
-      children: (
-        <PlaceholderPage
-          title="Not built yet"
-          owner="Võ Hoàng Minh (C)"
-          useCases={[
-            'UC11 — Review expiry alerts, batch status and quarantined stock',
-          ]}
-        />
-      ),
     },
   ].filter((item) => item !== false);
 

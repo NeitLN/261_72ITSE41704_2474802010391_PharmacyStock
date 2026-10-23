@@ -39,9 +39,9 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-16 | 7 | UC08 / BR05 | Return 2 of 5 sold | Sale of 5; return 2 with a reason | RETURN movement into quarantine; original sale untouched; history kept | Duy Anh | Tiến | — | Not run |
 | TC-17 | 7 | UC08 | Return more than returnable | Sold 5, returned 2; return 4 more | Refused | Duy Anh | Tiến | — | Not run |
 | TC-18 | 7 | UC08 | Duplicate return submission | Submit the same return (same request ID) twice | No second return | Duy Anh | Tiến | — | Not run |
-| TC-19 | 6 | UC09 / BR05 | Stock take with a discrepancy | System 10, counted 8, reason given; approve | ADJUSTMENT −2; history kept | Minh | Duy Anh | — | Not run |
-| TC-20 | 6 | UC09 / BR08 | Difference without reason, or wrong role | Leave the reason blank; or a Cashier submits | Refused | Minh | Duy Anh | — | Not run |
-| TC-21 | 6 | UC10 | Low-stock thresholds | Reorder level 10: sellable 11, 10, 9 and 0 | LOW_STOCK at and below 10, OUT_OF_STOCK at 0 (DEC-08) | Minh | Duy Anh | — | Not run |
+| TC-19 | 6 | UC09 / BR05 | Stock take with a discrepancy | System 10, counted 8, reason given; approve | ADJUSTMENT −2; history kept | Minh | Duy Anh | UC09-02 | Pass |
+| TC-20 | 6 | UC09 / BR08 | Difference without reason, or wrong role | Leave the reason blank; or a Cashier submits | Refused | Minh | Duy Anh | UC09-06, UC09-09, UC09-11b | Pass |
+| TC-21 | 6 | UC10 | Low-stock thresholds | Reorder level 10: sellable 11, 10, 9 and 0 | LOW_STOCK at and below 10, OUT_OF_STOCK at 0 (DEC-08) | Minh | Duy Anh | UC10-01..04 | Pass |
 | TC-22 | 7 | UC11 | Expiry window boundaries | Batches before, inside and after the 90-day window | Correct list and quantities | Minh | Duy Anh | — | Not run |
 | TC-23 | 7 | UC12 | Two periods with sales, returns and releases | Seeded transactions over two months | Net quantity issued matches a hand calculation (DEC-06) | Minh | Duy Anh | — | Not run |
 | TC-24 | 8 | UC04 | Restart application and database | Record a receipt and an issue; restart the API and the container | No data lost | Tiến | Minh | — | Pass |
@@ -59,7 +59,7 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-36 | 7 | UC07 / BR04 | Prescription and controlled medicine in a sale | Add a prescription-only and a controlled medicine to an OTC sale | Both refused (DEC-09) | Duy Anh | Tiến | — | Pass |
 | TC-37 | 6 | UC06 / BR07 | Dispense over two visits beyond prescribed | Prescribed 10; dispense 6, then 6 | Second visit refused; status correct | Duy Anh | Tiến | — | Pass |
 | TC-38 | 6 | UC06 / BR10 | Validity day 5 and day 6 | Dispense on issue date + 5 and + 6; try to edit valid-until | Day 5 accepted, day 6 refused; field read-only | Duy Anh | Tiến | — | Pass |
-| TC-39 | 6 | UC09 | Stock take with no differences | Counted = system for every line | Approved; no adjustment posted | Minh | Duy Anh | — | Not run |
+| TC-39 | 6 | UC09 | Stock take with no differences | Counted = system for every line | Approved; no adjustment posted | Minh | Duy Anh | UC09-03 | Pass |
 | TC-40 | 8 | UC13 / BR09 *(S)* | Sale after a scheduled price change | Price changes tomorrow; sell tomorrow | Valued at the new price | Tiến | Minh | — | Not run |
 | TC-41 | 8 | UC13 / BR09 *(S)* | Price change after a sale | Sell, then change the price | Past sale and report unchanged | Tiến | Minh | UC01-05 (price history) | Not run |
 | TC-42 | 5 | UC16 | Wrong password; locked account | Sign in with a wrong password; with a locked user | Generic message; refused | Minh | Duy Anh | UC16-03, UC16-05 | Pass |

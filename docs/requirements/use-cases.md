@@ -18,18 +18,18 @@ Requirements: [`functional-requirements.md`](functional-requirements.md).
 
 | ID | Use case | Actor | Owner | Priority | Release | Status |
 |---|---|---|---|---|---|---|
-| UC01 | [Manage medicine catalogue](use-cases/UC01-manage-medicine-catalogue.md) | Manager | Tiến (A) | Must | Week 5 | Built (#97), awaiting test run |
-| UC02 | [Manage suppliers](use-cases/UC02-manage-suppliers.md) | Manager | Tiến (A) | Must | Week 5 | Built (#95), awaiting test run |
-| UC03 | [Record a goods receipt](use-cases/UC03-record-goods-receipt.md) | Manager | Tiến (A) | Must | Week 5 | Built (#99), awaiting test run |
-| UC04 | [Look up stock and batch history](use-cases/UC04-look-up-stock.md) | All roles | Tiến (A) | Must | Week 6 | Built (#46), awaiting test run (TC-48) |
-| UC05 | [Take in a prescription](use-cases/UC05-take-in-prescription.md) | Pharmacist | Duy Anh (B) | Must | Week 5 | Built (#108), awaiting test run |
-| UC06 | [Dispense against a prescription](use-cases/UC06-dispense-prescription.md) | Pharmacist | Duy Anh (B) | Must | Week 5 | Built (#109), awaiting test run |
-| UC07 | [Record a sale](use-cases/UC07-record-sale.md) | Cashier | Duy Anh (B) | Must | Week 7 | Specified |
-| UC08 | [Process a return](use-cases/UC08-process-return.md) | Cashier | Duy Anh (B) | Must | Week 7 | Specified |
-| UC09 | [Conduct a stock take](use-cases/UC09-conduct-stock-take.md) | Manager | Minh (C) | Must | Week 6 | Design gate for #52 |
-| UC10 | [Review low-stock alerts](use-cases/UC10-review-low-stock-alerts.md) | Manager | Minh (C) | Must | Week 6 | Design gate for #53 |
-| UC11 | [Review expiry alerts, batch status and quarantined stock](use-cases/UC11-expiry-batch-status-quarantine.md) | Manager | Minh (C) | Must | Week 7 | Specified |
-| UC12 | [Produce a stock movement report](use-cases/UC12-stock-movement-report.md) | Manager | Minh (C) | Must | Week 7 | Specified |
+| UC01 | [Manage medicine catalogue](use-cases/UC01-manage-medicine-catalogue.md) | Manager | Tiến (A) | Must | Week 5 | Built (#97); TC-45, TC-46 Pass (runs 1, 6, 23, 26) |
+| UC02 | [Manage suppliers](use-cases/UC02-manage-suppliers.md) | Manager | Tiến (A) | Must | Week 5 | Built (#95); TC-46 Pass (runs 6, 26) |
+| UC03 | [Record a goods receipt](use-cases/UC03-record-goods-receipt.md) | Manager | Tiến (A) | Must | Week 5 | Built (#99); TC-01, 02, 03 Pass (runs 2, 3, 14, 24, 25) |
+| UC04 | [Look up stock and batch history](use-cases/UC04-look-up-stock.md) | All roles | Tiến (A) | Must | Week 6 | Built (#139); TC-48 Pass (run 34), TC-24 Pass (run 27) |
+| UC05 | [Take in a prescription](use-cases/UC05-take-in-prescription.md) | Pharmacist | Duy Anh (B) | Must | Week 5 | Built (#108, #122); TC-47, TC-58 Pass (runs 12, 13) |
+| UC06 | [Dispense against a prescription](use-cases/UC06-dispense-prescription.md) | Pharmacist | Duy Anh (B) | Must | Week 5 | Built (#109, #122); TC-04–14, 37, 38, 57 Pass (runs 9–11, 15–19, 28–33) |
+| UC07 | [Record a sale](use-cases/UC07-record-sale.md) | Cashier | Duy Anh (B) | Must | Week 7 | Over-the-counter sale built (#135, #136), TC-35, 36, 55 Pass (runs 20–22); billing a dispensing in review (#141, #142) |
+| UC08 | [Process a return](use-cases/UC08-process-return.md) | Cashier | Duy Anh (B) | Must | Week 7 | Design gate merged (#160); build waits for `receiveReturn` (#55) |
+| UC09 | [Conduct a stock take](use-cases/UC09-conduct-stock-take.md) | Manager | Minh (C) | Must | Week 6 | Built (#146); TC-19, 20, 39 runs in review (#168) |
+| UC10 | [Review low-stock alerts](use-cases/UC10-review-low-stock-alerts.md) | Manager | Minh (C) | Must | Week 6 | Built (#147); TC-21 run in review (#168) |
+| UC11 | [Review expiry alerts, batch status and quarantined stock](use-cases/UC11-expiry-batch-status-quarantine.md) | Manager | Minh (C) | Must | Week 7 | Design gate merged (#162) |
+| UC12 | [Produce a stock movement report](use-cases/UC12-stock-movement-report.md) | Manager | Minh (C) | Must | Week 7 | Design gate merged (#162) |
 | UC13 | [Manage medicine prices](use-cases/UC13-manage-medicine-prices.md) | Manager | Tiến (A) | Should | Week 8 (if the gate passes) | Specified; price history in place (#97) |
 | UC14 | Manage customers and prescribers (separate screens) | Pharmacist | Duy Anh (B) | Should | Week 9 | [Spec](use-cases/UC14-manage-customers-and-prescribers.md); API built with the UC05 quick-create (Must); screens wait for the Must-core gate (#104) |
 | UC15 | Manage users, roles and permissions | Manager | Minh (C) | Should | Week 9 | Not started |

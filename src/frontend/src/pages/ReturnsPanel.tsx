@@ -11,7 +11,7 @@ import {
 } from 'antd';
 import { useState } from 'react';
 import { type FieldError, toApiError } from '../api/errors';
-import { formatVnd } from '../api/medicines';
+import { formatVnd } from '../ui/format';
 import {
   type ReturnableSale,
   type ReturnLineInput,

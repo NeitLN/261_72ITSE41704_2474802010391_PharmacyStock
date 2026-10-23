@@ -2,6 +2,7 @@ import { Card, Tabs, Typography } from 'antd';
 import { useAuth } from '../auth/authContext';
 import { AlertsPanel } from './AlertsPanel';
 import { PlaceholderPage } from './PlaceholderPage';
+import { StockMovementPanel } from './StockMovementPanel';
 import { StockTakesPanel } from './StockTakesPanel';
 
 /** UC09–UC12, one tab each; a tab shows only for the roles that can use it. */
@@ -10,13 +11,18 @@ export function ReportsPage() {
   const items = [
     can('stock_take.count') && {
       key: 'stock-takes',
-      label: 'Stock takes',
+      label: 'Stock take',
       children: <StockTakesPanel />,
     },
     can('alert.manage') && {
       key: 'alerts',
-      label: 'Low-stock alerts',
+      label: 'Alerts',
       children: <AlertsPanel />,
+    },
+    can('report.view') && {
+      key: 'stock-movement',
+      label: 'Stock movement',
+      children: <StockMovementPanel />,
     },
     {
       key: 'later',
@@ -27,7 +33,6 @@ export function ReportsPage() {
           owner="Võ Hoàng Minh (C)"
           useCases={[
             'UC11 — Review expiry alerts, batch status and quarantined stock',
-            'UC12 — Produce a stock movement report',
           ]}
         />
       ),

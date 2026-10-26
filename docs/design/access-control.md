@@ -1,6 +1,6 @@
 # Access control
 
-**Owner:** Minh (C) · **Issues:** #34 (pattern), #43 (sign-in backend), #44 (sign-in UI) · **Status:** built in #43 and #44
+**Owner:** Minh (C) · **Issues:** #34 (pattern), #43 (sign-in backend), #44 (sign-in UI), #70 (audit) · **Status:** built in #43 and #44; audited in #70
 **Requirements:** FR-38, FR-39, FR-40 *(S)*, FR-41 *(S)*, NFR-05 · **Use cases:** UC16, UC15 *(S)*
 
 ## What already exists
@@ -148,7 +148,88 @@ In `test/auth.e2e-spec.ts` (UC16-01 to UC16-13) and `auth-config.spec.ts`:
 | Stored hashes are bcrypt cost 10; the seed keeps a changed password | NFR-05 |
 | `jwt` mode refuses to start without `JWT_SECRET`; `dev` refused in production | NFR-05 |
 
-Still to do: the generated every-role × every-endpoint test (TC-53).
+TC-53 (every role × every endpoint) is in `test/access-matrix.e2e-spec.ts`;
+see the table below.
+
+## Endpoint → permission table (TC-53, #70)
+
+Every route the API serves, the permission its service checks, and what each
+role gets. "✓" means the role is let through (it may still get 400, 404, 409
+or 422 for business reasons); "403" means `PERMISSION_DENIED`. Roles follow
+`ROLE_PERMISSIONS` in `src/backend/src/auth/permissions.ts` (Proposal
+Table 2.4). Without a valid token every route except sign-in answers 401.
+
+`test/access-matrix.e2e-spec.ts` sends each of these calls as each role with
+a valid body and real ids, and checks exactly this. It also reads the routes
+the running app registers and fails if one is missing from the test, so a new
+endpoint cannot be added without a row there and here. `GET /api/reports/:kind`
+is one route serving three reports; each report checks its own permission, so
+all three are listed. The two `stock-movement` routes need `?from=&to=`.
+
+| Method | Route | Permission | Manager | Pharmacist | Cashier |
+|---|---|---|---|---|---|
+| POST | `/api/auth/login` | none (`@Public()`) | ✓ | ✓ | ✓ |
+| GET | `/api/auth/me` | signed in | ✓ | ✓ | ✓ |
+| POST | `/api/auth/logout` | signed in | ✓ | ✓ | ✓ |
+| GET | `/api/medicines` | `stock.view` | ✓ | ✓ | ✓ |
+| GET | `/api/medicines/reference-data` | `stock.view` | ✓ | ✓ | ✓ |
+| GET | `/api/medicines/:id` | `stock.view` | ✓ | ✓ | ✓ |
+| POST | `/api/medicines` | `catalogue.manage` | ✓ | 403 | 403 |
+| PATCH | `/api/medicines/:id` | `catalogue.manage` | ✓ | 403 | 403 |
+| POST | `/api/medicines/:id/deactivate` | `catalogue.manage` | ✓ | 403 | 403 |
+| POST | `/api/medicines/:id/activate` | `catalogue.manage` | ✓ | 403 | 403 |
+| GET | `/api/stock` | `stock.view` | ✓ | ✓ | ✓ |
+| GET | `/api/stock/medicines/:id` | `stock.view` | ✓ | ✓ | ✓ |
+| GET | `/api/stock/batches/:id/movements` | `stock.view` | ✓ | ✓ | ✓ |
+| GET | `/api/suppliers` | `supplier.manage` | ✓ | 403 | 403 |
+| GET | `/api/suppliers/:id` | `supplier.manage` | ✓ | 403 | 403 |
+| POST | `/api/suppliers` | `supplier.manage` | ✓ | 403 | 403 |
+| PATCH | `/api/suppliers/:id` | `supplier.manage` | ✓ | 403 | 403 |
+| POST | `/api/suppliers/:id/deactivate` | `supplier.manage` | ✓ | 403 | 403 |
+| POST | `/api/suppliers/:id/activate` | `supplier.manage` | ✓ | 403 | 403 |
+| GET | `/api/goods-receipts` | `goods_receipt.create` | ✓ | 403 | 403 |
+| GET | `/api/goods-receipts/:id` | `goods_receipt.create` | ✓ | 403 | 403 |
+| POST | `/api/goods-receipts` | `goods_receipt.create` | ✓ | 403 | 403 |
+| GET | `/api/customers` | `prescription.manage` | ✓ | ✓ | 403 |
+| GET | `/api/customers/:id` | `prescription.manage` | ✓ | ✓ | 403 |
+| POST | `/api/customers` | `prescription.manage` | ✓ | ✓ | 403 |
+| PATCH | `/api/customers/:id` | `prescription.manage` | ✓ | ✓ | 403 |
+| GET | `/api/prescribers` | `prescription.manage` | ✓ | ✓ | 403 |
+| GET | `/api/prescribers/:id` | `prescription.manage` | ✓ | ✓ | 403 |
+| POST | `/api/prescribers` | `prescription.manage` | ✓ | ✓ | 403 |
+| PATCH | `/api/prescribers/:id` | `prescription.manage` | ✓ | ✓ | 403 |
+| POST | `/api/prescribers/:id/deactivate` | `prescription.manage` | ✓ | ✓ | 403 |
+| POST | `/api/prescribers/:id/activate` | `prescription.manage` | ✓ | ✓ | 403 |
+| GET | `/api/prescriptions` | `prescription.manage` | ✓ | ✓ | 403 |
+| GET | `/api/prescriptions/:id` | `prescription.manage` | ✓ | ✓ | 403 |
+| POST | `/api/prescriptions` | `prescription.manage` | ✓ | ✓ | 403 |
+| PUT | `/api/prescriptions/:id` | `prescription.manage` | ✓ | ✓ | 403 |
+| POST | `/api/prescriptions/:id/verify` | `prescription.manage` | ✓ | ✓ | 403 |
+| POST | `/api/dispensings/preview` | `dispense` | ✓ | ✓ | 403 |
+| POST | `/api/dispensings` | `dispense` | ✓ | ✓ | 403 |
+| POST | `/api/sales` | `sale.create` | ✓ | 403 | ✓ |
+| GET | `/api/sales/billable` | `sale.create` | ✓ | 403 | ✓ |
+| GET | `/api/sales/:id` | `sale.create` | ✓ | 403 | ✓ |
+| GET | `/api/returns/sales/:receiptNumber` | `return.create` | ✓ | 403 | ✓ |
+| POST | `/api/returns` | `return.create` | ✓ | 403 | ✓ |
+| GET | `/api/returns/:id` | `return.create` | ✓ | 403 | ✓ |
+| GET | `/api/stock-takes` | `stock_take.count` | ✓ | ✓ | 403 |
+| POST | `/api/stock-takes` | `stock_take.approve` | ✓ | 403 | 403 |
+| GET | `/api/stock-takes/:id` | `stock_take.count` | ✓ | ✓ | 403 |
+| PUT | `/api/stock-takes/:id/lines/:lineId` | `stock_take.count` | ✓ | ✓ | 403 |
+| POST | `/api/stock-takes/:id/lines` | `stock_take.count` | ✓ | ✓ | 403 |
+| POST | `/api/stock-takes/:id/submit` | `stock_take.count` | ✓ | ✓ | 403 |
+| POST | `/api/stock-takes/:id/approve` | `stock_take.approve` | ✓ | 403 | 403 |
+| POST | `/api/stock-takes/:id/return` | `stock_take.approve` | ✓ | 403 | 403 |
+| POST | `/api/stock-takes/:id/cancel` | `stock_take.approve` | ✓ | 403 | 403 |
+| GET | `/api/alerts` | `alert.manage` | ✓ | 403 | 403 |
+| POST | `/api/alerts/:id/acknowledge` | `alert.manage` | ✓ | 403 | 403 |
+| POST | `/api/batches/:id/status` | `batch_status.manage` | ✓ | 403 | 403 |
+| POST | `/api/batches/:id/write-off` | `batch_status.manage` | ✓ | 403 | 403 |
+| GET | `/api/reports/stock-movement` | `report.view` | ✓ | 403 | 403 |
+| GET | `/api/reports/low-stock` | `alert.manage` | ✓ | 403 | 403 |
+| GET | `/api/reports/expiry` | `alert.manage` | ✓ | 403 | 403 |
+| GET | `/api/reports/stock-movement/medicines/:id` | `report.view` | ✓ | 403 | 403 |
 
 ## Limitations
 

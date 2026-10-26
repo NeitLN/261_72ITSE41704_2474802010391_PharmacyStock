@@ -3,7 +3,7 @@
 The 63 planned test cases of Proposal v1.1, Appendix C, plus TC-64 (added
 20/10/2026, #129). Purpose and expected result are as submitted; steps are
 refined by the owner before the first run.
-The first manual runs were recorded on 14/10/2026 (TC-01, 02, 03, 45, 46), 18/10/2026 (TC-42, 43), 20/10/2026 (TC-02 re-run, 04, 05, 06, 07, 08, 09, 10, 11, 35, 36, 47, 55, 58), 22/10/2026 (TC-12, 13, 14, 37, 38, 57) and 27/10/2026 (week-7 regression of pack R, B's and C's areas; first runs of TC-15, 16, 31, 50, 52).
+The first manual runs were recorded on 14/10/2026 (TC-01, 02, 03, 45, 46), 18/10/2026 (TC-42, 43), 20/10/2026 (TC-02 re-run, 04, 05, 06, 07, 08, 09, 10, 11, 35, 36, 47, 55, 58), 22/10/2026 (TC-12, 13, 14, 37, 38, 57) and 27/10/2026 (week-7 regression of pack R, B's and C's areas; first runs of TC-15, 16, 31, 49, 50, 52, 60).
 Automated tests exist for the built use cases (column *Automated*), but a
 manual run by someone other than the author is what closes a feature issue
 (`docs/plan/00-tong-quan.md` §6.6).
@@ -69,7 +69,7 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-46 | 5 | UC01 / UC02 | Deactivated medicine or supplier in a receipt | Deactivate, then use it on a receipt | Refused | Tiến | Minh | UC03-09 | Pass |
 | TC-47 | 5 | UC05 | Multi-item prescription; missing patient, strength or dose | Save a complete prescription; then omit each field | Saved; or field errors | Duy Anh | Tiến | — | Pass |
 | TC-48 | 6 | UC04 | Lookup and batch history | Search; open a medicine with expired and valid batches; open a batch | Sellable vs expired correct; history ordered with running balance | Tiến | Minh | — | Pass |
-| TC-49 | 7 | UC14 | Duplicate prescriber licence | Quick-create a prescriber with an existing licence | Refused | Duy Anh | Tiến | — | Not run |
+| TC-49 | 7 | UC14 | Duplicate prescriber licence | Quick-create a prescriber with an existing licence | Refused | Duy Anh | Tiến | — | Fail |
 | TC-50 | 7 | UC08 / BR11 | Return of an unexpired item | Return 1 unit | Goes to quarantine, not sellable | Duy Anh | Tiến | — | Pass |
 | TC-51 | 8 | UC09 / BR08 *(S)* | Counter approves own stock take | Same user counts and approves | Refused | Minh | Duy Anh | — | Not run |
 | TC-52 | 7 | UC07 | Billing creates no stock movement | Bill a dispensing; compare the ledger | Ledger unchanged by billing | Duy Anh | Tiến | — | Pass |
@@ -80,7 +80,7 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-57 | 6 | UC06 / BR02 | FEFO picks a batch inside the alert window | Earliest batch expires in 30 days | Warning with days left; issue allowed | Duy Anh | Tiến | — | Pass |
 | TC-58 | 5 | UC05 / BR04 | Dispense unverified; edit after verification | Dispense a RECEIVED prescription; edit a VERIFIED one | Refused; status back to RECEIVED | Duy Anh | Tiến | — | Pass |
 | TC-59 | 7 | UC06 / UC07 | Cancel a draft dispensing and an unpaid sale | Cancel each with a reason | No stock movement; quantities unchanged | Duy Anh | Tiến | — | Not run |
-| TC-60 | 7 | UC06 / BR01 | Earlier-expiring batch on hold or recalled | Put the first FEFO batch on hold | Skipped; next eligible batch used | Duy Anh | Tiến | LOCK-02 (ledger) | Not run |
+| TC-60 | 7 | UC06 / BR01 | Earlier-expiring batch on hold or recalled | Put the first FEFO batch on hold | Skipped; next eligible batch used | Duy Anh | Tiến | LOCK-02 (ledger) | Pass |
 | TC-61 | 8 | UC11 / BR11 *(S)* | Release one quarantined return, reject another, record destruction | Two returns in quarantine | Released units sellable; rejected units pending destruction until destroyed | Minh | Duy Anh | — | Not run |
 | TC-62 | 7 | UC06, UC07 / BR03 | Cashier sale and dispensing race for the last units | 20 runs | One succeeds, the other refused with the new quantity; never negative | Duy Anh | Tiến | — | Not run |
 | TC-63 | 7 | UC10 | Monitoring off; expired or quarantined units present | Switch monitoring off; separately hold expired and quarantined stock | No alert when off; those units not counted as sellable | Minh | Duy Anh | — | Not run |

@@ -15,6 +15,7 @@ import { ReceivingModule } from './receiving/receiving.module.js';
 import { ReturnsModule } from './returns/returns.module.js';
 import { SalesModule } from './sales/sales.module.js';
 import { StockModule } from './stock/stock.module.js';
+import { ReportsModule } from './reports/reports.module.js';
 import { StockTakeModule } from './stocktake/stocktake.module.js';
 import { SuppliersModule } from './suppliers/suppliers.module.js';
 
@@ -35,6 +36,7 @@ import { SuppliersModule } from './suppliers/suppliers.module.js';
     ReturnsModule,
     LookupModule,
     StockTakeModule,
+    ReportsModule,
     AlertsModule,
   ],
   controllers: [AppController],

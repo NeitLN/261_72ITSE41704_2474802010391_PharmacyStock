@@ -5,6 +5,7 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { AlertsModule } from './alerts/alerts.module.js';
 import { AuthModule } from './auth/auth.module.js';
+import { BatchesModule } from './batches/batches.module.js';
 import { CatalogueModule } from './catalogue/catalogue.module.js';
 import { dataSourceOptions } from './database/data-source-options.js';
 import { PartiesModule } from './parties/parties.module.js';
@@ -37,6 +38,7 @@ import { SuppliersModule } from './suppliers/suppliers.module.js';
     LookupModule,
     StockTakeModule,
     ReportsModule,
+    BatchesModule,
     AlertsModule,
   ],
   controllers: [AppController],

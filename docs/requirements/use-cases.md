@@ -27,9 +27,9 @@ Requirements: [`functional-requirements.md`](functional-requirements.md).
 | UC07 | [Record a sale](use-cases/UC07-record-sale.md) | Cashier | Duy Anh (B) | Must | Week 7 | Built (#135, #136, #141, #142); TC-35, 36, 55 Pass (runs 20–22); TC-15, 52 (billing) not run yet |
 | UC08 | [Process a return](use-cases/UC08-process-return.md) | Cashier | Duy Anh (B) | Must | Week 7 | Built (#174, #179) on the ledger's `receiveReturn` (#178); TC-16, 17, 18, 50 not run yet |
 | UC09 | [Conduct a stock take](use-cases/UC09-conduct-stock-take.md) | Manager | Minh (C) | Must | Week 6 | Built (#146); TC-19, 20, 39 runs in review (#168) |
-| UC10 | [Review low-stock alerts](use-cases/UC10-review-low-stock-alerts.md) | Manager | Minh (C) | Must | Week 6 | Built (#147); TC-21 run in review (#168) |
-| UC11 | [Review expiry alerts, batch status and quarantined stock](use-cases/UC11-expiry-batch-status-quarantine.md) | Manager | Minh (C) | Must | Week 7 | Design gate merged (#162) |
-| UC12 | [Produce a stock movement report](use-cases/UC12-stock-movement-report.md) | Manager | Minh (C) | Must | Week 7 | Design gate merged (#162) |
+| UC10 | [Review low-stock alerts](use-cases/UC10-review-low-stock-alerts.md) | Manager | Minh (C) | Must | Week 6 | Built (#147); TC-21 Pass (run 38) |
+| UC11 | [Review expiry alerts, batch status and quarantined stock](use-cases/UC11-expiry-batch-status-quarantine.md) | Manager | Minh (C) | Must | Week 7 | Built (#61): expiry list, write-off, batch status, expiry alerts; assessment and destruction (Should) with #105 |
+| UC12 | [Produce a stock movement report](use-cases/UC12-stock-movement-report.md) | Manager | Minh (C) | Must | Week 7 | Built (#62), with the `ReportGenerator` (low stock, expiry, stock movement) |
 | UC13 | [Manage medicine prices](use-cases/UC13-manage-medicine-prices.md) | Manager | Tiến (A) | Should | Week 8 (if the gate passes) | Specified; price history in place (#97) |
 | UC14 | Manage customers and prescribers (separate screens) | Pharmacist | Duy Anh (B) | Should | Week 9 | [Spec](use-cases/UC14-manage-customers-and-prescribers.md); API built with the UC05 quick-create (Must); screens wait for the Must-core gate (#104) |
 | UC15 | Manage users, roles and permissions | Manager | Minh (C) | Should | Week 9 | Not started |

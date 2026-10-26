@@ -38,6 +38,8 @@ export const STATUSES = {
   stockAlert: {
     low_stock: { tone: 'warning', label: 'Low stock' },
     out_of_stock: { tone: 'danger', label: 'Out of stock' },
+    expiring_soon: { tone: 'warning', label: 'Expiring soon' },
+    expired: { tone: 'danger', label: 'Expired' },
   },
   returnAssessment: {
     pending_assessment: { tone: 'quarantine', label: 'Pending assessment' },

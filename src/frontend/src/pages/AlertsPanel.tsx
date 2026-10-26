@@ -9,6 +9,7 @@ import {
 } from '../api/alerts';
 import { toApiError } from '../api/errors';
 import { useLoad } from '../api/useLoad';
+import { StatusTag } from '../ui/tags';
 
 const NO_ALERTS: StockAlert[] = [];
 
@@ -44,16 +45,20 @@ export function AlertsPanel() {
     {
       title: 'Alert',
       width: 140,
-      render: (_, a) =>
-        a.type === 'out_of_stock' ? <Tag color="red">Out of stock</Tag> : <Tag color="orange">Low stock</Tag>,
+      render: (_, a) => <StatusTag kind="stockAlert" value={a.type} />,
     },
     { title: 'Medicine', render: (_, a) => `${a.medicine.code} — ${a.medicine.name}` },
+    {
+      title: 'Batch',
+      width: 170,
+      render: (_, a) => (a.batch ? `${a.batch.batchNumber} · ${a.batch.expiryDate}` : '—'),
+    },
     { title: 'Sellable now', width: 120, align: 'right', render: (_, a) => a.sellable },
     {
       title: 'Reorder level',
       width: 120,
       align: 'right',
-      render: (_, a) => a.medicine.reorderLevel,
+      render: (_, a) => (a.batch ? '—' : a.medicine.reorderLevel),
     },
     { title: 'Raised', width: 170, render: (_, a) => dateTime(a.raisedAt) },
     {
@@ -82,9 +87,9 @@ export function AlertsPanel() {
   return (
     <>
       <Typography.Paragraph type="secondary">
-        Only stock that can be issued counts: expired, on-hold, recalled and quarantined
-        units are left out. An alert closes by itself when the stock rises above the
-        reorder level or monitoring is switched off for the medicine.
+        Stock-level alerts count only stock that can be issued: expired, on-hold, recalled and
+        quarantined units are left out. Expiry alerts are per batch, within each medicine’s alert
+        window. An alert closes by itself when its condition no longer holds.
       </Typography.Paragraph>
       <Space wrap>
         <Select
@@ -105,7 +110,9 @@ export function AlertsPanel() {
           onChange={setType}
           options={[
             { value: 'out_of_stock', label: 'Out of stock' },
+            { value: 'expired', label: 'Expired' },
             { value: 'low_stock', label: 'Low stock' },
+            { value: 'expiring_soon', label: 'Expiring soon' },
           ]}
         />
       </Space>

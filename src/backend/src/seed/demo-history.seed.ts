@@ -198,13 +198,20 @@ export async function seedReportHistory(ctx: HistoryContext): Promise<void> {
       reason: 'Duplicate purchase',
     },
   );
-  // Never in the future: anything planned after the seed's real time moves
-  // back, keeping the order (only possible on the 1st of a month).
+  // Never in the future: on the 1st of a month the events of this month are
+  // spread, in order, over the part of the day already gone, so they stay in
+  // this month.
   events.sort((a, b) => a.at.getTime() - b.at.getTime());
-  events.forEach((e, i) => {
-    const latest = new Date(ctx.now.getTime() - (events.length - i) * 60_000);
-    if (e.at > latest) e.at = latest;
-  });
+  const monthStart = at(p2Start, 0).getTime();
+  const thisMonth = events.filter((e) => e.at.getTime() >= monthStart);
+  if (thisMonth.some((e) => e.at >= ctx.now)) {
+    const span = ctx.now.getTime() - monthStart;
+    thisMonth.forEach((e, i) => {
+      e.at = new Date(
+        monthStart + Math.floor((span * (i + 1)) / (thisMonth.length + 1)),
+      );
+    });
+  }
   if (events.some((e) => e.at.toISOString().slice(0, 10) < p1Start)) {
     throw new Error('Report history must start in the previous month.');
   }

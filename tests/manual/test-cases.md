@@ -3,7 +3,7 @@
 The 63 planned test cases of Proposal v1.1, Appendix C, plus TC-64 (added
 20/10/2026, #129). Purpose and expected result are as submitted; steps are
 refined by the owner before the first run.
-The first manual runs were recorded on 14/10/2026 (TC-01, 02, 03, 45, 46), 18/10/2026 (TC-42, 43), 20/10/2026 (TC-02 re-run, 04, 05, 06, 07, 08, 09, 10, 11, 35, 36, 47, 55, 58) and 22/10/2026 (TC-12, 13, 14, 37, 38, 57).
+The first manual runs were recorded on 14/10/2026 (TC-01, 02, 03, 45, 46), 18/10/2026 (TC-42, 43), 20/10/2026 (TC-02 re-run, 04, 05, 06, 07, 08, 09, 10, 11, 35, 36, 47, 55, 58), 22/10/2026 (TC-12, 13, 14, 37, 38, 57) and 27/10/2026 (week-7 regression of pack R, B's and C's areas; first runs of TC-15, 16, 31, 50, 52).
 Automated tests exist for the built use cases (column *Automated*), but a
 manual run by someone other than the author is what closes a feature issue
 (`docs/plan/00-tong-quan.md` §6.6).
@@ -35,8 +35,8 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-12 | 6 | UC06 / BR04 | Non-OTC medicine without a prescription | Dispense a controlled medicine with no prescription | Refused, field named | Duy Anh | Tiến | — | Pass |
 | TC-13 | 6 | UC06 / BR04 | Prescription not VERIFIED or missing dose/strength | Prescription in RECEIVED, or an item without dose | Refused; stock unchanged | Duy Anh | Tiến | — | Pass |
 | TC-14 | 6 | UC06 / BR04 | Valid prescription | VERIFIED prescription passing every DEC-03 check | Dispensed and traced to the prescription | Duy Anh | Tiến | — | Pass |
-| TC-15 | 7 | UC07 | Bill a dispensing | Bill a handed-over dispensing | Stock falls only once | Duy Anh | Tiến | — | Not run |
-| TC-16 | 7 | UC08 / BR05 | Return 2 of 5 sold | Sale of 5; return 2 with a reason | RETURN movement into quarantine; original sale untouched; history kept | Duy Anh | Tiến | — | Not run |
+| TC-15 | 7 | UC07 | Bill a dispensing | Bill a handed-over dispensing | Stock falls only once | Duy Anh | Tiến | — | Pass |
+| TC-16 | 7 | UC08 / BR05 | Return 2 of 5 sold | Sale of 5; return 2 with a reason | RETURN movement into quarantine; original sale untouched; history kept | Duy Anh | Tiến | — | Pass |
 | TC-17 | 7 | UC08 | Return more than returnable | Sold 5, returned 2; return 4 more | Refused | Duy Anh | Tiến | — | Not run |
 | TC-18 | 7 | UC08 | Duplicate return submission | Submit the same return (same request ID) twice | No second return | Duy Anh | Tiến | — | Not run |
 | TC-19 | 6 | UC09 / BR05 | Stock take with a discrepancy | System 10, counted 8, reason given; approve | ADJUSTMENT −2; history kept | Minh | Duy Anh | UC09-02 | Pass |
@@ -51,7 +51,7 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-28 | 8 | Access | Cashier calls a manager function | Cashier sends a supplier or catalogue change to the API | Refused in the business layer (403) | Minh | Duy Anh | UC02-08, UC01-09 | Not run |
 | TC-29 | 8 | NFR-01, 02, 13 | Measure search, report and counter time | Large data set in a separate database; 10 runs, median | Within NFR thresholds; machine recorded | Tiến | Minh | — | Not run |
 | TC-30 | 8 | NFR-09 *(S)* | Backup and restore | `pg_dump`, restore into an empty database | Balances match | Tiến | Minh | — | Not run |
-| TC-31 | 9 | UC03–08 | End-to-end flow | Receive → prescription → dispense → bill → return → report | Every step and report consistent | Tiến | Minh | — | Not run |
+| TC-31 | 9 | UC03–08 | End-to-end flow | Receive → prescription → dispense → bill → return → report | Every step and report consistent | Tiến | Minh | — | Pass |
 | TC-32 | 9 | NFR-03 | Two outside users perform tasks | One-page task sheet: 2-line receipt; 2-item dispensing | Each ≤ 5 minutes with at most one help request | Minh | Duy Anh | — | Not run |
 | TC-33 | 9 | NFR-10 | Fresh clone on another machine | Follow the README only | Runs with seed data within 30 minutes | Minh | Duy Anh | — | Not run |
 | TC-34 | 10 | Submission | Re-download files, open links | PDF, DOCX, repository link, run guide after upload | Files open; links accessible | Tiến | Minh | — | Not run |
@@ -70,9 +70,9 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-47 | 5 | UC05 | Multi-item prescription; missing patient, strength or dose | Save a complete prescription; then omit each field | Saved; or field errors | Duy Anh | Tiến | — | Pass |
 | TC-48 | 6 | UC04 | Lookup and batch history | Search; open a medicine with expired and valid batches; open a batch | Sellable vs expired correct; history ordered with running balance | Tiến | Minh | — | Pass |
 | TC-49 | 7 | UC14 | Duplicate prescriber licence | Quick-create a prescriber with an existing licence | Refused | Duy Anh | Tiến | — | Not run |
-| TC-50 | 7 | UC08 / BR11 | Return of an unexpired item | Return 1 unit | Goes to quarantine, not sellable | Duy Anh | Tiến | — | Not run |
+| TC-50 | 7 | UC08 / BR11 | Return of an unexpired item | Return 1 unit | Goes to quarantine, not sellable | Duy Anh | Tiến | — | Pass |
 | TC-51 | 8 | UC09 / BR08 *(S)* | Counter approves own stock take | Same user counts and approves | Refused | Minh | Duy Anh | — | Not run |
-| TC-52 | 7 | UC07 | Billing creates no stock movement | Bill a dispensing; compare the ledger | Ledger unchanged by billing | Duy Anh | Tiến | — | Not run |
+| TC-52 | 7 | UC07 | Billing creates no stock movement | Bill a dispensing; compare the ledger | Ledger unchanged by billing | Duy Anh | Tiến | — | Pass |
 | TC-53 | 8 | Access | Every role × every endpoint | Automated matrix | Only permitted calls succeed | Minh | Duy Anh | `access-matrix.e2e-spec.ts` (38 endpoints × 3 roles, and no session) | Not run |
 | TC-54 | 8 | UC06 / BR07 | Two pharmacists dispense the same item | Concurrent dispensing of the last outstanding quantity, 20 runs | Total never above prescribed | Duy Anh | Tiến | — | Not run |
 | TC-55 | 7 | UC07 / BR03 | Sale with insufficient stock | Sell more than sellable | Refused with the available quantity | Duy Anh | Tiến | — | Pass |

@@ -44,7 +44,7 @@ for UC09 and UC10; Minh's TC-48 run, which waits for #139.
 |---|---|---|---|---|
 | Tiến (A) | 10 | 7 · 6 | 13 (#121–#123, #132–#136, #141–#144, #147) | 8 (runs 15–22) |
 | Duy Anh (B) | 11 | 12 · 10 | 1 (#131) | 0 |
-| Minh (C) | 2 | 5 · 1 | 6 (#124, #126, #137–#140) | 1 (run 14), 5 more in #148 |
+| Minh (C) | 10 | 6 · 6 (#131, #145–#148, #162) | 17 (#113, #124, #126, #137–#141, #149–#151, #161, #163–#167) | 7 (runs 14, 23–27, 34) |
 
 ## Meetings
 
@@ -93,8 +93,8 @@ week is **Minh**; the reviewer fills the rest by Sunday
 | Member | Delivered (self-report, with links) | Reviewer's findings | Revisions (issue, severity, due) |
 |---|---|---|---|
 | Duy Anh (B) | UC07 over-the-counter sales merged (#121, #135, #136; TC-35/36/55 passing); `PrescriptionValidator` (BR04, BR07, BR10) and BR05 append-only ledger test merged (#122, #123); UC07 billing a dispensing (#141, #142) and documentation/form updates (#132–#134, #143, #144). Completed cross-testing for Minh's cases TC-19, 20, 21, 39 in `tests/manual/runs.md`. Reviews given for Minh's UC09/UC10 stack (#145–#148). Early week 7 prep: UI cancel (#164), 20x concurrency harness (#165), living traceability draft (#167), and UI run evidence (#168). | Tiến: | |
-| Minh (C) | | Tiến: | |
-| Tiến (A) | #137, #138, #139, #140 (UC04, error-handling table, runs 15–22); #126, #130 (bug #125, TC-64); reviews of #121–#123, #132–#136, #141–#144, #147 | Minh: | |
+| Minh (C) | 20/10: TC-02 re-run Pass (run 14, #131), bug #125 closed; tag `v0.1` with its release note (#45 closed). 21–22/10: UC09/UC10 design gate and the UC09–12, UC16 specs (#145); UC09 stock take with blind count and strict BR08 (#146); UC10 low-stock alerts evaluated inside `StockLedger.run` (#147); runs 23–27 and 34 (TC-01, 02, 24, 45, 46, 48 all Pass) and the TC-53 role × endpoint matrix, 38 endpoints (#148); UC11/UC12 design gate (#162). Duy Anh's runs of my cases: TC-19, 20, 21, 39 Pass (runs 35–38). Reviews: #113, #124, #126, #137–#141, #149–#151, #161, #163–#167 (and #168–#182, #176, #177, #187 on 23–24/10). In review on 24/10: UC12 report (#189), UC11 expiry (#190), the build fix on `main` (#188). | Tiến: | |
+| Tiến (A) | #137, #138, #139, #140 (UC04, error-handling table, runs 15–22); #126, #130 (bug #125, TC-64); reviews of #121–#123, #132–#136, #141–#144, #147 | Minh: a strong, well-evidenced week. UC04 went through its design gate first (#138) and the build caught a real ordering bug (`clock_timestamp()` for movements, #139); the endpoint × invalid-input table tests every cell and made errors consistent (#140); 14 runs of Duy Anh's cases with screenshots (runs 15–22, 28–33); the ledger's batch-status and quarantine commands (#178) landed when UC08 and UC11 needed them; and the design baseline (#151: ERD, class diagram, data dictionary, `ui-design.md`), the wireframes (#176) and the UI kit (#177) gave weeks 7–8 something to build to. To change: `main` stopped building on 24/10 because #177 and #179 were each green but never tested together (fixed in #188); and stacked PRs get no CI at all (#139 had none while its base was #138's branch). Both need the checks required and branches up to date before merge. Small: the stale "same timestamp" comment in `stock-lookup.service.ts` is still there. | #191 (`weekly-review`, S3, Wed 28/10) |
 
 Revisions from last week: #125 fixed and re-run (run 14); #127 done (#133);
 #129 done (#130); #128 status written, #9 and #18 still partly open; #15

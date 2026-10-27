@@ -1,5 +1,6 @@
 import { Transform } from 'class-transformer';
 import {
+  IsDefined,
   IsBoolean,
   IsEnum,
   IsInt,
@@ -95,6 +96,7 @@ export class CreateMedicineDto {
   expiryAlertDays?: number;
 
   /** VND per base unit; a positive whole number (FR-03). */
+  @IsDefined({ message: 'Price is required.' })
   @IsInt({ message: 'Price must be a whole number of VND.' })
   @Min(1, { message: 'Price must be positive.' })
   @Max(MAX_PRICE)

@@ -1,4 +1,4 @@
-# Business rule scenarios — BR01, BR02, BR03, BR04, BR05, BR06, BR07, BR08, BR09, BR10
+# Business rule scenarios — BR01, BR02, BR03, BR04, BR05, BR06, BR07, BR08, BR09, BR10, BR11
 
 This table is the design gate for the three issuing rules: it mirrors plan §6.1
 and Definition of Done §6.6 item 2 (#32). Every row is one automated test that
@@ -323,20 +323,56 @@ Source: `src/backend/test/prescriptions.e2e-spec.ts` (UC05-11),
 `src/backend/test/dispensing.e2e-spec.ts` (UC06-08) (e2e,
 `npm run test:e2e`).
 
+## BR11 Returns go to quarantine
+
+Rule: returned goods never go straight back to sellable stock; they enter the
+quarantine of the batch they were sold from, as PENDING_ASSESSMENT. Only an
+approved assessment releases them; goods that fail wait in pending
+destruction until a destruction record is made
+([business-rules.md](../requirements/business-rules.md), BR11, DEC-04).
+
+### Ledger level — the commands
+
+Quantities are written `[sellable, quarantine, pending destruction]`.
+
+| Test | Kind | Given | When | Then | TC |
+|---|---|---|---|---|---|
+| LEDGER-W7-03 | Edge | Batch of 10 that expired on 2026-10-01 and is RECALLED | `receiveReturn` of 2 | One RETURN movement, quarantine +2, sellable unchanged: `[10, 2, 0]` — whatever the status or expiry | TC-50 |
+| LEDGER-W7-06 | Normal / Error | 3 returned into an active batch of 10 expiring 2027-06-30 | `release` 2; then release from a held batch, an expired one and one of a controlled medicine | First: RELEASE, `[12, 1, 0]`; the others are 422 `CANNOT_RELEASE` (held, "expired on 2026-10-01", "controlled") | TC-61 |
+| LEDGER-W7-07 | Normal / Error | 2 in quarantine | `reject` 3, then 2 | 3 is refused (BR03, `INSUFFICIENT_STOCK`); 2 is REJECT: `[10, 0, 2]` | TC-61 |
+| LEDGER-W7-08 | Error / Normal | 5 pending destruction | `destroy` with a blank reason, then 6, then 5 | 400 on `reason`; 6 refused (BR03); 5 is DESTROY: `[0, 0, 0]` | — |
+
+Every row ends with `findLedgerMismatches` empty (BR05).
+Source: `src/backend/test/stock-ledger.e2e-spec.ts` (e2e, `npm run test:e2e`).
+
+### Through the API — UC08
+
+| Test | Kind | Given | When | Then | TC |
+|---|---|---|---|---|---|
+| UC08-01 | Normal | Batch A = 10; an over-the-counter sale of 5 | Return 2 with a reason | One return line `pending_assessment`; one RETURN movement into A: sellable 5, quarantine 2; sale PARTIALLY_RETURNED; refund 4400.00 at the price paid | TC-16 |
+| UC08-04 | Normal | A sale of 5 split by FEFO over E (2) and L (10) | Return 1 from each line | One RETURN per line, each into its own batch: E quarantine 1, L quarantine 1 | — |
+| UC08-05 | Edge | Batch A (expires 2026-10-20) sold from, then RECALLED; clock moved to 2026-10-25 | Return 2 | Accepted: A stays RECALLED, sellable 5, quarantine 2 | TC-50 |
+| UC08-06 | Edge | A controlled medicine handed over (4) and billed | Return 1 of the billed line | Into the hand-over's batch: sellable 6, quarantine 1; the prescription's dispensed quantity stays 4 | — |
+
+Source: `src/backend/test/returns.e2e-spec.ts` (e2e, `npm run test:e2e`).
+The assessment screens (release and reject from UC11) are *Should* (FR-46, FR-47)
+and not built yet; the ledger rows above are what they will call.
+
 ## Coverage
 
 | Rule | Unit tests | E2E tests | Manual run in `tests/manual/runs.md` |
 |---|---|---|---|
 | BR01 | 7 (BR01-01…07) | UC06-01 "7 from A=3 (expires first) and B=8 leaves A=0, B=4…" in `test/dispensing.e2e-spec.ts`; BR05-11 "a receipt then a hand-over over two FEFO batches…" in `test/ledger-invariant.e2e-spec.ts` (#123) | TC-04, run 9, 2026-10-20, pass |
 | BR02 | 9 (BR02-01…09) | UC06-03 "a batch expiring on or before the business date is never issued"; UC06-10 "preview shows the batches and warnings" — both in `test/dispensing.e2e-spec.ts` | TC-06, run 10, 2026-10-20, pass |
-| BR03 | 3 (BR03-U1…U3) | 5 rows (BR03-01…03, UC06-13; UC06-14 is the BR07 check) | TC-09, run 11, 2026-10-20, pass; TC-10, TC-25, TC-26, TC-54 not run |
+| BR03 | 3 (BR03-U1…U3) | 5 rows (BR03-01…03, UC06-13; UC06-14 is the BR07 check) | TC-09, run 11, 2026-10-20, pass; TC-10, run 18, 2026-10-20, pass; TC-25, TC-26, TC-54 not run |
 | BR04 | 6 (BR04-01…06) | 3 rows (UC05-08 "a pharmacist verifies a prescription", UC06-07 "a prescription that is not verified cannot be dispensed", UC07-05 "prescription-only and controlled medicines are refused on their lines") | TC-12, run 28, 2026-10-22, pass; TC-13, run 29, 2026-10-22, pass; TC-14, run 30, 2026-10-22, pass; TC-36, run 21, 2026-10-20, pass; TC-58, run 13, 2026-10-20, pass |
-| BR05 | 2 (BR05-U1, U2) | 13 rows (BR05-01…06 in `test/stock-ledger.e2e-spec.ts`, BR05-11…17 in `test/ledger-invariant.e2e-spec.ts`) | TC-16, TC-19, TC-25 not run |
+| BR05 | 2 (BR05-U1, U2) | 13 rows (BR05-01…06 in `test/stock-ledger.e2e-spec.ts`, BR05-11…17 in `test/ledger-invariant.e2e-spec.ts`) | TC-16, run 47, 2026-10-27, pass; TC-19, run 35, 2026-10-22, pass; TC-25 not run |
 | BR07 | 5 (BR07-01…05) | 4 rows (UC05-10 "a prescription that has been dispensed cannot be edited", UC06-05 "a smaller hand-over needs a note", UC06-06 "a second visit may take the rest", UC06-14 "two pharmacists dispensing the same item at once") | TC-09, run 11, 2026-10-20, pass; TC-37, run 31, 2026-10-22, pass; TC-54 not run |
 | BR10 | 5 (BR10-01…05) | 2 rows (UC05-11 "past valid-until cannot be verified", UC06-08 "refused after valid-until, checked again at every visit") | TC-38, run 32, 2026-10-22, pass |
 | BR06 | 0 named (no pack-unit test; the ledger guard `refuses an empty or fractional movement as a programming error` in `src/backend/src/stock/stock-deltas.spec.ts` covers code, not input) | 4 rows (UC03-03, UC07-11, UC09-08, UC01-13) | TC-02, run 25, 2026-10-21, pass; no case for pack → base conversion (BR06 is *Could*) |
 | BR08 | 0 (no spec for `src/backend/src/stocktake/`) | 4 rows (UC09-02, UC09-06, UC09-11, UC09-11b) | TC-20, run 37, 2026-10-22, pass; TC-19, run 35, 2026-10-22, pass; TC-51 not run |
 | BR09 | 0 (no spec for `src/backend/src/catalogue/price-book.ts`) | 2 rows (UC01-05, UC07-03) | TC-40, TC-41 not run |
+| BR11 | 0 (ledger commands are tested end to end) | 8 rows (LEDGER-W7-03, 06, 07, 08; UC08-01, 04, 05, 06) | TC-50, run 48, 2026-10-27, pass; TC-16, run 47, 2026-10-27, pass; TC-61 not run (assessment screens are *Should*) |
 
 After every test that moves stock, `findLedgerMismatches` must find nothing
 (BR05).

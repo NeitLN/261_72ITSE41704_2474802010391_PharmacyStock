@@ -3,11 +3,14 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   type Relation,
 } from 'typeorm';
+import { Medicine } from './medicine.entity.js';
 import { StockTakeLine } from './stock-take-line.entity.js';
 import { User } from './user.entity.js';
 
@@ -46,6 +49,19 @@ export class StockTake {
 
   @OneToMany(() => StockTakeLine, (line) => line.stockTake)
   lines: StockTakeLine[];
+
+  /**
+   * The medicines chosen when the stock take was opened. Kept apart from the
+   * lines because a chosen medicine with no stock on the book gets no line,
+   * yet the counter may still add any of its batches (A3, #184).
+   */
+  @ManyToMany(() => Medicine)
+  @JoinTable({
+    name: 'stock_take_medicines',
+    joinColumn: { name: 'stock_take_id' },
+    inverseJoinColumn: { name: 'medicine_id' },
+  })
+  medicines: Relation<Medicine>[];
 
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'opened_by_id' })

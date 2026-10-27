@@ -465,7 +465,42 @@ describe('UC09 stock takes (e2e)', () => {
     expect(await findLedgerMismatches(t.dataSource.manager)).toEqual([]);
   });
 
-  it('opening with an unknown medicine or one with no stock is a field error', async () => {
+  it('UC09-19 #184: a chosen medicine whose batches are all at 0 has no line, but its batch can be added and counted', async () => {
+    const p1 = await receive(paraId, 'P1', 10);
+    const v1 = await receive(vitcId, 'V1', 2);
+    await sell(vitcId, 2); // the book now holds every VITC batch at 0
+    const take = await open([paraId, vitcId]);
+    expect(take.lines.map((l: { batch: { id: string } }) => l.batch.id)).toEqual([p1]);
+    expect(take.medicines).toEqual([
+      expect.objectContaining({ id: paraId, code: 'PARA500', lineCount: 1 }),
+      expect.objectContaining({ id: vitcId, code: 'VITC', lineCount: 0 }),
+    ]);
+
+    const added = await pharmacist.addLine(take.id, v1);
+    expect(added.status, JSON.stringify(added.body)).toBe(201);
+    await pharmacist.count(take.id, lineOf(added.body, v1), { countedQuantity: 2, reason: 'Found on the back shelf' });
+    await pharmacist.count(take.id, lineOf(added.body, p1), { countedQuantity: 10 });
+    expect((await pharmacist.submit(take.id)).status).toBe(201);
+    expect((await manager.approve(take.id)).status).toBe(201);
+    expect(await qty(v1)).toBe(2);
+    expect(await qty(p1)).toBe(10);
+  });
+
+  it('UC09-20 #184: a stock take of only medicines at 0 opens empty, takes added batches, and cannot be submitted empty', async () => {
+    const v1 = await receive(vitcId, 'V1', 1);
+    await sell(vitcId, 1);
+    const take = await open([vitcId]);
+    expect(take.lines).toEqual([]);
+    expect(take.medicines).toEqual([expect.objectContaining({ id: vitcId, lineCount: 0 })]);
+
+    const empty = await pharmacist.submit(take.id);
+    expect(empty.status).toBe(400);
+    expect(empty.body.errors.map((e: { field: string }) => e.field)).toEqual(['lines']);
+
+    expect((await pharmacist.addLine(take.id, v1)).status).toBe(201);
+  });
+
+  it('opening with an unknown medicine or one with no batch is a field error', async () => {
     const unknown = randomUUID();
     const res = await manager.open({ medicineIds: [paraId, unknown] });
     expect(res.status).toBe(400);

@@ -1,4 +1,4 @@
-# FR traceability matrix (living draft, #78)
+|  |  |  |  |  | TC-56 run 57 | Built ||  |  |  |  |  | TC-22 run 56 | Built |# FR traceability matrix (living draft, #78)
 
 Issue #78 (plan week 9) asks that every functional requirement carry a status;
 this is that matrix, written early as a living draft so week 9 only has to
@@ -63,8 +63,8 @@ pull requests, so "In review" means not on `main` yet.
 | FR-32 | Should | UC09 | `StockTakesService.approve` (BR08, `SAME_COUNTER`) | `stock-takes.e2e-spec.ts` UC09-11, 11b | — (TC-51) | Built, not run |
 | FR-33 | Must | UC10 | `AlertEvaluator.levels`, `AlertEvaluator.evaluate`, `AlertsService`; screen `AlertsPanel` | `alerts.e2e-spec.ts` UC10-01..04, 05…08, 11, 14…16 | TC-21 run 38; — (TC-63) | Built, not run |
 | FR-34 | Must | UC10 | `AlertsService.list`, `AlertsService.acknowledge`; screen `AlertsPanel` | `alerts.e2e-spec.ts` UC10-09, 10, 12, 13 | TC-21 run 38 | Built |
-| FR-35 | Must | UC11 | `ExpiryReport` through `ReportRegistry` (`GET /reports/expiry`), expiry alerts in `AlertEvaluator.evaluate`; screen `ExpiryPanel` | `expiry.e2e-spec.ts` UC11-01…03, 10, 11 | — (TC-22) | Built, not run |
-| FR-36 | Must | UC11 | `BatchesService.writeOff` → `StockLedger.writeOff`; screen `ExpiryPanel` | `expiry.e2e-spec.ts` UC11-04…07, 13 | — (TC-56) | Built, not run |
+| FR-35 | Must | UC11 | `ExpiryReport` through `ReportRegistry` (`GET /reports/expiry`), expiry alerts in `AlertEvaluator.evaluate`; screen `ExpiryPanel` | `expiry.e2e-spec.ts` UC11-01…03, 10, 11 | TC-22 run 56 | Built |
+| FR-36 | Must | UC11 | `BatchesService.writeOff` → `StockLedger.writeOff`; screen `ExpiryPanel` | `expiry.e2e-spec.ts` UC11-04…07, 13 | TC-56 run 57 | Built |
 | FR-37 | Must | UC12 | `StockMovementReport` through `ReportRegistry` (`GET /reports/stock-movement`); screen `StockMovementPanel` | `stock-movement-report.e2e-spec.ts` UC12-01…12 | — (TC-23) | Built, not run |
 | FR-46 | Should | UC11 | ledger commands `release`, `reject`, `destroy` built (#178); no assessment or destruction screen yet | — | — (TC-61) | Should — after the gate |
 | FR-47 | Should | UC11 | ledger commands `release`, `reject`, `destroy` built (#178); no assessment or destruction screen yet | — | — (TC-61) | Should — after the gate |
@@ -83,17 +83,17 @@ OC-21 ticket:
 
 | Status | Count | FRs |
 |---|---|---|
-| Built | 29 | FR-01, 02, 03, 05, 06, 07, 08, 10, 11, 13, 14, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 28, 29, 30, 31, 34, 38, 44, 48 |
-| Built, not run | 12 | FR-09, 12, 15, 23, 27, 32, 33, 35, 36, 37, 39, 45 |
+| Built | 31 | FR-01, 02, 03, 05, 06, 07, 08, 10, 11, 13, 14, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 28, 29, 30, 31, 34, 35, 36, 38, 44, 48 |
+| Built, not run | 10 | FR-09, 12, 15, 23, 27, 32, 33, 37, 39, 45 |
 | In review | 0 | — |
 | Planned (week 7) | 0 | — |
 | Should — after the gate | 5 | FR-04, 40, 41, 46, 47 |
 | Could — not built | 2 | FR-42, 43 |
 
-### Must FRs not Built (11)
+### Must FRs not Built (9)
 
 - `Built, not run` — code and tests are on `main`, some manual cases have no
-  passing run in `runs.md` yet: FR-09 (TC-25), FR-12 (TC-25), FR-15 (TC-49 Fail), FR-23 (TC-18, 27), FR-27 (TC-17), FR-33 (TC-63), FR-35 (TC-22), FR-36 (TC-56), FR-37 (TC-23), FR-39 (TC-53), FR-45 (TC-59).
+  passing run in `runs.md` yet: FR-09 (TC-25), FR-12 (TC-25), FR-15 (TC-49 Fail), FR-23 (TC-18, 27), FR-27 (TC-17), FR-33 (TC-63), FR-37 (TC-23), FR-39 (TC-53), FR-45 (TC-59).
 
 ## Reading notes
 

@@ -1,3 +1,5 @@
+![LotOrder — Pharmacy Stock & Prescription Dispensing](docs/assets/readme-banner.svg)
+
 # Pharmacy Stock and Prescription Dispensing System
 
 A web application for a single-branch pharmacy to manage medicine stock by

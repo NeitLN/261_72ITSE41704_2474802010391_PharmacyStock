@@ -6,6 +6,7 @@ import { AdministrationPage } from './pages/AdministrationPage';
 import { CataloguePage } from './pages/CataloguePage';
 import { DispensingPage } from './pages/DispensingPage';
 import { LoginPage } from './pages/LoginPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 import { ReportsPage } from './pages/ReportsPage';
 import { SalesPage } from './pages/SalesPage';
 import { SuppliersPage } from './pages/SuppliersPage';
@@ -39,7 +40,7 @@ export default function App() {
             element={<RequireScreen path={path}>{element}</RequireScreen>}
           />
         ))}
-        <Route path="*" element={<StartPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
   );

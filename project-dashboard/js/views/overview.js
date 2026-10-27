@@ -77,7 +77,7 @@ export function render(model) {
 
     ${o.nextMilestone ? `<section class="card" aria-labelledby="next-ms">
       <h3 id="next-ms">Upcoming milestone</h3>
-      <p>${link(o.nextMilestone.url, o.nextMilestone.title)} — due ${day(o.nextMilestone.dueOn.slice(0, 10))}; ${o.nextMilestone.openIssues} open, ${o.nextMilestone.closedIssues} closed on GitHub.</p>
+      <p>${link(o.nextMilestone.url, o.nextMilestone.title)} — due ${day(o.nextMilestone.dueOn.slice(0, 10))}${Number.isInteger(o.nextMilestone.openIssues) ? `; ${o.nextMilestone.openIssues} open, ${o.nextMilestone.closedIssues} closed on GitHub (issues and pull requests)` : ''}.</p>
     </section>` : ''}
   </div>`;
   return { html };

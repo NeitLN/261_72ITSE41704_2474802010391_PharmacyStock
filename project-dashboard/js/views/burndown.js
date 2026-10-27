@@ -63,7 +63,7 @@ export function render(model, params) {
         <span>${healthBadge(b.health)}</span>
       </div>
       <p class="small">${esc(b.health.reason ?? '')}</p>
-      ${b.fromEvents === false ? '<div class="banner warning"><span aria-hidden="true">!</span><div>Issue events could not be read in the last collection. This line is an estimate from each issue's current milestone and close date: it cannot show reopened issues or tasks moved between weeks.</div></div>' : ''}
+      ${b.fromEvents === false ? '<div class="banner warning"><span aria-hidden="true">!</span><div>Issue events could not be read in the last collection. This line is an estimate from each issue’s current milestone and close date: it cannot show reopened issues or tasks moved between weeks.</div></div>' : ''}
       ${b.series.length ? `<div class="chart-box"><canvas id="bd-chart" role="img" aria-label="Burndown chart for ${esc(label)}: remaining tasks against the ideal line"></canvas></div>` : `<p class="muted">This period has not started yet.</p>`}
       ${burndownTable(d, `Burndown, ${label}`)}
       <div class="small muted stack">

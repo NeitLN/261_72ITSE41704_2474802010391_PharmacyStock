@@ -484,6 +484,108 @@ describe('UC04 stock lookup (e2e)', () => {
     ]);
   });
 
+  it('UC04-15 #209 names the return slip and the stock take; a write-off has no document', async () => {
+    const id = await medicine('REFS', 'References medicine');
+    const receipt = await t
+      .http()
+      .post('/api/goods-receipts')
+      .set(as('manager'))
+      .send({
+        supplierId,
+        documentNumber: 'HD-0099',
+        receiptDate: '2026-10-20',
+        lines: [
+          {
+            medicineId: id,
+            batchNumber: 'R1',
+            expiryDate: '2027-06-30',
+            quantity: 10,
+            unitCost: 800,
+          },
+        ],
+      });
+    expect(receipt.status).toBe(201);
+    const batchId = receipt.body.lines[0].batch.id;
+
+    const sale = await t
+      .http()
+      .post('/api/sales')
+      .set(as('cashier'))
+      .send({
+        requestId: randomUUID(),
+        otcLines: [{ medicineId: id, quantity: 5 }],
+      });
+    expect(sale.status).toBe(201);
+    const found = await t
+      .http()
+      .get(`/api/returns/sales/${sale.body.receiptNumber}`)
+      .set(as('cashier'));
+    const slip = await t
+      .http()
+      .post('/api/returns')
+      .set(as('cashier'))
+      .send({
+        requestId: randomUUID(),
+        saleId: found.body.id,
+        reason: 'Box damaged',
+        lines: [{ saleLineId: found.body.lines[0].saleLineId, quantity: 2 }],
+      });
+    expect(slip.status).toBe(201);
+
+    // Book 5, counted 4: an adjustment of −1 from an approved stock take.
+    const take = await t
+      .http()
+      .post('/api/stock-takes')
+      .set(as('manager'))
+      .send({ medicineIds: [id] });
+    expect(take.status).toBe(201);
+    await t
+      .http()
+      .put(`/api/stock-takes/${take.body.id}/lines/${take.body.lines[0].id}`)
+      .set(as('pharmacist'))
+      .send({ countedQuantity: 4, reason: 'One box missing' })
+      .expect(200);
+    await t
+      .http()
+      .post(`/api/stock-takes/${take.body.id}/submit`)
+      .set(as('pharmacist'))
+      .expect(201);
+    await t
+      .http()
+      .post(`/api/stock-takes/${take.body.id}/approve`)
+      .set(as('manager'))
+      .expect(201);
+
+    await t
+      .http()
+      .post(`/api/batches/${batchId}/status`)
+      .set(as('manager'))
+      .send({ status: 'on_hold', reason: 'Supplier notice' })
+      .expect(200);
+    await t
+      .http()
+      .post(`/api/batches/${batchId}/write-off`)
+      .set(as('manager'))
+      .send({ reason: 'Supplier recall' })
+      .expect(200);
+
+    const res = await history(batchId);
+    expect(
+      res.body.movements.map(
+        (m: { type: string; source: { reference: string | null } }) => [
+          m.type,
+          m.source.reference,
+        ],
+      ),
+    ).toEqual([
+      ['receipt', 'HD-0099'],
+      ['sale', sale.body.receiptNumber],
+      ['return', slip.body.referenceNumber],
+      ['adjustment', take.body.referenceNumber],
+      ['write_off', null],
+    ]);
+  });
+
   /** Records, verifies and hands over a one-line prescription through the API. */
   async function dispense(
     medicineId: string,

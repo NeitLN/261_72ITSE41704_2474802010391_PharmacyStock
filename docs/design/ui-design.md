@@ -13,12 +13,13 @@ sequence of their feature. The plan for weeks 7–9 is in §8. Status: **built**
 Related: [use cases](../requirements/use-cases.md) ·
 [sequence diagrams](../diagrams/sequence-diagrams.md) ·
 [error handling](error-handling.md) · [access control](access-control.md) ·
-[wireframes](../diagrams/wireframes/README.md)
+[wireframes](../diagrams/wireframes/README.md) · [brand and identity](brand.md)
 
 ## 1. Navigation and permissions
 
 Desktop web app for the pharmacy's counter and back-office PCs (1280 px wide
-and up). A top bar shows the user, the role and *Sign out*; a left menu has
+and up). A top bar shows the LotOrder lockup (a link to the start page), the
+user, the role and *Sign out* ([brand.md](brand.md) A3); a left menu has
 one entry per use-case group; each page is one card with a tab per use case.
 The menu shows an entry when the user holds **any** permission of that screen
 (`src/frontend/src/auth/access.ts`); every action is checked again by the API
@@ -94,6 +95,7 @@ Every screen handles these; the API side is in [`error-handling.md`](error-handl
 | Invalid input (400) | the message under the field (`showApiError`); the value typed stays | numbers are validated, never silently changed (#125) |
 | Rule refused (422) | the message under the line it concerns (e.g. "Only 3 can be sold now.") and a red alert above the button | nothing was saved — the message says so |
 | Not allowed (403) | the menu does not offer the screen; a direct call shows the message | the API is the guard |
+| Unknown address (signed in) | *Page not found* with *Go to your start page* ([brand.md](brand.md) A9) | before 27/10 it silently opened the start page |
 | Not found (404) / stale (409) | message; the list is reloaded | e.g. another cashier billed it first |
 | Busy (409 `BUSY`) / database unavailable (503) | "try again" message; the form keeps what was typed | |
 | Network failure | "Cannot reach the server"; *retry* sends the **same** request ID, so nothing is done twice | dispense, sale, return |
@@ -233,14 +235,18 @@ wireframes and updates §1–§2 (reviewed by Duy Anh).
 Decided by Tiến on 22/10/2026. Three rules: a screen works before it is
 polished; a new screen is designed before it is coded (§7); **every UI change
 is merged before the freeze on Mon 09/11** — after it, only bug fixes. The
-look stays Ant Design with the theme tokens in one file; no custom visual
-identity, and no motion beyond the minimum of §5.1.
+look stays Ant Design with the theme tokens in one file, and no motion beyond
+the minimum of §5.1. On 27/10 Tiến changed the earlier "no custom visual
+identity": the app is named LotOrder and has the mark and identity of
+[brand.md](brand.md), so the demo and the report screenshots read as real
+software. Components and status colours are unchanged.
 
 | Week | Deliverable | Owner | Reviewer | Due | Hours | Issue |
 |---|---|---|---|---|---|---|
 | 7 | Wireframes of UC08, UC11, UC12 (key states) | Tiến | Duy Anh | Mon 26/10 | 3 | #154 |
 | 7 | Shared UI kit `src/frontend/src/ui/`: theme tokens, `StatusTag` from the §5 table, quantity and money formats — used by the UC08, UC11, UC12 screens from the start | Tiến | Duy Anh | Tue 27/10 | 1 | #155 |
 | 7 | Motion and interaction conventions (§5.1) | Duy Anh | Tiến | Sun 01/11 | 1 | #152 |
+| 7 | LotOrder identity ([brand.md](brand.md) part B, W07-A5) | Tiến | Duy Anh | Thu 29/10 | 5,5 | #214 |
 | 8 | UX walk-through of every screen against §4 and §5; each gap an S3/S4 issue | Tiến | Duy Anh | Tue 03/11 | 1,5 | #157 |
 | 8 | TC-32 pilot: one person outside the team does the TC-32 tasks, so what they trip on is fixed before the freeze | Minh | Duy Anh | Wed 04/11 | 1 | #159 |
 | 8 | Consistency pass: old screens on the UI kit, empty texts, §5.1 minimum motion, fixes from the walk-through and the pilot | Duy Anh | Tiến | Thu 05/11 | 3 | #158 |

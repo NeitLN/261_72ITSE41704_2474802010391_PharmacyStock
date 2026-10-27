@@ -17,9 +17,14 @@ import { AuthProvider } from './auth/AuthProvider';
 import { theme } from './ui/theme';
 import './index.css';
 
+// ui-design §5.1: when the system asks for less motion, the library's
+// transitions are switched off; focus moves and scrolling still happen.
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const appTheme = reduceMotion ? { ...theme, token: { ...theme.token, motion: false } } : theme;
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ConfigProvider locale={enUS} theme={theme}>
+    <ConfigProvider locale={enUS} theme={appTheme}>
       <AntdApp>
         <AuthProvider>
           <BrowserRouter>

@@ -48,7 +48,7 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-25 | 8 | UC03 / UC06 | Failure in the middle of a transaction | A receipt whose second line fails inside the transaction | Full rollback; no partial document | Tiến | Minh | UC03-08, BR03-01 | Not run |
 | TC-26 | 8 | UC06 / BR03 | Two sessions request 4 of the last 5 | Two concurrent dispensings, 20 runs | Only one succeeds each time; never negative | Duy Anh | Tiến | BR03-02 (ledger) | Not run |
 | TC-27 | 8 | UC06 | Resubmit the same dispensing | Same request ID twice | No duplicate | Duy Anh | Tiến | — | Not run |
-| TC-28 | 8 | Access | Cashier calls a manager function | Cashier sends a supplier or catalogue change to the API | Refused in the business layer (403) | Minh | Duy Anh | UC02-08, UC01-09 | Not run |
+| TC-28 | 8 | Access | Cashier calls a manager function | Cashier sends a supplier or catalogue change to the API | Refused in the business layer (403) | Minh | Duy Anh | UC02-08, UC01-09 | Pass |
 | TC-29 | 8 | NFR-01, 02, 13 | Measure search, report and counter time | Large data set in a separate database; 10 runs, median | Within NFR thresholds; machine recorded | Tiến | Minh | — | Not run |
 | TC-30 | 8 | NFR-09 *(S)* | Backup and restore | `pg_dump`, restore into an empty database | Balances match | Tiến | Minh | — | Not run |
 | TC-31 | 9 | UC03–08 | End-to-end flow | Receive → prescription → dispense → bill → return → report | Every step and report consistent | Tiến | Minh | — | Pass |

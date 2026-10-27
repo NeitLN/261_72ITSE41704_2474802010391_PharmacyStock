@@ -34,6 +34,8 @@ import {
 } from '../api/prescriptions';
 import { useLoad } from '../api/useLoad';
 import { decimal, wholeNumber } from '../forms/numberRules';
+import { STATUSES, statusOf, TONE_COLOURS } from '../ui/status';
+import { StatusTag } from '../ui/tags';
 import { QuickCreateCustomerModal } from './QuickCreateCustomerModal';
 import { QuickCreatePrescriberModal } from './QuickCreatePrescriberModal';
 
@@ -64,14 +66,6 @@ function ageMonthsAt(birth: string, today: string): number {
   return (ty - by) * 12 + (tm - bm) - (td < bd ? 1 : 0);
 }
 
-const STATUS_TAG: Record<PrescriptionStatus, { color?: string; label: string }> = {
-  received: { label: 'Received' },
-  verified: { color: 'blue', label: 'Verified' },
-  partially_dispensed: { color: 'gold', label: 'Partially dispensed' },
-  fully_dispensed: { color: 'green', label: 'Fully dispensed' },
-  cancelled: { color: 'red', label: 'Cancelled' },
-};
-
 /** UC05 Take in a prescription: list, entry form with quick-create, details. */
 export function PrescriptionsPanel() {
   const [search, setSearch] = useState('');
@@ -100,7 +94,9 @@ export function PrescriptionsPanel() {
         p.isExpired ? (
           <Space>
             <Typography.Text type="danger">{validUntil}</Typography.Text>
-            <Tag color="red">Expired</Tag>
+            <Tag variant="filled" style={{ ...TONE_COLOURS.danger, marginInlineEnd: 0 }}>
+              Expired
+            </Tag>
           </Space>
         ) : (
           validUntil
@@ -116,7 +112,7 @@ export function PrescriptionsPanel() {
       title: 'Status',
       dataIndex: 'status',
       width: 160,
-      render: (s: PrescriptionStatus) => <Tag color={STATUS_TAG[s].color}>{STATUS_TAG[s].label}</Tag>,
+      render: (s: PrescriptionStatus) => <StatusTag kind="prescription" value={s} />,
     },
     {
       title: '',
@@ -145,9 +141,9 @@ export function PrescriptionsPanel() {
           style={{ width: 190 }}
           options={[
             { value: '', label: 'All statuses' },
-            ...(Object.keys(STATUS_TAG) as PrescriptionStatus[]).map((s) => ({
+            ...(Object.keys(STATUSES.prescription) as PrescriptionStatus[]).map((s) => ({
               value: s,
-              label: STATUS_TAG[s].label,
+              label: statusOf('prescription', s).label,
             })),
           ]}
         />
@@ -160,9 +156,9 @@ export function PrescriptionsPanel() {
         rowKey="id"
         columns={columns}
         dataSource={prescriptions}
-        loading={loading}
+        loading={{ spinning: loading, delay: 300 }}
         pagination={{ pageSize: 20, hideOnSinglePage: true }}
-        locale={{ emptyText: 'No prescriptions yet.' }}
+        locale={{ emptyText: 'No prescription matches this search and status. Use New prescription to take one in.' }}
         style={{ marginTop: 16 }}
       />
 
@@ -640,16 +636,16 @@ function PrescriptionDetailsModal({
               {prescription.isExpired ? (
                 <Space>
                   <Typography.Text type="danger">{prescription.validUntil}</Typography.Text>
-                  <Tag color="red">Expired</Tag>
+                  <Tag variant="filled" style={{ ...TONE_COLOURS.danger, marginInlineEnd: 0 }}>
+                    Expired
+                  </Tag>
                 </Space>
               ) : (
                 prescription.validUntil
               )}
             </Descriptions.Item>
             <Descriptions.Item label="Status">
-              <Tag color={STATUS_TAG[prescription.status].color}>
-                {STATUS_TAG[prescription.status].label}
-              </Tag>
+              <StatusTag kind="prescription" value={prescription.status} />
             </Descriptions.Item>
             <Descriptions.Item label="Verified by">
               {prescription.verifiedBy
@@ -664,7 +660,7 @@ function PrescriptionDetailsModal({
             rowKey="id"
             size="small"
             pagination={false}
-            loading={loading}
+            loading={{ spinning: loading, delay: 300 }}
             dataSource={prescription.items}
             style={{ marginTop: 16 }}
             columns={[

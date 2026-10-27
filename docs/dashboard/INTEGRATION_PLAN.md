@@ -53,7 +53,7 @@ Pages artifact  ─ index.html → ./project-dashboard/
 - **Front end:** plain HTML, CSS and ES modules, with no build step. Chart.js
   4.4.1 (MIT) is vendored, so nothing loads from a CDN. A hash router switches
   between the eight views.
-- **Core logic:** `project-dashboard/js/core/*.mjs` holds normalisation,
+- **Core logic:** `project-dashboard/js/core/*.js` holds normalisation,
   progress and burndown as pure functions. The browser and `node --test` run
   the same files.
 - **Configuration:** `project-dashboard/config/project.json`. Nothing about
@@ -139,15 +139,19 @@ Two series, each labelled where it is shown:
    collection of that day, never overwritten), starting on the day the
    dashboard goes live. A day with no snapshot is a gap, never 0.
 
-The ideal line runs from the scope at the start of the period to 0 at its end
-date. The end date comes from the config (week dates) or the milestone due
-date.
+The ideal line runs from the latest known scope on the first day of the period
+to 0 on its last day; the period comes from the config (project dates or week
+dates). The latest scope is used because the issues of this project were
+created after week 1 started, so the scope on the first day was close to 0.
+Days before the first task existed are left empty on the chart.
 
-**Project health** is computed from the reconstructed series at today's date:
-- Gap from the ideal line ≤ `health.onTrackGap` (default 5 % of scope): **On Track**.
-- Gap ≤ `health.atRiskGap` (default 20 %): **At Risk**.
-- Otherwise: **Delayed**.
-- All tasks Done after the final deadline: **Completed**.
+**Health** is computed from the reconstructed series at today's date:
+- Gap = (remaining − ideal remaining) ÷ scope. Gap ≤ `health.onTrackGap`
+  (default 5 %): **On Track**; ≤ `health.atRiskGap` (default 20 %): **At
+  Risk**; otherwise **Delayed**.
+- After the end of the period: **Completed** when every task in scope is done,
+  else **Delayed**. A finished week also says if its tasks were still open
+  when the week ended.
 - No scope, or fewer than `health.minDataPoints` days of data: **Insufficient
   Data**.
 

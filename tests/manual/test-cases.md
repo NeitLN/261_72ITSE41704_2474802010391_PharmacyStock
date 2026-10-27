@@ -43,7 +43,7 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-20 | 6 | UC09 / BR08 | Difference without reason, or wrong role | Leave the reason blank; or a Cashier submits | Refused | Minh | Duy Anh | UC09-06, UC09-09, UC09-11b | Pass |
 | TC-21 | 6 | UC10 | Low-stock thresholds | Reorder level 10: sellable 11, 10, 9 and 0 | LOW_STOCK at and below 10, OUT_OF_STOCK at 0 (DEC-08) | Minh | Duy Anh | UC10-01..04 | Pass |
 | TC-22 | 7 | UC11 | Expiry window boundaries | Batches before, inside and after the 90-day window | Correct list and quantities | Minh | Duy Anh | UC11-01, UC11-02 | Pass |
-| TC-23 | 7 | UC12 | Two periods with sales, returns and releases | Seeded transactions over two months | Net quantity issued matches a hand calculation (DEC-06) | Minh | Duy Anh | — | Not run |
+| TC-23 | 7 | UC12 | Two periods with sales, returns and releases | Seeded transactions over two months | Net quantity issued matches a hand calculation (DEC-06) | Minh | Duy Anh | UC12-01 | Pass |
 | TC-24 | 8 | UC04 | Restart application and database | Record a receipt and an issue; restart the API and the container | No data lost | Tiến | Minh | — | Pass |
 | TC-25 | 8 | UC03 / UC06 | Failure in the middle of a transaction | A receipt whose second line fails inside the transaction | Full rollback; no partial document | Tiến | Minh | UC03-08, BR03-01 | Not run |
 | TC-26 | 8 | UC06 / BR03 | Two sessions request 4 of the last 5 | Two concurrent dispensings, 20 runs | Only one succeeds each time; never negative | Duy Anh | Tiến | BR03-02 (ledger) | Not run |

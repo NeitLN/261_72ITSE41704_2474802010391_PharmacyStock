@@ -187,7 +187,29 @@ test('a past week is Completed once all its tasks are done, and says if that was
   const model = buildModel({ config, data, history: [], now: new Date('2026-10-28T05:00:00Z') });
   const w6 = model.weeks.find((w) => w.number === 6);
   assert.equal(w6.burndown.health.status, 'completed');
-  assert.match(w6.burndown.health.reason, /still open when the week ended/);
+  assert.match(w6.burndown.health.reason, /still open when the period ended/);
+});
+
+test('after the final deadline the project is judged on where it stands now', () => {
+  const config = makeConfig({ project: { ...makeConfig().project, startDate: '2026-10-19', finalDeadline: '2026-10-25' } });
+  const late = closed('2026-10-27T03:00:00Z');
+  const data = makeData([issue(1, { milestone: 6, ...late })], {
+    events: [ev(1, 'milestoned', '2026-10-19T01:00:00Z', 'Week 06'), ev(1, 'closed', '2026-10-27T03:00:00Z')],
+  });
+  const done = buildModel({ config, data, now: new Date('2026-10-28T05:00:00Z') });
+  assert.equal(done.overview.health.status, 'completed');
+  assert.match(done.overview.health.reason, /still open when the period ended/);
+  const open = buildModel({ config, data: makeData([issue(1, { milestone: 6 })]), now: new Date('2026-10-28T05:00:00Z') });
+  assert.equal(open.overview.health.status, 'delayed');
+});
+
+test('a burndown says when it could not use issue events', () => {
+  const data = makeData([issue(1)]);
+  data.collection.sources.events = 'error';
+  const model = buildModel({ config: makeConfig(), data, now: new Date('2026-10-28T05:00:00Z') });
+  assert.equal(model.burndown.project.fromEvents, false);
+  data.collection.sources.events = 'ok';
+  assert.equal(buildModel({ config: makeConfig(), data, now: new Date('2026-10-28T05:00:00Z') }).burndown.project.fromEvents, true);
 });
 
 test('week documents get a repository link and an existence check', () => {

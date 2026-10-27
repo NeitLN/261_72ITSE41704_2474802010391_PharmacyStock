@@ -156,9 +156,15 @@ main:focus { outline: none; }
   padding: 10px 14px; margin-bottom: 16px; border-radius: 8px;
   border: 1px solid var(--border); background: var(--surface); font-size: 0.9rem;
 }
-.banner.warning { border-left: 4px solid var(--warning); }
-.banner.error { border-left: 4px solid var(--critical); }
-.banner.note { border-left: 4px solid var(--accent); }
+/* The first child is the status glyph; its filled circle carries the colour. */
+.banner > [aria-hidden='true']:first-child {
+  flex: none; display: inline-grid; place-items: center; width: 20px; height: 20px; margin-top: 1px;
+  border-radius: 50%; font-size: 0.75rem; font-weight: 700; color: #fff; background: var(--accent);
+}
+.banner.warning > [aria-hidden='true']:first-child { background: var(--warning); color: #0b0b0b; }
+.banner.error > [aria-hidden='true']:first-child { background: var(--critical); }
+.banner.warning { border-color: color-mix(in srgb, var(--warning) 45%, var(--border)); }
+.banner.error { border-color: color-mix(in srgb, var(--critical) 45%, var(--border)); }
 
 .app-footer { color: var(--muted); font-size: 0.8rem; padding-bottom: 32px; }
 .app-footer p + p { margin-top: 4px; }

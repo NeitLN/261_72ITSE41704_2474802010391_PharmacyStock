@@ -21,20 +21,38 @@ export function parseMilestoneDescription(description) {
   };
 }
 
-function burndownFor({ tasks, data, config, today, from, to, milestoneNumbers, history, weekNumber }) {
+function burndownFor({ tasks, data, config, today, from, to, milestoneNumbers, history, weekNumber, openNow }) {
   const tz = config.project.timezone;
   const until = minKey(today, to);
   const series = until && from <= until
     ? reconstruct({ tasks, events: data.events, milestones: data.milestones, from, to: until, timeZone: tz, milestoneNumbers })
     : [];
   const ideal = from && to ? idealLine(series, from, to) : [];
+  let status = health({ series, ideal, today, finalDeadline: to, config });
+  if (to && today > to && openNow.scope > 0) {
+    // A finished period is judged on where it stands now, and says whether
+    // the work was finished inside the period or later.
+    const atEnd = series.at(-1);
+    status = openNow.open === 0
+      ? {
+          status: 'completed',
+          gap: 0,
+          reason: atEnd && atEnd.remaining > 0
+            ? `All done, but ${atEnd.remaining} of ${atEnd.scope} task(s) were still open when the period ended.`
+            : 'All done by the end of the period.',
+        }
+      : { status: 'delayed', gap: null, reason: `${openNow.open} of ${openNow.scope} task(s) still open after the period ended.` };
+  }
   return {
     from,
     to,
     series,
     ideal,
+    // Without issue events the series falls back to current milestones and
+    // close dates: an estimate that cannot see reopened issues or moves.
+    fromEvents: data.collection?.sources?.events === 'ok',
     observed: observedSeries(history, weekNumber),
-    health: health({ series, ideal, today, finalDeadline: to, config }),
+    health: status,
   };
 }
 
@@ -71,21 +89,10 @@ export function buildModel({ config, data, history = [], now = new Date() }) {
     const nextMilestone = next ? milestones.get(next.milestone) : null;
     const state = today < w.start ? 'upcoming' : today > w.end ? 'past' : 'current';
     const stats = weekStats(tasks, w);
-    const burndown = burndownFor({ tasks, data, config, today, from: w.start, to: w.end, milestoneNumbers: [w.milestone], history, weekNumber: w.number });
-    if (state === 'past' && stats.planned.length) {
-      // A past week is judged on where it stands now, and says whether the
-      // work was finished inside the week or later.
-      const atEnd = burndown.series.at(-1);
-      burndown.health = stats.open.length === 0
-        ? {
-            status: 'completed',
-            gap: 0,
-            reason: atEnd && atEnd.remaining > 0
-              ? `All done, but ${atEnd.remaining} of ${atEnd.scope} task(s) were still open when the week ended.`
-              : 'All done by the end of the week.',
-          }
-        : { status: 'delayed', gap: null, reason: `${stats.open.length} of ${stats.planned.length} task(s) still open after the week ended.` };
-    }
+    const burndown = burndownFor({
+      tasks, data, config, today, from: w.start, to: w.end, milestoneNumbers: [w.milestone], history, weekNumber: w.number,
+      openNow: { scope: stats.planned.length, open: stats.open.length },
+    });
     return {
       ...w,
       milestoneData: milestone,
@@ -105,6 +112,7 @@ export function buildModel({ config, data, history = [], now = new Date() }) {
   const project = config.project;
   const projectBurndown = burndownFor({
     tasks, data, config, today, from: project.startDate, to: project.finalDeadline, milestoneNumbers: null, history, weekNumber: null,
+    openNow: { scope: scoped.length, open: scoped.filter((t) => t.status !== 'done').length },
   });
 
   const counts = countByStatus(tasks);

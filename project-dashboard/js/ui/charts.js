@@ -66,7 +66,7 @@ function make(canvas, config) {
 export function burndownChart(canvas, d) {
   const t = theme();
   const datasets = [
-    { label: 'Remaining (from GitHub events)', data: d.remaining, borderColor: t.s1, backgroundColor: t.s1, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0 },
+    { label: d.fromEvents === false ? 'Remaining (estimate)' : 'Remaining (from GitHub events)', data: d.remaining, borderColor: t.s1, backgroundColor: t.s1, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0 },
     { label: 'Ideal', data: d.ideal, borderColor: t.neutral, backgroundColor: t.neutral, borderWidth: 2, borderDash: [6, 4], pointRadius: 0, pointHoverRadius: 0 },
     { label: 'Scope', data: d.scope, borderColor: t.s3, backgroundColor: t.s3, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, stepped: true },
   ];

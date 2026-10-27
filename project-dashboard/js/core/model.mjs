@@ -53,12 +53,39 @@ export function buildModel({ config, data, history = [], now = new Date() }) {
   const current = currentWeek(weeksConfig, today);
   const pulls = data.pulls ?? [];
 
+  const repoUrl = data.repository?.url ?? `https://github.com/${config.project.repository}`;
+  const branch = data.repository?.defaultBranch ?? 'main';
+  const knownPaths = data.collection?.sources?.documents === 'ok' ? new Set((data.documents ?? []).map((d) => d.path)) : null;
+  const documentLink = (d) => ({
+    ...d,
+    url: d.url ?? `${repoUrl}/blob/${branch}/${d.path}`,
+    // true / false when the repository tree was read, null when it was not.
+    exists: d.url ? null : knownPaths ? knownPaths.has(d.path) : null,
+  });
+
   const weeks = weeksConfig.map((w, index) => {
     const milestone = milestones.get(w.milestone) ?? null;
     const parsed = parseMilestoneDescription(milestone?.description);
     const goal = w.goal ?? parsed.deliverable;
     const next = weeksConfig[index + 1];
     const nextMilestone = next ? milestones.get(next.milestone) : null;
+    const state = today < w.start ? 'upcoming' : today > w.end ? 'past' : 'current';
+    const stats = weekStats(tasks, w);
+    const burndown = burndownFor({ tasks, data, config, today, from: w.start, to: w.end, milestoneNumbers: [w.milestone], history, weekNumber: w.number });
+    if (state === 'past' && stats.planned.length) {
+      // A past week is judged on where it stands now, and says whether the
+      // work was finished inside the week or later.
+      const atEnd = burndown.series.at(-1);
+      burndown.health = stats.open.length === 0
+        ? {
+            status: 'completed',
+            gap: 0,
+            reason: atEnd && atEnd.remaining > 0
+              ? `All done, but ${atEnd.remaining} of ${atEnd.scope} task(s) were still open when the week ended.`
+              : 'All done by the end of the week.',
+          }
+        : { status: 'delayed', gap: null, reason: `${stats.open.length} of ${stats.planned.length} task(s) still open after the week ended.` };
+    }
     return {
       ...w,
       milestoneData: milestone,
@@ -66,11 +93,12 @@ export function buildModel({ config, data, history = [], now = new Date() }) {
       goalSource: w.goal ? 'configured' : parsed.deliverable ? 'verified' : 'missing',
       doneWhen: parsed.doneWhen,
       nextWeekPlan: w.nextWeek ?? (next ? next.goal ?? parseMilestoneDescription(nextMilestone?.description).deliverable : null),
-      state: today < w.start ? 'upcoming' : today > w.end ? 'past' : 'current',
-      stats: weekStats(tasks, w),
+      state,
+      stats,
+      documents: (w.documents ?? []).map(documentLink),
       mergedPulls: pulls.filter((p) => p.mergedAt && inRange(p.mergedAt, w, tz)),
       releases: (data.releases ?? []).filter((r) => inRange(r.publishedAt, w, tz)),
-      burndown: burndownFor({ tasks, data, config, today, from: w.start, to: w.end, milestoneNumbers: [w.milestone], history, weekNumber: w.number }),
+      burndown,
     };
   });
 

@@ -179,6 +179,26 @@ test('buildModel puts the pieces together from one task set', () => {
   assert.equal(model.freshness.stale, false);
 });
 
+test('a past week is Completed once all its tasks are done, and says if that was late', () => {
+  const config = makeConfig();
+  const data = makeData([issue(1, { milestone: 6, ...closed('2026-10-27T03:00:00Z') })], {
+    events: [ev(1, 'milestoned', '2026-10-19T01:00:00Z', 'Week 06'), ev(1, 'closed', '2026-10-27T03:00:00Z')],
+  });
+  const model = buildModel({ config, data, history: [], now: new Date('2026-10-28T05:00:00Z') });
+  const w6 = model.weeks.find((w) => w.number === 6);
+  assert.equal(w6.burndown.health.status, 'completed');
+  assert.match(w6.burndown.health.reason, /still open when the week ended/);
+});
+
+test('week documents get a repository link and an existence check', () => {
+  const config = makeConfig({ weeks: [{ number: 7, start: '2026-10-26', end: '2026-11-01', milestone: 7, documents: [{ label: 'Report', path: 'docs/a.md' }, { label: 'Gone', path: 'docs/b.md' }] }] });
+  const data = makeData([]);
+  data.collection.sources.documents = 'ok';
+  data.documents = [{ path: 'docs/a.md', url: 'x' }];
+  const [w] = buildModel({ config, data, now: new Date('2026-10-28T05:00:00Z') }).weeks;
+  assert.deepEqual(w.documents.map((d) => [d.url, d.exists]), [['https://github.com/owner/repo/blob/main/docs/a.md', true], ['https://github.com/owner/repo/blob/main/docs/b.md', false]]);
+});
+
 test('the weekly report renders as Markdown with escaped table cells', () => {
   const config = makeConfig();
   const data = makeData([issue(1, { milestone: 7, title: 'Pipe | in title', ...closed('2026-10-27T03:00:00Z') }), issue(2, { milestone: 7 })]);

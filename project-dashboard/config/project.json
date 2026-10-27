@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "project": {
+    "name": "Pharmacy Stock and Prescription Dispensing System",
+    "shortName": "Pharmacy Stock",
+    "description": "A web application for a single-branch pharmacy to manage medicine stock by batch, take in prescriptions, dispense and sell medicines, handle returns into quarantine, and report on expiry and stock movements.",
+    "type": "Course project — Application Programming Project (72ITSE41704), Van Lang University",
+    "repository": "NeitLN/261_72ITSE41704_2474802010391_PharmacyStock",
+    "startDate": "2026-09-14",
+    "finalDeadline": "2026-11-22",
+    "timezone": "Asia/Ho_Chi_Minh",
+    "technologies": ["React 19", "TypeScript", "Vite", "Ant Design", "NestJS", "TypeORM", "PostgreSQL 18", "Vitest"],
+    "links": [
+      { "label": "Project board", "url": "https://github.com/users/NeitLN/projects/1" },
+      { "label": "Milestones", "url": "https://github.com/NeitLN/261_72ITSE41704_2474802010391_PharmacyStock/milestones?direction=asc&sort=due_date" },
+      { "label": "Weekly reports", "url": "https://github.com/NeitLN/261_72ITSE41704_2474802010391_PharmacyStock/blob/main/docs/progress/README.md" }
+    ],
+    "sources": {
+      "startDate": "README weekly table, week 1 = 14/09/2026",
+      "finalDeadline": "Milestone 'Week 10 — Final Report (80%)' due date"
+    }
+  },
+  "team": {
+    "leader": "NeitLN",
+    "members": [
+      { "login": "NeitLN", "name": "Võ Việt Tiến", "code": "A", "role": "Team leader — catalogue and pricing, suppliers, goods receipts, stock lookup, stock ledger, schema and seed; plan and submission" },
+      { "login": "anh7032", "name": "Bùi Duy Anh", "code": "B", "role": "Prescription intake and verification, dispensing, sales, returns into quarantine; customers and prescribers" },
+      { "login": "Jayson135724", "name": "Võ Hoàng Minh", "code": "C", "role": "Stock take, alerts, expiry and batch status, stock movement report, sign-in and access control; test coordination, packaging and run guide" }
+    ],
+    "source": "README.md, section Team"
+  },
+  "weeks": [
+    { "number": 1, "start": "2026-09-14", "end": "2026-09-20", "milestone": 1, "documents": [{ "label": "Week 1 report", "path": "docs/progress/week-01.md" }, { "label": "Week 1 plan (vi)", "path": "docs/plan/tuan-01.md" }] },
+    { "number": 2, "start": "2026-09-21", "end": "2026-09-27", "milestone": 2, "documents": [{ "label": "Week 2 report", "path": "docs/progress/week-02.md" }, { "label": "Week 2 plan (vi)", "path": "docs/plan/tuan-02.md" }] },
+    { "number": 3, "start": "2026-09-28", "end": "2026-10-04", "milestone": 3, "documents": [{ "label": "Week 3 report", "path": "docs/progress/week-03.md" }, { "label": "Week 3 plan (vi)", "path": "docs/plan/tuan-03.md" }] },
+    { "number": 4, "start": "2026-10-05", "end": "2026-10-11", "milestone": 4, "documents": [{ "label": "Week 4 report", "path": "docs/progress/week-04.md" }, { "label": "Week 4 plan (vi)", "path": "docs/plan/tuan-04.md" }, { "label": "Proposal v1.1 resubmission receipt", "path": "docs/evidence/proposal-resubmission-receipt-2026-10-11.png" }] },
+    { "number": 5, "start": "2026-10-12", "end": "2026-10-18", "milestone": 5, "documents": [{ "label": "Week 5 report", "path": "docs/progress/week-05.md" }, { "label": "Week 5 plan (vi)", "path": "docs/plan/tuan-05.md" }] },
+    { "number": 6, "start": "2026-10-19", "end": "2026-10-25", "milestone": 6, "documents": [{ "label": "Week 6 report", "path": "docs/progress/week-06.md" }, { "label": "Week 6 plan (vi)", "path": "docs/plan/tuan-06.md" }] },
+    { "number": 7, "start": "2026-10-26", "end": "2026-11-01", "milestone": 7, "documents": [{ "label": "Week 7 report", "path": "docs/progress/week-07.md" }, { "label": "Week 7 plan (vi)", "path": "docs/plan/tuan-07.md" }] },
+    { "number": 8, "start": "2026-11-02", "end": "2026-11-08", "milestone": 8, "documents": [{ "label": "Week 8 plan (vi)", "path": "docs/plan/tuan-08.md" }] },
+    { "number": 9, "start": "2026-11-09", "end": "2026-11-15", "milestone": 9, "documents": [{ "label": "Week 9 plan (vi)", "path": "docs/plan/tuan-09.md" }] },
+    { "number": 10, "start": "2026-11-16", "end": "2026-11-22", "milestone": 10, "documents": [{ "label": "Week 10 plan (vi)", "path": "docs/plan/tuan-10.md" }] }
+  ],
+  "github": {
+    "projectV2": {
+      "enabled": true,
+      "ownerType": "user",
+      "owner": "NeitLN",
+      "number": 1,
+      "url": "https://github.com/users/NeitLN/projects/1",
+      "fields": { "status": "Status", "start": "Start", "due": "Due", "week": "Week", "hours": "Hours" },
+      "statusMap": { "Todo": "todo", "In Progress": "in_progress", "In review": "review", "Done": "done" }
+    }
+  },
+  "labels": {
+    "severity": ["S1", "S2", "S3", "S4"],
+    "blocked": ["blocked"]
+  },
+  "progress": { "method": "tasks" },
+  "health": { "onTrackGap": 0.05, "atRiskGap": 0.2, "minDataPoints": 3 },
+  "evidence": {
+    "workflows": ["CI"],
+    "documentPaths": ["docs/progress/", "docs/evidence/", "docs/report/", "docs/design/", "docs/requirements/", "docs/diagrams/", "tests/"]
+  },
+  "publishing": {
+    "allowPrivate": false,
+    "staleAfterHours": 30,
+    "bodySummaryLength": 240,
+    "summarySkipPatterns": ["^\\*\\*(Owner|Reviewer|Planned|Plan):", "^Open pull requests with", "^_Vietnamese:"]
+  }
+}

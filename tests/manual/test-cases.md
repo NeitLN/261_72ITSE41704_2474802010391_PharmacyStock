@@ -37,8 +37,8 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-14 | 6 | UC06 / BR04 | Valid prescription | VERIFIED prescription passing every DEC-03 check | Dispensed and traced to the prescription | Duy Anh | Tiến | — | Pass |
 | TC-15 | 7 | UC07 | Bill a dispensing | Bill a handed-over dispensing | Stock falls only once | Duy Anh | Tiến | — | Pass |
 | TC-16 | 7 | UC08 / BR05 | Return 2 of 5 sold | Sale of 5; return 2 with a reason | RETURN movement into quarantine; original sale untouched; history kept | Duy Anh | Tiến | — | Pass |
-| TC-17 | 7 | UC08 | Return more than returnable | Sold 5, returned 2; return 4 more | Refused | Duy Anh | Tiến | — | Not run |
-| TC-18 | 7 | UC08 | Duplicate return submission | Submit the same return (same request ID) twice | No second return | Duy Anh | Tiến | — | Not run |
+| TC-17 | 7 | UC08 | Return more than returnable | Sold 5, returned 2; return 4 more | Refused | Duy Anh | Minh | — | Pass |
+| TC-18 | 7 | UC08 | Duplicate return submission | Submit the same return (same request ID) twice | No second return | Duy Anh | Minh | — | Pass |
 | TC-19 | 6 | UC09 / BR05 | Stock take with a discrepancy | System 10, counted 8, reason given; approve | ADJUSTMENT −2; history kept | Minh | Duy Anh | UC09-02 | Pass |
 | TC-20 | 6 | UC09 / BR08 | Difference without reason, or wrong role | Leave the reason blank; or a Cashier submits | Refused | Minh | Duy Anh | UC09-06, UC09-09, UC09-11b | Pass |
 | TC-21 | 6 | UC10 | Low-stock thresholds | Reorder level 10: sellable 11, 10, 9 and 0 | LOW_STOCK at and below 10, OUT_OF_STOCK at 0 (DEC-08) | Minh | Duy Anh | UC10-01..04 | Pass |
@@ -79,12 +79,12 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-56 | 7 | UC11 | Write off an expired batch | Write off with a reason | Moved to pending destruction; not destroyed | Minh | Duy Anh | — | Not run |
 | TC-57 | 6 | UC06 / BR02 | FEFO picks a batch inside the alert window | Earliest batch expires in 30 days | Warning with days left; issue allowed | Duy Anh | Tiến | — | Pass |
 | TC-58 | 5 | UC05 / BR04 | Dispense unverified; edit after verification | Dispense a RECEIVED prescription; edit a VERIFIED one | Refused; status back to RECEIVED | Duy Anh | Tiến | — | Pass |
-| TC-59 | 7 | UC06 / UC07 | Cancel a draft dispensing and an unpaid sale | Cancel each with a reason | No stock movement; quantities unchanged | Duy Anh | Tiến | — | Not run |
+| TC-59 | 7 | UC06 / UC07 | Cancel a draft dispensing and an unpaid sale | Cancel each with a reason | No stock movement; quantities unchanged | Duy Anh | Minh | — | Pass |
 | TC-60 | 7 | UC06 / BR01 | Earlier-expiring batch on hold or recalled | Put the first FEFO batch on hold | Skipped; next eligible batch used | Duy Anh | Tiến | LOCK-02 (ledger) | Pass |
 | TC-61 | 8 | UC11 / BR11 *(S)* | Release one quarantined return, reject another, record destruction | Two returns in quarantine | Released units sellable; rejected units pending destruction until destroyed | Minh | Duy Anh | — | Not run |
-| TC-62 | 7 | UC06, UC07 / BR03 | Cashier sale and dispensing race for the last units | 20 runs | One succeeds, the other refused with the new quantity; never negative | Duy Anh | Tiến | — | Not run |
+| TC-62 | 7 | UC06, UC07 / BR03 | Cashier sale and dispensing race for the last units | 20 runs | One succeeds, the other refused with the new quantity; never negative | Duy Anh | Minh | — | Pass |
 | TC-63 | 7 | UC10 | Monitoring off; expired or quarantined units present | Switch monitoring off; separately hold expired and quarantined stock | No alert when off; those units not counted as sellable | Minh | Duy Anh | — | Not run |
-| TC-64 | 6 | UC03 | Expiry not after the receipt date | Receipt dated today with a line expiring today, then one expiring yesterday | Error under that line's expiry date; nothing saved | Tiến | Minh | UC03-04 | Not run |
+| TC-64 | 6 | UC03 | Expiry not after the receipt date | Receipt dated today with a line expiring today, then one expiring yesterday | Error under that line's expiry date; nothing saved | Tiến | Minh | UC03-04 | Pass |
 
 The *Automated* column names e2e or unit tests in `src/backend` that check the
 same behaviour at API level. They support the manual run; they do not replace

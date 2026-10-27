@@ -185,7 +185,7 @@ describe('toFieldErrors', () => {
         field: 'quantity',
         message: 'Quantity must be a whole number of base units.',
       },
-      { field: 'note', message: 'note must be a string' },
+      { field: 'note', message: 'Note must be a string.' },
     ]);
   });
 
@@ -215,12 +215,53 @@ describe('toFieldErrors', () => {
         },
       ]),
     ).toEqual([
-      { field: 'name', message: 'name must be a string' },
+      { field: 'name', message: 'Name must be a string.' },
       {
         field: 'quantity',
         message: 'Quantity must be a whole number of base units.',
       },
       { field: 'supplierId', message: 'Choose a supplier.' },
+    ]);
+  });
+
+  it('ERR-08 rewrites class-validator defaults as sentences that name the field (#185)', () => {
+    const field = (property: string, constraints: Record<string, string>) => ({
+      property,
+      constraints,
+      children: [],
+    });
+    expect(
+      toFieldErrors([
+        field('name', {
+          maxLength: 'name must be shorter than or equal to 200 characters',
+        }),
+        field('reorderLevel', {
+          max: 'reorderLevel must not be greater than 1000000',
+        }),
+        field('lines', {
+          arrayMaxSize: 'lines must contain no more than 100 elements',
+        }),
+        field('expiryAlertDays', {
+          min: 'expiryAlertDays must not be less than 0',
+        }),
+        field('reason', {
+          minLength: 'reason must be longer than or equal to 3 characters',
+        }),
+        field('quantity', { isInt: 'Quantity must be a whole number.' }),
+      ]),
+    ).toEqual([
+      { field: 'name', message: 'Name can be at most 200 characters.' },
+      {
+        field: 'reorderLevel',
+        message: 'Reorder level can be at most 1000000.',
+      },
+      { field: 'lines', message: 'Lines can have at most 100 entries.' },
+      {
+        field: 'expiryAlertDays',
+        message: 'Expiry alert days must be at least 0.',
+      },
+      { field: 'reason', message: 'Reason must be at least 3 characters.' },
+      { field: 'quantity', message: 'Quantity must be a whole number.' },
     ]);
   });
 });

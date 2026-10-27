@@ -38,13 +38,68 @@ const WRONG_TYPE = [
   'matches',
 ];
 
+/** `reorderLevel` → `Reorder level`, the way a field is named on screen. */
+function labelOf(property: string): string {
+  const words = property.replace(/([a-z0-9])([A-Z])/g, '$1 $2').toLowerCase();
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+/** class-validator's default texts, after the property name, as sentences (#185). */
+const DEFAULT_TEXTS: Array<[RegExp, (label: string, n: string) => string]> = [
+  [
+    /^ must be shorter than or equal to (\d+) characters$/,
+    (label, n) => `${label} can be at most ${n} characters.`,
+  ],
+  [
+    /^ must be longer than or equal to (\d+) characters$/,
+    (label, n) => `${label} must be at least ${n} characters.`,
+  ],
+  [
+    /^ must not be greater than (-?[\d.]+)$/,
+    (label, n) => `${label} can be at most ${n}.`,
+  ],
+  [
+    /^ must not be less than (-?[\d.]+)$/,
+    (label, n) => `${label} must be at least ${n}.`,
+  ],
+  [
+    /^ must contain no more than (\d+) elements$/,
+    (label, n) => `${label} can have at most ${n} entries.`,
+  ],
+  [
+    /^ must contain at least (\d+) elements$/,
+    (label, n) => `${label} needs at least ${n} entries.`,
+  ],
+];
+
+/**
+ * A default message names the field by its code name ("reorderLevel must
+ * not be greater than 1000000"); NFR-04 wants the problem said in words.
+ * Messages written for people pass through unchanged.
+ */
+function readable(message: string, property: string): string {
+  if (!message.startsWith(`${property} `)) return message;
+  const rest = message.slice(property.length);
+  for (const [pattern, sentence] of DEFAULT_TEXTS) {
+    const match = rest.match(pattern);
+    if (match) return sentence(labelOf(property), match[1]);
+  }
+  const text = `${labelOf(property)}${rest}`;
+  return /[.!?]$/.test(text) ? text : `${text}.`;
+}
+
 /**
  * The one message shown under a field (#47), in this order: "required" if
  * the value is missing; else what is wrong with its kind; else the first
  * message written for people; else the first one. class-validator's own
- * defaults start with the property name.
+ * defaults start with the property name and are rewritten as sentences.
  */
 function messageFor(error: ValidationError): string | undefined {
+  const message = pickMessage(error);
+  return message === undefined ? undefined : readable(message, error.property);
+}
+
+function pickMessage(error: ValidationError): string | undefined {
   const constraints = error.constraints ?? {};
   // Constraint names differ in case between versions (isUUID, isISO8601).
   const named = (wanted: string) =>

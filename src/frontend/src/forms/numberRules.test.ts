@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { decimalError, wholeNumberError } from './numberRules';
+import { decimalError, parseGroupedNumber, wholeNumberError } from './numberRules';
 
 // TC-02: 0, -1 and 2.5 must be refused, not changed into a valid quantity (#125).
 describe('wholeNumberError', () => {
@@ -35,5 +35,22 @@ describe('decimalError', () => {
     expect(cost(0)).toBeNull();
     expect(cost(1500.25)).toBeNull();
     expect(cost(0.1)).toBeNull();
+  });
+});
+
+// #183: the price field shows 1.500 for 1500; a decimal point must not vanish.
+describe('parseGroupedNumber', () => {
+  it('reads dots that group thousands', () => {
+    expect(parseGroupedNumber('1.500')).toBe(1500);
+    expect(parseGroupedNumber('1.250.000')).toBe(1250000);
+    expect(parseGroupedNumber('2200')).toBe(2200);
+  });
+
+  it('keeps any other dot or comma as a decimal point, so the rule can refuse it', () => {
+    expect(parseGroupedNumber('10.5')).toBe(10.5);
+    expect(parseGroupedNumber('10,5')).toBe(10.5);
+    expect(wholeNumberError('Price', parseGroupedNumber('10.5'), { min: 1 })).toBe(
+      'Price must be a whole number.',
+    );
   });
 });

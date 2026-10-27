@@ -85,7 +85,7 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-62 | 7 | UC06, UC07 / BR03 | Cashier sale and dispensing race for the last units | 20 runs | One succeeds, the other refused with the new quantity; never negative | Duy Anh | Tiến | — | Not run |
 | TC-63 | 7 | UC10 | Monitoring off; expired or quarantined units present | Switch monitoring off; separately hold expired and quarantined stock | No alert when off; those units not counted as sellable | Minh | Duy Anh | UC10-06, UC10-07 | Pass |
 | TC-64 | 6 | UC03 | Expiry not after the receipt date | Receipt dated today with a line expiring today, then one expiring yesterday | Error under that line's expiry date; nothing saved | Tiến | Minh | UC03-04 | Not run |
-| TC-65 | 7 | UC16 / UI | Unknown address and recovery screens | Signed in, open `/nothing-here`; as the cashier, open `/reports`; signed out, open `/nothing-here` | *Page not found* (404) and *No access* (403), each with a button that leads to the start page; signed out → sign-in | Tiến | Minh | `brand.test.tsx` | Not run |
+| TC-65 | 7 | UC16 / UI | Unknown address and recovery screens | Signed in, open `/nothing-here`; as the cashier, open `/reports`; signed out, open `/nothing-here` | *Page not found* (404) and *No access* (403), each with a button that leads to the start page; signed out → sign-in | Tiến | Minh | `brand.test.tsx` | Pass |
 
 The *Automated* column names e2e or unit tests in `src/backend` that check the
 same behaviour at API level. They support the manual run; they do not replace

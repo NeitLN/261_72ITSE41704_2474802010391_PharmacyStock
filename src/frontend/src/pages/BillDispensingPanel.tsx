@@ -117,7 +117,7 @@ export function BillDispensingPanel() {
           rowKey="id"
           size="small"
           pagination={false}
-          loading={loading}
+          loading={{ spinning: loading, delay: 300 }}
           dataSource={prescriptions}
           style={{ marginTop: 8 }}
           locale={{ emptyText: 'No hand-over is waiting for payment.' }}

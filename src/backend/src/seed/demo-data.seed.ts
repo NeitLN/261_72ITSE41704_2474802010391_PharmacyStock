@@ -17,14 +17,19 @@ import {
 } from '../entities/index.js';
 import { GoodsReceiptsService } from '../receiving/goods-receipts.service.js';
 import { AlertEvaluator } from '../stock/alert-evaluator.js';
-import { addDays, type Clock } from '../stock/clock.js';
-import { StockLedger } from '../stock/stock-ledger.js';
+import { addDays, type Clock, FixedClock } from '../stock/clock.js';
 import {
   DEMO_CUSTOMERS,
   DEMO_MEDICINES,
   DEMO_PRESCRIBERS,
   DEMO_SUPPLIERS,
 } from './demo-catalogue.js';
+import {
+  DatedLedger,
+  REPORT_MEDICINES,
+  reportPeriods,
+  seedReportHistory,
+} from './demo-history.seed.js';
 
 /** Written last, so its presence means the whole demo data set is there. */
 const DEMO_MARKER = 'seed.demo.completed';
@@ -32,7 +37,7 @@ const DEMO_MARKER = 'seed.demo.completed';
 export type DemoSeedStatus = 'written' | 'skipped' | 'existing-data';
 
 /** Small deterministic generator, so every seeded database looks the same. */
-function random(seed: number) {
+export function random(seed: number) {
   let state = seed;
   const next = () => {
     state = (state + 0x6d2b79f5) | 0;
@@ -85,7 +90,10 @@ interface PlannedBatch {
  *
  * Dates are relative to the day the seed runs (plan §10 F6): about one batch
  * in eight has already expired, about one in six expires within the alert
- * window, the rest are long-dated. One batch is put on hold.
+ * window, the rest are long-dated. One batch is put on hold. Every movement
+ * is dated when it happened (a receipt on its receipt date), and five OTC
+ * medicines get sales, returns and assessments over the previous month and
+ * this month, so the movement report has two periods to compare (#57).
  *
  * Runs only on a database without medicines. The catalogue and each receipt
  * commit separately, so the last step writes a marker row in `audit_logs`; a
@@ -106,6 +114,12 @@ export async function seedDemoData(
   }
   const today = clock.today();
   const rnd = random(20261012);
+  const { p1Start } = reportPeriods(today);
+  // The seed's own clock, set to each event's time; its ledger dates the
+  // movements by it.
+  const seedClock = new FixedClock(clock.now());
+  const ledger = new DatedLedger(dataSource, seedClock);
+  const reportCodes = new Set<string>(REPORT_MEDICINES);
 
   const manager = await dataSource.getRepository(User).findOneOrFail({
     where: { username: 'manager' },
@@ -117,6 +131,16 @@ export async function seedDemoData(
     fullName: manager.fullName,
     role: RoleCode.MANAGER,
     permissions: new Set(ROLE_PERMISSIONS[RoleCode.MANAGER]),
+  };
+  const cashierUser = await dataSource
+    .getRepository(User)
+    .findOneOrFail({ where: { username: 'cashier' } });
+  const cashier: Actor = {
+    id: cashierUser.id,
+    username: cashierUser.username,
+    fullName: cashierUser.fullName,
+    role: RoleCode.CASHIER,
+    permissions: new Set(ROLE_PERMISSIONS[RoleCode.CASHIER]),
   };
 
   const { suppliers, medicines } = await dataSource.transaction(async (tx) => {
@@ -158,7 +182,8 @@ export async function seedDemoData(
         tx.create(MedicinePrice, {
           medicine,
           unitPrice: String(d.price),
-          effectiveFrom: addDays(today, -60),
+          // In force before the first sale of the previous month.
+          effectiveFrom: addDays(p1Start, -30),
           setBy: { id: actor.id },
         }),
       );
@@ -186,6 +211,10 @@ export async function seedDemoData(
         expiryDate = addDays(today, rnd.int(180, 900)); // long-dated
         receiptDate = addDays(today, -rnd.int(1, 150));
       }
+      // A medicine of the report history is in stock before its first sale.
+      if (reportCodes.has(med.code) && receiptDate >= p1Start) {
+        receiptDate = addDays(p1Start, -rnd.int(10, 60));
+      }
       const bulky = BULKY_UNITS.has(med.unit);
       let quantity = bulky ? rnd.int(4, 30) : rnd.int(40, 400);
       if (LOW_STOCK.has(med.code)) {
@@ -208,14 +237,17 @@ export async function seedDemoData(
   // on the earliest receipt date of its lines, which is still before every
   // line's expiry.
   planned.sort((a, b) => a.receiptDate.localeCompare(b.receiptDate));
-  const receipts = new GoodsReceiptsService(
-    dataSource,
-    new StockLedger(dataSource),
-    clock,
-  );
+  const receipts = new GoodsReceiptsService(dataSource, ledger, seedClock);
   let documentNumber = 1;
   for (let start = 0; start < planned.length; start += 5) {
     const lines = planned.slice(start, start + 5);
+    // 08:00 in Vietnam on the receipt date, a minute apart on the same day.
+    seedClock.set(
+      new Date(
+        new Date(`${lines[0].receiptDate}T08:00:00+07:00`).getTime() +
+          documentNumber * 60_000,
+      ),
+    );
     await receipts.create(actor, {
       supplierId: rnd.pick(suppliers).id,
       documentNumber: `HD-${String(documentNumber++).padStart(5, '0')}`,
@@ -245,6 +277,17 @@ export async function seedDemoData(
       },
     );
   }
+  await seedReportHistory({
+    dataSource,
+    ledger,
+    clock: seedClock,
+    now: clock.now(),
+    manager: actor,
+    cashier,
+    medicineIds: new Map(medicines.map((m) => [m.code, m.id])),
+    rnd,
+  });
+
   // UC10: raise the low-stock alerts of the finished data set once, so the
   // demo shows the medicines that start below their reorder level.
   const medicineIds = (

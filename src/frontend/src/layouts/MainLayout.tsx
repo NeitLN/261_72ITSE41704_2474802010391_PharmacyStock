@@ -7,10 +7,12 @@ import {
   ShopOutlined,
   ShoppingCartOutlined,
 } from '@ant-design/icons';
-import { Button, Layout, Menu, Space, Tag, Typography } from 'antd';
+import { Button, Layout, Menu, Space, Typography } from 'antd';
+import type { CSSProperties } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { canOpen } from '../auth/access';
 import { useAuth } from '../auth/authContext';
+import { BrandLogo } from '../ui/BrandLogo';
 
 const { Header, Sider, Content } = Layout;
 
@@ -57,6 +59,19 @@ const ROLE_LABELS: Record<string, string> = {
   CASHIER: 'Cashier',
 };
 
+/** The role reads as who you are, not as a stock status, so it has no status colour. */
+const rolePill: CSSProperties = {
+  display: 'inline-block',
+  fontSize: 12,
+  fontWeight: 500,
+  lineHeight: '20px',
+  padding: '0 8px',
+  borderRadius: 4,
+  color: '#fff',
+  background: 'rgba(255, 255, 255, 0.14)',
+  border: '1px solid rgba(255, 255, 255, 0.35)',
+};
+
 export function MainLayout() {
   const { pathname } = useLocation();
   const { user, can, signOut } = useAuth();
@@ -67,14 +82,21 @@ export function MainLayout() {
       <Header
         style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
       >
-        <Typography.Title level={4} style={{ color: '#fff', margin: 0 }}>
-          Pharmacy Stock &amp; Prescription Dispensing
-        </Typography.Title>
+        <Link to="/" aria-label="LotOrder, go to your start page" style={{ display: 'flex' }}>
+          <BrandLogo variant="header" />
+        </Link>
         {user && (
-          <Space>
-            <Typography.Text style={{ color: '#fff' }}>{user.fullName}</Typography.Text>
-            <Tag color="cyan">{ROLE_LABELS[user.role] ?? user.role}</Tag>
-            <Button icon={<LogoutOutlined />} onClick={() => void signOut()}>
+          // The header's 64 px line height would push the ellipsis text down.
+          <Space size={12} align="center" style={{ lineHeight: 'normal' }}>
+            <Typography.Text
+              title={user.fullName}
+              ellipsis
+              style={{ color: '#fff', maxWidth: 220, verticalAlign: 'middle' }}
+            >
+              {user.fullName}
+            </Typography.Text>
+            <span style={rolePill}>{ROLE_LABELS[user.role] ?? user.role}</span>
+            <Button ghost icon={<LogoutOutlined />} onClick={() => void signOut()}>
               Sign out
             </Button>
           </Space>

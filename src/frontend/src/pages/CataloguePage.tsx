@@ -30,7 +30,7 @@ import {
 } from '../api/medicines';
 import { formatVnd } from '../ui/format';
 import { useLoad } from '../api/useLoad';
-import { wholeNumber } from '../forms/numberRules';
+import { parseGroupedNumber, wholeNumber } from '../forms/numberRules';
 import { StockPanel } from './StockPanel';
 
 const NO_MEDICINES: Medicine[] = [];
@@ -404,7 +404,7 @@ function MedicineFormModal({ medicine, reference, onClose, onSaved }: MedicineFo
             <InputNumber<number>
               style={{ width: 200 }}
               formatter={(v) => `${v ?? ''}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.')}
-              parser={(v) => Number((v ?? '').replace(/\./g, ''))}
+              parser={parseGroupedNumber}
             />
           </Form.Item>
           <Form.Item

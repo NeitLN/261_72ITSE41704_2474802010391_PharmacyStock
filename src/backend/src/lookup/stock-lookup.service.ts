@@ -268,8 +268,8 @@ export class StockLookupService {
     });
     if (!batch) throw new NotFound('Batch', batchId);
 
-    // Same timestamp inside one transaction: ordered by id, so only the
-    // balance after the transaction is meaningful (UC04 decisions).
+    // Running balances in the order the movements were written: each row's
+    // occurredAt is clock_timestamp() (#139); the id breaks an exact tie.
     const rows = await this.dataSource.query<Array<Record<string, unknown>>>(
       `SELECT sm.id, sm."occurredAt", sm.type, sm.reason,
          sm."deltaSellable", sm."deltaQuarantine", sm."deltaPendingDestruction",

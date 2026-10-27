@@ -2,11 +2,14 @@ import '@fontsource/be-vietnam-pro/latin-400.css';
 import '@fontsource/be-vietnam-pro/latin-500.css';
 import '@fontsource/be-vietnam-pro/latin-600.css';
 import '@fontsource/be-vietnam-pro/latin-700.css';
+// 800 is only the LotOrder wordmark (docs/design/brand.md A5).
+import '@fontsource/be-vietnam-pro/latin-800.css';
 // ₫ and the Vietnamese letters live only in this subset.
 import '@fontsource/be-vietnam-pro/vietnamese-400.css';
 import '@fontsource/be-vietnam-pro/vietnamese-500.css';
 import '@fontsource/be-vietnam-pro/vietnamese-600.css';
 import '@fontsource/be-vietnam-pro/vietnamese-700.css';
+import '@fontsource/be-vietnam-pro/vietnamese-800.css';
 import { ConfigProvider, App as AntdApp } from 'antd';
 import enUS from 'antd/locale/en_US';
 import { StrictMode } from 'react';
@@ -17,9 +20,14 @@ import { AuthProvider } from './auth/AuthProvider';
 import { theme } from './ui/theme';
 import './index.css';
 
+// ui-design §5.1: when the system asks for less motion, the library's
+// transitions are switched off; focus moves and scrolling still happen.
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const appTheme = reduceMotion ? { ...theme, token: { ...theme.token, motion: false } } : theme;
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ConfigProvider locale={enUS} theme={theme}>
+    <ConfigProvider locale={enUS} theme={appTheme}>
       <AntdApp>
         <AuthProvider>
           <BrowserRouter>

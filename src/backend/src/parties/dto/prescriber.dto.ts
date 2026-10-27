@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
   IsBoolean,
   IsNotEmpty,
@@ -8,9 +9,18 @@ import {
 import { QueryBoolean, Trim, TrimToNull } from '../../common/transforms.js';
 import { IfSent } from '../../common/validation.js';
 
+/**
+ * Licence numbers are stored upper-case, so "cchn-000107-hcm" and
+ * "CCHN-000107-HCM" are the same licence (#201), as medicine codes are.
+ */
+const UpperTrim = () =>
+  Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim().toUpperCase() : value,
+  );
+
 /** FR-15: licence number and full name are mandatory. */
 export class CreatePrescriberDto {
-  @Trim()
+  @UpperTrim()
   @IsString()
   @IsNotEmpty({ message: 'Licence number is required.' })
   @MaxLength(50)
@@ -32,7 +42,7 @@ export class CreatePrescriberDto {
 /** Every field optional; a field left out is not changed, "" clears clinic. */
 export class UpdatePrescriberDto {
   @IfSent()
-  @Trim()
+  @UpperTrim()
   @IsString()
   @IsNotEmpty({ message: 'Licence number is required.' })
   @MaxLength(50)

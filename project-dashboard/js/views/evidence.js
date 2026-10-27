@@ -32,7 +32,7 @@ export function render(model, params) {
 
   const html = `
   <div class="stack-lg">
-    <div class="section-head"><h2>Evidence Center</h2><p>Everything here links to the record on GitHub. Nothing is entered by hand except the configured week documents.</p></div>
+    <div class="section-head"><h2>Evidence</h2><p>Everything here links to the record on GitHub. Nothing is entered by hand except the configured week documents.</p></div>
     ${week ? weekPicker(model, week.number, 'evidence') : ''}
 
     ${week ? `<section class="card stack" aria-labelledby="ev-week">

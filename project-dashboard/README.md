@@ -60,12 +60,19 @@ data-only branch `dashboard-data`, which is never merged.
 cd project-dashboard
 npm test
 GITHUB_TOKEN=$(gh auth token) PROJECT_READ_TOKEN=$(gh auth token) node scripts/collect.mjs
+npm run preview  # http://127.0.0.1:8765/project-dashboard/
+# Or assemble the static deployment artifact:
 node scripts/build-site.mjs --out ../_site
 npx http-server ../_site   # or any static server, then open /project-dashboard/
 ```
 
 `PROJECT_READ_TOKEN` is optional. Without it the board is skipped and open
 issues are placed by milestone.
+
+The preview also accepts the repository-prefixed URL used by GitHub Pages.
+Set `PORT` to change the default local port (8765). It listens only on localhost.
+The interface supports light and dark themes, keyboard navigation, compact
+mobile layouts, and the original Markdown, CSV and print/PDF report exports.
 
 ## Checking the dashboard
 

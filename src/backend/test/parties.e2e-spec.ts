@@ -181,4 +181,36 @@ describe('UC05 customers and prescribers (e2e)', () => {
     expect(missing.status).toBe(404);
     expect(missing.body.code).toBe('NOT_FOUND');
   });
+
+  it('UC05-29 #201 TC-49: a licence number that differs only in letter case is the same licence', async () => {
+    const first = await http()
+      .post('/api/prescribers')
+      .set(as('pharmacist'))
+      .send(prescriber);
+    expect(first.status).toBe(201);
+
+    const lower = await http()
+      .post('/api/prescribers')
+      .set(as('pharmacist'))
+      .send({ licenceNumber: ' cchn-test-001 ', fullName: 'Dr. Lowercase Duplicate' });
+    expect(lower.status).toBe(409);
+    expect(lower.body.errors).toEqual([
+      {
+        field: 'licenceNumber',
+        message: 'A prescriber with licence number CCHN-TEST-001 already exists.',
+      },
+    ]);
+
+    const other = await http()
+      .post('/api/prescribers')
+      .set(as('pharmacist'))
+      .send({ licenceNumber: 'cchn-test-002', fullName: 'Dr. Second' });
+    expect(other.status).toBe(201);
+    expect(other.body.licenceNumber).toBe('CCHN-TEST-002');
+    const renamed = await http()
+      .patch(`/api/prescribers/${other.body.id}`)
+      .set(as('pharmacist'))
+      .send({ licenceNumber: 'Cchn-Test-001' });
+    expect(renamed.status).toBe(409);
+  });
 });

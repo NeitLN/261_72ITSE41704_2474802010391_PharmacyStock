@@ -257,7 +257,9 @@ export function SalesCartPanel() {
       </div>
 
       {cart.length === 0 ? (
-        <Typography.Text type="secondary">The cart is empty.</Typography.Text>
+        <Typography.Text type="secondary">
+          The cart is empty. Search a medicine by code or name to add it.
+        </Typography.Text>
       ) : (
         <>
           <div>

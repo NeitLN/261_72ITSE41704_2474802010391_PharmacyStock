@@ -26,6 +26,7 @@ import {
   prescriptionsApi,
 } from '../api/prescriptions';
 import { useLoad } from '../api/useLoad';
+import { TONE_COLOURS } from '../ui/status';
 
 const NO_OPTIONS: PrescriptionSummary[] = [];
 
@@ -56,7 +57,7 @@ function errorsByItem(
 /** BR02, FR-16: how a near-expiry batch is flagged, here and on the sales receipt. */
 export function WarningTag({ warning }: { warning: ExpiryWarning }) {
   return (
-    <Tag color="orange">
+    <Tag variant="filled" style={{ ...TONE_COLOURS.warning, marginInlineEnd: 0 }}>
       {warning.kind === 'WITHIN_ALERT_WINDOW'
         ? `Expires in ${warning.daysLeft} days`
         : `Expires before the course ends (${warning.daysLeft} days left)`}
@@ -305,6 +306,7 @@ export function DispensePanel() {
                 value={prescriptionId}
                 onChange={select}
                 placeholder="Search prescriptions"
+                notFoundContent="No verified prescription to dispense. Verify one on the Prescriptions tab."
                 style={{ width: '100%', marginTop: 8 }}
                 options={dispensable.map((o) => ({
                   value: o.id,

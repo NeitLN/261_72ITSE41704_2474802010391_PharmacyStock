@@ -20,6 +20,8 @@ import {
 } from '../api/returns';
 import { lineEstimateXu, xuToVndString } from '../api/sales';
 import { wholeNumberError } from '../forms/numberRules';
+import { STATUSES, type StatusValue, TONE_COLOURS } from '../ui/status';
+import { StatusTag } from '../ui/tags';
 
 type LineErrors = Record<string, string>;
 
@@ -28,16 +30,21 @@ const SALE_NOT_FOUND = 'Sale not found';
 /**
  * How a return line's assessment state reads on the slip (ui-design.md §5):
  * the goods wait in quarantine until a manager releases or rejects them.
+ * The API sends the lower-case enum value; a value the kit does not know yet
+ * still shows its words instead of an empty tag.
  */
-const ASSESSMENT: Record<string, { label: string; color: string }> = {
-  PENDING_ASSESSMENT: { label: 'Pending assessment', color: 'orange' },
-  RELEASED: { label: 'Released', color: 'green' },
-  REJECTED: { label: 'Rejected', color: 'default' },
-};
-
 function AssessmentTag({ status }: { status: string }) {
-  const known = ASSESSMENT[status.toUpperCase()];
-  return <Tag color={known?.color}>{known?.label ?? status}</Tag>;
+  const value = status.toLowerCase();
+  if (value in STATUSES.returnAssessment) {
+    return (
+      <StatusTag kind="returnAssessment" value={value as StatusValue<'returnAssessment'>} />
+    );
+  }
+  return (
+    <Tag variant="filled" style={{ ...TONE_COLOURS.neutral, marginInlineEnd: 0 }}>
+      {status}
+    </Tag>
+  );
 }
 
 /**
@@ -252,6 +259,11 @@ export function ReturnsPanel() {
             <Typography.Text type="danger">{searchError}</Typography.Text>
           </div>
         )}
+        {!sale && (
+          <Typography.Paragraph type="secondary" style={{ margin: '8px 0 0' }}>
+            Find a sale by its receipt number to see what can be returned.
+          </Typography.Paragraph>
+        )}
       </div>
 
       {sale && (
@@ -270,6 +282,7 @@ export function ReturnsPanel() {
               pagination={false}
               dataSource={sale.lines}
               style={{ marginTop: 8 }}
+              locale={{ emptyText: 'This sale has no line that can be returned.' }}
               columns={[
                 {
                   title: 'Medicine',

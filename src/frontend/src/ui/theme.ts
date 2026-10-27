@@ -76,7 +76,12 @@ export const theme: ThemeConfig = {
     lineWidthFocus: 2,
   },
   components: {
-    Layout: { headerBg: palette.brand800, bodyBg: palette.ground },
+    Layout: {
+      headerBg: palette.brand800,
+      headerHeight: 64,
+      headerPadding: '0 24px',
+      bodyBg: palette.ground,
+    },
     Menu: {
       itemSelectedBg: palette.brand50,
       itemSelectedColor: palette.brand800,

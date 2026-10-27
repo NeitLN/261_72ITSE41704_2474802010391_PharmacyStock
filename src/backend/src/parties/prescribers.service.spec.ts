@@ -139,6 +139,18 @@ describe('Prescriber DTO validation (FR-15)', () => {
     expect(fields.sort()).toEqual(['fullName', 'licenceNumber']);
   });
 
+  it('UC14-U6 #201: a licence number is stored upper-case, on create and on update', async () => {
+    const created = await errorsOf(CreatePrescriberDto, {
+      licenceNumber: ' cchn-000107-hcm ',
+      fullName: 'Dr. A',
+    });
+    const updated = await errorsOf(UpdatePrescriberDto, {
+      licenceNumber: 'Cchn-000107-Hcm',
+    });
+    expect(created.dto.licenceNumber).toBe('CCHN-000107-HCM');
+    expect(updated.dto.licenceNumber).toBe('CCHN-000107-HCM');
+  });
+
   it('UC14-U5 an update may leave every field out, but not blank the licence', async () => {
     expect((await errorsOf(UpdatePrescriberDto, {})).fields).toEqual([]);
     expect(

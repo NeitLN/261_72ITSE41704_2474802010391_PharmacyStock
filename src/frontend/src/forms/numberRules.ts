@@ -49,6 +49,18 @@ export function decimalError(
   return null;
 }
 
+/**
+ * Reads what was typed in a money field shown with dots between thousands
+ * (`1.500`). Only a dot that groups three digits is a thousands separator;
+ * any other dot or comma is a decimal point, so `10.5` stays 10.5 and the
+ * whole-number rule refuses it instead of it becoming 105 (#183).
+ */
+export function parseGroupedNumber(text: string | undefined): number {
+  const typed = (text ?? '').trim();
+  if (/^\d{1,3}(\.\d{3})+$/.test(typed)) return Number(typed.replace(/\./g, ''));
+  return Number(typed.replace(',', '.'));
+}
+
 function asRule(check: (value: unknown) => string | null): Rule {
   return {
     validator: (_, value) => {

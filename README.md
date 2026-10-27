@@ -9,9 +9,9 @@ Course project for **Application Programming Project (72ITSE41704)**, Faculty of
 Information Technology, Van Lang University — Semester 1, 2026–2027.
 Instructor: Dr. Nguyen Tri Hai.
 
-> **Status: week 5.** UC01, UC02 and UC03, the stock ledger and the demo seed
-> are built in pull requests waiting for review; nothing is tagged yet. See
-> [Current status](#current-status).
+> **Status: week 7.** `v0.1` was tagged on 20/10/2026. All thirteen Must use
+> cases are on `main`; this week is the Must-core gate, the regression run and
+> the `v0.2` tag (Sat 31/10). See [Current status](#current-status).
 
 ## Weekly progress
 
@@ -25,9 +25,9 @@ Weeks 1–4 were written on 12/10/2026 from the existing evidence and say so.
 | 2 | 21/09–27/09 | Requirements | Partly delivered | `561af37`…`afbd3d9`, #91, #92 | [week 2](docs/progress/week-02.md) |
 | 3 | 28/09–04/10 | **Project Proposal (20%)** | Delivered 04/10 | #19–#21 | [week 3](docs/progress/week-03.md) |
 | 4 | 05/10–11/10 | Design and foundations | Not delivered in week 4; Proposal v1.1 resubmitted 11/10 | [receipt](docs/evidence/proposal-resubmission-receipt-2026-10-11.png) | [week 4](docs/progress/week-04.md) |
-| 5 | 12/10–18/10 | Release `v0.1` | Flow and CI on `main`; tag late (#45) | #93–#102, #98, #107–#120 | [week 5](docs/progress/week-05.md) |
-| 6 | 19/10–25/10 | Test-case table with real runs | In progress | #121–#148 | [week 6](docs/progress/week-06.md) |
-| 7 | 26/10–01/11 | Release `v0.2`, Must-core gate, Appendix D | — | — | — |
+| 5 | 12/10–18/10 | Release `v0.1` | Flow and CI on `main`; tagged 20/10, late (#45) | #93–#102, #98, #107–#120 | [week 5](docs/progress/week-05.md) |
+| 6 | 19/10–25/10 | Test-case table with real runs | Delivered: UC04, UC07, UC09, UC10; 30 runs | #121–#148 | [week 6](docs/progress/week-06.md) |
+| 7 | 26/10–01/11 | Release `v0.2`, Must-core gate, Appendix D | In progress: UC08, UC11, UC12 on `main`; regression of B's and C's areas, TC-31 | #155–#216 | in #200 |
 | 8 | 02/11–08/11 | Hardening, updated design | — | — | — |
 | 9 | 09/11–15/11 | Release `v1.0`, draft report | — | — | — |
 | 10 | 16/11–22/11 | **Final Report (80%)** | — | — | — |
@@ -242,58 +242,68 @@ tests/         manual test cases and test evidence
   pull request with one approval, and a new commit dismisses an old approval.
 - Feature branches: `feature/<use-case>-<short-description>`, merged via pull request.
 - Every member commits, reviews and approves under their own GitHub account.
-- Review rotation: Minh reviews Tiến, Tiến reviews Duy Anh, Duy Anh reviews
-  Minh; a workflow requests the reviewer automatically. Details:
+- Review: any member other than the author approves (from 23/10, #175); a
+  workflow requests a default reviewer, and `main` requires the Backend and
+  Frontend checks on an up-to-date branch (#191). Details:
   [CONTRIBUTING](CONTRIBUTING.md#pull-requests).
-- Release tags: `v0.1` (week 5), `v0.2` (week 7), `v1.0` (week 9).
+- Release tags: `v0.1` (week 5, tagged 20/10), `v0.2` (week 7), `v1.0` (week 9).
 
 ## Current status
 
-**Week 6 (20/10/2026).** The Project Proposal v1.1 was submitted on
-11/10/2026 (receipt in `docs/evidence/`). The `v0.1` flow is on `main`: sign
-in, catalogue, goods receipt, prescription intake and FEFO dispensing, with CI
-running the migrations, the seed and all tests. Six manual test cases have
-passed, run by someone other than their author, five more are recorded in
-#124, and one has failed (TC-02, bug #125, fix in #126). The `v0.1` tag was
-planned for 17/10 and is late: it follows #124 (week 5 report:
-[`docs/progress/week-05.md`](docs/progress/week-05.md)).
+**Week 7 (27/10/2026).** The Project Proposal v1.1 was submitted on
+11/10/2026 (receipt in `docs/evidence/`). `v0.1` was tagged on 20/10/2026. All
+thirteen Must use cases (UC01–UC12, UC16) are on `main`, with CI running the
+migrations, the seed and every test on each pull request. Manual testing: 57
+runs in [`tests/manual/runs.md`](tests/manual/runs.md); the latest verdicts
+are 40 cases Pass, 1 Fail (TC-49, bug #201) and 23 not run yet. Next: the
+Must-core gate (#63), the rest of the regression run, Appendix D and the
+`v0.2` tag on Sat 31/10.
 
-**Built (in pull requests)**
+**Built (on `main`)**
 
 - Schema of Proposal v1.1 built by migrations, with database constraints that
   keep stock non-negative and the ledger append-only (#94)
 - UC02 suppliers as the reference slice, one error format, permission checks
-  in the services (Table 2.4), a temporary dev sign-in, e2e test setup (#95)
-- Stock ledger with the lock protocol of Proposal §3.1 — BR03, BR05 (#96)
+  in the services (Table 2.4), e2e test setup (#95); the endpoint × invalid
+  input table (#140)
+- Stock ledger with the lock protocol of Proposal §3.1 — BR03, BR05 (#96); batch
+  status and quarantine commands (#178)
 - UC01 medicine catalogue with current price and OTC classification (#97)
 - UC03 goods receipts through the ledger (#99)
+- UC04 stock lookup and batch history with running balances (#139)
 - UC05 prescription intake and verification with computed validity (FR-44, BR10) (#40)
-- UC06 dispensing through the ledger with FEFO preview — BR01, BR02, BR07 (#41)
-- CI on every pull request: migrations on an empty PostgreSQL 18 database,
-  seed, build, lint, unit and e2e tests, and the frontend build (#35)
+- UC06 dispensing through the ledger with FEFO preview — BR01, BR02, BR07 (#41);
+  cancel before hand-over (#164)
+- UC07 over-the-counter sales and billing a dispensing without a second stock
+  movement (#135, #136, #141, #142)
+- UC08 returns into quarantine, never over the quantity sold (#174, #179)
+- UC09 stock take with a blind count and approval by someone else — BR08 (#146)
+- UC10 low-stock alerts raised inside the stock transaction (#147)
+- UC11 expiry list, write-off to pending destruction, batch status (#190)
+- UC12 stock movement report through `ReportGenerator` (#189)
+- UC16 sign-in: bcryptjs password hashes, 8-hour JWT, the user re-read on every
+  request, menu and screens by role (#43, #44)
 - Demo seed: 60 medicines, 10 suppliers, 120 batches with relative dates (#100)
-- UC16 sign-in API: bcryptjs password hashes, 8-hour JWT, the user re-read on
-  every request, one message for a wrong password or unknown user (#43)
-- UC16 sign-in page: menu and screens filtered by role, sign-out, return to
-  sign-in when the session ends (#44)
-- 79 unit and 110 e2e tests passing
+- 124 unit and 546 e2e tests in the backend, 13 in the frontend, all passing
 
 **Not built yet**
 
-- UC04, UC07–UC12 and the Should use cases UC13–UC15
+- The Should items: UC13 price management (the price history is in place),
+  UC14 screens (its API is built with the UC05 quick-create), UC15 users and
+  roles, return assessment and destruction records (FR-46, FR-47)
 
 ### Scope against the course targets
 
 Targets are those expected of a three-person team
 ([Suggested Project Titles, Table 2](docs/course-requirements.md)).
 
-| Dimension | Target | Planned (Proposal v1.1) | Built (in PRs) |
+| Dimension | Target | Planned (Proposal v1.1) | Built (on `main`) |
 |---|---|---|---|
-| Use cases end-to-end | 13–16 | 13 Must + 3 Should | 5 (UC01–03, UC05, UC06) |
+| Use cases end-to-end | 13–16 | 13 Must + 3 Should | 13 (every Must) |
 | Domain classes | 16–22 | 25 | 25 in the schema |
 | User roles | 3+ | 3 | Sign-in with a password; checked in services; menu by role |
-| Business rules beyond CRUD | 6+ | 8 Must + 2 Should + 1 Could | BR01, BR02, BR03, BR05, BR07, BR10; BR04 in part |
-| Documented test cases | 20+ | 63 | 63 planned; 0 manual runs |
+| Business rules beyond CRUD | 6+ | 8 Must + 2 Should + 1 Could | BR01–BR05, BR07, BR08 (gap: #215), BR10, BR11; BR09 in part |
+| Documented test cases | 20+ | 63 | 64 planned; 57 manual runs, 40 cases passing |
 
 Business decisions DEC-01 to DEC-10 are settled in the Proposal and recorded in
 [`docs/requirements/business-decisions.md`](docs/requirements/business-decisions.md).

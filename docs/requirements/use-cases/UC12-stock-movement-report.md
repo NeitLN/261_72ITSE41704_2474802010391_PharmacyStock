@@ -5,7 +5,7 @@
 | **Owner** | Võ Hoàng Minh (C) |
 | **Priority** | Must |
 | **Primary actor** | Manager |
-| **Status** | Design gate for #62 (week 7): decisions, interface and scenario table below |
+| **Status** | Built (#62). Tests UC12-01…12 in `stock-movement-report.e2e-spec.ts` |
 | **Related rules** | BR05 (the report is built from the movements) |
 | **Requirements** | FR-37, FR-39, NFR-02 |
 | **Decisions** | DEC-06 (definition), DEC-05 (a billed dispensing counts once), DEC-04 (returns go to quarantine), decision 10 (business day) |

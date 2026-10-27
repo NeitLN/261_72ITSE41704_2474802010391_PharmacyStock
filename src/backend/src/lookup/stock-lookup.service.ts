@@ -339,8 +339,8 @@ export class StockLookupService {
 
   /**
    * A readable reference per source document: the supplier document number,
-   * the prescription reference or the receipt number. Types not built yet
-   * (return, stock take) have none.
+   * the prescription reference, the sale receipt, the return slip or the
+   * stock take number. A write-off belongs to the batch itself and has none.
    */
   private async references(
     rows: Array<Record<string, unknown>>,
@@ -366,6 +366,16 @@ export class StockLookupService {
         SourceDocumentType.SALE_LINE,
         `SELECT sl.id, s."receiptNumber" AS reference FROM sale_lines sl
          JOIN sales s ON s.id = sl.sale_id WHERE sl.id = ANY($1)`,
+      ],
+      [
+        SourceDocumentType.RETURN_LINE,
+        `SELECT rl.id, sr."referenceNumber" AS reference FROM return_lines rl
+         JOIN sale_returns sr ON sr.id = rl.sale_return_id WHERE rl.id = ANY($1)`,
+      ],
+      [
+        SourceDocumentType.STOCK_TAKE_LINE,
+        `SELECT stl.id, st."referenceNumber" AS reference FROM stock_take_lines stl
+         JOIN stock_takes st ON st.id = stl.stock_take_id WHERE stl.id = ANY($1)`,
       ],
     ];
     const found = new Map<string, string>();

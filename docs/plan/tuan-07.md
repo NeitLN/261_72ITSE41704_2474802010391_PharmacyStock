@@ -26,7 +26,7 @@
 | W07-A1 | **Trạng thái lô và cách ly trong `StockLedger`** (BR11, DEC-04, DEC-07): đổi trạng thái lô có lý do (FR-48 của C dùng), lệnh RETURN/RELEASE/REJECT/WRITE_OFF/DESTROY qua ledger, invariant cho từng loại | 5 | C | W04-B3 (ledger) | e2e mọi loại movement pass; TC-60 có dữ liệu | #55 (nội dung đổi: UC13 sang tuần 8 nếu qua cổng) |
 | W07-A2 | **Hồi quy phần của B và C** trong bộ R + **TC-31 luồng đầu–cuối** (nhập → nhận đơn → cấp → thanh toán → trả → báo cáo khớp) | 2,5 | C | B1, C2 | Lượt chạy trong `runs.md` | #56 (nội dung đổi) |
 | W07-A3 | **Seed giao dịch cho báo cáo**: bán và trả trải hai kỳ (dùng ngày nghiệp vụ lùi); cập nhật seed theo schema mới | 2 | B | B1 | TC-23 có dữ liệu tính tay | #57 (nội dung đổi) |
-| W07-A4 | **Bộ nhận diện LotOrder** (thêm 27/10) theo [`brand.md`](../design/brand.md) phần B: favicon, tiêu đề tab, header có logo, trang đăng nhập chia đôi, màn 403/404/không có màn hình, banner README, font 800 | 5,5 | B (+ C cho `LoginPage.tsx`, `guards.tsx`) | — | Nghiệm thu `brand.md` B2 (1–8) có trong PR; TC-20, 42, 43 và TC 404 mới chạy lại do người khác tác giả | — |
+| W07-A5 | **Bộ nhận diện LotOrder** (thêm 27/10) theo [`brand.md`](../design/brand.md) phần B: favicon, tiêu đề tab, header có logo, trang đăng nhập chia đôi, màn 403/404/không có màn hình, banner README, font 800 | 5,5 | B (+ C cho `LoginPage.tsx`, `guards.tsx`) | — | Nghiệm thu `brand.md` B2 (1–8) có trong PR; TC-20, 42, 43 và TC-65 mới chạy lại do người khác tác giả | #214 |
 | — | A: họp 2,5 · review 3 · giữ schema/seed 1 · sửa lỗi/dự phòng 4 | 10,5 | — | — | — | — |
 | W07-B1 | **UC08 Trả hàng** theo QĐ 4/13/14: `SaleReturn` + `ReturnLine`; không trả vượt số đã bán (TC-17); `requestId` chống gửi lặp (TC-18); movement **RETURN vào cách ly** của đúng lô đã bán qua `StockLedger` (DEC-04, BR11) — trả hàng **không** phải bút toán đảo (`reversesMovementId` chỉ dùng để sửa sai một movement); thuốc kiểm soát / lô hết hạn không về tồn bán (TC-50). **Lên `main` trước T4 28/10** (UC12 phụ thuộc) | 7 | A + C | W06-B2 | TC-16, 17, 18, 50 Pass do C chạy; invariant vẫn pass | #58 |
 | W07-B2 | **Hủy trước bàn giao** (FR-45, DEC-05) cho cấp phát và giỏ bán + **TC-62** bán OTC và cấp phát tranh lượng cuối (20 lần) | 3 | A | W06-B2 | TC-59, TC-62 Pass do C chạy | #59 (nội dung đổi: màn hình UC14 là Should, sang tuần 8; tạo nhanh nằm trong UC05) |
@@ -49,15 +49,15 @@
 
 *Thiết kế* (thêm 22/10): Tiến làm thiết kế UI cho mọi màn — wireframe các trạng thái chính của UC08, UC11, UC12 trước T2 26/10 (#154, 3 giờ) và bộ UI dùng chung `src/frontend/src/ui/` (token theme, `StatusTag`, định dạng số lượng và tiền) trước T3 27/10 để màn UC08, UC11, UC12 dùng ngay (#155, 1 giờ); ở tuần 8 là wireframe *as-built* 7 màn đã có, rà UX và phần thiết kế giao diện trong báo cáo (lộ trình UI/UX: `ui-design.md` §8) — cùng cổng thiết kế của A1. Duy Anh review các PR thiết kế UI (ngoại lệ của vòng review: thiết kế UI của Tiến do Duy Anh duyệt) và phát triển thêm: quy ước chuyển động và hiệu ứng tương tác (`ui-design.md` §5.1) ở tuần 7, áp dụng vào các màn ở tuần 8 khi làm vững; Minh hỗ trợ khi cần. *Hợp đồng* là phần API/lệnh và sequence của tính năng do chính người code tính năng viết. Phần chung (sơ đồ class, ERD, data dictionary, `ui-design.md`, bộ wireframe) đã làm trong tuần 6 (#151).
 
-*Nhận diện* (thêm 27/10): Tiến đổi quyết định 22/10 "không làm nhận diện riêng" (`ui-design.md` §8) — app có tên LotOrder, logo và bộ nhận diện trong [`brand.md`](../design/brand.md), để buổi demo và ảnh trong báo cáo trông như phần mềm thật. W07-A4 thêm 5,5 giờ vào tuần 7 của Tiến (tổng 25,5, Tiến đã đồng ý); làm ngay tuần này để tuần 8 (đã 29 giờ) không tăng thêm. Chỉ đổi giao diện frontend và tài liệu, không đụng backend hay quy tắc nghiệp vụ.
+*Nhận diện* (thêm 27/10): Tiến đổi quyết định 22/10 "không làm nhận diện riêng" (`ui-design.md` §8) — app có tên LotOrder, logo và bộ nhận diện trong [`brand.md`](../design/brand.md), để buổi demo và ảnh trong báo cáo trông như phần mềm thật. W07-A5 thêm 5,5 giờ vào tuần 7 của Tiến (tổng 25,5, Tiến đã đồng ý); làm ngay tuần này để tuần 8 (đã 29 giờ) không tăng thêm. Chỉ đổi giao diện frontend và tài liệu, không đụng backend hay quy tắc nghiệp vụ.
 
 ## 5. Lịch
 
 | Ngày | Việc |
 |---|---|
 | T2 26/10 | Cổng thiết kế đã merge thì mới code; thứ tự: A1 (UC08 và UC11 cần lệnh của ledger), B1, C1, C2, B2. **A1 và C3 là Must** (C3 là kiểm tra cổng Must-core) |
-| **T4 28/10** | **UC08 trên `main`**. **Điểm cắt phạm vi**: Must nào < 50% → dừng Should, dồn người (ngồi cặp). A mở PR W07-A4 (nhận diện) |
-| **T5 29/10** | W07-A4 merge **trước** khi bắt đầu hồi quy, để bộ R chạy trên giao diện mới; trễ thì để sau tag `v0.2` (CN 01/11). Bắt đầu hồi quy bộ R (A: phần B, C; B: phần A) |
+| **T4 28/10** | **UC08 trên `main`**. **Điểm cắt phạm vi**: Must nào < 50% → dừng Should, dồn người (ngồi cặp). A mở PR W07-A5 (nhận diện) |
+| **T5 29/10** | W07-A5 merge, rồi chạy lại TC-20, 42, 43 và TC-65 (phần B, C của bộ R đã chạy 27/10 trong #199); trễ thì để sau tag `v0.2` (T7 31/10). Hồi quy bộ R phần A (B chạy) |
 | T6 30/10 | Sửa S1/S2; chạy lại |
 | **T7 31/10** | Họp: demo 13 UC Must; chấm Appendix D; C ký → **B tag `v0.2`** |
 | CN 01/11 | Dự phòng |
@@ -89,4 +89,4 @@
 | Must chưa đủ tại T4 28/10 | Dừng mọi việc Should (UC13, màn hình UC14, UC15, FR-46/47) và phần hồi quy mở rộng; A ngồi cặp cho UC12, C ngồi cặp cho UC08. A1 và C3 không dừng |
 | UC12 lệch số với tính tay | Là S2 → **không tag** cho đến khi khớp; tag muộn nhất T3 03/11 |
 | Không kịp tag T7 | Tag muộn nhất T3 03/11; tuần 8 bắt đầu bằng phục hồi; ghi journal |
-| W07-A4 (nhận diện) chưa merge trước T5 29/10 | Không chen vào giữa hồi quy: merge sau tag `v0.2` (CN 01/11), chạy lại TC-20, 42, 43 và TC 404; vẫn trước freeze T2 09/11. Nếu Must đang trễ (điểm cắt T4 28/10), W07-A4 dừng trước — nó không phải Must |
+| W07-A5 (nhận diện) chưa merge trước T5 29/10 | Không chen vào giữa hồi quy: merge sau tag `v0.2` (T7 31/10), chạy lại TC-20, 42, 43 và TC-65; vẫn trước freeze T2 09/11. Nếu Must đang trễ (điểm cắt T4 28/10), W07-A5 dừng trước — nó không phải Must |

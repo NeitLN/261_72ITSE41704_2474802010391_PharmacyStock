@@ -3,11 +3,11 @@
 The product's name, mark and how they appear in the app, the README and the
 report. Written 27/10/2026. **Owner: Tiến. Reviewer: Duy Anh** (UI design
 rule, [`ui-design.md`](ui-design.md) header). Part A is the guide and stays
-current. Part B is the rollout in week 7 (W07-A4), and it is removed once it
+current. Part B is the rollout in week 7 (W07-A5), and it is removed once it
 is merged.
 
 Related: [UI design](ui-design.md) (§5 conventions, §5.1 motion) ·
-[theme tokens](../../src/frontend/src/ui/theme.ts) · [PRODUCT.md](../../PRODUCT.md)
+[theme tokens](../../src/frontend/src/ui/theme.ts)
 
 ---
 
@@ -21,9 +21,9 @@ Related: [UI design](ui-design.md) (§5 conventions, §5.1 motion) ·
 | Descriptor | **Pharmacy Stock & Prescription Dispensing** |
 | Long name (README title, report) | Pharmacy Stock and Prescription Dispensing System |
 
-LotOrder is the name of **the software**. It is not a pharmacy. PRODUCT.md
-forbids inventing a pharmacy brand, customers, testimonials or figures, so
-nothing branded may suggest a real shop. The name says what the system is
+LotOrder is the name of **the software**. It is not a pharmacy. No pharmacy
+brand, customers, testimonials or figures are invented, so nothing branded
+may suggest a real shop. The name says what the system is
 for: lots (batches) kept in the order they must leave the shelf, first expiry
 first out.
 
@@ -128,18 +128,20 @@ logo in any of them would be read as a status.
 ### A8. Sign-in page
 
 - **Brand panel** (left, 520 px, `#0a5c50`): sign-in lockup; then three true
-  statements from PRODUCT.md, separated by 1 px rules at 22 % white:
-  1. Every quantity traces back to its stock movements.
-  2. Expired, held and quarantined batches are never offered.
-  3. Every change to stock or money is reviewed before it is confirmed.
+  statements about the system, each enforced by the server (the stock
+  ledger, the FEFO allocator, BR07), separated by 1 px rules at 22 % white:
+  1. Stock balances trace back to recorded movements.
+  2. Only sellable stock from active, unexpired batches is issued.
+  3. Dispensing never exceeds the quantity prescribed.
 
   At the bottom, in 12 px `#cfe8e2`: "Course project · Van Lang University ·
   72ITSE41704". No figures, testimonials, people or watermark.
-- **Form side** (white): "Sign in", the subtitle "Use the account your manager
+- **Form side** (white): "Sign in" (the page's `h1`, at the size of an `h3`), the subtitle "Use the account your manager
   set up for you.", the existing form (username, password) with its inputs
   and button set to `size="large"` (40 px; today they are the default 32 px),
   and under the button "Need access? Ask the manager." in 13 px `#44524d`.
-- Below 992 px (`lg`) the panel is hidden and the form is centred. The app
+- Below 992 px (`lg`) the panel is hidden, the form is centred and the light
+  lockup sits above it. The app
   targets 1280 px, so this is only a fallback.
 
 ### A9. Recovery screens
@@ -150,19 +152,22 @@ logo in any of them would be read as a status.
 | 404 (new) | document with magnifier | Page not found | This address does not match a screen. Check it, or go to your start page. | *Go to your start page* |
 | No screens (`StartPage`) | user with minus | No screens yet | Your role has no permissions yet. Ask the manager. | **none**: a start-page button would loop back here |
 
-Icon: 34 px, stroke 1.7, `#0a5c50`, centred in a 72 px tile, `#eaf5f2`,
-radius 16. The code ("403", "404") sits above the title in 12 px/600
+Icon: 34 px, stroke 1.7, `#0a5c50`, centred in a 72 px white tile, radius
+16 (the content area is grey, so a pale teal tile would not show). The
+title is the page's `h1`. The code ("403", "404") sits above the title in 12 px/600
 `#5b6964`.
 
 ---
 
 ## Part B — Rollout before the freeze
 
-Task **W07-A4** in [week 7](../plan/tuan-07.md): **5.5 hours** for Tiến,
+Task **W07-A5** in [week 7](../plan/tuan-07.md): **5.5 hours** for Tiến,
 added to his week 7 (25.5 hours, agreed 27/10), so week 8 does not grow. One
-pull request opened Wed 28/10, reviewed by Duy Anh, and merged **before the
-regression run starts on Thu 29/10**. If it misses that, it waits until after
-the `v0.2` tag (Sun 01/11), and is still merged before the freeze on Mon 09/11.
+pull request opened Wed 28/10, reviewed by Duy Anh, and merged on **Thu
+29/10**; then TC-20, 42, 43 and TC-65 are run again (the B and C part of
+pack R already ran on 27/10, #199). If it misses Thursday, it waits until
+after the `v0.2` tag (Sat 31/10, at the latest Tue 03/11), and is still
+merged before the freeze on Mon 09/11.
 It is not a Must: if the Must scope is behind at the cut on Wed 28/10, this
 task stops first. The sign-in page (UC16) and `guards.tsx` belong to Minh's
 slice, so Minh is added as a second reviewer for those two files.
@@ -179,8 +184,8 @@ slice, so Minh is added as a second reviewer for those two files.
 | 6 | `src/frontend/src/ui/theme.ts` | `Layout.headerHeight: 64` (stated explicitly, though it is the antd default) and `Layout.headerPadding: '0 24px'`. No new colour tokens: the identity uses `palette.brand800`, `palette.brand100` (`#cfe8e2`), `palette.textSecondary` and white |
 | 7 | `src/frontend/src/layouts/MainLayout.tsx` | The header left side becomes `<Link to="/" aria-label="LotOrder, go to your start page"><BrandLogo variant="header" /></Link>`, replacing `Typography.Title`. The right side shows the name (ellipsis at 220 px, full name in `title`), the role as a pill (12 px/500, white text, `rgba(255,255,255,.14)` fill, `rgba(255,255,255,.35)` border) replacing `Tag color="cyan"`, and the Sign out button becomes `ghost` (white outline) |
 | 8 | `src/frontend/src/pages/LoginPage.tsx` | The split layout of A8, using `Grid.useBreakpoint()` for the `lg` fallback. Form logic, errors, focus and the return path stay **unchanged**. Remove the hard-coded `#f0f2f5` |
-| 9 | `src/frontend/src/ui/ResultIcon.tsx` (new) | The icon tile of A9, three icons as inline SVG |
-| 10 | `src/frontend/src/auth/guards.tsx` | 403 and no-screens use `Result icon={<ResultIcon …/>}` and the copy of A9. No-screens has no button |
+| 9 | `src/frontend/src/ui/RecoveryResult.tsx` (new) | `ResultIcon` (the icon tile of A9, three icons as inline SVG), `RecoveryResult` (antd `Result` with the code above the title) and `StartPageButton` |
+| 10 | `src/frontend/src/auth/guards.tsx` | 403 and no-screens use `RecoveryResult` and the copy of A9. No-screens has no button |
 | 11 | `src/frontend/src/pages/NotFoundPage.tsx` (new) + `App.tsx` | The 404 of A9. `<Route path="*">` inside the signed-in layout renders `NotFoundPage` instead of `StartPage`. The index route still redirects to the start page. Signed-out users still go to sign-in first |
 | 12 | `docs/assets/lotorder-mark.svg`, `lotorder-lockup.svg`, `readme-banner.svg` (new) | Large mark; full lockup on light; banner on teal (white lockup, a 22 % white rule, and the line "Batch-level stock, first-expiry-first-out dispensing and an append-only ledger for one community pharmacy."). Text converted to paths |
 | 13 | `README.md` | Banner image above the title, alt text "LotOrder — Pharmacy Stock & Prescription Dispensing" |
@@ -193,7 +198,7 @@ motion rules or the wireframe kit (which stays brand-free on purpose).
 ### B2. Acceptance checks
 
 Checks 1–8 are run by the author before asking for review, and the results go
-in the PR body. The manual reruns (TC-20, TC-42, TC-43 and the new 404 case)
+in the PR body. The manual reruns (TC-20, TC-42, TC-43 and TC-65, the new 404 case)
 are then run again by someone other than the author and logged in
 `tests/manual/runs.md`, as for every manual test.
 
@@ -219,9 +224,9 @@ are then run again by someone other than the author and logged in
    Fonts shows Be Vietnam Pro 800.
 8. The README on GitHub shows the banner with the right font, in light and in
    dark theme.
-9. Screenshots of 2, 3, 5 and 6 are attached to the PR. A new manual test case
-   for the 404 is added to `tests/manual/test-cases.md` with the test
-   coordinator's numbering, and run by someone other than the author.
+9. Screenshots of 2, 3, 5 and 6 are attached to the PR. TC-65, the manual case
+   for the 404 and 403 screens, is in `tests/manual/test-cases.md` and is run
+   by someone other than the author.
 
 ### B3. Out of scope
 

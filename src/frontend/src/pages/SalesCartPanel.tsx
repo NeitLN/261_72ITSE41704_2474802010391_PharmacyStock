@@ -22,6 +22,7 @@ import {
 } from '../api/sales';
 import { useLoad } from '../api/useLoad';
 import { WarningTag } from './DispensePanel';
+import { ResultAppear } from './ResultAppear';
 
 const NO_OTC: Medicine[] = [];
 
@@ -368,54 +369,56 @@ export function ReceiptView({
   newText?: string;
 }) {
   return (
-    <Space direction="vertical" style={{ width: '100%' }}>
-      <Descriptions size="small" title={`Receipt ${sale.receiptNumber}`}>
-        <Descriptions.Item label="Sold at">
-          {new Date(sale.soldAt).toLocaleString('vi-VN', {
-            timeZone: 'Asia/Ho_Chi_Minh',
-          })}
-        </Descriptions.Item>
-        <Descriptions.Item label="Customer">
-          {sale.customer ? `${sale.customer.code} — ${sale.customer.fullName}` : '—'}
-        </Descriptions.Item>
-      </Descriptions>
-      <Table
-        rowKey={(_, index) => String(index)}
-        size="small"
-        pagination={false}
-        dataSource={sale.lines}
-        columns={[
-          {
-            title: 'Medicine',
-            render: (_, l) => `${l.medicine.code} — ${l.medicine.name}`,
-          },
-          { title: 'Batch', dataIndex: ['batch', 'batchNumber'] },
-          { title: 'Expiry', dataIndex: ['batch', 'expiryDate'] },
-          { title: 'Quantity', dataIndex: 'quantity', align: 'right' },
-          {
-            title: 'Unit price',
-            align: 'right',
-            render: (_, l) => formatVnd(l.unitPrice),
-          },
-          {
-            title: 'Line total',
-            align: 'right',
-            render: (_, l) => formatVnd(l.lineTotal),
-          },
-          {
-            title: 'Warning',
-            render: (_, l) => (l.warning ? <WarningTag warning={l.warning} /> : '—'),
-          },
-        ]}
-      />
-      <Descriptions size="small" column={1}>
-        <Descriptions.Item label="Total">
-          {formatVnd(sale.totalAmount)}
-        </Descriptions.Item>
-      </Descriptions>
-      <Button type="primary" onClick={onNew}>
-        {newText}
-      </Button>
-    </Space>
+    <ResultAppear>
+      <Space direction="vertical" style={{ width: '100%' }}>
+        <Descriptions size="small" title={`Receipt ${sale.receiptNumber}`}>
+          <Descriptions.Item label="Sold at">
+            {new Date(sale.soldAt).toLocaleString('vi-VN', {
+              timeZone: 'Asia/Ho_Chi_Minh',
+            })}
+          </Descriptions.Item>
+          <Descriptions.Item label="Customer">
+            {sale.customer ? `${sale.customer.code} — ${sale.customer.fullName}` : '—'}
+          </Descriptions.Item>
+        </Descriptions>
+        <Table
+          rowKey={(_, index) => String(index)}
+          size="small"
+          pagination={false}
+          dataSource={sale.lines}
+          columns={[
+            {
+              title: 'Medicine',
+              render: (_, l) => `${l.medicine.code} — ${l.medicine.name}`,
+            },
+            { title: 'Batch', dataIndex: ['batch', 'batchNumber'] },
+            { title: 'Expiry', dataIndex: ['batch', 'expiryDate'] },
+            { title: 'Quantity', dataIndex: 'quantity', align: 'right' },
+            {
+              title: 'Unit price',
+              align: 'right',
+              render: (_, l) => formatVnd(l.unitPrice),
+            },
+            {
+              title: 'Line total',
+              align: 'right',
+              render: (_, l) => formatVnd(l.lineTotal),
+            },
+            {
+              title: 'Warning',
+              render: (_, l) => (l.warning ? <WarningTag warning={l.warning} /> : '—'),
+            },
+          ]}
+        />
+        <Descriptions size="small" column={1}>
+          <Descriptions.Item label="Total">
+            {formatVnd(sale.totalAmount)}
+          </Descriptions.Item>
+        </Descriptions>
+        <Button type="primary" onClick={onNew}>
+          {newText}
+        </Button>
+      </Space>
+    </ResultAppear>
   );
 }

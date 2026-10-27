@@ -22,6 +22,7 @@ import { lineEstimateXu, xuToVndString } from '../api/sales';
 import { wholeNumberError } from '../forms/numberRules';
 import { STATUSES, type StatusValue, TONE_COLOURS } from '../ui/status';
 import { StatusTag } from '../ui/tags';
+import { ResultAppear } from './ResultAppear';
 
 type LineErrors = Record<string, string>;
 
@@ -392,64 +393,66 @@ function ReturnResultView({
   onNew: () => void;
 }) {
   return (
-    <Space orientation="vertical" style={{ width: '100%' }} size="middle">
-      <Descriptions size="small" column={2} title={`Return ${result.referenceNumber}`}>
-        <Descriptions.Item label="Returned at">
-          {new Date(result.returnedAt).toLocaleString('vi-VN', {
-            timeZone: 'Asia/Ho_Chi_Minh',
-          })}
-        </Descriptions.Item>
-        <Descriptions.Item label="Receipt">
-          {result.sale.receiptNumber}
-        </Descriptions.Item>
-        <Descriptions.Item label="Reason" span={2}>
-          {result.reason}
-        </Descriptions.Item>
-      </Descriptions>
-      <Table
-        rowKey={(_, index) => String(index)}
-        size="small"
-        pagination={false}
-        dataSource={result.lines}
-        columns={[
-          {
-            title: 'Medicine',
-            render: (_, line) => `${line.medicine.code} — ${line.medicine.name}`,
-          },
-          { title: 'Batch', dataIndex: ['batch', 'batchNumber'] },
-          { title: 'Expiry', dataIndex: ['batch', 'expiryDate'] },
-          { title: 'Quantity', dataIndex: 'quantity', align: 'right' },
-          {
-            title: 'Unit price',
-            align: 'right',
-            render: (_, line) => formatVnd(line.unitPrice),
-          },
-          {
-            title: 'Refund',
-            align: 'right',
-            render: (_, line) => formatVnd(line.refund),
-          },
-          {
-            title: 'Assessment',
-            render: (_, line) => (
-              <AssessmentTag status={line.assessmentStatus} />
-            ),
-          },
-        ]}
-      />
-      <Descriptions size="small" column={1}>
-        <Descriptions.Item label="Refund total">
-          {formatVnd(result.refundAmount)}
-        </Descriptions.Item>
-      </Descriptions>
-      <Alert
-        type="warning"
-        showIcon
-        title="Goods are in quarantine, waiting for a manager's assessment."
-      />
-      <Button type="primary" onClick={onNew}>
-        New return
-      </Button>
-    </Space>
+    <ResultAppear>
+      <Space orientation="vertical" style={{ width: '100%' }} size="middle">
+        <Descriptions size="small" column={2} title={`Return ${result.referenceNumber}`}>
+          <Descriptions.Item label="Returned at">
+            {new Date(result.returnedAt).toLocaleString('vi-VN', {
+              timeZone: 'Asia/Ho_Chi_Minh',
+            })}
+          </Descriptions.Item>
+          <Descriptions.Item label="Receipt">
+            {result.sale.receiptNumber}
+          </Descriptions.Item>
+          <Descriptions.Item label="Reason" span={2}>
+            {result.reason}
+          </Descriptions.Item>
+        </Descriptions>
+        <Table
+          rowKey={(_, index) => String(index)}
+          size="small"
+          pagination={false}
+          dataSource={result.lines}
+          columns={[
+            {
+              title: 'Medicine',
+              render: (_, line) => `${line.medicine.code} — ${line.medicine.name}`,
+            },
+            { title: 'Batch', dataIndex: ['batch', 'batchNumber'] },
+            { title: 'Expiry', dataIndex: ['batch', 'expiryDate'] },
+            { title: 'Quantity', dataIndex: 'quantity', align: 'right' },
+            {
+              title: 'Unit price',
+              align: 'right',
+              render: (_, line) => formatVnd(line.unitPrice),
+            },
+            {
+              title: 'Refund',
+              align: 'right',
+              render: (_, line) => formatVnd(line.refund),
+            },
+            {
+              title: 'Assessment',
+              render: (_, line) => (
+                <AssessmentTag status={line.assessmentStatus} />
+              ),
+            },
+          ]}
+        />
+        <Descriptions size="small" column={1}>
+          <Descriptions.Item label="Refund total">
+            {formatVnd(result.refundAmount)}
+          </Descriptions.Item>
+        </Descriptions>
+        <Alert
+          type="warning"
+          showIcon
+          title="Goods are in quarantine, waiting for a manager's assessment."
+        />
+        <Button type="primary" onClick={onNew}>
+          New return
+        </Button>
+      </Space>
+    </ResultAppear>
   );
 }

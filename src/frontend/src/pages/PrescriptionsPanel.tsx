@@ -156,7 +156,7 @@ export function PrescriptionsPanel() {
         rowKey="id"
         columns={columns}
         dataSource={prescriptions}
-        loading={loading}
+        loading={{ spinning: loading, delay: 300 }}
         pagination={{ pageSize: 20, hideOnSinglePage: true }}
         locale={{ emptyText: 'No prescription matches this search and status. Use New prescription to take one in.' }}
         style={{ marginTop: 16 }}
@@ -660,7 +660,7 @@ function PrescriptionDetailsModal({
             rowKey="id"
             size="small"
             pagination={false}
-            loading={loading}
+            loading={{ spinning: loading, delay: 300 }}
             dataSource={prescription.items}
             style={{ marginTop: 16 }}
             columns={[

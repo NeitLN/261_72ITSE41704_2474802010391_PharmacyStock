@@ -1,0 +1,12 @@
+{
+  "name": "project-dashboard",
+  "private": true,
+  "type": "module",
+  "description": "Read-only project progress dashboard built from GitHub data",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test",
+    "collect": "node scripts/collect.mjs",
+    "build": "node scripts/build-site.mjs"
+  }
+}

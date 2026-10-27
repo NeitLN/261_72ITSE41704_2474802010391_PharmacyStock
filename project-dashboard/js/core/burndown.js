@@ -10,7 +10,7 @@
 //
 // observedSeries() reads the daily snapshots kept on the dashboard-data branch.
 
-import { dayKey, dayRange, diffDays } from './dates.mjs';
+import { dayKey, dayRange, diffDays } from './dates.js';
 
 function timelineOf(task, events, milestoneByTitle, timeZone) {
   const own = events

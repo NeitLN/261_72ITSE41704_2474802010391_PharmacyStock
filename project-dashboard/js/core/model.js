@@ -2,10 +2,10 @@
 // and data/history.json. Every view reads this one model, so all charts and
 // tables use the same task set.
 
-import { dayKey, diffDays, minKey } from './dates.mjs';
-import { normalizeTasks, inScope } from './tasks.mjs';
-import { completion, countByStatus, currentWeek, memberStats, weekStats } from './progress.mjs';
-import { health, idealLine, observedSeries, reconstruct } from './burndown.mjs';
+import { dayKey, diffDays, minKey } from './dates.js';
+import { normalizeTasks, inScope } from './tasks.js';
+import { completion, countByStatus, currentWeek, memberStats, weekStats } from './progress.js';
+import { health, idealLine, observedSeries, reconstruct } from './burndown.js';
 
 /** Splits a milestone description of the form "Deliverable: … Done when: … Plan: …". */
 export function parseMilestoneDescription(description) {

@@ -1,8 +1,8 @@
 // The weekly report: one structure, rendered as HTML by views/reports.js and
 // as Markdown or CSV here.
 
-import { formatDay, formatInstant } from './dates.mjs';
-import { STATUS_LABELS } from './tasks.mjs';
+import { formatDay, formatInstant } from './dates.js';
+import { STATUS_LABELS } from './tasks.js';
 
 export function buildWeeklyReport(model, weekNumber) {
   const week = model.weeks.find((w) => w.number === weekNumber);

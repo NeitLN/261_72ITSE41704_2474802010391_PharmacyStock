@@ -128,11 +128,13 @@ async function main() {
   });
   const documents = await optional('documents', sources, errors, async () => {
     const prefixes = evidence.documentPaths ?? [];
-    if (!prefixes.length) return [];
+    // Week documents are checked even when they sit outside the evidence folders.
+    const configured = new Set((config.weeks ?? []).flatMap((w) => (w.documents ?? []).map((d) => d.path).filter(Boolean)));
+    if (!prefixes.length && !configured.size) return [];
     const tree = await gh.get(`${repoPath}/git/trees/${encodeURIComponent(repo.default_branch)}?recursive=1`);
     return (tree.tree ?? [])
-      .filter((n) => n.type === 'blob' && prefixes.some((p) => n.path.startsWith(p)))
-      .slice(0, 500)
+      .filter((n) => n.type === 'blob' && (configured.has(n.path) || prefixes.some((p) => n.path.startsWith(p))))
+      .slice(0, 1000)
       .map((n) => ({ path: n.path, url: `${repo.html_url}/blob/${repo.default_branch}/${n.path}` }));
   });
 

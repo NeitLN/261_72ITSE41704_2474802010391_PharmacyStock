@@ -2,7 +2,7 @@
 // The rules are in docs/dashboard/INTEGRATION_PLAN.md §3: the issue's
 // open/closed state wins, and the board only places open issues in a column.
 
-import { dayKey } from './dates.mjs';
+import { dayKey } from './dates.js';
 
 export const STATUSES = ['backlog', 'todo', 'in_progress', 'review', 'done'];
 export const STATUS_LABELS = {

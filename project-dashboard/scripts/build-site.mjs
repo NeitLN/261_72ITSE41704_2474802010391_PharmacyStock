@@ -39,6 +39,10 @@ async function main() {
     if (await exists(join(root, entry))) await cp(join(root, entry), join(site, entry), { recursive: true });
   }
 
+  // No snapshot yet: publish an empty history so the page does not request a missing file.
+  const history = join(site, 'data', 'history.json');
+  if (!(await exists(history))) await writeFile(history, '[]\n');
+
   await writeFile(
     join(out, 'index.html'),
     `<!doctype html>

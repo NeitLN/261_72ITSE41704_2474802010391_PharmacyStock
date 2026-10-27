@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { dayKey, addDays, diffDays, dayRange } from '../js/core/dates.mjs';
-import { escapeHtml, csvCell, toCsv } from '../js/core/escape.mjs';
-import { normalizeTasks } from '../js/core/tasks.mjs';
+import { dayKey, addDays, diffDays, dayRange } from '../js/core/dates.js';
+import { escapeHtml, csvCell, toCsv } from '../js/core/escape.js';
+import { normalizeTasks } from '../js/core/tasks.js';
 import { makeConfig, makeData, issue } from './fixtures.mjs';
 
 test('dayKey converts a UTC instant to the project day', () => {

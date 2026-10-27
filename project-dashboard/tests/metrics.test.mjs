@@ -1,11 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { normalizeTasks } from '../js/core/tasks.mjs';
-import { completion, currentWeek, weekStats, memberStats } from '../js/core/progress.mjs';
-import { reconstruct, idealLine, observedSeries, health } from '../js/core/burndown.mjs';
-import { buildModel } from '../js/core/model.mjs';
-import { buildWeeklyReport, reportToMarkdown } from '../js/core/report.mjs';
+import { normalizeTasks } from '../js/core/tasks.js';
+import { completion, currentWeek, weekStats, memberStats } from '../js/core/progress.js';
+import { reconstruct, idealLine, observedSeries, health } from '../js/core/burndown.js';
+import { buildModel } from '../js/core/model.js';
+import { buildWeeklyReport, reportToMarkdown } from '../js/core/report.js';
 import { makeConfig, makeData, issue } from './fixtures.mjs';
 
 const TZ = 'Asia/Ho_Chi_Minh';

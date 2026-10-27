@@ -13,8 +13,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
-import { buildModel } from '../js/core/model.mjs';
-import { inScope } from '../js/core/tasks.mjs';
+import { buildModel } from '../js/core/model.js';
+import { inScope } from '../js/core/tasks.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const { values: args } = parseArgs({

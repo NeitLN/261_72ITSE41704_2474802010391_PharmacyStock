@@ -1,6 +1,6 @@
 // Progress figures. A ratio with no denominator is null with a reason, never 0.
 
-import { inScope, isFinished } from './tasks.mjs';
+import { inScope, isFinished } from './tasks.js';
 
 export function ratio(num, den, reason = 'No tasks in scope') {
   return den > 0 ? { value: num / den, num, den, reason: null } : { value: null, num, den, reason };

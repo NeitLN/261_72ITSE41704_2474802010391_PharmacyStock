@@ -117,7 +117,9 @@ export class StockLedger {
           'READ COMMITTED',
           async (manager) => {
             await manager.query(`SET LOCAL lock_timeout = '5s'`);
-            const tx = new LedgerTransaction(manager);
+            const tx = new LedgerTransaction(manager, () =>
+              this.movementTime(),
+            );
             const result = await work(tx);
             await this.alerts?.evaluate(manager, tx.lockedMedicineIds);
             return result;
@@ -128,6 +130,15 @@ export class StockLedger {
         throw error;
       }
     }
+  }
+
+  /**
+   * When a movement happened. Undefined lets the database stamp it with
+   * `clock_timestamp()`, which is what every use case gets. Only the demo
+   * seed overrides it, to lay down a history dated over past weeks (#57).
+   */
+  protected movementTime(): Date | undefined {
+    return undefined;
   }
 }
 
@@ -140,7 +151,10 @@ export class LedgerTransaction {
   /** Writes run one after another, so concurrent posts never share a stale quantity. */
   private writes: Promise<unknown> = Promise.resolve();
 
-  constructor(readonly manager: EntityManager) {}
+  constructor(
+    readonly manager: EntityManager,
+    private readonly movementTime: () => Date | undefined = () => undefined,
+  ) {}
 
   /** The medicines this command has locked (step 1), lower-case. */
   get lockedMedicineIds(): string[] {
@@ -671,11 +685,18 @@ export class LedgerTransaction {
         ...movement,
         batch: { id: batch.id },
         performedBy: { id: actor.id },
+        ...this.dated(),
       }),
     );
     await this.manager.update(Batch, { id: batch.id }, next);
     Object.assign(batch, next);
     return saved;
+  }
+
+  /** `{ occurredAt }` when the ledger dates its movements (the demo seed only). */
+  private dated(): { occurredAt?: Date } {
+    const at = this.movementTime();
+    return at ? { occurredAt: at } : {};
   }
 
   private requireMedicineLocked(medicineId: string): void {

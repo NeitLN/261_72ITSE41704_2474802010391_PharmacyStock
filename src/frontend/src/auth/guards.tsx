@@ -1,6 +1,6 @@
-import { Button, Result } from 'antd';
 import type { ReactNode } from 'react';
-import { Link, Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
+import { RecoveryResult, StartPageButton } from '../ui/RecoveryResult';
 import { canOpen, SCREEN_PERMISSIONS } from './access';
 import { useAuth } from './authContext';
 
@@ -24,15 +24,12 @@ export function RequireScreen({ path, children }: { path: string; children: Reac
   const { can } = useAuth();
   if (canOpen(path, can)) return children;
   return (
-    <Result
-      status="403"
+    <RecoveryResult
+      icon="lock"
+      code="403"
       title="No access"
-      subTitle="Your role cannot use this screen."
-      extra={
-        <Button type="primary">
-          <Link to="/">Go to your start page</Link>
-        </Button>
-      }
+      text="Your role cannot use this screen. Ask the manager if you need access."
+      action={<StartPageButton />}
     />
   );
 }
@@ -42,7 +39,14 @@ export function StartPage() {
   const { can } = useAuth();
   const first = Object.keys(SCREEN_PERMISSIONS).find((path) => canOpen(path, can));
   if (!first) {
-    return <Result status="403" title="No screens" subTitle="Your role has no permissions yet. Ask the manager." />;
+    // No button: the start page is this screen, so it would only loop.
+    return (
+      <RecoveryResult
+        icon="noScreens"
+        title="No screens yet"
+        text="Your role has no permissions yet. Ask the manager."
+      />
+    );
   }
   return <Navigate to={first} replace />;
 }

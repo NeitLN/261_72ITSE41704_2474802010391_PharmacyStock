@@ -320,3 +320,38 @@ note.
 | Fix the TC-02 form defect | Tiến (A) | Week 6 |
 | Re-run TC-02; run the sign-in cases TC-42, TC-43 | Minh (C); Duy Anh (B) | After the fixes merge |
 | Tag `v0.1` with the release note | Minh (C) | When the above pass |
+
+## Week 7 — Must-core gate pre-check
+
+**Date:** 27/10/2026
+**Present:** Minh
+
+The gate (W07-C3, #63; Proposal §2.4) decides whether the Should use cases
+open in week 8. It is planned for Friday 30/10; this pre-check on `main`
+`0a66d12` lists what is still missing, so the gaps can close before then.
+
+**Criteria**
+
+| Criterion (plan, week 7) | State on 27/10 | Met |
+|---|---|---|
+| The 13 Must use cases run end to end on `main` | Every Must use case has at least one passing run in `runs.md` (UC01–UC11, UC16). UC12 has no dedicated case passed yet: TC-23 is not run; the report was used end to end only inside TC-31 (run 53) | Not yet |
+| Every test case of a Must rule passes | BR01, 02, 04, 05, 07, 10, 11: every case run passes. BR03: TC-62 passes in run 61 (#210, in review); TC-26 is a week 8 case. BR07: TC-54 is a week 8 case | Yes, once #210 merges |
+| CI green | *Backend* and *Frontend* green on the last three merges (#197, #199, #208) | Yes |
+| Ledger invariant | `findLedgerMismatches` query on the seeded dev database after today's runs: 0 mismatches over 123 batches and 145 movements, nothing negative | Yes |
+| TC-26, 54, 62 pass | `races.e2e-spec.ts`, 20 rounds each: RACE-01 (TC-62), RACE-02 (TC-54), RACE-03 (TC-26) all pass (run 61, 14:17 and 14:19). The manual lines for TC-26 and TC-54 are #67, week 8 | Yes |
+
+Open defects: none S1 or S2. S3: #184 (stock take drops a medicine at 0;
+fix #212) and #201 (prescriber licence case; fix #205). S4: #209 (batch
+history shows return lines by id).
+
+**Verdict:** not passed yet. Four items are left, all small.
+
+**Next**
+
+| Task | Owner | By |
+|---|---|---|
+| Review and merge #210 (TC-17, 18, 59, 62, 64) and #212 (#184) | Duy Anh (B) | Thu 29/10 |
+| Merge #198, then run TC-23 (UC12, two periods) | Tiến (A); Duy Anh (B) | Thu 29/10 |
+| Run TC-63 (UC10, monitoring off; expired and quarantined units) | Duy Anh (B) | Thu 29/10 |
+| Copy run 51 (TC-28 Pass) into `test-cases.md`; it still says Not run | Tiến (A) | Fri 30/10 |
+| Final gate check on the tag commit, verdict recorded here | Minh (C) | Fri 30/10 |

@@ -353,8 +353,8 @@ function BatchHistoryModal({ batchId, onClose }: { batchId: string | null; onClo
       title: 'Document',
       render: (_, m) => (
         <Space direction="vertical" size={0}>
-          {/* Returns and stock takes have no readable number yet: show the id. */}
-          <span>{m.source.reference ?? m.source.id}</span>
+          {/* A write-off or status change belongs to the batch itself: no document number. */}
+          <span>{m.source.reference ?? '—'}</span>
           {m.reason && (
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
               {m.reason}

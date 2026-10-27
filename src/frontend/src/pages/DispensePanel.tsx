@@ -26,6 +26,8 @@ import {
   prescriptionsApi,
 } from '../api/prescriptions';
 import { useLoad } from '../api/useLoad';
+import { TONE_COLOURS } from '../ui/status';
+import { ResultAppear } from './ResultAppear';
 
 const NO_OPTIONS: PrescriptionSummary[] = [];
 
@@ -56,7 +58,7 @@ function errorsByItem(
 /** BR02, FR-16: how a near-expiry batch is flagged, here and on the sales receipt. */
 export function WarningTag({ warning }: { warning: ExpiryWarning }) {
   return (
-    <Tag color="orange">
+    <Tag variant="filled" style={{ ...TONE_COLOURS.warning, marginInlineEnd: 0 }}>
       {warning.kind === 'WITHIN_ALERT_WINDOW'
         ? `Expires in ${warning.daysLeft} days`
         : `Expires before the course ends (${warning.daysLeft} days left)`}
@@ -305,6 +307,7 @@ export function DispensePanel() {
                 value={prescriptionId}
                 onChange={select}
                 placeholder="Search prescriptions"
+                notFoundContent="No verified prescription to dispense. Verify one on the Prescriptions tab."
                 style={{ width: '100%', marginTop: 8 }}
                 options={dispensable.map((o) => ({
                   value: o.id,
@@ -320,7 +323,7 @@ export function DispensePanel() {
                   rowKey="id"
                   size="small"
                   pagination={false}
-                  loading={loadingDetail}
+                  loading={{ spinning: loadingDetail, delay: 300 }}
                   dataSource={prescription.items}
                   style={{ marginTop: 8 }}
                   columns={[
@@ -480,36 +483,38 @@ function PreviewTable({
 
 function DispenseResultView({ result, onNew }: { result: DispenseResult; onNew: () => void }) {
   return (
-    <Space direction="vertical" style={{ width: '100%' }}>
-      <Descriptions size="small" column={2} title="Hand-over recorded">
-        <Descriptions.Item label="Status">{result.status}</Descriptions.Item>
-        <Descriptions.Item label="Dispensed at">{result.dispensedAt}</Descriptions.Item>
-      </Descriptions>
-      {result.items.map((item) => (
-        <div key={item.prescriptionItemId}>
-          <Typography.Text strong>
-            {item.medicine.code} — {item.medicine.name}: dispensed {item.quantityDispensed},
-            outstanding {item.quantityOutstanding}
-          </Typography.Text>
-          <Table
-            rowKey="dispenseLineId"
-            size="small"
-            pagination={false}
-            dataSource={item.lines}
-            style={{ marginTop: 8 }}
-            columns={[
-              { title: 'Batch', dataIndex: 'batchNumber' },
-              { title: 'Expiry', dataIndex: 'expiryDate' },
-              { title: 'Quantity', dataIndex: 'quantity', align: 'right' },
-              {
-                title: 'Warning',
-                render: (_, line) => (line.warning ? <WarningTag warning={line.warning} /> : '—'),
-              },
-            ]}
-          />
-        </div>
-      ))}
-      <Button onClick={onNew}>New dispensing</Button>
-    </Space>
+    <ResultAppear>
+      <Space direction="vertical" style={{ width: '100%' }}>
+        <Descriptions size="small" column={2} title="Hand-over recorded">
+          <Descriptions.Item label="Status">{result.status}</Descriptions.Item>
+          <Descriptions.Item label="Dispensed at">{result.dispensedAt}</Descriptions.Item>
+        </Descriptions>
+        {result.items.map((item) => (
+          <div key={item.prescriptionItemId}>
+            <Typography.Text strong>
+              {item.medicine.code} — {item.medicine.name}: dispensed {item.quantityDispensed},
+              outstanding {item.quantityOutstanding}
+            </Typography.Text>
+            <Table
+              rowKey="dispenseLineId"
+              size="small"
+              pagination={false}
+              dataSource={item.lines}
+              style={{ marginTop: 8 }}
+              columns={[
+                { title: 'Batch', dataIndex: 'batchNumber' },
+                { title: 'Expiry', dataIndex: 'expiryDate' },
+                { title: 'Quantity', dataIndex: 'quantity', align: 'right' },
+                {
+                  title: 'Warning',
+                  render: (_, line) => (line.warning ? <WarningTag warning={line.warning} /> : '—'),
+                },
+              ]}
+            />
+          </div>
+        ))}
+        <Button onClick={onNew}>New dispensing</Button>
+      </Space>
+    </ResultAppear>
   );
 }

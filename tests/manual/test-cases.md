@@ -1,7 +1,7 @@
 # Manual test cases
 
 The 63 planned test cases of Proposal v1.1, Appendix C, plus TC-64 (added
-20/10/2026, #129). Purpose and expected result are as submitted; steps are
+20/10/2026, #129) and TC-65 (added 27/10/2026, #214). Purpose and expected result are as submitted; steps are
 refined by the owner before the first run.
 The first manual runs were recorded on 14/10/2026 (TC-01, 02, 03, 45, 46), 18/10/2026 (TC-42, 43), 20/10/2026 (TC-02 re-run, 04, 05, 06, 07, 08, 09, 10, 11, 35, 36, 47, 55, 58), 22/10/2026 (TC-12, 13, 14, 37, 38, 57) and 27/10/2026 (week-7 regression of pack R, B's and C's areas; first runs of TC-15, 16, 31, 49, 50, 52, 60).
 Automated tests exist for the built use cases (column *Automated*), but a
@@ -42,13 +42,13 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-19 | 6 | UC09 / BR05 | Stock take with a discrepancy | System 10, counted 8, reason given; approve | ADJUSTMENT −2; history kept | Minh | Duy Anh | UC09-02 | Pass |
 | TC-20 | 6 | UC09 / BR08 | Difference without reason, or wrong role | Leave the reason blank; or a Cashier submits | Refused | Minh | Duy Anh | UC09-06, UC09-09, UC09-11b | Pass |
 | TC-21 | 6 | UC10 | Low-stock thresholds | Reorder level 10: sellable 11, 10, 9 and 0 | LOW_STOCK at and below 10, OUT_OF_STOCK at 0 (DEC-08) | Minh | Duy Anh | UC10-01..04 | Pass |
-| TC-22 | 7 | UC11 | Expiry window boundaries | Batches before, inside and after the 90-day window | Correct list and quantities | Minh | Duy Anh | — | Not run |
-| TC-23 | 7 | UC12 | Two periods with sales, returns and releases | Seeded transactions over two months | Net quantity issued matches a hand calculation (DEC-06) | Minh | Duy Anh | — | Not run |
+| TC-22 | 7 | UC11 | Expiry window boundaries | Batches before, inside and after the 90-day window | Correct list and quantities | Minh | Duy Anh | UC11-01, UC11-02 | Pass |
+| TC-23 | 7 | UC12 | Two periods with sales, returns and releases | Seeded transactions over two months | Net quantity issued matches a hand calculation (DEC-06) | Minh | Duy Anh | UC12-01 | Pass |
 | TC-24 | 8 | UC04 | Restart application and database | Record a receipt and an issue; restart the API and the container | No data lost | Tiến | Minh | — | Pass |
 | TC-25 | 8 | UC03 / UC06 | Failure in the middle of a transaction | A receipt whose second line fails inside the transaction | Full rollback; no partial document | Tiến | Minh | UC03-08, BR03-01 | Not run |
 | TC-26 | 8 | UC06 / BR03 | Two sessions request 4 of the last 5 | Two concurrent dispensings, 20 runs | Only one succeeds each time; never negative | Duy Anh | Tiến | BR03-02 (ledger) | Not run |
 | TC-27 | 8 | UC06 | Resubmit the same dispensing | Same request ID twice | No duplicate | Duy Anh | Tiến | — | Not run |
-| TC-28 | 8 | Access | Cashier calls a manager function | Cashier sends a supplier or catalogue change to the API | Refused in the business layer (403) | Minh | Duy Anh | UC02-08, UC01-09 | Not run |
+| TC-28 | 8 | Access | Cashier calls a manager function | Cashier sends a supplier or catalogue change to the API | Refused in the business layer (403) | Minh | Duy Anh | UC02-08, UC01-09 | Pass |
 | TC-29 | 8 | NFR-01, 02, 13 | Measure search, report and counter time | Large data set in a separate database; 10 runs, median | Within NFR thresholds; machine recorded | Tiến | Minh | — | Not run |
 | TC-30 | 8 | NFR-09 *(S)* | Backup and restore | `pg_dump`, restore into an empty database | Balances match | Tiến | Minh | — | Not run |
 | TC-31 | 9 | UC03–08 | End-to-end flow | Receive → prescription → dispense → bill → return → report | Every step and report consistent | Tiến | Minh | — | Pass |
@@ -76,15 +76,16 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-53 | 8 | Access | Every role × every endpoint | Automated matrix | Only permitted calls succeed | Minh | Duy Anh | `access-matrix.e2e-spec.ts` (38 endpoints × 3 roles, and no session) | Not run |
 | TC-54 | 8 | UC06 / BR07 | Two pharmacists dispense the same item | Concurrent dispensing of the last outstanding quantity, 20 runs | Total never above prescribed | Duy Anh | Tiến | — | Not run |
 | TC-55 | 7 | UC07 / BR03 | Sale with insufficient stock | Sell more than sellable | Refused with the available quantity | Duy Anh | Tiến | — | Pass |
-| TC-56 | 7 | UC11 | Write off an expired batch | Write off with a reason | Moved to pending destruction; not destroyed | Minh | Duy Anh | — | Not run |
+| TC-56 | 7 | UC11 | Write off an expired batch | Write off with a reason | Moved to pending destruction; not destroyed | Minh | Duy Anh | UC11-04 | Pass |
 | TC-57 | 6 | UC06 / BR02 | FEFO picks a batch inside the alert window | Earliest batch expires in 30 days | Warning with days left; issue allowed | Duy Anh | Tiến | — | Pass |
 | TC-58 | 5 | UC05 / BR04 | Dispense unverified; edit after verification | Dispense a RECEIVED prescription; edit a VERIFIED one | Refused; status back to RECEIVED | Duy Anh | Tiến | — | Pass |
 | TC-59 | 7 | UC06 / UC07 | Cancel a draft dispensing and an unpaid sale | Cancel each with a reason | No stock movement; quantities unchanged | Duy Anh | Minh | — | Pass |
 | TC-60 | 7 | UC06 / BR01 | Earlier-expiring batch on hold or recalled | Put the first FEFO batch on hold | Skipped; next eligible batch used | Duy Anh | Tiến | LOCK-02 (ledger) | Pass |
 | TC-61 | 8 | UC11 / BR11 *(S)* | Release one quarantined return, reject another, record destruction | Two returns in quarantine | Released units sellable; rejected units pending destruction until destroyed | Minh | Duy Anh | — | Not run |
 | TC-62 | 7 | UC06, UC07 / BR03 | Cashier sale and dispensing race for the last units | 20 runs | One succeeds, the other refused with the new quantity; never negative | Duy Anh | Minh | — | Pass |
-| TC-63 | 7 | UC10 | Monitoring off; expired or quarantined units present | Switch monitoring off; separately hold expired and quarantined stock | No alert when off; those units not counted as sellable | Minh | Duy Anh | — | Not run |
+| TC-63 | 7 | UC10 | Monitoring off; expired or quarantined units present | Switch monitoring off; separately hold expired and quarantined stock | No alert when off; those units not counted as sellable | Minh | Duy Anh | UC10-06, UC10-07 | Pass |
 | TC-64 | 6 | UC03 | Expiry not after the receipt date | Receipt dated today with a line expiring today, then one expiring yesterday | Error under that line's expiry date; nothing saved | Tiến | Minh | UC03-04 | Pass |
+| TC-65 | 7 | UC16 / UI | Unknown address and recovery screens | Signed in, open `/nothing-here`; as the cashier, open `/reports`; signed out, open `/nothing-here` | *Page not found* (404) and *No access* (403), each with a button that leads to the start page; signed out → sign-in | Tiến | Minh | `brand.test.tsx` | Not run |
 
 The *Automated* column names e2e or unit tests in `src/backend` that check the
 same behaviour at API level. They support the manual run; they do not replace

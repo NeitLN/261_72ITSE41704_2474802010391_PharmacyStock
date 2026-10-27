@@ -15,7 +15,7 @@ Mã việc `Wtt-Xn` trùng mã Issue trên GitHub khi nội dung tương ứng. 
 
 **Thành viên** (đã xác nhận): **A** = Võ Việt Tiến (trưởng nhóm, `NeitLN`) · **B** = Bùi Duy Anh (`anh7032`) · **C** = Võ Hoàng Minh (`Jayson135724`).
 
-**Quy ước giờ**: mỗi người 20 giờ hoạt động học tập/tuần (Guidelines §1), **đã gồm** tự học, họp, review và dự phòng. Tổng giờ trong bảng việc của mỗi tuần = 20 cho mỗi người (đã kiểm bằng script).
+**Quy ước giờ**: mỗi người 20 giờ hoạt động học tập/tuần (Guidelines §1), **đã gồm** tự học, họp, review và dự phòng. Tổng giờ trong bảng việc của mỗi tuần = 20 cho mỗi người (đã kiểm bằng script). **Ngoại lệ đã thống nhất**: Tiến tuần 7 là 25,5 và tuần 8 là 24; Minh tuần 8 là 28 nếu Minh đồng ý làm UC15 (họp T4 28/10), không đồng ý thì 20 và UC15 cắt.
 
 ---
 
@@ -89,8 +89,8 @@ Không làm Should thì: vai trò và tài khoản vẫn có qua seed; giá hi�
 | 5 | 12–18/10 | **v0.1**: đăng nhập → nhập hàng → nhận đơn → cấp FEFO | UC01, UC03, seed, **`StockLedger` (chuyển từ B)** — PR #96, #97, #99, #100; theo dõi DEC-09/10 với dược sĩ | UC05 + xác nhận, UC06 có bước bàn giao, test BR01–03 | Đăng nhập backend + UI, kiểm thử tích hợp, **tag v0.1** |
 | 6 | 19–25/10 | Quy tắc đơn, bán OTC, kiểm kê | UC04, xử lý lỗi nhất quán, chạy TC của B | `PrescriptionValidator` (BR04/07/10), UC07 OTC, invariant BR05 | UC09 (BR08), UC10, chạy TC của A |
 | 7 | 26/10–01/11 | **v0.2: 13 UC Must**; **cổng Must-core**; Appendix D | Trạng thái lô và cách ly trong ledger (BR11), hồi quy, seed giao dịch | UC08 vào cách ly, hủy trước bàn giao, TC-62, Appendix D, **tag v0.2** | UC11, UC12, kiểm tra cổng |
-| 8 | 02–08/11 | Làm vững; Should nếu qua cổng; **nháp báo cáo** | UC13 *(nếu qua cổng)*, TC-24/25, TC-29/30, Ch.2 + kiến trúc | TC-26/54/62, TC-27, màn hình UC14 *(nếu qua cổng)*, báo cáo phần B | TC-53, UC15 + FR-46/47 *(nếu qua cổng)*, sơ đồ, hồi quy, báo cáo phần C |
-| 9 | 09–15/11 | **Freeze T2 09/11**; **v1.0 T6 13/11** | Ch.1–2, phần A, ghép, bảng phản hồi Proposal | Phần B, kiểm thử khám phá, ma trận truy vết | TC-32, TC-33, hồi quy cuối, **tag v1.0** |
+| 8 | 02–08/11 | Làm vững; **bốn mục Should nếu qua cổng**, điểm cắt T4 04/11 (cập nhật 27/10); **nháp báo cáo** | UC13, TC-25, TC-29/30, rà UX, Ch.2 + kiến trúc; chạy test của B (24 giờ) | TC-26/54 ép chồng lấn, TC-27, màn hình UC14, sửa #201, báo cáo phần B; chạy test của C | FR-46/47, UC15 (làm thêm, 28 giờ), kiểm toán quyền, sửa #215, hồi quy phần đổi, báo cáo phần C; chạy test của A |
+| 9 | 09–15/11 | **Freeze T2 09/11**; **v1.0 T6 13/11** | Ch.1–2, giao diện, phần A, wireframe *as-built* (3 màn), bảng phản hồi Proposal, nháp Ch.4 | Phần B, wireframe *as-built* (4 màn), ghép bản nháp, khám phá và truy vết bổ sung, chạy TC-32/33 | Tổ chức TC-32, TC-33, sinh lại sơ đồ, hồi quy cuối, **tag v1.0** |
 | 10 | 16–22/11 | **Final — khóa T5 19/11, nộp T6 20/11** | Biên tập, Ch.4, Appendix B, nộp | Đối chiếu tài liệu–code, "chưa làm và vì sao", Appendix C | Chạy máy khác, kiểm tra file/link, checklist 12.2/12.3 |
 
 **Dự phòng**: khoảng 25–30 giờ/người (~13–15%) rải trong các tuần, nhiều hơn ở tuần 8–10.
@@ -164,7 +164,7 @@ Yêu cầu + tiêu chí chấp nhận (FR-xx, luồng thay thế)
 | Unit | Vitest | Lớp miền + service của mọi BR; ngày cố định qua `Clock` | 4 |
 | API e2e | Vitest + NestJS testing, **DB test riêng**, reset mỗi lần chạy, chạy trong CI (PostgreSQL service) | Luồng nhập → cấp → bán → trả; rollback; đồng thời; ma trận vai trò × endpoint | 4–5 |
 | Thủ công | `tests/manual/test-cases.md` (định nghĩa) + `tests/manual/runs.md` (**nhật ký chạy ghi nối tiếp**: lượt, ngày, người chạy, commit, Actual, kết quả, link bug) | Luồng giao diện, khả dụng, cài đặt | 5 |
-| **Bộ hồi quy R** (15 TC, ~2 giờ gồm reset + seed) | Thủ công + toàn bộ unit/e2e trong CI | TC-01, 03, 04, 06, 07, 09, 12, 15, 16, 19, 21, 28, 31, 35, 43 | Trước mỗi tag, bắt đầu **thứ Năm** |
+| **Bộ hồi quy R** (16 TC — thêm TC-50 khi BR11 thành Must, xem `tests/manual/test-cases.md`; ~2 giờ gồm reset + seed) | Thủ công + toàn bộ unit/e2e trong CI | TC-01, 03, 04, 06, 07, 09, 12, 15, 16, 19, 21, 28, 31, 35, 43, 50 | Trước mỗi tag, bắt đầu **thứ Năm** |
 
 Trước mỗi lượt chạy thủ công: `docker compose down -v` → migration → seed. Dữ liệu lớn cho TC-29 nạp vào **DB riêng**.
 
@@ -197,8 +197,19 @@ Mọi thứ của một tuần nằm trong **một** báo cáo `docs/progress/we
 |---|---|---|
 | Họp T4 | **Kiểm tra sớm**: phạm vi tuần còn khả thi không, ai vướng gì, ai review PR nào | Cả nhóm |
 | Trước họp T7 | **Tự báo cáo**: mỗi người điền dòng của mình (đã giao gì, link PR, review, lượt chạy test) | Từng người |
-| Họp T7 | **Kiểm minh chứng** (luân phiên một người kiểm mọi dòng có link) + **retrospective 10 phút** (keep/stop/try, chọn một cải tiến) | Luân phiên; cả nhóm |
+| Họp T7 | **Kiểm minh chứng** (luân phiên một người kiểm mọi dòng có link) + **retrospective 10 phút** (keep/stop/try, chọn một cải tiến) + **lên kế hoạch tuần sau** (bảng dưới) | Luân phiên; cả nhóm |
 | Trước tối CN | **Leader review cuối tuần**, đóng báo cáo | Tiến (dòng của Tiến do Minh review) |
+
+**Lên kế hoạch tuần sau** (thêm 27/10). Chỉ tuần kế tiếp được chia chi tiết; các tuần sau là **dự báo** (mục tiêu, mốc, ai làm phần nào, ước lượng giờ) và chỉ được chia chi tiết ở họp T7 của tuần trước nó. Ở họp T7:
+
+1. **Xem bằng chứng tuần qua**: việc nào đã merge, đã có lượt chạy Pass do người khác tác giả chạy (mở PR chưa phải là xong).
+2. **Đối chiếu việc dở**: dời, cắt hay chia lại, kèm lý do; việc dời giữ mã tuần gốc và một dòng lý do. Cập nhật dự báo các tuần sau theo việc **đã thật sự xong**, không theo kế hoạch.
+3. **Quyết định sắp tới hạn**: cổng, điểm cắt, mục Should, hạn nộp — mục nào có việc phụ thuộc nằm trong tuần tới thì chốt ngay.
+4. **Tính sức làm**: giờ thật của từng người tuần tới, kể cả review, chạy test của người khác và họp; ai vượt 20 giờ phải đồng ý và được ghi lại.
+5. **Chia chi tiết tuần tới** trong `tuan-NN.md`: việc, giờ, reviewer, phụ thuộc, nghiệm thu, issue; cộng các tiền đề mà tuần sau nữa cần sớm hơn.
+6. **Trưởng nhóm duyệt** và cả nhóm biết việc của mình trước tối CN.
+
+Giữa tuần chỉ đổi kế hoạch khi bị chặn, có bằng chứng mới quan trọng, hoặc trưởng nhóm đổi phạm vi.
 
 Leader review **không làm lại code review** (đó là việc của reviewer theo vòng, vẫn là cổng merge). Leader tổng hợp từng người: giao so với kế hoạch, minh chứng có đủ không, vướng mắc và khối lượng, dấu hiệu chất lượng (quy tắc trong service, test, validation, tài liệu). Góp ý ghi trên GitHub (`Weekly review (week NN): …`), có cả điểm làm tốt. Lỗi chặn merge sửa trước khi merge; góp ý khác thành issue nhãn `weekly-review`, có người làm, mức S1–S4 và hạn (việc nhỏ: T4 tuần sau; việc lớn: hạn thực tế). Không chấm điểm công sức, không coi số commit là số giờ. Mục tiêu 20–30 phút/tuần cho trưởng nhóm.
 
@@ -218,6 +229,8 @@ Giờ: khoảng 1,5 giờ/tuần của A, lấy từ dòng "review" trong bảng
 ## 7. Truy vết: yêu cầu → việc → chức năng → test → minh chứng → tiêu chí chấm
 
 Mã FR do từng người đặt ở tuần 2 (`FR-01…`). Ma trận đầy đủ FR → UC → service → test → trạng thái nằm trong báo cáo (W09-B3). **TC-35 đến TC-55** là test mới, viết **trước code** ở W04-C3.
+
+*Cột "người chạy" dưới đây là bản tuần 4. Người chạy hiện hành theo luân phiên — ca của Tiến do Minh, của Duy Anh do Tiến, của Minh do Duy Anh — ghi ở cột Runner của `tests/manual/test-cases.md`; bảng đó là chuẩn.*
 
 | Quy tắc / nhóm | UC | Lớp / service | Việc | Test tự động | TC thủ công (người chạy) | Tiêu chí |
 |---|---|---|---|---|---|---|
@@ -314,7 +327,7 @@ Kèm theo schema tuần 4, **không cần quyết định** vì là thiết kế
 
 1. **Phát hiện ở T4 hằng tuần**: gói Must dưới 50% hoặc có S1 mở → báo trên Issue và nhóm chat.
 2. **Dùng giờ dự phòng** của tuần; reviewer của module **ngồi cặp** (không nhận thay việc).
-3. **Cắt theo thứ tự**: Could → Should (UC15 màn hình → UC13 lịch sử giá → BR10 → BR08 → backup → stress 20 lần) → độ trau chuốt giao diện. **Không bao giờ cắt**: 14 UC Must, BR01–05, BR07, CI, unit test của chúng, nhật ký test, báo cáo.
+3. **Cắt theo thứ tự** (cập nhật 27/10): Could → Should chưa xong (UC15 → UC13 → màn hình UC14 → FR-46/47; điểm cắt T4 04/11 của tuần 8) → backup (TC-30) → độ trau chuốt giao diện. Mục Should đã merge và đã nghiệm thu thì không gỡ ra. **Không bao giờ cắt**: 13 UC Must, BR01–05, BR07, BR10, BR11 và BR08 đã có trên `main`, bằng chứng race của cổng Must-core (TC-26/54/62), CI, unit test của chúng, nhật ký test, báo cáo.
 4. **Cổng tuần không đạt**: hai ngày đầu tuần sau là phục hồi, không nhận việc mới đến khi cổng đạt; ghi trung thực vào journal.
 5. **Thành viên vắng > 3 ngày**: việc chuyển cho reviewer của module, ghi lý do trên Issue; nếu kéo dài, báo GV.
 

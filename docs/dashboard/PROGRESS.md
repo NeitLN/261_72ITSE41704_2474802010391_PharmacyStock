@@ -15,7 +15,7 @@ Status of the dashboard work itself, phase by phase. Plan:
 
 ## Checked so far (28/10/2026)
 
-- `npm test` in `project-dashboard/`: 54 tests pass. They cover:
+- `npm test` in `project-dashboard/`: 58 tests pass. They cover:
   - status rules, including closed, not planned, reopened and a stale board;
   - week mapping, planned dates and overdue;
   - completion with an empty denominator;

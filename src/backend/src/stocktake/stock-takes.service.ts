@@ -19,6 +19,7 @@ import {
   StockMovement,
   StockTake,
   StockTakeLine,
+  StockTakeMedicine,
   StockTakeStatus,
 } from '../entities/index.js';
 import { Clock } from '../stock/clock.js';
@@ -199,8 +200,12 @@ export class StockTakesService {
           status: StockTakeStatus.COUNTING,
           note: dto.note ?? null,
           openedBy: { id: actor.id },
-          medicines: medicineIds.map((medicineId) => ({ id: medicineId })),
         }),
+      );
+      await manager.save(
+        medicineIds.map((medicineId) =>
+          manager.create(StockTakeMedicine, { stockTakeId: take.id, medicineId }),
+        ),
       );
       await manager.save(
         batches
@@ -277,8 +282,9 @@ export class StockTakesService {
           'batchId',
         );
       }
-      const chosen = await manager.exists(StockTake, {
-        where: { id, medicines: { id: batch.medicine.id } },
+      const chosen = await manager.existsBy(StockTakeMedicine, {
+        stockTakeId: id,
+        medicineId: batch.medicine.id,
       });
       if (!chosen) {
         throw ValidationFailed.field(
@@ -508,7 +514,7 @@ export class StockTakesService {
         openedBy: true,
         countedBy: true,
         approvedBy: true,
-        medicines: true,
+        medicines: { medicine: true },
       },
     });
     if (!take) throw new NotFound('Stock take', id);
@@ -539,7 +545,7 @@ export class StockTakesService {
       approvedAt: take.approvedAt,
       createdAt: take.createdAt,
       medicines: take.medicines
-        .map((m) => ({
+        .map(({ medicine: m }) => ({
           id: m.id,
           code: m.code,
           name: m.name,

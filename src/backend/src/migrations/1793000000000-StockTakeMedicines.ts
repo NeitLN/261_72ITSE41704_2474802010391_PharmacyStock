@@ -4,7 +4,8 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * The medicines chosen when a stock take is opened (#184). A chosen medicine
  * with no stock on the book gets no line, so the lines alone cannot say
  * which batches the counter may add (A3). Existing stock takes get the
- * medicines of their lines, which is all they could add until now.
+ * medicines of their lines, which is all they could add until now. Both
+ * foreign keys are NO ACTION, as everywhere else in the schema.
  */
 export class StockTakeMedicines1793000000000 implements MigrationInterface {
   name = 'StockTakeMedicines1793000000000';
@@ -14,16 +15,10 @@ export class StockTakeMedicines1793000000000 implements MigrationInterface {
       `CREATE TABLE "stock_take_medicines" ("stock_take_id" uuid NOT NULL, "medicine_id" uuid NOT NULL, CONSTRAINT "PK_4e0a02a20862062afe0daeec68a" PRIMARY KEY ("stock_take_id", "medicine_id"))`,
     );
     await queryRunner.query(
-      `CREATE INDEX "IDX_0068dfcdfcdb1c7d8f40680352" ON "stock_take_medicines" ("stock_take_id")`,
+      `ALTER TABLE "stock_take_medicines" ADD CONSTRAINT "FK_0068dfcdfcdb1c7d8f40680352c" FOREIGN KEY ("stock_take_id") REFERENCES "stock_takes"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`,
     );
     await queryRunner.query(
-      `CREATE INDEX "IDX_a3da51900448be8e26a3d46ded" ON "stock_take_medicines" ("medicine_id")`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "stock_take_medicines" ADD CONSTRAINT "FK_0068dfcdfcdb1c7d8f40680352c" FOREIGN KEY ("stock_take_id") REFERENCES "stock_takes"("id") ON DELETE CASCADE ON UPDATE CASCADE`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "stock_take_medicines" ADD CONSTRAINT "FK_a3da51900448be8e26a3d46ded0" FOREIGN KEY ("medicine_id") REFERENCES "medicines"("id") ON DELETE CASCADE ON UPDATE CASCADE`,
+      `ALTER TABLE "stock_take_medicines" ADD CONSTRAINT "FK_a3da51900448be8e26a3d46ded0" FOREIGN KEY ("medicine_id") REFERENCES "medicines"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`,
     );
     await queryRunner.query(
       `INSERT INTO "stock_take_medicines" ("stock_take_id", "medicine_id")
@@ -38,12 +33,6 @@ export class StockTakeMedicines1793000000000 implements MigrationInterface {
     );
     await queryRunner.query(
       `ALTER TABLE "stock_take_medicines" DROP CONSTRAINT "FK_0068dfcdfcdb1c7d8f40680352c"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_a3da51900448be8e26a3d46ded"`,
-    );
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_0068dfcdfcdb1c7d8f40680352"`,
     );
     await queryRunner.query(`DROP TABLE "stock_take_medicines"`);
   }

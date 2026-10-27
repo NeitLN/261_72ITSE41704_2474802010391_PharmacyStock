@@ -484,6 +484,7 @@ describe('UC09 stock takes (e2e)', () => {
     expect((await manager.approve(take.id)).status).toBe(201);
     expect(await qty(v1)).toBe(2);
     expect(await qty(p1)).toBe(10);
+    expect(await findLedgerMismatches(t.dataSource.manager)).toEqual([]);
   });
 
   it('UC09-20 #184: a stock take of only medicines at 0 opens empty, takes added batches, and cannot be submitted empty', async () => {

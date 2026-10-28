@@ -69,7 +69,7 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-46 | 5 | UC01 / UC02 | Deactivated medicine or supplier in a receipt | Deactivate, then use it on a receipt | Refused | Tiến | Minh | UC03-09 | Pass |
 | TC-47 | 5 | UC05 | Multi-item prescription; missing patient, strength or dose | Save a complete prescription; then omit each field | Saved; or field errors | Duy Anh | Tiến | — | Pass |
 | TC-48 | 6 | UC04 | Lookup and batch history | Search; open a medicine with expired and valid batches; open a batch | Sellable vs expired correct; history ordered with running balance | Tiến | Minh | — | Pass |
-| TC-49 | 7 | UC14 | Duplicate prescriber licence | Quick-create a prescriber with an existing licence | Refused | Duy Anh | Tiến | — | Fail |
+| TC-49 | 7 | UC14 | Duplicate prescriber licence | Quick-create a prescriber with an existing licence | Refused | Duy Anh | Tiến | — | Pass |
 | TC-50 | 7 | UC08 / BR11 | Return of an unexpired item | Return 1 unit | Goes to quarantine, not sellable | Duy Anh | Tiến | — | Pass |
 | TC-51 | 8 | UC09 / BR08 *(S)* | Counter approves own stock take | Same user counts and approves | Refused | Minh | Duy Anh | — | Not run |
 | TC-52 | 7 | UC07 | Billing creates no stock movement | Bill a dispensing; compare the ledger | Ledger unchanged by billing | Duy Anh | Tiến | — | Pass |

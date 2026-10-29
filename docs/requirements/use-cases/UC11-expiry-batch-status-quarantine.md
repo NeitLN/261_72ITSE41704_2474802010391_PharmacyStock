@@ -178,8 +178,8 @@ the expiry alerts show in the alerts tab. Wireframes: Tiến, #154.
 
 | Route | Permission | Body / response |
 |---|---|---|
-| `GET /api/returns/quarantine` | `batch_status.manage` | Return lines in PENDING_ASSESSMENT, oldest first: `[{ returnLineId, saleReturn: { id, referenceNumber, returnedAt, reason }, medicine: { id, code, name, classification }, batch: { id, batchNumber, expiryDate, status }, quantity, releaseBlockedBy: null \| 'controlled' \| 'expired' \| 'batch_not_active' }]` |
-| `POST /api/returns/lines/:id/assess` | `batch_status.manage` | `{ outcome: 'release' \| 'reject', packagingIntact, storageCredible, note }` → the line with `assessmentStatus`, `assessedBy`, `assessedAt`, `assessmentNote`, and the movement |
+| `GET /api/quarantine` | `batch_status.manage` | Return lines in PENDING_ASSESSMENT, oldest first: `[{ returnLineId, saleReturn: { id, referenceNumber, returnedAt, reason }, medicine: { id, code, name, classification }, batch: { id, batchNumber, expiryDate, status }, quantity, releaseBlockedBy: null \| 'controlled' \| 'expired' \| 'batch_not_active' }]` |
+| `POST /api/quarantine/:id/assess` | `batch_status.manage` | `{ outcome: 'release' \| 'reject', packagingIntact, storageCredible, note }` → the line with `assessmentStatus`, `assessedBy`, `assessedAt`, `assessmentNote`, and the movement |
 | `GET /api/batches/pending-destruction` | `batch_status.manage` | Batches with stock pending destruction: medicine, batch, expiry, status, `qtyPendingDestruction` |
 | `POST /api/batches/:id/destructions` | `batch_status.manage` | `{ quantity, destroyedOn, method, methodNote?, witness, note? }` → 201 the record with its `DESTROY` movement |
 | `GET /api/batches/:id/destructions` | `batch_status.manage` | The batch's destruction records, newest first |
@@ -191,11 +191,12 @@ Rules and errors (existing format):
   `CANNOT_RELEASE`. A line already assessed gives 409 `ALREADY_ASSESSED`, and
   a `note` is required (400).
 - **Destroy.** `quantity` is a whole number ≥ 1 and at most what is pending,
-  otherwise 422 BR03 from the ledger. `destroyedOn` must not be after the
+  otherwise 422 `INSUFFICIENT_STOCK` (BR03) from the ledger. `destroyedOn` must not be after the
   business date (400). `witness` is required, 2–100 characters (400).
   `method: 'other'` needs `methodNote` (400).
 
-The return line is locked with the stock take's pattern (`SELECT … FOR
+Assessment lives in its own `QuarantineModule` at `/api/quarantine`, apart
+from UC08's `/api/returns/:id`. The return line is locked with the stock take's pattern (`SELECT … FOR
 UPDATE` on the line, then the ledger locks medicine → batch), so two
 managers assessing the same line cannot both post.
 
@@ -246,7 +247,7 @@ sequenceDiagram
     L->>DB: BEGIN
     S->>L: lockMedicines([medicine]), lockBatches([batch])
     S->>L: destroy(actor, batch, quantity, reason)
-    L-->>S: 422 BR03 if quantity > pending destruction
+    L-->>S: 422 INSUFFICIENT_STOCK (BR03) if quantity > pending
     L->>DB: DESTROY: pending destruction −q
     S->>DB: INSERT destruction_records (…, movement_id)
     L->>DB: COMMIT
@@ -277,7 +278,7 @@ a TC are also run by hand (by Duy Anh).
 | S16 *(S)* | Error | Release a controlled medicine; release from an expired batch; release with *packaging intact* unticked | 422 `CANNOT_RELEASE`; 422 `CANNOT_RELEASE`; 400 on `packagingIntact`; nothing moves | UC11-16 |
 | S17 *(S)* | Error | Assess a line twice; assess with no note | 409 `ALREADY_ASSESSED`; 400 on `note` | UC11-17 |
 | S18 *(S)* | Normal | Record destruction of 5 of 5 pending, by licensed contractor, with a witness | `DESTROY`: pending destruction −5; one record linked to the movement; the batch leaves the pending list | UC11-18, TC-61 |
-| S19 *(S)* | Error | Destroy 6 with 5 pending; date after the business date; no witness; `other` with no note | 422 BR03; 400 on `destroyedOn`; 400 on `witness`; 400 on `methodNote` | UC11-19 |
+| S19 *(S)* | Error | Destroy 6 with 5 pending; date after the business date; no witness; `other` with no note | 422 `INSUFFICIENT_STOCK` (BR03); 400 on `destroyedOn`; 400 on `witness`; 400 on `methodNote` | UC11-19 |
 | S20 *(S)* | Edge | Two managers assess the same line at once | One succeeds, the other gets 409; one movement | UC11-20 |
 | S21 *(S)* | Error | A pharmacist or cashier calls any route above | 403 | UC11-21, TC-53 |
 | S22 *(S)* | Invariant | After S14, S15 and S18 | `findLedgerMismatches` finds nothing (BR05) | UC11-22 |

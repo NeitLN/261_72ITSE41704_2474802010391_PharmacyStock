@@ -349,6 +349,34 @@ describe('UC09 stock takes (e2e)', () => {
     expect(await adjustments()).toHaveLength(0);
   });
 
+  it('UC09-11c #215 BR08: a manager whose count was overwritten by someone else still cannot approve', async () => {
+    const p1 = await receive(paraId, 'P1', 10);
+    const take = await open([paraId]);
+    await manager.count(take.id, lineOf(take, p1), { countedQuantity: 8, reason: 'Two boxes missing' });
+    await pharmacist.count(take.id, lineOf(take, p1), { countedQuantity: 8, reason: 'Two boxes missing' });
+    expect((await pharmacist.submit(take.id)).status).toBe(201);
+
+    const res = await manager.approve(take.id);
+    expect(res.status).toBe(422);
+    expect(res.body.code).toBe('SAME_COUNTER');
+    expect(await adjustments()).toHaveLength(0);
+    expect(await qty(p1)).toBe(10);
+  });
+
+  it('UC09-11d #215 BR08: a manager who submitted, before the take was returned and resubmitted by someone else, cannot approve', async () => {
+    const p1 = await receive(paraId, 'P1', 10);
+    const take = await open([paraId]);
+    await pharmacist.count(take.id, lineOf(take, p1), { countedQuantity: 9, reason: 'One box broken' });
+    expect((await manager.submit(take.id)).status).toBe(201);
+    expect((await manager.return(take.id, 'Count the back shelf too')).status).toBe(201);
+    expect((await pharmacist.submit(take.id)).status).toBe(201);
+
+    const res = await manager.approve(take.id);
+    expect(res.status).toBe(422);
+    expect(res.body.code).toBe('SAME_COUNTER');
+    expect(await adjustments()).toHaveLength(0);
+  });
+
   it('UC09-12 approving while counting, or twice, is a 409 and posts once', async () => {
     const batch = await receive(paraId, 'P1', 10);
     const take = await open([paraId]);

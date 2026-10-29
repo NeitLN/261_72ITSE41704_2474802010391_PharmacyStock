@@ -29,6 +29,7 @@ export * from './stock-take.entity.js';
 export * from './stock-take-line.entity.js';
 export * from './stock-take-counter.entity.js';
 export * from './stock-alert.entity.js';
+export * from './destruction-record.entity.js';
 
 // Access control and audit
 export * from './user.entity.js';

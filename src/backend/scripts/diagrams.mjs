@@ -25,7 +25,15 @@ const GROUPS = [
   ['Purchasing', ['Supplier', 'GoodsReceipt', 'GoodsReceiptLine']],
   [
     'Stock and control',
-    ['Batch', 'StockMovement', 'StockTake', 'StockTakeLine', 'StockAlert'],
+    [
+      'Batch',
+      'StockMovement',
+      'StockTake',
+      'StockTakeLine',
+      'StockTakeMedicine',
+      'StockTakeCounter',
+      'StockAlert',
+    ],
   ],
   [
     'Prescriptions and dispensing',
@@ -51,6 +59,15 @@ const GROUPS = [
   ],
 ];
 
+/**
+ * Entities that no service, controller or rule reads or writes yet, with the
+ * reason (#71). They are drawn with a <<not used yet>> stereotype.
+ */
+const UNUSED = {
+  AuditLog:
+    'Only the demo seed writes one row, as its completion marker. The audit entries of FR-41 come with UC15 (#105).',
+};
+
 /** Links the database does not enforce, so metadata cannot show them. */
 const LOGICAL = [
   'StockMovement.sourceDocumentType + sourceDocumentId point to the receipt, dispense line, sale line, return line or stock-take line that caused the movement. They are not a foreign key: one column pair serves five tables.',
@@ -63,6 +80,9 @@ const metas = [...ds.entityMetadatas].sort((a, b) =>
   a.name.localeCompare(b.name),
 );
 const byName = new Map(metas.map((m) => [m.name, m]));
+// A group may list an entity a pending pull request adds; skip it until the
+// entity exists, so the script runs on main before and after the merge.
+for (const group of GROUPS) group[1] = group[1].filter((n) => byName.has(n));
 const groupOf = new Map(
   GROUPS.flatMap(([g, names]) => names.map((n) => [n, g])),
 );
@@ -156,6 +176,7 @@ function classes(groupName, names) {
     const m = byName.get(name);
     if (m.tableType === 'junction') continue;
     lines.push(`    class ${m.name} {`);
+    if (UNUSED[m.name]) lines.push('        <<not used yet>>');
     for (const c of m.columns) {
       if (c.relationMetadata) continue;
       const type = c.enum
@@ -292,6 +313,10 @@ writeFileSync(
       'Part 1 shows the persistent classes (TypeORM entities) with their attributes, enumerations and associations, generated. Part 2, below the marker, shows the services and domain classes that hold the business rules; it is written by hand.',
       '',
       '## Part 1 — Entities (generated)',
+      '',
+      'Marked <<not used yet>>, because nothing in the application reads or writes them so far:',
+      '',
+      ...Object.entries(UNUSED).map(([n, why]) => `- \`${n}\`: ${why}`),
       '',
     ]),
     ...GROUPS.flatMap(([g, names]) => classes(g, names)),

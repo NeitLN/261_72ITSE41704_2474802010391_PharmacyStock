@@ -104,10 +104,15 @@ round on fresh data, and checks the ledger after every round (#165):
 | TC-62 | RACE-01 | A sale (cashier) and a dispensing (pharmacist) of the last 3 units at once: one 201, one 422 `INSUFFICIENT_STOCK`; batch 0 |
 | TC-54 | RACE-02 | Two dispensings of the same prescription line (4 of 4 outstanding) at once: one 201, one 422; dispensed exactly 4 |
 | TC-26 | RACE-03 | Two dispensings of 4 when 5 are left: one 201, one 422; batch 1, never negative |
+| TC-26 | RACE-04 | As RACE-03, but both requests are held at the medicine lock until the database shows both waiting (#67) |
+| TC-54 | RACE-05 | As RACE-02, held at the lock the same way |
+
+RACE-04 and RACE-05 are the forced-overlap runs #67 asks for: every round is a
+real overlap, not two requests that only happened to be sent together.
 
 1. In `src/backend`:
    `npx vitest run --config ./vitest.config.e2e.ts test/races.e2e-spec.ts`
-2. Pass if **3 passed**; record the time and "20/20 rounds: one accepted, one
+2. Pass if **5 passed**; record the time and "20/20 rounds: one accepted, one
    refused, ledger consistent" per TC. 📷 the summary.
 3. Once by hand as a sanity check (optional): two browser windows, pharmacist
    and cashier, the last units of `TCB-OTC`/a prescription; press **Pay** and

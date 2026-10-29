@@ -145,7 +145,7 @@ Every table and column, with its type, nullability, default and keys; enumeratio
 | `reason` | varchar | yes |  |  |  |
 | `sourceDocumentType` | enum | no |  |  | `goods_receipt`, `dispense_line`, `sale_line`, `return_line`, `stock_take_line`, `batch` |
 | `sourceDocumentId` | uuid | no |  |  |  |
-| `occurredAt` | timestamptz | no | `now()` |  |  |
+| `occurredAt` | timestamptz | no | `clock_timestamp()` |  |  |
 | `reverses_movement_id` | uuid | yes |  | FK → `stock_movements`, unique |  |
 | `batch_id` | uuid | no |  | FK → `batches` |  |
 | `performed_by_id` | uuid | no |  | FK → `users` |  |
@@ -179,9 +179,24 @@ Every table and column, with its type, nullability, default and keys; enumeratio
 | `reason` | varchar | yes |  |  |  |
 | `stock_take_id` | uuid | no |  | FK → `stock_takes` |  |
 | `batch_id` | uuid | no |  | FK → `batches` |  |
+| `counted_by_id` | uuid | yes |  | FK → `users` |  |
 
 - Check `ck_stock_take_lines_counted_qty`: `"countedQuantity" IS NULL OR "countedQuantity" >= 0`
 - Check `ck_stock_take_lines_system_qty`: `"systemQuantity" >= 0`
+
+### `stock_take_medicines` — StockTakeMedicine
+
+| Column | Type | Null | Default | Key | Notes |
+|---|---|---|---|---|---|
+| `stock_take_id` | uuid | no |  | PK, FK → `stock_takes` |  |
+| `medicine_id` | uuid | no |  | PK, FK → `medicines` |  |
+
+### `stock_take_counters` — StockTakeCounter
+
+| Column | Type | Null | Default | Key | Notes |
+|---|---|---|---|---|---|
+| `stock_take_id` | uuid | no |  | PK, FK → `stock_takes` |  |
+| `user_id` | uuid | no |  | PK, FK → `users` |  |
 
 ### `stock_alerts` — StockAlert
 

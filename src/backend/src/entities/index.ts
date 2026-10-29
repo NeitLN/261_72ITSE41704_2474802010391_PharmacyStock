@@ -28,6 +28,7 @@ export * from './stock-movement.entity.js';
 export * from './stock-take.entity.js';
 export * from './stock-take-line.entity.js';
 export * from './stock-take-medicine.entity.js';
+export * from './stock-take-counter.entity.js';
 export * from './stock-alert.entity.js';
 
 // Access control and audit

@@ -18,6 +18,7 @@ import {
   SourceDocumentType,
   StockMovement,
   StockTake,
+  StockTakeCounter,
   StockTakeLine,
   StockTakeMedicine,
   StockTakeStatus,
@@ -251,6 +252,8 @@ export class StockTakesService {
           countedBy: { id: actor.id },
         },
       );
+      // The line keeps only the latest counter; BR08 needs all of them (#215).
+      await this.recordCounter(manager, id, actor.id);
     });
     return this.view(this.dataSource.manager, id);
   }
@@ -352,6 +355,8 @@ export class StockTakesService {
           submittedAt: this.clock.now(),
         },
       );
+      // Kept even if the stock take is returned and someone else submits.
+      await this.recordCounter(manager, id, actor.id);
     });
     return this.view(this.dataSource.manager, id);
   }
@@ -368,10 +373,14 @@ export class StockTakesService {
         StockTakeStatus.PENDING_APPROVAL,
       ]);
       const lines = await this.orderedLines(manager, id);
-      // BR08, strict: whoever saved a count or submitted cannot approve.
+      // BR08, strict: whoever saved a count, even one overwritten since
+      // (#215), or submitted cannot approve.
       const counters = new Set(
-        lines.map((l) => l.countedBy?.id).filter((u): u is string => !!u),
+        (
+          await manager.findBy(StockTakeCounter, { stockTakeId: id })
+        ).map((c) => c.userId),
       );
+      for (const l of lines) if (l.countedBy) counters.add(l.countedBy.id);
       if (take.countedBy) counters.add(take.countedBy.id);
       if (counters.has(actor.id)) {
         throw new BusinessRuleViolation(
@@ -502,6 +511,20 @@ export class StockTakesService {
       .addOrderBy('batch.batchNumber', 'ASC')
       .addOrderBy('l.id', 'ASC')
       .getMany();
+  }
+
+  private async recordCounter(
+    manager: EntityManager,
+    stockTakeId: string,
+    userId: string,
+  ): Promise<void> {
+    await manager
+      .createQueryBuilder()
+      .insert()
+      .into(StockTakeCounter)
+      .values({ stockTakeId, userId })
+      .orIgnore()
+      .execute();
   }
 
   private async view(

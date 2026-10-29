@@ -7,6 +7,10 @@ Part 1 shows the persistent classes (TypeORM entities) with their attributes, en
 
 ## Part 1 — Entities (generated)
 
+Marked <<not used yet>>, because nothing in the application reads or writes them so far:
+
+- `AuditLog`: Only the demo seed writes one row, as its completion marker. The audit entries of FR-41 come with UC15 (#105).
+
 
 ### Catalogue
 
@@ -136,6 +140,10 @@ classDiagram
         +integer countedQuantity?
         +varchar reason?
     }
+    class StockTakeMedicine {
+    }
+    class StockTakeCounter {
+    }
     class StockAlert {
         +uuid id
         +StockAlertType type
@@ -154,7 +162,12 @@ classDiagram
     StockTake "*" --> "0..1" User : countedBy
     StockTake "*" --> "1" User : openedBy
     StockTakeLine "*" --> "1" Batch : batch
+    StockTakeLine "*" --> "0..1" User : countedBy
     StockTakeLine "*" --> "1" StockTake : stockTake
+    StockTakeMedicine "*" --> "1" Medicine : medicine
+    StockTakeMedicine "*" --> "1" StockTake : stockTake
+    StockTakeCounter "*" --> "1" StockTake : stockTake
+    StockTakeCounter "*" --> "1" User : user
     StockAlert "*" --> "0..1" User : acknowledgedBy
     StockAlert "*" --> "0..1" Batch : batch
     StockAlert "*" --> "1" Medicine : medicine
@@ -359,6 +372,7 @@ classDiagram
         +varchar description
     }
     class AuditLog {
+        <<not used yet>>
         +uuid id
         +varchar action
         +varchar entityName
@@ -385,8 +399,8 @@ classDiagram
 
 The business rules live in these classes, not in the entities or the
 controllers (NFR-11). Kept small on purpose: each box shows the operations
-other classes call. Status as of 22/10/2026: **built** = on `main`;
-*in review* = in an open pull request; *planned* = designed for week 7.
+other classes call. Checked against the code on 29/10/2026 (#71):
+everything shown is on `main`.
 
 ### Stock: the ledger and the rules it applies
 
@@ -441,7 +455,8 @@ classDiagram
         +setPrice(manager, actor, medicineId, price, date)
     }
     class AlertEvaluator {
-        <<in review #147>>
+        UC10, UC11
+        +levels(manager, medicineIds) Map
         +evaluate(manager, medicineIds)
     }
     StockLedger ..> LedgerTransaction : creates per command
@@ -473,6 +488,7 @@ classDiagram
     class SalesService {
         UC07
         +record(actor, dto) SaleView
+        +billable(actor)
         +get(actor, id) SaleView
     }
     class PrescriptionsService {
@@ -491,12 +507,53 @@ classDiagram
     }
     class MedicinesService {
         UC01
+        +list(actor, query)
+        +create(actor, dto)
+        +update(actor, id, dto)
+        +setActive(actor, id, active)
+    }
+    class SuppliersService {
+        UC02
+        +create(actor, dto)
+        +update(actor, id, dto)
+        +setActive(actor, id, active)
     }
     class StockLookupService {
-        UC04 · in review #139
+        UC04
         +list(actor, query)
         +medicine(actor, id)
         +history(actor, batchId)
+    }
+    class ReturnsService {
+        UC08
+        +findSale(actor, receiptNumber)
+        +record(actor, dto)
+        +get(actor, id)
+    }
+    class StockTakesService {
+        UC09
+        +open(actor, dto)
+        +count(actor, id, lineId, dto)
+        +addLine(actor, id, dto)
+        +submit(actor, id)
+        +approve(actor, id)
+        +returnToCounting(actor, id, dto)
+        +cancel(actor, id)
+    }
+    class AlertsService {
+        UC10, UC11
+        +list(actor, query)
+        +acknowledge(actor, id)
+    }
+    class BatchesService {
+        UC11
+        +writeOff(actor, batchId, reason)
+        +setStatus(actor, batchId, status, reason)
+    }
+    class AuthService {
+        UC16
+        +login(username, password)
+        +actorFromToken(token) Actor
     }
     GoodsReceiptsService ..> StockLedger
     DispensingService ..> StockLedger
@@ -508,6 +565,10 @@ classDiagram
     PrescriptionsService ..> PrescriptionValidator
     MedicinesService ..> PriceBook
     StockLookupService ..> Clock
+    ReturnsService ..> StockLedger
+    StockTakesService ..> StockLedger
+    BatchesService ..> StockLedger
+    AlertsService ..> AlertEvaluator
 ```
 
 ### Errors: one hierarchy, one response shape
@@ -541,29 +602,42 @@ classDiagram
     DomainError <|-- BusinessRuleViolation
 ```
 
-### Reports — planned for week 7 (UC10–UC12)
+### Reports (UC10–UC12)
 
 Decision D14 of the plan: one abstract report, three kinds, so the same
-screen and export code serve all of them. **Not built yet**; the names are
-the design the UC12 owner starts from, and change if the design gate does.
+route and screen code serve all of them. `GET /api/reports/:kind` asks
+`ReportRegistry` for the generator; `generate` is a template method: it
+checks the permission, validates the query, runs the subclass's `check`,
+`rows` and `totals`, and stamps who produced it and when.
 
 ```mermaid
 classDiagram
-    class ReportGenerator {
-        <<abstract · planned>>
-        +generate(period) ReportResult
-        #rows(manager, period)* Row[]
+    class ReportGenerator~Q, R, T~ {
+        <<abstract>>
+        +kind string
+        +permission Permission
+        +generate(actor, query) Report
+        #parse(query) Q
+        #check(query)
+        #rows(manager, query)* R[]
+        #totals(rows)* T
     }
     class LowStockReport {
-        <<planned>>
+        UC10 · low-stock
     }
     class ExpiryReport {
-        <<planned · UC11>>
+        UC11 · expiry
     }
     class StockMovementReport {
-        <<planned · UC12>>
+        UC12 · stock-movement
+        +movements(actor, medicineId, query)
+    }
+    class ReportRegistry {
+        +get(kind) ReportGenerator
     }
     ReportGenerator <|-- LowStockReport
     ReportGenerator <|-- ExpiryReport
     ReportGenerator <|-- StockMovementReport
+    ReportRegistry o-- ReportGenerator : by kind
+    ReportGenerator ..> Clock
 ```

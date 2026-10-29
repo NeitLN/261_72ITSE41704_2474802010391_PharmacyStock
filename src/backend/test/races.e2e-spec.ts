@@ -181,6 +181,42 @@ describe('Races, 20 runs each (e2e)', () => {
       });
   }
 
+  /**
+   * Forces a real overlap: holds the medicine's row lock, starts the
+   * requests, waits until the database shows `waiters` sessions blocked on
+   * a lock, then lets go. `Promise.all` alone only sends the requests
+   * together; this proves both were inside their transactions at once.
+   */
+  async function overlapping<T>(
+    medicineId: string,
+    waiters: number,
+    requests: () => PromiseLike<T>[],
+  ): Promise<T[]> {
+    const holder = t.dataSource.createQueryRunner();
+    await holder.connect();
+    await holder.startTransaction();
+    await holder.query('SELECT id FROM medicines WHERE id = $1 FOR UPDATE', [
+      medicineId,
+    ]);
+    const pending = Promise.all(requests());
+    try {
+      let blocked = 0;
+      for (let tries = 0; tries < 250 && blocked < waiters; tries += 1) {
+        await new Promise((resolve) => setTimeout(resolve, 20));
+        const [row] = await t.dataSource.query(
+          `SELECT count(*)::int AS n FROM pg_stat_activity
+            WHERE datname = current_database() AND wait_event_type = 'Lock'`,
+        );
+        blocked = row.n;
+      }
+      expect(blocked, 'requests blocked behind the held lock').toBe(waiters);
+    } finally {
+      await holder.commitTransaction();
+      await holder.release();
+    }
+    return pending;
+  }
+
   const qty = async (batchId: string) =>
     (await t.dataSource.getRepository(Batch).findOneByOrFail({ id: batchId }))
       .qtySellable;
@@ -317,5 +353,65 @@ describe('Races, 20 runs each (e2e)', () => {
       expect(losses).toBe(RUNS);
     },
     120_000,
+  );
+
+  it(
+    'RACE-04 TC-26: two hand-overs for 4 of the last 5, both held at the lock together, 20 times',
+    async () => {
+      for (let round = 1; round <= RUNS; round += 1) {
+        const medicine = await pricedMedicine();
+        const batchId = await receive(`D-${round}`, 5, medicine);
+        const firstRx = await verifiedPrescription(medicine, 4);
+        const secondRx = await verifiedPrescription(medicine, 4);
+
+        const [first, second] = await overlapping(medicine.id, 2, () => [
+          dispense(firstRx.id, firstRx.itemId, 4),
+          dispense(secondRx.id, secondRx.itemId, 4),
+        ]);
+
+        expect(
+          [first.status, second.status].sort(),
+          `round ${round}: dispense ${first.status}/${second.status}`,
+        ).toEqual([201, 422]);
+        const loser = first.status === 422 ? first : second;
+        expect(loser.body.code, `round ${round}: loser code`).toBe(
+          'INSUFFICIENT_STOCK',
+        );
+        expect(await qty(batchId), `round ${round}: batch left`).toBe(1);
+        await expectHealthy(round);
+      }
+    },
+    180_000,
+  );
+
+  it(
+    'RACE-05 TC-54: two hand-overs of the same last 4 prescribed, both held at the lock together, 20 times',
+    async () => {
+      for (let round = 1; round <= RUNS; round += 1) {
+        const medicine = await pricedMedicine();
+        const batchId = await receive(`E-${round}`, 20, medicine);
+        const rx = await verifiedPrescription(medicine, 4);
+
+        const [first, second] = await overlapping(medicine.id, 2, () => [
+          dispense(rx.id, rx.itemId, 4),
+          dispense(rx.id, rx.itemId, 4),
+        ]);
+
+        expect(
+          [first.status, second.status].sort(),
+          `round ${round}: dispense ${first.status}/${second.status}`,
+        ).toEqual([201, 422]);
+        const after = await t.dataSource
+          .getRepository(PrescriptionItem)
+          .findOneByOrFail({ id: rx.itemId });
+        expect(
+          after.quantityDispensed,
+          `round ${round}: quantity dispensed`,
+        ).toBe(4);
+        expect(await qty(batchId), `round ${round}: batch left`).toBe(16);
+        await expectHealthy(round);
+      }
+    },
+    180_000,
   );
 });

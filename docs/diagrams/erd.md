@@ -157,6 +157,7 @@ erDiagram
         varchar reason
         uuid stock_take_id FK
         uuid batch_id FK
+        uuid counted_by_id FK
     }
     stock_alerts {
         uuid id PK
@@ -179,6 +180,7 @@ erDiagram
     users |o--o{ stock_takes : "counted_by_id"
     users ||--o{ stock_takes : "opened_by_id"
     batches ||--o{ stock_take_lines : "batch_id"
+    users |o--o{ stock_take_lines : "counted_by_id"
     stock_takes ||--o{ stock_take_lines : "stock_take_id"
     users |o--o{ stock_alerts : "acknowledged_by_id"
     batches |o--o{ stock_alerts : "batch_id"

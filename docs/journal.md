@@ -368,7 +368,7 @@ schedule for the rest of the course:
 | When | Length | Where | Agenda |
 |---|---|---|---|
 | **Wednesday** | 30 minutes | Online (Discord) | Early-warning check: each member says done, next, blocked; triage new bugs (S1–S4); is the week's Must work at least half done; who reviews what. Notes go in the week's report. |
-| **Saturday** | 2 hours | Online (Discord) | Demo of what merged this week; evidence check of the self-reports (rotating checker); ten-minute retrospective (keep / stop / try, one improvement); next tasks with owners. |
+| **Saturday** | 2 hours | As set at the meeting before | Demo of what merged this week; evidence check of the self-reports (rotating checker); ten-minute retrospective (keep / stop / try, one improvement); next tasks with owners. |
 
 Before each meeting every member writes done / next / blocked on the week's
 issue, so the meeting is spent on decisions, not status. The weekly report

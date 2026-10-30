@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, type EntityManager, In } from 'typeorm';
+import { AuditService } from '../audit/audit.service.js';
 import { type Actor, assertPermission } from '../auth/actor.js';
 import { Permission } from '../auth/permissions.js';
 import {
@@ -111,6 +112,7 @@ export class StockTakesService {
     @InjectDataSource() private readonly dataSource: DataSource,
     private readonly ledger: StockLedger,
     private readonly clock: Clock,
+    private readonly audit: AuditService,
   ) {}
 
   async list(
@@ -397,6 +399,13 @@ export class StockTakesService {
           approvedBy: { id: actor.id },
           approvedAt: this.clock.now(),
         },
+      );
+      await this.audit.record(
+        manager,
+        actor.id,
+        'stock_take.approved',
+        { entityName: 'StockTake', entityId: id },
+        { referenceNumber: take.referenceNumber, adjustments: changed.length },
       );
     });
     return this.view(this.dataSource.manager, id);

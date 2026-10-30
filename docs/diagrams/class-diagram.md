@@ -7,9 +7,7 @@ Part 1 shows the persistent classes (TypeORM entities) with their attributes, en
 
 ## Part 1 — Entities (generated)
 
-Marked <<not used yet>>, because nothing in the application reads or writes them so far:
-
-- `AuditLog`: Only the demo seed writes one row, as its completion marker. The audit entries of FR-41 come with UC15 (#105).
+Every entity is read or written by the application; none is unused.
 
 
 ### Catalogue
@@ -140,6 +138,8 @@ classDiagram
         +integer countedQuantity?
         +varchar reason?
     }
+    class StockTakeCounter {
+    }
     class StockAlert {
         +uuid id
         +StockAlertType type
@@ -160,6 +160,8 @@ classDiagram
     StockTakeLine "*" --> "1" Batch : batch
     StockTakeLine "*" --> "0..1" User : countedBy
     StockTakeLine "*" --> "1" StockTake : stockTake
+    StockTakeCounter "*" --> "1" StockTake : stockTake
+    StockTakeCounter "*" --> "1" User : user
     StockAlert "*" --> "0..1" User : acknowledgedBy
     StockAlert "*" --> "0..1" Batch : batch
     StockAlert "*" --> "1" Medicine : medicine
@@ -364,7 +366,6 @@ classDiagram
         +varchar description
     }
     class AuditLog {
-        <<not used yet>>
         +uuid id
         +varchar action
         +varchar entityName
@@ -545,7 +546,22 @@ classDiagram
     class AuthService {
         UC16
         +login(username, password)
+        +logout(actor)
         +actorFromToken(token) Actor
+    }
+    class UsersService {
+        UC15
+        +list(actor)
+        +create(actor, dto)
+        +update(actor, id, dto)
+        +resetPassword(actor, id, password, confirm)
+        +roles(actor)
+        +setRolePermissions(actor, roleCode, permissions)
+    }
+    class AuditService {
+        FR-41
+        +record(manager, actorId, action, target, details)
+        +list(actor, query)
     }
     GoodsReceiptsService ..> StockLedger
     DispensingService ..> StockLedger
@@ -561,6 +577,9 @@ classDiagram
     StockTakesService ..> StockLedger
     BatchesService ..> StockLedger
     AlertsService ..> AlertEvaluator
+    UsersService ..> AuditService
+    AuthService ..> AuditService
+    StockTakesService ..> AuditService
 ```
 
 ### Errors: one hierarchy, one response shape

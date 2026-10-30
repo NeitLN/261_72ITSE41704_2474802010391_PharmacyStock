@@ -81,7 +81,7 @@ by Sunday ([process](../../CONTRIBUTING.md#leaders-weekly-review)).
 | Member | Delivered (self-report, with links) | Reviewer's findings | Revisions (issue, severity, due) |
 |---|---|---|---|
 | Duy Anh (B) | | Tiến: | |
-| Minh (C) | | Tiến: | |
+| Minh (C) | **Built:** UC12 report (#189) and UC11 expiry, write-off and batch status (#190) merged 26/10; bug fixes #184 (#212) and #215 (#226); diagrams regenerated from code (#227, #71, a week early). **Tests:** TC-17, 18, 59, 62, 64 Pass (runs 58–62, #210); TC-65 Pass (run 66, #224); TC-53 matrix over every endpoint (#195). Found bug #209 (fixed in #220). **Gate:** Must-core pre-check 27/10 (#213) and final check 30/10, passed (#233). **Week 8 started early:** #105 design gate (#234); FR-46/47 quarantine and destruction (#235) and UC15 users, roles and audit log (#236) built, as drafts waiting for #234; report drafts Ch.3 Functions of C and Testing (#232); TC-32 pilot sheets (#237). **Reviews (12):** #198, #200, #204, #208, #216, #219, #221, #222, #225, #228, #229, #231. Issues: filed #209, #223; closed #18, #53. | Tiến: | |
 | Tiến (A) | | Minh: | |
 
 Revisions from last week: #191 open (required checks, needs the repository

@@ -153,7 +153,7 @@ see the table below.
 
 ## Endpoint → permission table (TC-53, #70)
 
-Every route the API serves, the permission its service checks, and what each
+Every route the API serves (67 with #105's assessment and destruction routes), the permission its service checks, and what each
 role gets. "✓" means the role is let through (it may still get 400, 404, 409
 or 422 for business reasons); "403" means `PERMISSION_DENIED`. Roles follow
 `ROLE_PERMISSIONS` in `src/backend/src/auth/permissions.ts` (Proposal
@@ -226,6 +226,11 @@ all three are listed. The two `stock-movement` routes need `?from=&to=`.
 | POST | `/api/alerts/:id/acknowledge` | `alert.manage` | ✓ | 403 | 403 |
 | POST | `/api/batches/:id/status` | `batch_status.manage` | ✓ | 403 | 403 |
 | POST | `/api/batches/:id/write-off` | `batch_status.manage` | ✓ | 403 | 403 |
+| GET | `/api/batches/pending-destruction` | `batch_status.manage` | ✓ | 403 | 403 |
+| GET | `/api/batches/:id/destructions` | `batch_status.manage` | ✓ | 403 | 403 |
+| POST | `/api/batches/:id/destructions` | `batch_status.manage` | ✓ | 403 | 403 |
+| GET | `/api/quarantine` | `batch_status.manage` | ✓ | 403 | 403 |
+| POST | `/api/quarantine/:id/assess` | `batch_status.manage` | ✓ | 403 | 403 |
 | GET | `/api/reports/stock-movement` | `report.view` | ✓ | 403 | 403 |
 | GET | `/api/reports/low-stock` | `alert.manage` | ✓ | 403 | 403 |
 | GET | `/api/reports/expiry` | `alert.manage` | ✓ | 403 | 403 |

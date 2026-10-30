@@ -184,6 +184,13 @@ Every table and column, with its type, nullability, default and keys; enumeratio
 - Check `ck_stock_take_lines_counted_qty`: `"countedQuantity" IS NULL OR "countedQuantity" >= 0`
 - Check `ck_stock_take_lines_system_qty`: `"systemQuantity" >= 0`
 
+### `stock_take_counters` — StockTakeCounter
+
+| Column | Type | Null | Default | Key | Notes |
+|---|---|---|---|---|---|
+| `stock_take_id` | uuid | no |  | PK, FK → `stock_takes` |  |
+| `user_id` | uuid | no |  | PK, FK → `users` |  |
+
 ### `stock_alerts` — StockAlert
 
 | Column | Type | Null | Default | Key | Notes |

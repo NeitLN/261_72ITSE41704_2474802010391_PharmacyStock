@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Pharmacy Stock · Project workspace</title>
+  <meta name="description" content="Project progress, weekly plans, tasks, roadmap and evidence for Pharmacy Stock.">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <script>
+    try {
+      const theme = localStorage.getItem('dashboard-theme');
+      if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+    } catch (_) { /* follow the system theme */ }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <aside class="sidebar">
+    <a class="workspace-brand" href="#overview" aria-label="Pharmacy Stock overview">
+      <span class="brand-mark" data-icon="box"></span>
+      <span><strong id="workspace-name">Pharmacy Stock</strong><small>Project workspace</small></span>
+    </a>
+    <nav class="app-nav" aria-label="Dashboard sections">
+      <div class="nav-inner">
+        <p class="nav-group">Workspace</p>
+        <a href="#overview"><span data-icon="overview"></span>Overview</a>
+        <a href="#weekly"><span data-icon="weekly"></span>Weekly progress</a>
+        <a href="#kanban"><span data-icon="kanban"></span>Task board</a>
+        <a href="#roadmap"><span data-icon="roadmap"></span>Roadmap</a>
+        <p class="nav-group">Insights &amp; delivery</p>
+        <a href="#burndown"><span data-icon="burndown"></span>Burndown &amp; analytics</a>
+        <a href="#team"><span data-icon="team"></span>Team</a>
+        <a href="#evidence"><span data-icon="evidence"></span>Evidence</a>
+        <a href="#reports"><span data-icon="reports"></span>Reports</a>
+      </div>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="workspace-note"><span class="status-dot"></span><span>Read-only workspace<small>Project data from GitHub</small></span></div>
+      <button type="button" class="theme-button" id="theme-toggle" aria-label="Switch colour theme"><span id="theme-icon" data-icon="moon"></span><span id="theme-label">Dark theme</span></button>
+    </div>
+  </aside>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="header-inner">
+        <div class="breadcrumb"><span>Workspace</span><span aria-hidden="true">/</span><strong id="route-name">Overview</strong></div>
+        <div class="header-meta"><span id="header-health"></span><a id="repo-link" class="repo-button" href="#" hidden>View repository <span data-icon="external"></span></a></div>
+      </div>
+    </header>
+    <main id="main" tabindex="-1">
+      <div id="banners"></div>
+      <div id="view" aria-live="polite"><div class="loading-state" role="status"><p>Loading project data…</p><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-panel"></div></div></div>
+      <div class="project-context"><span id="project-name">Loading project…</span><span id="last-updated"></span></div>
+    </main>
+    <footer class="app-footer">
+      <details><summary>Data sources &amp; acknowledgements</summary><p id="footer-sources">Data is collected from GitHub; this page never writes to GitHub.</p><p>Built with open-source components listed in <a href="THIRD_PARTY_NOTICES.md">THIRD_PARTY_NOTICES.md</a>.</p></details>
+    </footer>
+  </div>
+  <script src="vendor/chart.umd.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

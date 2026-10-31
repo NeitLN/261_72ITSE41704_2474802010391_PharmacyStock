@@ -138,6 +138,8 @@ classDiagram
         +integer countedQuantity?
         +varchar reason?
     }
+    class StockTakeMedicine {
+    }
     class StockTakeCounter {
     }
     class StockAlert {
@@ -160,6 +162,8 @@ classDiagram
     StockTakeLine "*" --> "1" Batch : batch
     StockTakeLine "*" --> "0..1" User : countedBy
     StockTakeLine "*" --> "1" StockTake : stockTake
+    StockTakeMedicine "*" --> "1" Medicine : medicine
+    StockTakeMedicine "*" --> "1" StockTake : stockTake
     StockTakeCounter "*" --> "1" StockTake : stockTake
     StockTakeCounter "*" --> "1" User : user
     StockAlert "*" --> "0..1" User : acknowledgedBy

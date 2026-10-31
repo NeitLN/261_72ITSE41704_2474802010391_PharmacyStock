@@ -18,6 +18,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { useCallback, useState } from 'react';
 import { type FieldError, toApiError } from '../api/errors';
 import { type Medicine, medicinesApi } from '../api/medicines';
+import { stockApi, type StockBatch } from '../api/stock';
 import { formatVnd } from '../ui/format';
 import {
   STOCK_TAKE_STATUS_LABELS,
@@ -351,6 +352,15 @@ function StockTakeModal({ id, onClose }: { id: string; onClose: () => void }) {
           }
         />
       )}
+      {counting && canCount && (
+        <AddBatch
+          take={current}
+          busy={busy}
+          onAdd={(batchId) =>
+            run(() => stockTakesApi.addLine(current.id, batchId), 'Batch added to the count sheet.')
+          }
+        />
+      )}
       <LinesTable
         take={current}
         editable={counting && canCount}
@@ -369,6 +379,86 @@ function StockTakeModal({ id, onClose }: { id: string; onClose: () => void }) {
         </Typography.Paragraph>
       )}
     </Modal>
+  );
+}
+
+/**
+ * UC09 A3 (#223): add a batch of a chosen medicine that the sheet does not
+ * list, e.g. one the book holds at 0 but found on the shelf. Chosen
+ * medicines with no line at all are named, so they are not forgotten.
+ */
+function AddBatch({
+  take,
+  busy,
+  onAdd,
+}: {
+  take: StockTake;
+  busy: boolean;
+  onAdd: (batchId: string) => void;
+}) {
+  const [medicineId, setMedicineId] = useState<string | undefined>();
+  const [batchId, setBatchId] = useState<string | undefined>();
+  const fetchBatches = useCallback(
+    () => (medicineId ? stockApi.medicine(medicineId).then((m) => m.batches) : Promise.resolve([])),
+    [medicineId],
+  );
+  const { data: batches, loading } = useLoad<StockBatch[]>(fetchBatches, []);
+  const onSheet = new Set(take.lines.map((l) => l.batch.id));
+  const missing = take.medicines.filter((m) => m.lineCount === 0);
+  const candidates = batches.filter((b) => !onSheet.has(b.id));
+
+  return (
+    <div style={{ marginBottom: 16 }}>
+      {missing.length > 0 && (
+        <Alert
+          type="info"
+          showIcon
+          style={{ marginBottom: 12 }}
+          message={`No stock on the book for ${missing.map((m) => `${m.code} — ${m.name}`).join(', ')}.`}
+          description="If you find any on the shelf, add its batch below and count it."
+        />
+      )}
+      <Space wrap>
+        <Typography.Text>Add a batch the sheet does not list:</Typography.Text>
+        <Select
+          placeholder="Medicine"
+          aria-label="Medicine to add a batch of"
+          style={{ width: 280 }}
+          value={medicineId}
+          onChange={(v) => {
+            setMedicineId(v);
+            setBatchId(undefined);
+          }}
+          options={take.medicines.map((m) => ({ value: m.id, label: `${m.code} — ${m.name}` }))}
+        />
+        <Select
+          placeholder="Batch"
+          aria-label="Batch to add"
+          style={{ width: 300 }}
+          disabled={!medicineId}
+          loading={loading}
+          value={batchId}
+          onChange={setBatchId}
+          notFoundContent={medicineId ? 'Every batch of this medicine is on the sheet.' : null}
+          options={candidates.map((b) => ({
+            value: b.id,
+            // No quantity: the count is blind until it is submitted.
+            label: `${b.batchNumber} — expires ${b.expiryDate}`,
+          }))}
+        />
+        <Button
+          icon={<PlusOutlined />}
+          disabled={!batchId || busy}
+          onClick={() => {
+            if (!batchId) return;
+            onAdd(batchId);
+            setBatchId(undefined);
+          }}
+        >
+          Add batch
+        </Button>
+      </Space>
+    </div>
   );
 }
 

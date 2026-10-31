@@ -21,6 +21,7 @@ import {
   StockTake,
   StockTakeCounter,
   StockTakeLine,
+  StockTakeMedicine,
   StockTakeStatus,
 } from '../entities/index.js';
 import { Clock } from '../stock/clock.js';
@@ -66,6 +67,11 @@ export interface StockTakeView {
   approvedBy: UserRef | null;
   approvedAt: Date | null;
   createdAt: Date;
+  /**
+   * The medicines chosen when it was opened. One with no line had no stock
+   * on the book then; the counter may still add any of its batches (A3).
+   */
+  medicines: Array<{ id: string; code: string; name: string; lineCount: number }>;
   lines: StockTakeLineView[];
   /** ADJUSTMENT movements posted on approval (FR-31). */
   adjustments: Array<{
@@ -156,7 +162,11 @@ export class StockTakesService {
     return this.view(this.dataSource.manager, id);
   }
 
-  /** Steps 1–2: one line per batch of the chosen medicines with sellable stock. */
+  /**
+   * Steps 1–2: one line per batch of the chosen medicines with sellable
+   * stock. The chosen medicines are kept, so one whose batches the book holds
+   * at 0 can still be counted through A3 (#184).
+   */
   async open(actor: Actor, dto: OpenStockTakeDto): Promise<StockTakeView> {
     assertPermission(actor, Permission.STOCK_TAKE_APPROVE);
     const id = await this.dataSource.transaction(async (manager) => {
@@ -179,12 +189,11 @@ export class StockTakesService {
         .createQueryBuilder(Batch, 'b')
         .leftJoin('b.medicine', 'medicine')
         .where('medicine.id IN (:...medicineIds)', { medicineIds })
-        .andWhere('b.qtySellable > 0')
         .getMany();
       if (batches.length === 0) {
         throw ValidationFailed.field(
           'medicineIds',
-          'None of these medicines has stock on the book to count.',
+          'None of these medicines has a batch to count.',
         );
       }
 
@@ -197,16 +206,23 @@ export class StockTakesService {
         }),
       );
       await manager.save(
-        batches.map((batch) =>
-          manager.create(StockTakeLine, {
-            stockTake: { id: take.id },
-            batch: { id: batch.id },
-            // Replaced when the line is counted (decision 15).
-            systemQuantity: batch.qtySellable,
-            countedQuantity: null,
-            reason: null,
-          }),
+        medicineIds.map((medicineId) =>
+          manager.create(StockTakeMedicine, { stockTakeId: take.id, medicineId }),
         ),
+      );
+      await manager.save(
+        batches
+          .filter((batch) => batch.qtySellable > 0)
+          .map((batch) =>
+            manager.create(StockTakeLine, {
+              stockTake: { id: take.id },
+              batch: { id: batch.id },
+              // Replaced when the line is counted (decision 15).
+              systemQuantity: batch.qtySellable,
+              countedQuantity: null,
+              reason: null,
+            }),
+          ),
       );
       return take.id;
     });
@@ -262,7 +278,7 @@ export class StockTakesService {
       }
       const lines = await manager.find(StockTakeLine, {
         where: { stockTake: { id } },
-        relations: { batch: { medicine: true } },
+        relations: { batch: true },
       });
       if (lines.some((l) => l.batch.id === batch.id)) {
         throw new Conflict(
@@ -271,7 +287,11 @@ export class StockTakesService {
           'batchId',
         );
       }
-      if (!lines.some((l) => l.batch.medicine.id === batch.medicine.id)) {
+      const chosen = await manager.existsBy(StockTakeMedicine, {
+        stockTakeId: id,
+        medicineId: batch.medicine.id,
+      });
+      if (!chosen) {
         throw ValidationFailed.field(
           'batchId',
           'This batch is not of a medicine in this stock take.',
@@ -296,6 +316,14 @@ export class StockTakesService {
     await this.dataSource.transaction(async (manager) => {
       await this.lockTake(manager, id, [StockTakeStatus.COUNTING]);
       const lines = await this.orderedLines(manager, id);
+      // Possible since #184: every chosen medicine was at 0 and no batch
+      // was added. Nothing was counted, so there is nothing to approve.
+      if (lines.length === 0) {
+        throw ValidationFailed.field(
+          'lines',
+          'Add the batches you counted before submitting.',
+        );
+      }
       const errors: FieldError[] = [];
       lines.forEach((line, index) => {
         const label = `${line.batch.medicine.name}, batch ${line.batch.batchNumber}`;
@@ -514,7 +542,12 @@ export class StockTakesService {
   ): Promise<StockTakeView> {
     const take = await manager.findOne(StockTake, {
       where: { id },
-      relations: { openedBy: true, countedBy: true, approvedBy: true },
+      relations: {
+        openedBy: true,
+        countedBy: true,
+        approvedBy: true,
+        medicines: { medicine: true },
+      },
     });
     if (!take) throw new NotFound('Stock take', id);
     const lines = await this.orderedLines(manager, id);
@@ -543,6 +576,14 @@ export class StockTakesService {
       approvedBy: take.approvedBy ? userRef(take.approvedBy) : null,
       approvedAt: take.approvedAt,
       createdAt: take.createdAt,
+      medicines: take.medicines
+        .map(({ medicine: m }) => ({
+          id: m.id,
+          code: m.code,
+          name: m.name,
+          lineCount: lines.filter((l) => l.batch.medicine.id === m.id).length,
+        }))
+        .sort((a, b) => a.code.localeCompare(b.code)),
       lines: lines.map((line) => {
         const difference =
           blind || line.countedQuantity === null

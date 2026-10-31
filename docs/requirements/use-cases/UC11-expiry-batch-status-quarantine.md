@@ -5,7 +5,7 @@
 | **Owner** | Võ Hoàng Minh (C) |
 | **Priority** | Must (assessing returns and recording destruction are Should) |
 | **Primary actor** | Manager |
-| **Status** | Built (#61): the Must part; FR-46 and FR-47 (Should) with #105. Tests UC11-01…13 in `expiry.e2e-spec.ts` |
+| **Status** | Built (#61): the Must part. FR-46 and FR-47 (Should): designed for #105 below (interface, sequences, S14–S22). Tests UC11-01…13 in `expiry.e2e-spec.ts` |
 | **Related rules** | BR02, BR03 (via the ledger), BR05, BR11 |
 | **Requirements** | FR-35, FR-36, FR-48, FR-46 *(S)*, FR-47 *(S)*, FR-39 |
 | **Decisions** | DEC-01 (expiry boundary), DEC-04 (quarantine, pending destruction, destroyed), DEC-07 (batch status), decision 16 (one unresolved expiry alert per batch) |
@@ -154,8 +154,8 @@ checks the permission, locks the medicine and calls them.
 | Where expiry alerts are listed | The UC10 alert list (`GET /alerts`) gains the types `expiring_soon` and `expired`; acknowledging works the same way. | One alert list, FR-34 |
 | The expiry list | An `ExpiryReport` (see UC12, *ReportGenerator*): expired first, then expiring soon, by expiry date; medicine, batch, expiry, days left (negative when expired), sellable quantity, value at unit cost, batch status. | FR-35, decision D14 |
 | Permissions | Expiry list and alerts: `alert.manage`. Write-off and status: `batch_status.manage`. Both are the manager's (Table 2.4). | Preconditions |
-| Destruction record (FR-47) | Decided with #105 in week 8: a `destruction_records` table or the movement's reason. Until then, written-off stock stays *pending destruction*, never *destroyed*. | Open question 1 |
-| Quarantined goods of an expired batch | Flagged in the quarantine list (week 8, #105); they can only be rejected. | Open question 3 |
+| Destruction record (FR-47) | Settled for #105: a `destruction_records` table: batch, quantity, date destroyed, method (`supplier_return`, `licensed_contractor`, `other` with a note), witness, who recorded it and when, and the `DESTROY` movement it posted (one to one). The ledger's `destroy` command is unchanged; the record is the source document DEC-04 asks for, so *destroyed* always has a date, a method and a witness. | DEC-04; open question 1 |
+| Quarantined goods of an expired batch | Settled for #105: listed with *Release* disabled and the reason (expired, controlled, or batch not ACTIVE), so they can only be rejected. The ledger's `release` refuses them anyway (`CANNOT_RELEASE`). | DEC-04; open question 3 |
 
 ## Interface (for #61)
 
@@ -173,6 +173,85 @@ unknown batch in the path, 422 with the rule (`BATCH_STILL_SELLABLE`,
 On screen: *Stock control & reports* gets an **Expiry** tab (the report, with
 *Write off* on a row that may be written off and *Change status* on every row);
 the expiry alerts show in the alerts tab. Wireframes: Tiến, #154.
+
+## Interface (week 8, #105: FR-46, FR-47)
+
+| Route | Permission | Body / response |
+|---|---|---|
+| `GET /api/quarantine` | `batch_status.manage` | Return lines in PENDING_ASSESSMENT, oldest first: `[{ returnLineId, saleReturn: { id, referenceNumber, returnedAt, reason }, medicine: { id, code, name, classification }, batch: { id, batchNumber, expiryDate, status }, quantity, releaseBlockedBy: null \| 'controlled' \| 'expired' \| 'batch_not_active' }]` |
+| `POST /api/quarantine/:id/assess` | `batch_status.manage` | `{ outcome: 'release' \| 'reject', packagingIntact, storageCredible, note }` → the line with `assessmentStatus`, `assessedBy`, `assessedAt`, `assessmentNote`, and the movement |
+| `GET /api/batches/pending-destruction` | `batch_status.manage` | Batches with stock pending destruction: medicine, batch, expiry, status, `qtyPendingDestruction` |
+| `POST /api/batches/:id/destructions` | `batch_status.manage` | `{ quantity, destroyedOn, method, methodNote?, witness, note? }` → 201 the record with its `DESTROY` movement |
+| `GET /api/batches/:id/destructions` | `batch_status.manage` | The batch's destruction records, newest first |
+
+Rules and errors (existing format):
+- **Assess.** *Release* needs `packagingIntact` and `storageCredible` both
+  true, otherwise 400 on the false field. The ledger refuses a controlled
+  medicine, an expired batch or a batch that is not ACTIVE with 422
+  `CANNOT_RELEASE`. A line already assessed gives 409 `ALREADY_ASSESSED`, and
+  a `note` is required (400).
+- **Destroy.** `quantity` is a whole number ≥ 1 and at most what is pending,
+  otherwise 422 `INSUFFICIENT_STOCK` (BR03) from the ledger. `destroyedOn` must not be after the
+  business date (400). `witness` is required, 2–100 characters (400).
+  `method: 'other'` needs `methodNote` (400).
+
+Assessment lives in its own `QuarantineModule` at `/api/quarantine`, apart
+from UC08's `/api/returns/:id`. The return line is locked with the stock take's pattern (`SELECT … FOR
+UPDATE` on the line, then the ledger locks medicine → batch), so two
+managers assessing the same line cannot both post.
+
+On screen: *Stock control & reports* gets a **Quarantine** tab (pending
+lines with *Release* and *Reject*) and a **Pending destruction** tab
+(batches with *Record destruction*). Wireframes: Tiến.
+
+## Sequence — assess a quarantined return (FR-46)
+
+```mermaid
+sequenceDiagram
+    actor M as Manager
+    participant S as QuarantineService
+    participant L as StockLedger
+    participant DB as PostgreSQL
+
+    M->>S: assess(lineId, release, packagingIntact, storageCredible, note)
+    S->>S: assertPermission(batch_status.manage), check the two confirmations
+    S->>L: run(tx)
+    L->>DB: BEGIN
+    S->>DB: return line FOR UPDATE, still PENDING_ASSESSMENT else 409
+    S->>L: lockMedicines([medicine]), lockBatches([batch])
+    alt release
+        S->>L: release(actor, batch, qty, line, businessDate)
+        L-->>S: 422 CANNOT_RELEASE if controlled, expired or not ACTIVE
+        L->>DB: RELEASE: quarantine −q, sellable +q
+    else reject
+        S->>L: reject(actor, batch, qty, line)
+        L->>DB: REJECT: quarantine −q, pending destruction +q
+    end
+    S->>DB: line: status, assessedBy, assessedAt, note
+    L->>L: AlertEvaluator (sellable changed on release)
+    L->>DB: COMMIT
+```
+
+## Sequence — record destruction (FR-47)
+
+```mermaid
+sequenceDiagram
+    actor M as Manager
+    participant S as DestructionService
+    participant L as StockLedger
+    participant DB as PostgreSQL
+
+    M->>S: record(batchId, quantity, destroyedOn, method, witness)
+    S->>S: assertPermission(batch_status.manage), validate fields
+    S->>L: run(tx)
+    L->>DB: BEGIN
+    S->>L: lockMedicines([medicine]), lockBatches([batch])
+    S->>L: destroy(actor, batch, quantity, reason)
+    L-->>S: 422 INSUFFICIENT_STOCK (BR03) if quantity > pending
+    L->>DB: DESTROY: pending destruction −q
+    S->>DB: INSERT destruction_records (…, movement_id)
+    L->>DB: COMMIT
+```
 
 ## Scenario table
 
@@ -194,3 +273,12 @@ a TC are also run by hand (by Duy Anh).
 | S11 | Normal | The manager acknowledges an expiry alert | ACKNOWLEDGED with user and time | UC11-11 |
 | S12 | Error | A pharmacist or a cashier reads the report, writes off or changes a status | 403 | UC11-12, TC-28 |
 | S13 | Invariant | After S04, S06 and S08 | `findLedgerMismatches` finds nothing (BR05) | UC11-13 |
+| S14 *(S)* | Normal | Release 2 of a returned OTC item from an active, unexpired batch, both confirmations ticked | `RELEASE`: quarantine −2, sellable +2; line RELEASED with user, time and note; low-stock alert re-evaluated | UC11-14, TC-61 |
+| S15 *(S)* | Normal | Reject 1 | `REJECT`: quarantine −1, pending destruction +1; line REJECTED | UC11-15, TC-61 |
+| S16 *(S)* | Error | Release a controlled medicine; release from an expired batch; release with *packaging intact* unticked | 422 `CANNOT_RELEASE`; 422 `CANNOT_RELEASE`; 400 on `packagingIntact`; nothing moves | UC11-16 |
+| S17 *(S)* | Error | Assess a line twice; assess with no note | 409 `ALREADY_ASSESSED`; 400 on `note` | UC11-17 |
+| S18 *(S)* | Normal | Record destruction of 5 of 5 pending, by licensed contractor, with a witness | `DESTROY`: pending destruction −5; one record linked to the movement; the batch leaves the pending list | UC11-18, TC-61 |
+| S19 *(S)* | Error | Destroy 6 with 5 pending; date after the business date; no witness; `other` with no note | 422 `INSUFFICIENT_STOCK` (BR03); 400 on `destroyedOn`; 400 on `witness`; 400 on `methodNote` | UC11-19 |
+| S20 *(S)* | Edge | Two managers assess the same line at once | One succeeds, the other gets 409; one movement | UC11-20 |
+| S21 *(S)* | Error | A pharmacist or cashier calls any route above | 403 | UC11-21, TC-53 |
+| S22 *(S)* | Invariant | After S14, S15 and S18 | `findLedgerMismatches` finds nothing (BR05) | UC11-22 |

@@ -9,6 +9,7 @@ import {
   type Relation,
 } from 'typeorm';
 import { StockTakeLine } from './stock-take-line.entity.js';
+import { StockTakeMedicine } from './stock-take-medicine.entity.js';
 import { User } from './user.entity.js';
 
 export enum StockTakeStatus {
@@ -46,6 +47,10 @@ export class StockTake {
 
   @OneToMany(() => StockTakeLine, (line) => line.stockTake)
   lines: StockTakeLine[];
+
+  /** The medicines chosen when it was opened (A3, #184). */
+  @OneToMany(() => StockTakeMedicine, (chosen) => chosen.stockTake)
+  medicines: StockTakeMedicine[];
 
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'opened_by_id' })

@@ -389,3 +389,22 @@ quarantine assessment and destruction records, FR-46 and FR-47 (#105, Minh).
 | Design gate for UC15, FR-46 and FR-47 (spec, API, sequence, wireframe), then build | Minh (C) | Week 8 |
 | Re-run TC for #183, #185, #209 and, once #212 merges, #184 | Duy Anh (B) | Tue 03/11 |
 | Tag `v0.2` with Appendix D | Duy Anh (B) | Sat 31/10 |
+
+## Meeting schedule (agreed 24/10/2026)
+
+**Agreed at:** the Saturday meeting of 24/10/2026 (Tiến, Duy Anh, Minh).
+**Closes:** #9 (proposal in `docs/requirements/decisions/options-4-6-8-9.md`, #98).
+
+The team had already been meeting on the proposed pattern since week 5
+(Saturday 17/10, Wednesday 21/10). On 24/10 it was confirmed as the fixed
+schedule for the rest of the course:
+
+| When | Length | Where | Agenda |
+|---|---|---|---|
+| **Wednesday** | 30 minutes | Online (Discord) | Early-warning check: each member says done, next, blocked; triage new bugs (S1–S4); is the week's Must work at least half done; who reviews what. Notes go in the week's report. |
+| **Saturday** | 2 hours | As set at the meeting before | Demo of what merged this week; evidence check of the self-reports (rotating checker); ten-minute retrospective (keep / stop / try, one improvement); next tasks with owners. |
+
+Before each meeting every member writes done / next / blocked on the week's
+issue, so the meeting is spent on decisions, not status. The weekly report
+(`docs/progress/week-NN.md`) records each meeting, as
+[CONTRIBUTING](../CONTRIBUTING.md#the-weekly-cycle) describes.

@@ -3,7 +3,7 @@
 > Generated from the TypeORM entities by `npm run diagrams` in `src/backend`.
 > Do not edit by hand; change the entity and run it again.
 
-27 tables in six subsystems. Crow's feet read as usual: `||--o{` is one parent to zero or more children; `|o` marks an optional parent (nullable foreign key). A table from another subsystem appears as a stub with its key only.
+29 tables in six subsystems. Crow's feet read as usual: `||--o{` is one parent to zero or more children; `|o` marks an optional parent (nullable foreign key). A table from another subsystem appears as a stub with its key only.
 
 ### Catalogue
 
@@ -159,6 +159,14 @@ erDiagram
         uuid batch_id FK
         uuid counted_by_id FK
     }
+    stock_take_medicines {
+        uuid stock_take_id PK, FK
+        uuid medicine_id PK, FK
+    }
+    stock_take_counters {
+        uuid stock_take_id PK, FK
+        uuid user_id PK, FK
+    }
     stock_alerts {
         uuid id PK
         enum type
@@ -182,6 +190,10 @@ erDiagram
     batches ||--o{ stock_take_lines : "batch_id"
     users |o--o{ stock_take_lines : "counted_by_id"
     stock_takes ||--o{ stock_take_lines : "stock_take_id"
+    medicines ||--o{ stock_take_medicines : "medicine_id"
+    stock_takes ||--o{ stock_take_medicines : "stock_take_id"
+    stock_takes ||--o{ stock_take_counters : "stock_take_id"
+    users ||--o{ stock_take_counters : "user_id"
     users |o--o{ stock_alerts : "acknowledged_by_id"
     batches |o--o{ stock_alerts : "batch_id"
     medicines ||--o{ stock_alerts : "medicine_id"

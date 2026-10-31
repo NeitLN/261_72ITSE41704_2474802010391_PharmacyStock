@@ -95,6 +95,21 @@ Business date 2026-10-13 (fixed clock), medicine with `expiryAlertDays: 90`.
 | UC06-13 | Concurrency | Batch A = 5; two verified prescriptions, 5 each | Two concurrent `POST /api/dispensings`, 5 each | One 201, one 422 `INSUFFICIENT_STOCK`; A reaches 0; ledger balanced | — |
 | UC06-14 *(BR07)* | Concurrency | Batch A = 20; one verified prescription prescribing 4 | Two concurrent dispenses of the same item, 4 each | One 201, one 422; `quantityDispensed` stays 4 — never above the prescription | TC-54 |
 
+Source: `src/backend/test/races.e2e-spec.ts` (e2e, `npm run test:e2e`). Each
+round has its own medicine, batch and prescriptions; 20 rounds per test. In
+RACE-04 and RACE-05 a separate transaction holds the medicine's row lock until
+PostgreSQL shows **both** requests waiting on a lock, so every round is a real
+overlap, not two requests that happened to be sent together. With the
+medicine lock removed from `StockLedger.lockMedicines`, both fail.
+
+| Test | Kind | Given | When | Then | TC |
+|---|---|---|---|---|---|
+| RACE-01 | Concurrency | Batch = 3; a prescription for 3 | An OTC sale of 3 and a hand-over of 3 at once, 20 times | Each round one 201, one 422 `INSUFFICIENT_STOCK`; batch 0; ledger balanced, nothing negative | TC-62 |
+| RACE-02 *(BR07)* | Concurrency | Batch = 20; one prescription for 4 | Two hand-overs of the same item, 4 each, 20 times | Each round one 201, one 422; `quantityDispensed` 4; batch 16 | TC-54 |
+| RACE-03 | Concurrency | Batch = 5; two prescriptions for 4 | Two hand-overs of 4, 20 times | Each round one 201, one 422 `INSUFFICIENT_STOCK`; batch 1 | TC-26 |
+| RACE-04 | Concurrency | As RACE-03, both requests held at the medicine lock together | Two hand-overs of 4, 20 times | As RACE-03 | TC-26 |
+| RACE-05 *(BR07)* | Concurrency | As RACE-02, both requests held at the lock together | Two hand-overs of the same item, 20 times | As RACE-02 | TC-54 |
+
 ## BR04 Prescription-only medicines need a verified prescription
 
 Rule: a medicine that is not classified OTC is handed over only against a
@@ -254,7 +269,9 @@ Rule: a stock take is approved by a user other than the one who counted it, and
 every discrepancy carries a reason
 ([business-rules.md](../requirements/business-rules.md), BR08). "Counted" means
 anyone who saved a count on any line or submitted the take, so a manager who
-counted a single line cannot approve even when a pharmacist submitted it. BR08
+counted a single line cannot approve even when a pharmacist submitted it. Since
+#226 every such user is kept in `stock_take_counters`, so a count saved over
+by someone else, or a submission before the take was returned, still counts. BR08
 has no unit spec: the checks live in `StockTakesService` and are exercised
 through the API.
 
@@ -267,6 +284,8 @@ otherwise.
 | UC09-06 | Error | Book 10; counted 8 with a reason of spaces only | `POST /api/stock-takes/:id/submit` | 400 with an error on `lines.0.reason` whose message names the batch (`P1`) and says "give a reason for the difference."; the take stays Counting | TC-20 |
 | UC09-11 | Error | The manager counts the only line and submits; the same manager approves | `POST /api/stock-takes/:id/approve` | 422, code `SAME_COUNTER`, "A stock take must be approved by someone who did not count it."; no movement, stock still 10, status `pending_approval` | TC-51 |
 | UC09-11b | Error | The manager counts line P1, a pharmacist counts P2 and submits; the manager approves | `POST /api/stock-takes/:id/approve` | 422, code `SAME_COUNTER`, no movement — one counted line is enough to disqualify the approver | TC-20 |
+| UC09-11c | Error | The manager counts P1 (8), the pharmacist saves the same line again (8) and submits; the manager approves | `POST /api/stock-takes/:id/approve` | 422, code `SAME_COUNTER`, no movement, stock still 10 — an overwritten count still disqualifies (#215) | TC-20 |
+| UC09-11d | Error | The pharmacist counts; the manager submits, returns the take for recount, the pharmacist resubmits; the manager approves | `POST /api/stock-takes/:id/approve` | 422, code `SAME_COUNTER`, no movement — an earlier submitter still disqualifies (#215) | TC-20 |
 
 Source: `src/backend/test/stock-takes.e2e-spec.ts` (e2e, `npm run test:e2e`).
 
@@ -276,18 +295,34 @@ Rule: a sale is valued at the price in force on the sale date, and a price
 change never alters a past sale or report
 ([business-rules.md](../requirements/business-rules.md), BR09, decision 12).
 `PriceBook` reads the `medicine_prices` history: the price in force on a date is
-the newest row whose `validFrom` is not after that date. There is no unit spec
-for `PriceBook`; both halves are checked through the API. Scheduling a price
-from UC13 is not built yet, so a change starts on the business day it is saved.
+the newest row whose `effectiveFrom` is not after that date. That lookup is one
+SQL query, so it is tested against the real database rather than with a mocked
+manager. Scheduling a price from UC13 is not built yet, so a change made in the
+app starts on the business day it is saved.
+
+### Database level — `PriceBook`
+
+| Test | Kind | Given | When | Then | TC |
+|---|---|---|---|---|---|
+| BR09-01 | Normal | 1500 from 01/10, 1800 from 10/10 | `pricesOn` 05/10 and 12/10 | `1500.00`, then `1800.00` | TC-41 |
+| BR09-02 | Edge | Same two prices | `pricesOn` 09/10 and 10/10 | `1500.00` the day before, `1800.00` on the start date itself | TC-41 |
+| BR09-03 | Edge | 1800 from 10/10, 2000 from 20/10 | `pricesOn` 12/10 and 20/10 | `1800.00`: a later price does not apply early; `2000.00` from its date | — |
+| BR09-04 | Error | Only a price from 20/10 | `pricesOn` 12/10; and with no medicines | No price for the medicine; an empty list gives an empty map | — |
+| BR09-05 | Edge | 1500 from 01/10, 1800 then 1900 both saved for 10/10 | `setPrice` twice on 10/10 | Two rows: 01/10 `1500.00`, 10/10 `1900.00`; 05/10 still `1500.00` | TC-41 |
+| BR09-06 | Normal | Medicine A 1500 from 01/10; B 3200 from 05/10 and 3500 from 15/10 | `pricesOn` both on 12/10 | A `1500.00`, B `3200.00` | — |
+
+A mutation check: with `<=` changed to `<` in the query, BR09-02 and BR09-03
+fail.
 
 ### Through the API — UC01 and UC07
 
 | Test | Kind | Given | When | Then | TC |
 |---|---|---|---|---|---|
 | UC01-05 | Normal | A medicine created on 12/10/2026 at 1500; the same day's price corrected to 1600; then the clock moves to 13/10 and the price changes to 1800 | `PATCH /api/medicines/:id` with `currentPrice` | Same day: still one `medicine_prices` row — the day is corrected, not appended. Next day: 2 rows, `currentPrice` `1800.00`; `PriceBook.pricesOn(…, '2026-10-12')` still `1600.00` | TC-41 |
-| UC07-03 | Normal | Batch A = 10 at `2200.00`; `2500.00` saved with `validFrom` 14/10/2026 | Sell 1 on 13/10, move the clock to 14/10, sell 1 | First line `unitPrice` `2200.00`, second `2500.00`, receipt `RC-20261014-0001`; reading the first sale again still returns `totalAmount` `2200.00` | TC-40, TC-41 |
+| UC07-03 | Normal | Batch A = 10 at `2200.00`; `2500.00` saved with `effectiveFrom` 14/10/2026 | Sell 1 on 13/10, move the clock to 14/10, sell 1 | First line `unitPrice` `2200.00`, second `2500.00`, receipt `RC-20261014-0001`; reading the first sale again still returns `totalAmount` `2200.00` | TC-40, TC-41 |
 
-Source: `src/backend/test/medicines.e2e-spec.ts` (UC01-05),
+Source: `src/backend/test/price-book.e2e-spec.ts` (BR09-01…06),
+`src/backend/test/medicines.e2e-spec.ts` (UC01-05),
 `src/backend/test/sales.e2e-spec.ts` (UC07-03) (e2e, `npm run test:e2e`).
 
 ## BR10 Prescription validity
@@ -364,14 +399,14 @@ and not built yet; the ledger rows above are what they will call.
 |---|---|---|---|
 | BR01 | 7 (BR01-01…07) | UC06-01 "7 from A=3 (expires first) and B=8 leaves A=0, B=4…" in `test/dispensing.e2e-spec.ts`; BR05-11 "a receipt then a hand-over over two FEFO batches…" in `test/ledger-invariant.e2e-spec.ts` (#123) | TC-04, run 9, 2026-10-20, pass |
 | BR02 | 9 (BR02-01…09) | UC06-03 "a batch expiring on or before the business date is never issued"; UC06-10 "preview shows the batches and warnings" — both in `test/dispensing.e2e-spec.ts` | TC-06, run 10, 2026-10-20, pass |
-| BR03 | 3 (BR03-U1…U3) | 5 rows (BR03-01…03, UC06-13; UC06-14 is the BR07 check) | TC-09, run 11, 2026-10-20, pass; TC-10, run 18, 2026-10-20, pass; TC-25, TC-26, TC-54 not run |
+| BR03 | 3 (BR03-U1…U3) | 8 rows (BR03-01…03, UC06-13; RACE-01, 03, 04 in `test/races.e2e-spec.ts`, 20 rounds each; UC06-14, RACE-02 and 05 are the BR07 checks) | TC-09, run 11, 2026-10-20, pass; TC-10, run 18, 2026-10-20, pass; TC-62, run 61, 2026-10-27, pass; TC-25, TC-26, TC-54 not run |
 | BR04 | 6 (BR04-01…06) | 3 rows (UC05-08 "a pharmacist verifies a prescription", UC06-07 "a prescription that is not verified cannot be dispensed", UC07-05 "prescription-only and controlled medicines are refused on their lines") | TC-12, run 28, 2026-10-22, pass; TC-13, run 29, 2026-10-22, pass; TC-14, run 30, 2026-10-22, pass; TC-36, run 21, 2026-10-20, pass; TC-58, run 13, 2026-10-20, pass |
 | BR05 | 2 (BR05-U1, U2) | 13 rows (BR05-01…06 in `test/stock-ledger.e2e-spec.ts`, BR05-11…17 in `test/ledger-invariant.e2e-spec.ts`) | TC-16, run 47, 2026-10-27, pass; TC-19, run 35, 2026-10-22, pass; TC-25 not run |
-| BR07 | 5 (BR07-01…05) | 4 rows (UC05-10 "a prescription that has been dispensed cannot be edited", UC06-05 "a smaller hand-over needs a note", UC06-06 "a second visit may take the rest", UC06-14 "two pharmacists dispensing the same item at once") | TC-09, run 11, 2026-10-20, pass; TC-37, run 31, 2026-10-22, pass; TC-54 not run |
+| BR07 | 5 (BR07-01…05) | 6 rows (UC05-10 "a prescription that has been dispensed cannot be edited", UC06-05 "a smaller hand-over needs a note", UC06-06 "a second visit may take the rest", UC06-14 "two pharmacists dispensing the same item at once"; RACE-02 and RACE-05, 20 rounds each) | TC-09, run 11, 2026-10-20, pass; TC-37, run 31, 2026-10-22, pass; TC-54 not run |
 | BR10 | 5 (BR10-01…05) | 2 rows (UC05-11 "past valid-until cannot be verified", UC06-08 "refused after valid-until, checked again at every visit") | TC-38, run 32, 2026-10-22, pass |
 | BR06 | 0 named (no pack-unit test; the ledger guard `refuses an empty or fractional movement as a programming error` in `src/backend/src/stock/stock-deltas.spec.ts` covers code, not input) | 4 rows (UC03-03, UC07-11, UC09-08, UC01-13) | TC-02, run 25, 2026-10-21, pass; no case for pack → base conversion (BR06 is *Could*) |
-| BR08 | 0 (no spec for `src/backend/src/stocktake/`) | 4 rows (UC09-02, UC09-06, UC09-11, UC09-11b) | TC-20, run 37, 2026-10-22, pass; TC-19, run 35, 2026-10-22, pass; TC-51 not run |
-| BR09 | 0 (no spec for `src/backend/src/catalogue/price-book.ts`) | 2 rows (UC01-05, UC07-03) | TC-40, TC-41 not run |
+| BR08 | 0 (no spec for `src/backend/src/stocktake/`) | 6 rows (UC09-02, UC09-06, UC09-11, UC09-11b, UC09-11c, UC09-11d) | TC-20, run 37, 2026-10-22, pass; TC-19, run 35, 2026-10-22, pass; TC-51 not run |
+| BR09 | 0 (the rule is one SQL query; see the database rows) | 8 rows (BR09-01…06 in `test/price-book.e2e-spec.ts`; UC01-05, UC07-03) | TC-40, TC-41 not run |
 | BR11 | 0 (ledger commands are tested end to end) | 8 rows (LEDGER-W7-03, 06, 07, 08; UC08-01, 04, 05, 06) | TC-50, run 48, 2026-10-27, pass; TC-16, run 47, 2026-10-27, pass; TC-61 not run (assessment screens are *Should*) |
 
 After every test that moves stock, `findLedgerMismatches` must find nothing

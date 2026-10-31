@@ -47,6 +47,8 @@ export interface StockTake {
   approvedBy: UserRef | null;
   approvedAt: string | null;
   createdAt: string;
+  /** The medicines chosen when it was opened; 0 lines means none had stock on the book (#184). */
+  medicines: Array<{ id: string; code: string; name: string; lineCount: number }>;
   lines: StockTakeLine[];
   adjustments: Array<{
     id: string;
@@ -79,6 +81,10 @@ export const stockTakesApi = {
     apiClient
       .put<StockTake>(`/stock-takes/${id}/lines/${lineId}`, input)
       .then((r) => r.data),
+
+  /** A3: a batch of a chosen medicine that the sheet does not list (#223). */
+  addLine: (id: string, batchId: string) =>
+    apiClient.post<StockTake>(`/stock-takes/${id}/lines`, { batchId }).then((r) => r.data),
 
   submit: (id: string) =>
     apiClient.post<StockTake>(`/stock-takes/${id}/submit`).then((r) => r.data),

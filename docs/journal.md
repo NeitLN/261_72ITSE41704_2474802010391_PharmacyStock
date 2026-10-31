@@ -356,6 +356,40 @@ history shows return lines by id).
 | Copy run 51 (TC-28 Pass) into `test-cases.md`; it still says Not run | Tiến (A) | Fri 30/10 |
 | Final gate check on the tag commit, verdict recorded here | Minh (C) | Fri 30/10 |
 
+## Week 7 — Must-core gate: result
+
+**Date:** 30/10/2026
+**Present:** Minh
+
+The final gate check (W07-C3, #63) on `main` `ce58623`, against the same
+criteria as the pre-check of 27/10. All four items left that day are closed:
+#210 and #224 merged; TC-23 ran (run 63, #198 merged); TC-63 ran (run 65);
+TC-28 is copied into `test-cases.md`.
+
+| Criterion (plan, week 7) | State on 30/10 | Met |
+|---|---|---|
+| The 13 Must use cases run end to end on `main` | Every one has passing cases in `runs.md`. UC12 has TC-23 (run 63), with the hand calculation in the evidence | Yes |
+| Every test case of a Must rule passes | BR01, 02, 04, 05, 10, 11: every case passes. BR03: TC-09, 10, 55, 62 pass. BR07: TC-09, 37 pass. TC-26 (BR03) and TC-54 (BR07) are week 8 manual cases (#67); their automated rounds pass, see below | Yes |
+| CI green | *Backend* and *Frontend* green on the last five merges (#226–#229, #231); both are required checks on `main`, with branches up to date | Yes |
+| Ledger invariant | `findLedgerMismatches` query on the seeded dev database: 0 mismatches over 120 batches and 139 movements | Yes |
+| TC-26, 54, 62 pass | `races.e2e-spec.ts` on `ce58623` at 04:33: RACE-01 (TC-62), RACE-02 and RACE-05 (TC-54), RACE-03 and RACE-04 (TC-26, forced overlap from #229), 20 rounds each, 5/5 pass | Yes |
+
+Open defects: none S1 or S2. S3: #184 (fix #212, in review) and #183
+(fixed in #197, waiting for its re-test). S4: #185 (fixed in #197) and #209
+(fixed in #220), both waiting for their re-tests.
+
+**Verdict: passed.** The Should items open in week 8 as planned: UC13 price
+history (#103, Tiến), the UC14 screens (#104, Duy Anh), and UC15 with the
+quarantine assessment and destruction records, FR-46 and FR-47 (#105, Minh).
+
+**Next**
+
+| Task | Owner | By |
+|---|---|---|
+| Design gate for UC15, FR-46 and FR-47 (spec, API, sequence, wireframe), then build | Minh (C) | Week 8 |
+| Re-run TC for #183, #185, #209 and, once #212 merges, #184 | Duy Anh (B) | Tue 03/11 |
+| Tag `v0.2` with Appendix D | Duy Anh (B) | Sat 31/10 |
+
 ## Meeting schedule (agreed 24/10/2026)
 
 **Agreed at:** the Saturday meeting of 24/10/2026 (Tiến, Duy Anh, Minh).

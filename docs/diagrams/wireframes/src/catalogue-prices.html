@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="../kit.css"><title>Catalogue — Prices</title></head>
+<body>
+<div class="frame">
+  <span class="label">UC13 Catalogue › Medicines › Prices — state: normal <span class="tag">design · Tiến · 02/11/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div class="on">Catalogue &amp; batches</div><div>Suppliers &amp; receipts</div><div>Prescriptions &amp; dispensing</div><div>Sales &amp; returns</div><div>Stock control &amp; reports</div><div>Users &amp; roles</div></div>
+    <div class="page">
+      <h1>Catalogue &amp; batches</h1>
+      <div class="tabs"><div class="on">Medicines</div><div>Stock</div></div>
+      <table>
+        <tr><th>Code</th><th>Name</th><th class="num">Price</th><th>Status</th><th></th></tr>
+        <tr><td>PARA500</td><td>Paracetamol 500 mg</td><td class="num">500 ₫ /tablet</td><td><span class="tag">Active</span></td><td><span class="btn">Edit</span> <span class="btn">Prices</span> <span class="btn danger">Deactivate</span></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="overlay"></div>
+  <div class="drawer" style="top: 60px; right: 0; width: 600px; bottom: 0">
+    <h2>Prices — PARA500 Paracetamol 500 mg</h2>
+    <div class="row"><span>Price (VND)*</span><span class="field">600</span><span>From*</span><span class="field">03/11/2026 📅</span><span class="btn primary">Schedule price</span></div>
+    <table>
+      <tr><th>From</th><th class="num">Price</th><th>State</th><th>Set by</th><th></th></tr>
+      <tr><td>10/11/2026</td><td class="num">650 ₫</td><td><span class="tag">Scheduled</span></td><td>Sample Manager<br><span class="muted">02/11 09:12</span></td><td><span class="btn">Cancel</span></td></tr>
+      <tr><td>14/09/2026</td><td class="num">500 ₫</td><td><span class="tag">In force</span></td><td>Sample Manager<br><span class="muted">14/09 08:00</span></td><td></td></tr>
+      <tr><td>01/09/2026</td><td class="num">450 ₫</td><td><span class="tag">Past</span></td><td>Sample Manager<br><span class="muted">01/09 08:00</span></td><td></td></tr>
+    </table>
+  </div>
+  <div class="note" data-n="1" style="top: 210px; left: 300px">Opens from the row; the list keeps showing the price in force today.</div>
+  <div class="note" data-n="2" style="top: 420px; left: 300px">Newest first. Exactly one row is In force; only Scheduled rows can be cancelled.</div>
+</div>
+
+<div class="frame" style="min-height: 300px">
+  <span class="label">UC13 Prices — state: field error <span class="tag">design · Tiến · 02/11/2026</span></span>
+  <div class="drawer" style="top: 30px; left: 30px; width: 600px">
+    <h2>Prices — PARA500 Paracetamol 500 mg</h2>
+    <div class="row"><span>Price (VND)*</span><span class="field error">10.5</span><span>From*</span><span class="field error">01/11/2026 📅</span><span class="btn primary">Schedule price</span></div>
+    <div class="row"><span class="err" style="margin-left: 90px">Price must be a whole number.</span><span class="err" style="margin-left: 40px">The date must be today or later.</span></div>
+    <table>
+      <tr><th>From</th><th class="num">Price</th><th>State</th><th>Set by</th><th></th></tr>
+      <tr><td>14/09/2026</td><td class="num">500 ₫</td><td><span class="tag">In force</span></td><td>Sample Manager</td><td></td></tr>
+    </table>
+  </div>
+  <div class="note" data-n="3" style="top: 60px; left: 660px">A1, A2: errors under their own field, from the API (400). Nothing is saved.</div>
+</div>
+
+<div class="frame" style="min-height: 300px">
+  <span class="label">UC13 Prices — state: rule refusal (date taken) <span class="tag">design · Tiến · 02/11/2026</span></span>
+  <div class="drawer" style="top: 30px; left: 30px; width: 600px">
+    <h2>Prices — PARA500 Paracetamol 500 mg</h2>
+    <div class="row"><span>Price (VND)*</span><span class="field">700</span><span>From*</span><span class="field error">10/11/2026 📅</span><span class="btn primary">Schedule price</span></div>
+    <div class="row"><span class="err" style="margin-left: 270px">A price already starts on 10/11/2026. Cancel it first.</span></div>
+    <table>
+      <tr><th>From</th><th class="num">Price</th><th>State</th><th>Set by</th><th></th></tr>
+      <tr><td>10/11/2026</td><td class="num">650 ₫</td><td><span class="tag">Scheduled</span></td><td>Sample Manager</td><td><span class="btn">Cancel</span></td></tr>
+      <tr><td>14/09/2026</td><td class="num">500 ₫</td><td><span class="tag">In force</span></td><td>Sample Manager</td><td></td></tr>
+    </table>
+  </div>
+  <div class="note" data-n="4" style="top: 60px; left: 660px">A3: 409 PRICE_DATE_TAKEN on the date. For today's price, use Edit (UC01).</div>
+</div>
+
+<div class="frame" style="min-height: 300px">
+  <span class="label">UC13 Prices — state: cancel confirmation <span class="tag">design · Tiến · 02/11/2026</span></span>
+  <div class="drawer" style="top: 30px; left: 30px; width: 600px">
+    <h2>Prices — PARA500 Paracetamol 500 mg</h2>
+    <table>
+      <tr><th>From</th><th class="num">Price</th><th>State</th><th>Set by</th><th></th></tr>
+      <tr><td>10/11/2026</td><td class="num">650 ₫</td><td><span class="tag">Scheduled</span></td><td>Sample Manager</td><td><span class="btn">Cancel</span></td></tr>
+      <tr><td>14/09/2026</td><td class="num">500 ₫</td><td><span class="tag">In force</span></td><td>Sample Manager</td><td></td></tr>
+    </table>
+  </div>
+  <div class="modal" style="top: 120px; left: 200px; width: 360px">
+    <h2>Cancel the price from 10/11/2026?</h2>
+    <p>650 ₫ will not come into force. Sales keep using 500 ₫.</p>
+    <div class="row" style="justify-content: flex-end"><span class="btn">Keep it</span><span class="btn danger">Cancel price</span></div>
+  </div>
+  <div class="note" data-n="5" style="top: 60px; left: 660px">Only before it starts (decision 3). Once in force, a price is never removed (BR09, A4).</div>
+</div>
+
+<div class="frame" style="min-height: 320px">
+  <span class="label">UC13 Prices — state: only one price (no scheduled change) <span class="tag">design · Tiến · 02/11/2026</span></span>
+  <div class="drawer" style="top: 30px; left: 30px; width: 600px">
+    <h2>Prices — AMOX500 Amoxicillin 500 mg</h2>
+    <div class="row"><span>Price (VND)*</span><span class="field"></span><span>From*</span><span class="field">dd/mm/yyyy 📅</span><span class="btn primary">Schedule price</span></div>
+    <table>
+      <tr><th>From</th><th class="num">Price</th><th>State</th><th>Set by</th><th></th></tr>
+      <tr><td>14/09/2026</td><td class="num">1.800 ₫</td><td><span class="tag">In force</span></td><td>Sample Manager</td><td></td></tr>
+      <tr><td colspan="5" class="muted">No price change scheduled.</td></tr>
+    </table>
+  </div>
+</div>
+<ol class="notes">
+  <li>Prices action per row of Catalogue › Medicines (UC13 main flow 1); the medicine list price is the one in force today (decision 2).</li>
+  <li>History newest first with state, set by and set at (FR-04, S10).</li>
+  <li>A1 price not a whole number of VND or below 1; A2 date before today, the business date (DEC-01). The price field is the money input of #244.</li>
+  <li>A3 409 PRICE_DATE_TAKEN: one price per medicine per date (uq_medicine_price_effective_from). Today's price is changed through Edit (UC01, FR-03).</li>
+  <li>Decision 3: a scheduled price can be cancelled until it starts; 422 PRICE_ALREADY_IN_FORCE afterwards (BR09).</li>
+</ol>
+</body>
+</html>

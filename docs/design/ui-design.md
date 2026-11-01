@@ -60,6 +60,7 @@ screenshots is made in week 8).
 | Reports › Alerts | UC10 | Minh | `/alerts` | TC-21, 63 | built | week 8, as-built |
 | Reports › Expiry and batch status | UC11 | Minh | `/reports/expiry`, `/batches/:id/write-off`, `/batches/:id/status` | TC-22, 56, 60 | *planned* | [design](../diagrams/wireframes/reports-expiry.png) |
 | Reports › Stock movement | UC12 | Minh | `/reports/stock-movement` | TC-23 | *planned* | [design](../diagrams/wireframes/reports-movement.png) |
+| Catalogue › Medicines › Prices | UC13 *(S)* | Tiến | `/medicines/:id/prices` | TC-40, 41 | *design gate #103* | [design](../diagrams/wireframes/catalogue-prices.png) |
 | Users & roles | UC15 *(S)* | Minh | planned | TC-44 | *planned, Should* | only if the Must-core gate passes |
 | Patients & prescribers screens | UC14 *(S)* | Duy Anh | `/customers`, `/prescribers` | TC-49 | API built; screens Should | only if the gate passes |
 

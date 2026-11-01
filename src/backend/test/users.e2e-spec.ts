@@ -90,6 +90,24 @@ describe('UC15 users, roles and audit log (e2e, AUTH_MODE=jwt)', () => {
     expect(await t.dataSource.getRepository(User).countBy({ username: 'thu.nguyen' })).toBe(0);
   });
 
+  it('UC15-12 #251: a full name of only spaces is a field error on create and on edit; padded names are stored trimmed', async () => {
+    const m = await tokenFor('manager');
+    const blank = await t.http().post('/api/users').set(as(m)).send(newUser({ fullName: '    ' }));
+    expect(blank.status).toBe(400);
+    expect(blank.body.errors[0].field).toBe('fullName');
+    expect(await t.dataSource.getRepository(User).countBy({ username: 'thu.nguyen' })).toBe(0);
+
+    const id = await userId('cashier');
+    const edit = await t.http().patch(`/api/users/${id}`).set(as(m)).send({ fullName: '   ' });
+    expect(edit.status).toBe(400);
+    expect(edit.body.errors[0].field).toBe('fullName');
+    expect((await t.dataSource.getRepository(User).findOneByOrFail({ id })).fullName).toBe('Sample Cashier');
+
+    const padded = await t.http().post('/api/users').set(as(m)).send(newUser({ fullName: '  Nguyen Thi Thu  ' }));
+    expect(padded.status).toBe(201);
+    expect(padded.body.fullName).toBe('Nguyen Thi Thu');
+  });
+
   it('UC15-03 TC-44: a cashier made pharmacist gets the new permissions on the next request, without signing in again', async () => {
     const m = await tokenFor('manager');
     const c = await tokenFor('cashier');

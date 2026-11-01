@@ -17,6 +17,7 @@ import { AuditService } from '../audit/audit.service.js';
 import type { Actor } from '../auth/actor.js';
 import { CurrentUser } from '../auth/decorators.js';
 import { RoleCode } from '../auth/permissions.js';
+import { Trim } from '../common/transforms.js';
 import { IfSent, IsCalendarDate, UuidParam } from '../common/validation.js';
 import { UsersService } from './users.service.js';
 
@@ -39,6 +40,8 @@ export class CreateUserDto extends PasswordFields {
   })
   username: string;
 
+  // Trimmed first, so a name of only spaces is refused (#251).
+  @Trim()
   @IsString({ message: 'Enter the full name.' })
   @Length(2, 100, { message: 'Enter the full name (2 to 100 characters).' })
   fullName: string;
@@ -48,6 +51,7 @@ export class CreateUserDto extends PasswordFields {
 }
 
 export class UpdateUserDto {
+  @Trim()
   @IfSent()
   @IsString()
   @Length(2, 100, { message: 'Enter the full name (2 to 100 characters).' })

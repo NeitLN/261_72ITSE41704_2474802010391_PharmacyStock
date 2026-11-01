@@ -17,7 +17,7 @@ const ROLE_OF: Record<User, RoleCode> = {
 };
 
 interface Route {
-  method: 'get' | 'post' | 'put' | 'patch';
+  method: 'get' | 'post' | 'put' | 'patch' | 'delete';
   /** `:name` is replaced by the id of the fixture of that name. */
   path: string;
   /** null: any signed-in user. */

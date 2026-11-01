@@ -220,6 +220,11 @@ describe('UC11 quarantine assessment and destruction (e2e)', () => {
     const noNote = await assess(lineId, { ...reject(), note: '' });
     expect(noNote.status).toBe(400);
     expect(noNote.body.errors[0].field).toBe('note');
+    // Only spaces is no note either (#251); the line stays pending.
+    const blankNote = await assess(lineId, { ...reject(), note: '     ' });
+    expect(blankNote.status).toBe(400);
+    expect(blankNote.body.errors[0].field).toBe('note');
+    expect((await lineOf(lineId)).assessmentStatus).toBe(ReturnAssessmentStatus.PENDING_ASSESSMENT);
 
     expect((await assess(lineId, reject())).status).toBe(200);
     const twice = await assess(lineId, release());
@@ -291,12 +296,21 @@ describe('UC11 quarantine assessment and destruction (e2e)', () => {
     expect(future.body.errors[0].field).toBe('destroyedOn');
     const noWitness = await destroy(b, { ...body, witness: '' });
     expect(noWitness.body.errors[0].field).toBe('witness');
+    // A witness of only spaces is refused, not stored as "" (#251, FR-47).
+    const blankWitness = await destroy(b, { ...body, witness: '    ' });
+    expect(blankWitness.status).toBe(400);
+    expect(blankWitness.body.errors[0].field).toBe('witness');
     const other = await destroy(b, { ...body, method: 'other' });
     expect(other.status).toBe(400);
     expect(other.body.errors[0].field).toBe('methodNote');
 
     expect(await batch(b)).toMatchObject({ qtyPendingDestruction: 2 });
     expect(await t.dataSource.getRepository(DestructionRecord).count()).toBe(0);
+
+    // Padded input is stored trimmed; an empty optional note is stored as null.
+    const padded = await destroy(b, { ...body, quantity: 1, witness: '  Tran Thi B  ', note: '   ' });
+    expect(padded.status, JSON.stringify(padded.body)).toBe(201);
+    expect(padded.body).toMatchObject({ witness: 'Tran Thi B', note: null });
   });
 
   it('UC11-20 two managers assessing the same line at once: one succeeds, one gets 409, one movement', async () => {

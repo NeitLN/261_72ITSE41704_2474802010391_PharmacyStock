@@ -2,6 +2,7 @@ import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
 import { IsBoolean, IsIn, IsString, Length } from 'class-validator';
 import type { Actor } from '../auth/actor.js';
 import { CurrentUser } from '../auth/decorators.js';
+import { Trim } from '../common/transforms.js';
 import { UuidParam } from '../common/validation.js';
 import { QuarantineService } from './quarantine.service.js';
 
@@ -15,6 +16,8 @@ export class AssessDto {
   @IsBoolean({ message: 'Say whether the storage is credible.' })
   storageCredible: boolean;
 
+  // Trimmed before the length check, so three spaces are not a note.
+  @Trim()
   @IsString({ message: 'Write what you checked.' })
   @Length(3, 500, { message: 'Write what you checked (3–500 characters).' })
   note: string;

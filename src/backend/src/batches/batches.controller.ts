@@ -10,6 +10,7 @@ import {
 } from 'class-validator';
 import type { Actor } from '../auth/actor.js';
 import { CurrentUser } from '../auth/decorators.js';
+import { Trim, TrimToNull } from '../common/transforms.js';
 import { IsCalendarDate, UuidParam } from '../common/validation.js';
 import { BatchStatus, DestructionMethod } from '../entities/index.js';
 import { BatchesService } from './batches.service.js';
@@ -46,15 +47,19 @@ export class DestructionDto {
   })
   method: DestructionMethod;
 
+  @TrimToNull()
   @IsOptional()
   @IsString()
   @MaxLength(200)
   methodNote?: string;
 
+  // Trimmed before the length check, so "   " is refused, not stored as "" (FR-47).
+  @Trim()
   @IsString({ message: 'Name the witness.' })
   @Length(2, 100, { message: 'Name the witness (2 to 100 characters).' })
   witness: string;
 
+  @TrimToNull()
   @IsOptional()
   @IsString()
   @MaxLength(500)

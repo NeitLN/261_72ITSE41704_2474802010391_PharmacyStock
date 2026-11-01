@@ -94,7 +94,7 @@ changed in one place.
 | Question | Taken for the build | Why |
 |---|---|---|
 | Who opens, approves, returns and cancels | `stock_take.approve` (manager). Counting, adding a line and submitting need `stock_take.count` (manager or pharmacist). A cashier can do neither. | Table 2.4, FR-29 |
-| Which lines a stock take gets | One per batch of the chosen medicines that has sellable stock, whatever its status. The counter may add any other batch of those medicines (A3), e.g. one the book holds at 0. | Step 2, A3 |
+| Which lines a stock take gets | One per batch of the chosen medicines that has sellable stock, whatever its status. The counter may add any other batch of those medicines (A3), e.g. one the book holds at 0. The chosen medicines are stored with the stock take (`stock_take_medicines`), so a medicine whose batches are all at 0 has no line but can still be counted this way; the view lists each chosen medicine with its line count (#184). Opening is refused only when none of the medicines has any batch, and an empty count sheet cannot be submitted. | Step 2, A3 |
 | Blind count | While the stock take is COUNTING, the API returns `systemQuantity` and the difference as `null`, for every role. They appear once it is submitted. | Step 2: the book must not steer the count |
 | When the system quantity is taken | When the count of that line is saved: the batch's `qtySellable` at that moment (decision 15). Approval posts *counted − system*, so issues between counting and approval do not become a difference. | Decision 15 |
 | Who is "the counter" | Everyone who saved a count on any line, and everyone who submitted, kept in `stock_take_counters` even when a later count or submission overwrites the line's or the stock take's `countedBy` (#215). The approver must be none of them, so a manager cannot count the lines, have someone else press *Submit*, and approve their own count. | BR08, FR-32 (strict reading, review of #146) |
@@ -154,3 +154,5 @@ a TC are also run by hand (by Duy Anh, plan week 6).
 | S16 | Normal | Manager cancels | CANCELLED; nothing posted | UC09-16, A8 |
 | S17 | Normal | Counter adds a batch the book holds at 0 and counts 3 | Line added; on approval `ADJUSTMENT` +3 | UC09-17, A3 |
 | S18 | Invariant | After S02, S05, S17 | For every batch, cached quantities = sum of movements (`findLedgerMismatches` finds nothing) | UC09-18, BR05 |
+| S19 | Alternate | Two medicines chosen; every batch of the second is at 0 on the book | No line for the second, listed with 0 lines; its batch is added, counted 2 and approved | UC09-19, A3, #184 |
+| S20 | Alternate | Only a medicine at 0 chosen | Opens with no lines; *Submit* refused under `lines`; a batch can be added | UC09-20, #184 |

@@ -60,6 +60,8 @@ describe('TC-53 role × endpoint matrix (e2e)', () => {
     }
     const receipt = await http('manager').post('/api/goods-receipts', receiptBody(100));
     expect(receipt.status, JSON.stringify(receipt.body)).toBe(201);
+    // The medicine's first price (in force), so DELETE reaches the rule (422), not 404.
+    ids.price = (await t.http().get(`/api/medicines/${ids.medicine}/prices`).set(as('manager'))).body.prices[0].id;
     ids.receipt = receipt.body.id;
     ids.batch = receipt.body.lines[0].batch.id;
     ids.customer = (await http('pharmacist').post('/api/customers', customerBody())).body.id;
@@ -190,6 +192,9 @@ describe('TC-53 role × endpoint matrix (e2e)', () => {
     { method: 'patch', path: '/api/medicines/:medicine', permission: P.CATALOGUE_MANAGE, body: () => ({ name: 'Renamed' }) },
     { method: 'post', path: '/api/medicines/:medicine2/deactivate', permission: P.CATALOGUE_MANAGE },
     { method: 'post', path: '/api/medicines/:medicine2/activate', permission: P.CATALOGUE_MANAGE },
+    { method: 'get', path: '/api/medicines/:medicine/prices', permission: P.CATALOGUE_MANAGE },
+    { method: 'post', path: '/api/medicines/:medicine/prices', permission: P.CATALOGUE_MANAGE, body: () => ({ unitPrice: 900, effectiveFrom: '2099-01-01' }) },
+    { method: 'delete', path: '/api/medicines/:medicine/prices/:price', permission: P.CATALOGUE_MANAGE },
     // UC04
     { method: 'get', path: '/api/stock', permission: P.STOCK_VIEW },
     { method: 'get', path: '/api/stock/medicines/:medicine', permission: P.STOCK_VIEW },

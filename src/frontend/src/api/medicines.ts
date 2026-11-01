@@ -64,3 +64,31 @@ export const medicinesApi = {
       .then((r) => r.data),
 };
 
+
+/** UC13: where a price stands against the business date. */
+export type PriceState = 'scheduled' | 'in_force' | 'past';
+
+export interface PriceHistory {
+  medicine: { id: string; code: string; name: string };
+  /** The business date from the server, `YYYY-MM-DD`. */
+  today: string;
+  prices: Array<{
+    id: string;
+    effectiveFrom: string;
+    unitPrice: string;
+    state: PriceState;
+    setBy: { id: string; fullName: string };
+    createdAt: string;
+  }>;
+}
+
+export const pricesApi = {
+  history: (medicineId: string) =>
+    apiClient.get<PriceHistory>(`/medicines/${medicineId}/prices`).then((r) => r.data),
+
+  schedule: (medicineId: string, input: { unitPrice: number; effectiveFrom: string }) =>
+    apiClient.post<PriceHistory>(`/medicines/${medicineId}/prices`, input).then((r) => r.data),
+
+  cancel: (medicineId: string, priceId: string) =>
+    apiClient.delete(`/medicines/${medicineId}/prices/${priceId}`).then(() => undefined),
+};

@@ -176,6 +176,9 @@ all three are listed. The two `stock-movement` routes need `?from=&to=`.
 | GET | `/api/medicines/:id` | `stock.view` | ✓ | ✓ | ✓ |
 | POST | `/api/medicines` | `catalogue.manage` | ✓ | 403 | 403 |
 | PATCH | `/api/medicines/:id` | `catalogue.manage` | ✓ | 403 | 403 |
+| GET | `/api/medicines/:id/prices` | `catalogue.manage` | ✓ | 403 | 403 |
+| POST | `/api/medicines/:id/prices` | `catalogue.manage` | ✓ | 403 | 403 |
+| DELETE | `/api/medicines/:id/prices/:priceId` | `catalogue.manage` | ✓ | 403 | 403 |
 | POST | `/api/medicines/:id/deactivate` | `catalogue.manage` | ✓ | 403 | 403 |
 | POST | `/api/medicines/:id/activate` | `catalogue.manage` | ✓ | 403 | 403 |
 | GET | `/api/stock` | `stock.view` | ✓ | ✓ | ✓ |

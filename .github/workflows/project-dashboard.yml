@@ -1,0 +1,135 @@
+# Project progress dashboard (docs/dashboard/INTEGRATION_PLAN.md).
+#
+# Collects this repository's issues, pull requests, milestones and project
+# board, records one snapshot per UTC day on the data-only branch
+# `dashboard-data`, and publishes project-dashboard/ on GitHub Pages.
+#
+# - Separate from ci.yml and not a required check: a failed run here never
+#   blocks a merge.
+# - Pull requests only run the dashboard tests, with no secrets and no write
+#   permission.
+# - Board changes fire no repository event, so the schedule picks them up.
+# - Pushes made with GITHUB_TOKEN do not start other workflows, so the
+#   snapshot commit cannot loop.
+name: Project dashboard
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'project-dashboard/**'
+      - '.github/workflows/project-dashboard.yml'
+  pull_request:
+    paths:
+      - 'project-dashboard/**'
+      - '.github/workflows/project-dashboard.yml'
+
+permissions:
+  contents: read
+
+# Publishing runs one at a time and is never cancelled halfway through a
+# snapshot push or a deployment. Pull request runs only replace each other.
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('project-dashboard-pr-{0}', github.ref) || 'project-dashboard-publish' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  test:
+    name: Dashboard tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run tests
+        working-directory: project-dashboard
+        run: npm test
+
+  collect:
+    name: Collect data and record snapshot
+    needs: test
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write # push to dashboard-data only; main is protected
+      issues: read
+      pull-requests: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Collect from GitHub
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PROJECT_READ_TOKEN: ${{ secrets.PROJECT_READ_TOKEN }}
+        run: node project-dashboard/scripts/collect.mjs
+
+      - name: Check out the history branch
+        run: |
+          if git fetch --depth=1 origin dashboard-data:refs/remotes/origin/dashboard-data 2>/dev/null; then
+            git worktree add -B dashboard-data history origin/dashboard-data
+          else
+            echo "dashboard-data does not exist yet; starting it."
+            git worktree add --detach history
+            git -C history checkout --orphan dashboard-data
+            git -C history rm -rfq .
+          fi
+
+      - name: Record today's snapshot
+        run: node project-dashboard/scripts/snapshot.mjs --store history --site-data project-dashboard/data
+
+      # If the branch moved meanwhile, start again from the remote branch and
+      # record the snapshot once more (an existing file for today is kept),
+      # instead of merging two versions of history.json.
+      - name: Push the snapshot
+        working-directory: history
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for attempt in 1 2 3; do
+            git add -A
+            if git diff --cached --quiet; then
+              echo 'No new snapshot to record.'
+              exit 0
+            fi
+            git commit -q -m "Dashboard snapshot $(date -u +%Y-%m-%d)"
+            if git push origin HEAD:dashboard-data; then exit 0; fi
+            echo "Push rejected (attempt $attempt); recording again on top of the remote branch."
+            git fetch --depth=1 origin dashboard-data
+            git reset -q --hard FETCH_HEAD
+            node ../project-dashboard/scripts/snapshot.mjs --store . --site-data ../project-dashboard/data
+          done
+          exit 1
+
+      - name: Build the site
+        run: node project-dashboard/scripts/build-site.mjs --out _site
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: collect
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}project-dashboard/
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

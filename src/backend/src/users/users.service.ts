@@ -123,12 +123,14 @@ export class UsersService {
       if (fullName && fullName !== user.fullName) {
         await manager.update(User, id, { fullName });
         await this.audit.record(manager, actor.id, 'user.updated', target(id), {
+          username: user.username,
           fullName: { from: user.fullName, to: fullName },
         });
       }
       if (role.id !== user.role.id) {
         await manager.update(User, id, { role: { id: role.id } });
         await this.audit.record(manager, actor.id, 'user.role_changed', target(id), {
+          username: user.username,
           from: user.role.code,
           to: role.code,
         });

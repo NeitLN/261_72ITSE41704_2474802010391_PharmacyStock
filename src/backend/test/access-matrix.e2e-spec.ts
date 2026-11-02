@@ -17,7 +17,7 @@ const ROLE_OF: Record<User, RoleCode> = {
 };
 
 interface Route {
-  method: 'get' | 'post' | 'put' | 'patch';
+  method: 'get' | 'post' | 'put' | 'patch' | 'delete';
   /** `:name` is replaced by the id of the fixture of that name. */
   path: string;
   /** null: any signed-in user. */
@@ -60,6 +60,8 @@ describe('TC-53 role × endpoint matrix (e2e)', () => {
     }
     const receipt = await http('manager').post('/api/goods-receipts', receiptBody(100));
     expect(receipt.status, JSON.stringify(receipt.body)).toBe(201);
+    // The medicine's first price (in force), so DELETE reaches the rule (422), not 404.
+    ids.price = (await t.http().get(`/api/medicines/${ids.medicine}/prices`).set(as('manager'))).body.prices[0].id;
     ids.receipt = receipt.body.id;
     ids.batch = receipt.body.lines[0].batch.id;
     ids.customer = (await http('pharmacist').post('/api/customers', customerBody())).body.id;
@@ -89,6 +91,11 @@ describe('TC-53 role × endpoint matrix (e2e)', () => {
     });
     expect(ret.status, JSON.stringify(ret.body)).toBe(201);
     ids.return = ret.body.id;
+    const [returnLine] = await t.dataSource.query<Array<{ id: string }>>(
+      `SELECT id FROM return_lines WHERE sale_return_id = $1`,
+      [ids.return],
+    );
+    ids.returnLine = returnLine.id;
     const take = await http('manager').post('/api/stock-takes', { medicineIds: [ids.medicine] });
     expect(take.status, JSON.stringify(take.body)).toBe(201);
     ids.stockTake = take.body.id;
@@ -197,6 +204,9 @@ describe('TC-53 role × endpoint matrix (e2e)', () => {
     { method: 'patch', path: '/api/medicines/:medicine', permission: P.CATALOGUE_MANAGE, body: () => ({ name: 'Renamed' }) },
     { method: 'post', path: '/api/medicines/:medicine2/deactivate', permission: P.CATALOGUE_MANAGE },
     { method: 'post', path: '/api/medicines/:medicine2/activate', permission: P.CATALOGUE_MANAGE },
+    { method: 'get', path: '/api/medicines/:medicine/prices', permission: P.CATALOGUE_MANAGE },
+    { method: 'post', path: '/api/medicines/:medicine/prices', permission: P.CATALOGUE_MANAGE, body: () => ({ unitPrice: 900, effectiveFrom: '2099-01-01' }) },
+    { method: 'delete', path: '/api/medicines/:medicine/prices/:price', permission: P.CATALOGUE_MANAGE },
     // UC04
     { method: 'get', path: '/api/stock', permission: P.STOCK_VIEW },
     { method: 'get', path: '/api/stock/medicines/:medicine', permission: P.STOCK_VIEW },
@@ -254,6 +264,11 @@ describe('TC-53 role × endpoint matrix (e2e)', () => {
     { method: 'post', path: '/api/alerts/:alert/acknowledge', permission: P.ALERT_MANAGE },
     { method: 'post', path: '/api/batches/:batch/status', permission: P.BATCH_STATUS_MANAGE, body: () => ({ status: 'on_hold', reason: 'Matrix' }) },
     { method: 'post', path: '/api/batches/:batch/write-off', permission: P.BATCH_STATUS_MANAGE, body: () => ({ reason: 'Matrix' }) },
+    { method: 'get', path: '/api/batches/pending-destruction', permission: P.BATCH_STATUS_MANAGE },
+    { method: 'get', path: '/api/batches/:batch/destructions', permission: P.BATCH_STATUS_MANAGE },
+    { method: 'post', path: '/api/batches/:batch/destructions', permission: P.BATCH_STATUS_MANAGE, body: () => ({ quantity: 1, destroyedOn: '2026-10-13', method: 'supplier_return', witness: 'Matrix Witness' }) },
+    { method: 'get', path: '/api/quarantine', permission: P.BATCH_STATUS_MANAGE },
+    { method: 'post', path: '/api/quarantine/:returnLine/assess', permission: P.BATCH_STATUS_MANAGE, body: () => ({ outcome: 'reject', packagingIntact: false, storageCredible: false, note: 'Matrix' }) },
     // UC10–UC12 reports
     { method: 'get', path: '/api/reports/stock-movement?from=2026-10-01&to=2026-10-13', permission: P.REPORT_VIEW, kind: ':kind' },
     { method: 'get', path: '/api/reports/low-stock', permission: P.ALERT_MANAGE, kind: ':kind' },

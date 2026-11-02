@@ -20,6 +20,7 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import { useCallback, useState } from 'react';
 import { showApiError, toApiError } from '../api/errors';
+import { PricesDrawer } from './PricesDrawer';
 import { useMe } from '../api/me';
 import {
   type Classification,
@@ -70,6 +71,7 @@ function MedicinesPanel() {
   const [categoryId, setCategoryId] = useState<string | undefined>();
   const [includeInactive, setIncludeInactive] = useState(false);
   const [editing, setEditing] = useState<Medicine | 'new' | null>(null);
+  const [pricesOf, setPricesOf] = useState<string | null>(null);
 
   const fetchReference = useCallback(() => medicinesApi.referenceData(), []);
   const { data: reference } = useLoad(fetchReference, NO_REFERENCE);
@@ -149,11 +151,14 @@ function MedicinesPanel() {
     columns.push({
       title: '',
       key: 'actions',
-      width: 190,
+      width: 260,
       render: (_, medicine) => (
         <Space>
           <Button size="small" onClick={() => setEditing(medicine)}>
             Edit
+          </Button>
+          <Button size="small" onClick={() => setPricesOf(medicine.id)}>
+            Prices
           </Button>
           <Popconfirm
             title={medicine.isActive ? 'Deactivate this medicine?' : 'Reactivate this medicine?'}
@@ -224,6 +229,7 @@ function MedicinesPanel() {
           reload();
         }}
       />
+      <PricesDrawer medicineId={pricesOf} onClose={() => setPricesOf(null)} onChanged={reload} />
     </>
   );
 }

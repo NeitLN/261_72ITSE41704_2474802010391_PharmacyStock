@@ -5,6 +5,8 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { AlertsModule } from './alerts/alerts.module.js';
 import { QuarantineModule } from './quarantine/quarantine.module.js';
+import { AuditModule } from './audit/audit.module.js';
+import { UsersModule } from './users/users.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { BatchesModule } from './batches/batches.module.js';
 import { CatalogueModule } from './catalogue/catalogue.module.js';
@@ -42,6 +44,8 @@ import { SuppliersModule } from './suppliers/suppliers.module.js';
     BatchesModule,
     AlertsModule,
     QuarantineModule,
+    AuditModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

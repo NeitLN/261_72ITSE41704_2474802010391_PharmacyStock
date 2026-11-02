@@ -63,10 +63,7 @@ const GROUPS = [
  * Entities that no service, controller or rule reads or writes yet, with the
  * reason (#71). They are drawn with a <<not used yet>> stereotype.
  */
-const UNUSED = {
-  AuditLog:
-    'Only the demo seed writes one row, as its completion marker. The audit entries of FR-41 come with UC15 (#105).',
-};
+const UNUSED = {};
 
 /** Links the database does not enforce, so metadata cannot show them. */
 const LOGICAL = [
@@ -314,10 +311,14 @@ writeFileSync(
       '',
       '## Part 1 — Entities (generated)',
       '',
-      'Marked <<not used yet>>, because nothing in the application reads or writes them so far:',
-      '',
-      ...Object.entries(UNUSED).map(([n, why]) => `- \`${n}\`: ${why}`),
-      '',
+      ...(Object.keys(UNUSED).length
+        ? [
+            'Marked <<not used yet>>, because nothing in the application reads or writes them so far:',
+            '',
+            ...Object.entries(UNUSED).map(([n, why]) => `- \`${n}\`: ${why}`),
+            '',
+          ]
+        : ['Every entity is read or written by the application; none is unused.', '']),
     ]),
     ...GROUPS.flatMap(([g, names]) => classes(g, names)),
     marker,

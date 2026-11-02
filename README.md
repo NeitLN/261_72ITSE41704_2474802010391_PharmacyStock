@@ -117,7 +117,7 @@ table with owners and tests in
 ## Prerequisites
 
 - Git
-- Node.js 20 or newer (developed on 24.12.0)
+- Node.js 22.12 or newer, 24 recommended (developed on 24.12.0; Vite needs 20.19+ or 22.12+)
 - npm 10 or newer
 - PostgreSQL 18, either installed locally or via the provided `docker-compose.yml` (needs Docker Desktop running)
 
@@ -236,7 +236,7 @@ Run from `src/backend` or `src/frontend`:
 | `npm run dev` / `npm run start:dev` | starts API in watch mode | starts Vite dev server |
 | `npm run build` | compiles to `dist/` | builds to `dist/` |
 | `npm run lint` | oxlint | oxlint |
-| `npm test` | Vitest unit tests | — |
+| `npm test` | Vitest unit tests | Vitest unit tests |
 | `npm run test:e2e` | Vitest end-to-end tests | — |
 | `npm run perf:load` | fills a separate `_perf` database with the TC-29 volume | — |
 | `npm run perf:measure` | times TC-29 against a running API | — |

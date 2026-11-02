@@ -15,7 +15,7 @@ sign-in**. The two installs took most of it.
 | Tool | Version | Check with |
 |---|---|---|
 | Git | any recent | `git --version` |
-| Node.js | 20 or newer (built on 24) | `node --version` |
+| Node.js | 22.12 or newer, 24 recommended (20.19+ also works; older 20.x fails at `npm run dev`) | `node --version` |
 | npm | 10 or newer (comes with Node) | `npm --version` |
 | Docker Desktop, running | any recent | `docker info` prints a server version |
 | A browser | Chrome, Edge or Firefox | — |
@@ -25,6 +25,8 @@ Instead of Docker, a PostgreSQL 18 server of your own works too; see step 2.
 
 Every command below starts **from the repository folder** unless it says
 otherwise. Open a new terminal there for each of the two servers in step 5.
+The commands are for a bash shell; on Windows use **Git Bash** (it comes with
+Git), because `&&` fails in the older Windows PowerShell 5.
 
 ## 1. Get the code and install (about 2 minutes)
 
@@ -122,10 +124,10 @@ installation is complete.
 |---|---|
 | `docker compose up -d`: *cannot connect to the Docker daemon* | Docker Desktop is not running. Start it, wait until it says *running*, try again. |
 | `docker compose up -d`: *port is already allocated* on 5433 | Another database uses 5433. Stop it, or change the port in `docker-compose.yml` and `DB_PORT` in `src/backend/.env`. |
-| `docker compose up -d`: *container name "/pharmacy_postgres" is already in use* | A second copy of the project on the same computer. The container name is fixed, so stop the other one first (`docker stop pharmacy_postgres`) or run this copy with its own name: `docker compose -p pharmacy2 up -d`. |
+| `docker compose up -d`: *container name "/pharmacy_postgres" is already in use* | Another copy of the project on this computer already has the database container. The name and port 5433 are fixed in `docker-compose.yml`, so run **one copy at a time**: in the other copy's folder run `docker compose down` (keeps its data), or anywhere `docker rm -f pharmacy_postgres` (keeps the data volume), then `docker compose up -d` here. Stopping the other container is not enough, since a stopped container still holds the name. |
 | `npm run seed`: *ECONNREFUSED 127.0.0.1:5433* | The database is not up yet, or Docker stopped (for example after a restart). Run `docker compose up -d` again, wait 10 seconds, retry. |
 | `npm run start:dev`: *EADDRINUSE :3000*, or Vite picks a port other than 5173 | Something already uses the port. Close it, or stop the other copy of the app. The web client expects the API on port 3000. |
-| Sign-in says *Incorrect username or password* | The password is `Pharmacy@2026` (capital P). If you changed `SEED_PASSWORD` after seeding, run `npm run seed` again; it sets the password only on accounts that have none. |
+| Sign-in says *Incorrect username or password* | Use the password that was in `SEED_PASSWORD` when you first ran `npm run seed`: `Pharmacy@2026` from `.env.example`, with a capital P. Changing `SEED_PASSWORD` afterwards changes nothing, because the seed only sets a password on accounts that have none. To use a new one, start again from empty (last row). |
 | You want to start again from empty | In the repository folder: `docker compose down -v`, `docker compose up -d`, then step 3 again. This deletes all data in the database. |
 
 ## Running the tests (optional)

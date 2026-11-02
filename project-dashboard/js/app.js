@@ -5,6 +5,7 @@ import { buildModel } from './core/model.js';
 import { formatInstant } from './core/dates.js';
 import { destroyCharts } from './ui/charts.js';
 import { esc, healthBadge, link } from './ui/dom.js';
+import { icon } from './ui/icons.js';
 import * as overview from './views/overview.js';
 import * as weekly from './views/weekly.js';
 import * as burndown from './views/burndown.js';
@@ -35,6 +36,7 @@ function parseHash() {
 function render() {
   if (!model) return;
   const { name, params } = parseHash();
+  document.getElementById('route-name').textContent = VIEWS[name].title;
   for (const a of document.querySelectorAll('.nav-inner a')) {
     if (a.getAttribute('href') === `#${name}`) a.setAttribute('aria-current', 'page');
     else a.removeAttribute('aria-current');
@@ -43,6 +45,16 @@ function render() {
   try {
     const result = VIEWS[name].render(model, params);
     view.innerHTML = result.html;
+    // Each route exposes one page heading, with section headings below it.
+    if (!view.querySelector('h1')) {
+      const heading = view.querySelector('.section-head h2');
+      if (heading) {
+        const pageHeading = document.createElement('h1');
+        for (const attr of heading.attributes) pageHeading.setAttribute(attr.name, attr.value);
+        pageHeading.innerHTML = heading.innerHTML;
+        heading.replaceWith(pageHeading);
+      }
+    }
     result.mount?.(view);
     document.title = `${VIEWS[name].title} · ${model.config.project.shortName ?? model.config.project.name}`;
   } catch (error) {
@@ -54,11 +66,12 @@ function render() {
 function renderChrome() {
   const { config, data, freshness, overview: o } = model;
   document.getElementById('project-name').textContent = config.project.name;
+  document.getElementById('workspace-name').textContent = config.project.shortName ?? config.project.name;
   document.getElementById('header-health').innerHTML = `<a href="#burndown" title="How health is worked out">${healthBadge(o.health)}</a>`;
   const repo = document.getElementById('repo-link');
   repo.href = data.repository?.url ?? `https://github.com/${config.project.repository}`;
   repo.hidden = false;
-  document.getElementById('last-updated').innerHTML = `Data collected <time datetime="${esc(freshness.generatedAt)}">${esc(formatInstant(freshness.generatedAt, config.project.timezone))}</time>`;
+  document.getElementById('last-updated').innerHTML = `${icon('clock')}<span>Collected <time datetime="${esc(freshness.generatedAt)}">${esc(formatInstant(freshness.generatedAt, config.project.timezone))}</time></span>`;
 
   const banners = [];
   if (freshness.stale) {
@@ -78,7 +91,12 @@ function setupTheme() {
   const label = document.getElementById('theme-label');
   const current = () => document.documentElement.dataset.theme
     ?? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  const show = () => { label.textContent = current() === 'dark' ? 'Light theme' : 'Dark theme'; };
+  const show = () => {
+    const dark = current() === 'dark';
+    label.textContent = dark ? 'Light theme' : 'Dark theme';
+    document.getElementById('theme-icon').innerHTML = icon(dark ? 'sun' : 'moon');
+    button.setAttribute('aria-label', `Switch to ${dark ? 'light' : 'dark'} theme`);
+  };
   button.addEventListener('click', () => {
     const next = current() === 'dark' ? 'light' : 'dark';
     document.documentElement.dataset.theme = next;
@@ -91,6 +109,7 @@ function setupTheme() {
 }
 
 async function start() {
+  document.querySelectorAll('[data-icon]').forEach((el) => { el.innerHTML = icon(el.dataset.icon); });
   setupTheme();
   try {
     const [config, data, history] = await Promise.all([
@@ -99,7 +118,7 @@ async function start() {
       fetchJson('data/history.json', { optional: true }),
     ]);
     model = buildModel({ config, data, history: history ?? [], now: new Date() });
-    window.addEventListener('hashchange', () => { render(); document.getElementById('main').focus({ preventScroll: true }); });
+    window.addEventListener('hashchange', () => { render(); window.scrollTo(0, 0); document.getElementById('main').focus({ preventScroll: true }); });
     // Views re-render in place (filters) without moving focus.
     window.addEventListener('dashboard:render', render);
     renderChrome();
@@ -107,7 +126,8 @@ async function start() {
   } catch (error) {
     console.error(error);
     document.getElementById('project-name').textContent = 'Project progress';
-    view.innerHTML = `<div class="state" role="alert"><p><strong>The project data could not be loaded.</strong></p><p class="small">${esc(error.message)}</p><p class="small">If the dashboard was just set up, the first collection may still be running.</p></div>`;
+    view.innerHTML = `<div class="state" role="alert"><h1>The project data could not be loaded.</h1><p class="small">${esc(error.message)}</p><p class="small">Check your connection and try again. If the dashboard was just set up, the first collection may still be running.</p><button type="button" class="icon-button" id="retry-load">Try again</button></div>`;
+    document.getElementById('retry-load').addEventListener('click', () => location.reload());
   }
 }
 

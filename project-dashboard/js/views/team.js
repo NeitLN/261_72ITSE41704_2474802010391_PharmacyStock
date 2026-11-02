@@ -14,7 +14,7 @@ export function render(model) {
   const cards = members.map((m) => `
     <section class="card member-card" aria-labelledby="m-${esc(m.login)}">
       <div class="who">
-        <img class="avatar" src="https://github.com/${encodeURIComponent(m.login)}.png?size=80" alt="" width="40" height="40" loading="lazy">
+        <span class="avatar-frame" aria-hidden="true"><span class="initials">${esc(m.name.trim().split(/\s+/).slice(-2).map((part) => part[0]).join(''))}</span><img class="avatar" src="https://github.com/${encodeURIComponent(m.login)}.png?size=80" alt="" width="40" height="40" loading="lazy"></span>
         <div>
           <h3 id="m-${esc(m.login)}">${esc(m.name)}${m.code ? ` <span class="muted">(${esc(m.code)})</span>` : ''}</h3>
           <p class="small">${link(`https://github.com/${m.login}`, `@${m.login}`)} ${prov('configured')}</p>
@@ -66,6 +66,12 @@ export function render(model) {
   return {
     html,
     mount(root) {
+      for (const avatar of root.querySelectorAll('.avatar')) {
+        const showLoaded = () => avatar.classList.toggle('loaded', avatar.naturalWidth > 0);
+        avatar.addEventListener('load', showLoaded);
+        avatar.addEventListener('error', () => avatar.classList.remove('loaded'));
+        if (avatar.complete) showLoaded();
+      }
       stackedBars(root.querySelector('#team-chart'), {
         labels: members.map((m) => m.name),
         done: members.map((m) => m.done.length),

@@ -2,7 +2,7 @@ import { burndownChart, flowChart, stackedBars } from '../ui/charts.js';
 import { day, esc, healthBadge, info } from '../ui/dom.js';
 import { formatDay, formatInstant } from '../core/dates.js';
 
-export const title = 'Burndown & Analytics';
+export const title = 'Burndown & analytics';
 
 /**
  * Aligns the series of one burndown on the dates of its ideal line. Days on
@@ -53,7 +53,7 @@ export function render(model, params) {
   const html = `
   <div class="stack-lg">
     <div class="section-head">
-      <h2>Burndown &amp; Analytics</h2>
+      <h2>Burndown &amp; analytics</h2>
       <div class="filters no-print"><label>Period<select id="bd-scope">${options}</select></label></div>
     </div>
 

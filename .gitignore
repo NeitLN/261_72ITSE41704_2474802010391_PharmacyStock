@@ -38,6 +38,7 @@ desktop.ini
 # Database dumps and local data
 *.sqlite
 *.sqlite3
+*.dump
 pgdata/
 
 # Temporary

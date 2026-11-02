@@ -33,6 +33,7 @@ const GROUPS = [
       'StockTakeMedicine',
       'StockTakeCounter',
       'StockAlert',
+      'DestructionRecord',
     ],
   ],
   [

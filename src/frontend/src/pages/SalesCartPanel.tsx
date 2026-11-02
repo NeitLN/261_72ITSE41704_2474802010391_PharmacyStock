@@ -13,7 +13,7 @@ import {
 import { useCallback, useMemo, useState } from 'react';
 import { type FieldError, toApiError } from '../api/errors';
 import { medicinesApi, type Medicine } from '../api/medicines';
-import { formatVnd } from '../ui/format';
+import { formatDateTime, formatVnd } from '../ui/format';
 import {
   lineEstimateXu,
   type Sale,
@@ -232,7 +232,7 @@ export function SalesCartPanel() {
   }
 
   return (
-    <Space direction="vertical" style={{ width: '100%' }} size="large">
+    <Space orientation="vertical" style={{ width: '100%' }} size="large">
       <div>
         <Typography.Text strong>Add a medicine to the cart</Typography.Text>
         <Select
@@ -370,22 +370,21 @@ export function ReceiptView({
 }) {
   return (
     <ResultAppear>
-      <Space direction="vertical" style={{ width: '100%' }}>
+      <Space orientation="vertical" style={{ width: '100%' }}>
         <Descriptions size="small" title={`Receipt ${sale.receiptNumber}`}>
           <Descriptions.Item label="Sold at">
-            {new Date(sale.soldAt).toLocaleString('vi-VN', {
-              timeZone: 'Asia/Ho_Chi_Minh',
-            })}
+            {formatDateTime(sale.soldAt)}
           </Descriptions.Item>
           <Descriptions.Item label="Customer">
             {sale.customer ? `${sale.customer.code} — ${sale.customer.fullName}` : '—'}
           </Descriptions.Item>
         </Descriptions>
         <Table
-          rowKey={(_, index) => String(index)}
+          // Receipt lines have no id and never reorder, so their position is a stable key.
+          rowKey="position"
           size="small"
           pagination={false}
-          dataSource={sale.lines}
+          dataSource={sale.lines.map((line, position) => ({ ...line, position }))}
           columns={[
             {
               title: 'Medicine',

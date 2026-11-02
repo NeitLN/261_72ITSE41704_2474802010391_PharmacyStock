@@ -24,6 +24,7 @@ import {
   stockApi,
 } from '../api/stock';
 import { useLoad } from '../api/useLoad';
+import { formatDateTime } from '../ui/format';
 
 const PAGE_SIZE = 50;
 const NO_REFERENCE = { categories: [] as Reference[], units: [] as Reference[] };
@@ -55,10 +56,6 @@ const MOVEMENT_LABELS: Record<MovementType, string> = {
   destroy: 'Destroy',
   adjustment: 'Adjustment',
 };
-
-/** Movement times in pharmacy time, whatever the browser's zone. */
-const formatTime = (iso: string) =>
-  new Date(iso).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
 
 const signed = (n: number) => (n > 0 ? `+${n}` : n === 0 ? '' : `${n}`);
 
@@ -105,7 +102,7 @@ export function StockPanel() {
     {
       title: 'Medicine',
       render: (_, r) => (
-        <Space direction="vertical" size={0}>
+        <Space orientation="vertical" size={0}>
           <span>
             {r.medicine.name} {!r.medicine.isActive && <Tag>Inactive</Tag>}
           </span>
@@ -255,7 +252,7 @@ function MedicineStockDrawer({
     <Drawer
       open={medicineId !== null}
       onClose={onClose}
-      width={900}
+      size={900}
       title={detail ? `${detail.medicine.code} — ${detail.medicine.name}` : 'Batches'}
       destroyOnHidden
     >
@@ -295,24 +292,24 @@ function BatchHistoryModal({ batchId, onClose }: { batchId: string | null; onClo
   const { data: history, loading } = useLoad(fetchHistory, null);
 
   const columns: ColumnsType<Movement> = [
-    { title: 'Time', width: 170, render: (_, m) => formatTime(m.occurredAt) },
+    { title: 'Time', width: 170, render: (_, m) => formatDateTime(m.occurredAt) },
     {
       title: 'Type',
       width: 150,
       render: (_, m) => (
-        <Space direction="vertical" size={0}>
+        <Space orientation="vertical" size={0}>
           <span>
             {MOVEMENT_LABELS[m.type]} {m.reverses && <Tag color="purple">Correction</Tag>}
           </span>
           {m.reverses && (
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
               reverses the {MOVEMENT_LABELS[m.reverses.type].toLowerCase()} of{' '}
-              {formatTime(m.reverses.occurredAt)}
+              {formatDateTime(m.reverses.occurredAt)}
             </Typography.Text>
           )}
           {m.reversedBy && (
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-              reversed on {formatTime(m.reversedBy.occurredAt)}
+              reversed on {formatDateTime(m.reversedBy.occurredAt)}
             </Typography.Text>
           )}
         </Space>
@@ -352,7 +349,7 @@ function BatchHistoryModal({ batchId, onClose }: { batchId: string | null; onClo
     {
       title: 'Document',
       render: (_, m) => (
-        <Space direction="vertical" size={0}>
+        <Space orientation="vertical" size={0}>
           {/* A write-off or status change belongs to the batch itself: no document number. */}
           <span>{m.source.reference ?? '—'}</span>
           {m.reason && (

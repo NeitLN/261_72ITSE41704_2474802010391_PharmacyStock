@@ -64,7 +64,7 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-41 | 8 | UC13 / BR09 *(S)* | Price change after a sale | Sell, then change the price | Past sale and report unchanged | Tiến | Minh | UC01-05 (price history) | Not run |
 | TC-42 | 5 | UC16 | Wrong password; locked account | Sign in with a wrong password; with a locked user | Generic message; refused | Minh | Duy Anh | UC16-03, UC16-05 | Pass |
 | TC-43 | 5 | UC16 | Menu by role and session expiry | Sign in as each role; let the session expire | Correct menu; redirect when expired | Minh | Duy Anh | UC16-01, UC16-08, UC16-09 | Pass |
-| TC-44 | 8 | UC15 *(S)* | Create user, change role, lock | As manager | Applied; audit entry written | Minh | Duy Anh | — | Not run |
+| TC-44 | 8 | UC15 *(S)* | Create user, change role, lock | As manager | Applied; audit entry written | Minh | Duy Anh | UC15-01…12 | Pass |
 | TC-45 | 5 | UC01 | Duplicate medicine code | Add `Para500` when `PARA500` exists | Refused on the code field | Tiến | Minh | UC01-02 | Pass |
 | TC-46 | 5 | UC01 / UC02 | Deactivated medicine or supplier in a receipt | Deactivate, then use it on a receipt | Refused | Tiến | Minh | UC03-09 | Pass |
 | TC-47 | 5 | UC05 | Multi-item prescription; missing patient, strength or dose | Save a complete prescription; then omit each field | Saved; or field errors | Duy Anh | Tiến | — | Pass |

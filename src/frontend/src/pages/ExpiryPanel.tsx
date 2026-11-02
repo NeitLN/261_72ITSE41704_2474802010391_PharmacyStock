@@ -195,7 +195,7 @@ function WriteOffModal({
           <Input maxLength={500} />
         </Form.Item>
       </Form>
-      {refusal && <Alert type="error" showIcon message={refusal} />}
+      {refusal && <Alert type="error" showIcon title={refusal} />}
     </Modal>
   );
 }
@@ -251,7 +251,7 @@ function StatusModal({
             type="warning"
             showIcon
             style={{ marginBottom: 12 }}
-            message="Rejected is final. The batch can never be sold or dispensed again."
+            title="Rejected is final. The batch can never be sold or dispensed again."
           />
         )}
         <Form.Item
@@ -266,7 +266,7 @@ function StatusModal({
         A batch that is not active is left out of dispensing, sales and the sellable total from now;
         low-stock alerts are checked again.
       </Typography.Paragraph>
-      {refusal && <Alert type="error" showIcon message={refusal} />}
+      {refusal && <Alert type="error" showIcon title={refusal} />}
     </Modal>
   );
 }

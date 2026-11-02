@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="../kit.css"><title>Sales — bill a dispensing</title></head>
+<body>
+<div class="frame" style="min-height: 480px">
+  <span class="label">UC07 Sales &amp; returns › Bill a dispensing — 1. hand-overs waiting for payment <span class="tag">as-built · Duy Anh · 02/11/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Cashier <span class="tag">Cashier</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Catalogue &amp; batches</div><div class="on">Sales &amp; returns</div></div>
+    <div class="page">
+      <h1>Sales &amp; returns</h1>
+      <div class="tabs"><div>Over-the-counter sale</div><div class="on">Bill a dispensing</div><div>Returns</div></div>
+      <div class="row" style="justify-content: space-between"><b>Hand-overs waiting for payment</b><span class="btn">Refresh</span></div>
+      <table>
+        <tr><th>Prescription</th><th>Patient</th><th>Last hand-over</th><th class="num">Lines</th></tr>
+        <tr><td>RX-20261102-0004</td><td>KH0008 — Bui Thanh Long</td><td>2026-11-02 16:19</td><td class="num">1</td></tr>
+        <tr><td>RX-20261102-0005</td><td>KH0008 — Bui Thanh Long</td><td>2026-11-02 16:19</td><td class="num">1</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="note" data-n="1" style="top: 130px; right: 20px">UC07 billing step 2, FR-26: one row per prescription with unbilled dispense lines, latest hand-over first. Refresh reloads the list.</div>
+</div>
+
+<div class="frame" style="min-height: 540px">
+  <span class="label">UC07 Bill a dispensing — 2. the lines to pay for <span class="tag">as-built · Duy Anh · 02/11/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Cashier <span class="tag">Cashier</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Catalogue &amp; batches</div><div class="on">Sales &amp; returns</div></div>
+    <div class="page">
+      <h1>Sales &amp; returns</h1>
+      <div class="tabs"><div>Over-the-counter sale</div><div class="on">Bill a dispensing</div><div>Returns</div></div>
+      <div class="row" style="justify-content: space-between"><b>Hand-overs waiting for payment</b><span class="btn">Refresh</span></div>
+      <table>
+        <tr><th>Prescription</th><th>Patient</th><th>Last hand-over</th><th class="num">Lines</th></tr>
+        <tr style="background: #eee"><td>RX-20261102-0005</td><td>KH0008 — Bui Thanh Long</td><td>2026-11-02 16:19</td><td class="num">1</td></tr>
+        <tr><td>RX-20261102-0004</td><td>KH0008 — Bui Thanh Long</td><td>2026-11-02 16:19</td><td class="num">1</td></tr>
+      </table>
+      <div class="row"><b>Lines of RX-20261102-0005 to pay for now</b></div>
+      <table>
+        <tr><th>Medicine</th><th>Batch</th><th>Expiry</th><th class="num">Quantity</th></tr>
+        <tr><td>EFF-PARA — Paracetamol effervescent 500 mg</td><td>EFFPA26112</td><td>2026-11-11</td><td class="num">2</td></tr>
+      </table>
+      <div class="row muted">Prices are those in force today; the receipt shows the total charged.</div>
+      <div class="row"><span class="btn primary">Confirm payment</span></div>
+      <div class="row muted">Retrying sends the same request, so a network failure can never charge twice.</div>
+    </div>
+  </div>
+  <div class="note" data-n="2" style="top: 150px; right: 20px">UC07 billing steps 3–4, FR-26: the row is tinted so the cashier sees which prescription Confirm payment will charge.</div>
+  <div class="note" data-n="3" style="top: 480px; right: 20px">DEC-05/FR-26: billing moves no stock — the hand-over already did. FR-23: one request ID per chosen prescription.</div>
+</div>
+
+<div class="frame" style="min-height: 440px">
+  <span class="label">UC07 Bill a dispensing — 3. refusal: somebody paid it first <span class="tag">as-built · Duy Anh · 02/11/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Cashier <span class="tag">Cashier</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Catalogue &amp; batches</div><div class="on">Sales &amp; returns</div></div>
+    <div class="page">
+      <h1>Sales &amp; returns</h1>
+      <div class="tabs"><div>Over-the-counter sale</div><div class="on">Bill a dispensing</div><div>Returns</div></div>
+      <div class="row" style="justify-content: space-between"><b>Hand-overs waiting for payment</b><span class="btn">Refresh</span></div>
+      <table>
+        <tr><th>Prescription</th><th>Patient</th><th>Last hand-over</th><th class="num">Lines</th></tr>
+        <tr><td>RX-20261102-0004</td><td>KH0008 — Bui Thanh Long</td><td>2026-11-02 16:19</td><td class="num">1</td></tr>
+      </table>
+      <div class="box"><b>✖ Prescription RX-20261102-0005 is already billed.</b></div>
+    </div>
+  </div>
+  <div class="note" data-n="4" style="top: 130px; right: 20px">UC07 A5 (S12), 422 <code>ALREADY_BILLED</code>, TC-15/TC-52: the first sale is unchanged; the row disappears on the reload.</div>
+</div>
+
+<div class="frame" style="min-height: 480px">
+  <span class="label">UC07 Bill a dispensing — 4. receipt <span class="tag">as-built · Duy Anh · 02/11/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Cashier <span class="tag">Cashier</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Catalogue &amp; batches</div><div class="on">Sales &amp; returns</div></div>
+    <div class="page">
+      <h1>Sales &amp; returns</h1>
+      <div class="tabs"><div>Over-the-counter sale</div><div class="on">Bill a dispensing</div><div>Returns</div></div>
+      <h2 style="font-size: 18px">Receipt RC-20261102-0004</h2>
+      <div class="row"><span>Sold at</span><span>2026-11-02 16:20</span><span>Customer</span><span>KH0008 — Bui Thanh Long</span></div>
+      <table>
+        <tr><th>Medicine</th><th>Batch</th><th>Expiry</th><th class="num">Quantity</th><th class="num">Unit price</th><th class="num">Line total</th><th>Warning</th></tr>
+        <tr><td>EFF-PARA — Paracetamol effervescent 500 mg</td><td>EFFPA26112</td><td>2026-11-11</td><td class="num">3</td><td class="num">2.500 ₫</td><td class="num">7.500 ₫</td><td>—</td></tr>
+      </table>
+      <div class="row"><span>Total:</span><b>7.500 ₫</b></div>
+      <div class="row"><span class="btn primary">Bill another</span></div>
+      <div class="row muted">Handed over earlier — no stock movement.</div>
+    </div>
+  </div>
+  <div class="note" data-n="5" style="top: 150px; right: 20px">FR-26, DEC-05: one sale line per dispense line, same batch, priced today; the customer is the prescription's patient.</div>
+  <div class="note" data-n="6" style="top: 420px; right: 20px">Billed lines carry no expiry warning: it was shown at the hand-over (UC06). Bill another returns to the list and reloads it.</div>
+</div>
+
+<div class="frame" style="min-height: 300px">
+  <span class="label">UC07 Bill a dispensing — 5. nothing waiting (empty) <span class="tag">as-built · Duy Anh · 02/11/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Cashier <span class="tag">Cashier</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Catalogue &amp; batches</div><div class="on">Sales &amp; returns</div></div>
+    <div class="page">
+      <h1>Sales &amp; returns</h1>
+      <div class="tabs"><div>Over-the-counter sale</div><div class="on">Bill a dispensing</div><div>Returns</div></div>
+      <div class="row" style="justify-content: space-between"><b>Hand-overs waiting for payment</b><span class="btn">Refresh</span></div>
+      <table>
+        <tr><th>Prescription</th><th>Patient</th><th>Last hand-over</th><th class="num">Lines</th></tr>
+        <tr><td colspan="4" class="muted" style="text-align: center">No hand-over is waiting for payment.</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="note" data-n="7" style="top: 130px; right: 20px">Empty state of the same list: no unbilled dispense line exists. UC07 billing step 2.</div>
+</div>
+<ol class="notes">
+  <li>UC07 billing steps 1–2, FR-26; only hand-overs not yet billed appear.</li>
+  <li>UC07 billing step 3; FR-26. The tinted row is the one the button charges.</li>
+  <li>DEC-05/FR-26 (no second movement), FR-23 (one request ID, reused on retry).</li>
+  <li>UC07 A5, S12, 422 <code>ALREADY_BILLED</code>: the other sale keeps the hand-over; this screen reloads and drops the row.</li>
+  <li>FR-26, DEC-05; the price is the one in force on the sale date (decision 12, BR09).</li>
+  <li>A billed line carries no warning; the stock left at the hand-over (UC06, FR-16).</li>
+  <li>UC07 billing step 2, empty list text.</li>
+</ol>
+</body>
+</html>

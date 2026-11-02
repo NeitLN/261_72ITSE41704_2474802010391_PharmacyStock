@@ -9,12 +9,10 @@ import {
 } from '../api/alerts';
 import { toApiError } from '../api/errors';
 import { useLoad } from '../api/useLoad';
+import { formatDateTime } from '../ui/format';
 import { StatusTag } from '../ui/tags';
 
 const NO_ALERTS: StockAlert[] = [];
-
-const dateTime = (value: string | null) =>
-  value ? new Date(value).toLocaleString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' }) : '—';
 
 /**
  * UC10 Review low-stock alerts. The system raises and resolves them as stock
@@ -60,14 +58,14 @@ export function AlertsPanel() {
       align: 'right',
       render: (_, a) => (a.batch ? '—' : a.medicine.reorderLevel),
     },
-    { title: 'Raised', width: 170, render: (_, a) => dateTime(a.raisedAt) },
+    { title: 'Raised', width: 170, render: (_, a) => formatDateTime(a.raisedAt) },
     {
       title: 'Status',
       width: 230,
       render: (_, a) => {
-        if (a.status === 'resolved') return `Resolved ${dateTime(a.resolvedAt)}`;
+        if (a.status === 'resolved') return `Resolved ${formatDateTime(a.resolvedAt)}`;
         if (a.status === 'acknowledged')
-          return `Seen by ${a.acknowledgedBy?.fullName ?? '—'}, ${dateTime(a.acknowledgedAt)}`;
+          return `Seen by ${a.acknowledgedBy?.fullName ?? '—'}, ${formatDateTime(a.acknowledgedAt)}`;
         return <Tag color="blue">New</Tag>;
       },
     },

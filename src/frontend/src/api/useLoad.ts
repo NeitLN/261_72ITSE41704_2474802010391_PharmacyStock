@@ -28,7 +28,12 @@ export function useLoad<T>(fetcher: () => Promise<T>, fallback: T) {
       },
       (error: unknown) => {
         if (cancelled) return;
-        message.error(toApiError(error).message);
+        const apiError = toApiError(error);
+        // Several loads fail together when the server is down; one message is enough (#256).
+        message.error({
+          content: apiError.message,
+          key: apiError.code === 'NETWORK' ? 'network' : undefined,
+        });
         // Never show the previous query's rows as if they answered this one.
         setResult({ fetcher, version, data: undefined as T });
       },

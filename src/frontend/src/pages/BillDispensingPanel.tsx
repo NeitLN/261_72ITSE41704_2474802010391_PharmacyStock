@@ -7,6 +7,7 @@ import {
   salesApi,
 } from '../api/sales';
 import { useLoad } from '../api/useLoad';
+import { formatDateTime } from '../ui/format';
 import { ReceiptView } from './SalesCartPanel';
 
 const NO_BILLABLE: BillablePrescription[] = [];
@@ -83,7 +84,7 @@ export function BillDispensingPanel() {
 
   if (receipt) {
     return (
-      <Space direction="vertical" style={{ width: '100%' }}>
+      <Space orientation="vertical" style={{ width: '100%' }}>
         <ReceiptView
           sale={receipt}
           onNew={billAnother}
@@ -99,7 +100,7 @@ export function BillDispensingPanel() {
   }
 
   return (
-    <Space direction="vertical" style={{ width: '100%' }} size="large">
+    <Space orientation="vertical" style={{ width: '100%' }} size="large">
       <div>
         <div
           style={{
@@ -152,10 +153,7 @@ export function BillDispensingPanel() {
             },
             {
               title: 'Last hand-over',
-              render: (_, p) =>
-                new Date(p.lastDispensedAt).toLocaleString('vi-VN', {
-                  timeZone: 'Asia/Ho_Chi_Minh',
-                }),
+              render: (_, p) => formatDateTime(p.lastDispensedAt),
             },
             {
               title: 'Lines',

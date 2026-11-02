@@ -23,6 +23,13 @@ describe('Application (e2e)', () => {
     await t.http().get('/api').expect(200).expect('Hello World!');
   });
 
+  it('#255 gives a signed-in user the business date, and refuses without a session', async () => {
+    const res = await t.http().get('/api/clock').set(as('cashier'));
+    expect(res.status).toBe(200);
+    expect(res.body.today).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    await t.http().get('/api/clock').expect(401);
+  });
+
   it('reports who the caller is and the permissions of the role', async () => {
     const res = await t.http().get('/api/auth/me').set(as('cashier'));
 

@@ -116,9 +116,13 @@ table with owners and tests in
 
 ## Prerequisites
 
+- Git
 - Node.js 20 or newer (developed on 24.12.0)
 - npm 10 or newer
-- PostgreSQL 18, either installed locally or via the provided `docker-compose.yml`
+- PostgreSQL 18, either installed locally or via the provided `docker-compose.yml` (needs Docker Desktop running)
+
+For a first install on a new computer, with what you should see after each step
+and what to do when a step fails, follow [`docs/run-guide.md`](docs/run-guide.md).
 
 ## Getting started
 
@@ -161,6 +165,7 @@ Create the tables with the migrations:
 
 ```bash
 npm run seed    # applies the migrations, then writes the sample data
+cd ../..
 ```
 
 If your database volume still holds tables created by the old
@@ -170,9 +175,12 @@ by migrations; see [`src/backend/README.md`](src/backend/README.md).
 
 ### 4. Configure the frontend
 
+From the repository folder:
+
 ```bash
 cd src/frontend
 cp .env.example .env.local
+cd ../..
 ```
 
 The default `VITE_API_BASE_URL=http://localhost:3000/api` matches the backend
@@ -197,7 +205,9 @@ account per role: `manager`, `pharmacist` and `cashier`.
 
 On a database without medicines it also writes a simulated demo data set:
 60 medicines with prices, 10 suppliers, 12 patients, 7 prescribers and 120
-batches received through 24 goods receipts. Dates are relative to the day you
+batches received through 24 goods receipts, then two months of
+over-the-counter sales and returns (with one return released and one
+rejected), so the stock movement report has two periods to compare. Dates are relative to the day you
 seed, so there are always expired, near-expiry and long-dated batches, ten
 medicines below their reorder level and one batch on hold. All names and
 numbers are fictional. `SEED_DEMO=false npm run seed` writes only the

@@ -26,24 +26,19 @@ import { type Medicine, medicinesApi } from '../api/medicines';
 import { formatVnd } from '../ui/format';
 import { type Supplier, suppliersApi } from '../api/suppliers';
 import { useLoad } from '../api/useLoad';
+import { useBusinessToday } from '../api/clock';
 
 const NO_RECEIPTS: GoodsReceiptSummary[] = [];
 const NO_MEDICINES: Medicine[] = [];
 const NO_SUPPLIERS: Supplier[] = [];
-
-/**
- * Today's business date, `YYYY-MM-DD` in Asia/Ho_Chi_Minh (decision 10), the
- * same calendar the API uses, whatever the browser's time zone.
- */
-function businessToday(): string {
-  return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
-}
 
 /** The API accepts at most this many lines per receipt. */
 const MAX_LINES = 100;
 
 /** UC03 Record a goods receipt: the list, the entry form and the details. */
 export function GoodsReceiptsPanel() {
+  // Read early, so a form opened from here starts on the server's date (#255).
+  useBusinessToday();
   const { message } = App.useApp();
   const [recording, setRecording] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
@@ -120,6 +115,7 @@ function ReceiptFormModal({
   onClose: () => void;
   onSaved: (saved: GoodsReceipt) => void;
 }) {
+  const today = useBusinessToday();
   const [form] = Form.useForm<GoodsReceiptInput>();
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -163,7 +159,7 @@ function ReceiptFormModal({
         form={form}
         layout="vertical"
         onFinish={submit}
-        initialValues={{ receiptDate: businessToday(), lines: [EMPTY_LINE] }}
+        initialValues={{ receiptDate: today, lines: [EMPTY_LINE] }}
         // Frozen while saving, so an error for line N still means the line sent.
         disabled={saving}
       >

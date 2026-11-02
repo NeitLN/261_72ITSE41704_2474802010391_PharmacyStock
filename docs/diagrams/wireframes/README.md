@@ -48,6 +48,11 @@ Commit the HTML and the PNG together.
 | Sales › Returns | UC08 | design (week-7 gate) | Tiến | [sales-returns.png](sales-returns.png) |
 | Reports › Expiry and batch status | UC11 | design (week-7 gate) | Tiến | [reports-expiry.png](reports-expiry.png) |
 | Reports › Stock movement | UC12 | design (week-7 gate) | Tiến | [reports-movement.png](reports-movement.png) |
+| Catalogue › Medicines › Prices | UC13 | design (week-8 gate) | Tiến | [catalogue-prices.png](catalogue-prices.png) |
+| Prescriptions & dispensing › Prescriptions | UC05 | as-built | Duy Anh | [prescriptions.png](prescriptions.png) |
+| Prescriptions & dispensing › Dispense | UC06 | as-built | Duy Anh | [dispense.png](dispense.png) |
+| Sales › Over-the-counter sale | UC07 | as-built | Duy Anh | [sales-cart.png](sales-cart.png) |
+| Sales › Bill a dispensing | UC07 | as-built | Duy Anh | [bill-dispensing.png](bill-dispensing.png) |
 
 UI design is Tiến's; Duy Anh reviews every wireframe pull request, may
 change or extend the wireframes, and develops the design further (motion and

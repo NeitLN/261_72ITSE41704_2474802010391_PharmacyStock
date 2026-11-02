@@ -9,6 +9,7 @@ import {
   saveSession,
   type Session,
   SESSION_ENDED_EVENT,
+  takeExpiredNotice,
 } from './session';
 
 /**
@@ -24,11 +25,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const end = useCallback(
     (notice?: string) => {
       clearSession();
+      // This notice replaces the one a later page load would show (#257).
+      takeExpiredNotice();
       setSession(null);
       if (notice) message.warning(notice);
     },
     [message],
   );
+
+  // The session expired while the page was closed: say so on sign-in (#257).
+  useEffect(() => {
+    if (takeExpiredNotice()) message.warning('Your session has expired. Please sign in again.');
+  }, [message]);
 
   // The API client reports a refused token (expired, or account locked).
   useEffect(() => {

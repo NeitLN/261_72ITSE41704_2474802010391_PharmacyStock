@@ -19,7 +19,7 @@ import { useCallback, useState } from 'react';
 import { type FieldError, toApiError } from '../api/errors';
 import { type Medicine, medicinesApi } from '../api/medicines';
 import { stockApi, type StockBatch } from '../api/stock';
-import { formatVnd } from '../ui/format';
+import { formatDateTime, formatVnd } from '../ui/format';
 import {
   STOCK_TAKE_STATUS_LABELS,
   type StockTake,
@@ -45,9 +45,6 @@ const STATUS_COLORS: Record<StockTakeStatus, string> = {
 function StatusTag({ status }: { status: StockTakeStatus }) {
   return <Tag color={STATUS_COLORS[status]}>{STOCK_TAKE_STATUS_LABELS[status]}</Tag>;
 }
-
-const dateTime = (value: string | null) =>
-  value ? new Date(value).toLocaleString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' }) : '—';
 
 /** UC09 Conduct a stock take: the list, opening one, the count sheet and approval. */
 export function StockTakesPanel() {
@@ -77,7 +74,7 @@ export function StockTakesPanel() {
     { title: 'Opened by', render: (_, r) => r.openedBy.fullName },
     { title: 'Counted by', render: (_, r) => r.countedBy?.fullName ?? '—' },
     { title: 'Approved by', render: (_, r) => r.approvedBy?.fullName ?? '—' },
-    { title: 'Opened', width: 170, render: (_, r) => dateTime(r.createdAt) },
+    { title: 'Opened', width: 170, render: (_, r) => formatDateTime(r.createdAt) },
     {
       title: '',
       key: 'open',
@@ -312,16 +309,16 @@ function StockTakeModal({ id, onClose }: { id: string; onClose: () => void }) {
     >
       <Descriptions size="small" column={3} style={{ marginBottom: 16 }}>
         <Descriptions.Item label="Opened by">
-          {current.openedBy.fullName}, {dateTime(current.createdAt)}
+          {current.openedBy.fullName}, {formatDateTime(current.createdAt)}
         </Descriptions.Item>
         <Descriptions.Item label="Counted by">
           {current.countedBy
-            ? `${current.countedBy.fullName}, ${dateTime(current.submittedAt)}`
+            ? `${current.countedBy.fullName}, ${formatDateTime(current.submittedAt)}`
             : '—'}
         </Descriptions.Item>
         <Descriptions.Item label="Approved by">
           {current.approvedBy
-            ? `${current.approvedBy.fullName}, ${dateTime(current.approvedAt)}`
+            ? `${current.approvedBy.fullName}, ${formatDateTime(current.approvedAt)}`
             : '—'}
         </Descriptions.Item>
         {current.note && (

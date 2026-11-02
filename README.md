@@ -228,6 +228,55 @@ Run from `src/backend` or `src/frontend`:
 | `npm run lint` | oxlint | oxlint |
 | `npm test` | Vitest unit tests | — |
 | `npm run test:e2e` | Vitest end-to-end tests | — |
+| `npm run perf:load` | fills a separate `_perf` database with the TC-29 volume | — |
+| `npm run perf:measure` | times TC-29 against a running API | — |
+| `npm run balances` | prints the balance fingerprint used by TC-30 | — |
+
+## Performance check (TC-29)
+
+NFR-01, NFR-02 and NFR-13 are measured on a separate database, so the working
+data is never touched.
+
+```bash
+cd src/backend
+DB_NAME=pharmacy_stock_perf npm run perf:load     # about 1.5 min: 1,000 medicines, 5,000 batches, 10,000 movements
+DB_NAME=pharmacy_stock_perf PORT=3001 node dist/main.js    # second terminal: the API on that database
+API_URL=http://localhost:3001/api npm run perf:measure -- --save
+```
+
+`perf:load` refuses any database whose name does not end in `_perf`, and
+empties that one first. `perf:measure` warms up, times 10 calls of each
+measurement, prints the median against the limit with the machine, the
+versions and the data volume, and with `--save` writes the table to
+`tests/manual/evidence/tc29-<date>.md`. Sign-in uses `SEED_PASSWORD` (load the
+data with it set), or the X-Dev-User header when `AUTH_MODE=dev`. NFR-13 is
+finally timed in the browser, from *Confirm payment* to the receipt.
+
+## Backup and restore (TC-30)
+
+With the database in Docker Compose. Replace `pharmacy_app` if
+`DB_USERNAME` in `src/backend/.env` is different.
+
+```bash
+# 1. Back up (custom format, compressed)
+docker compose exec -T postgres pg_dump -U pharmacy_app -d pharmacy_stock -Fc > pharmacy_stock.dump
+
+# 2. Restore into a new, empty database
+docker compose exec -T postgres createdb -U pharmacy_app pharmacy_stock_restore
+docker compose exec -T postgres pg_restore -U pharmacy_app -d pharmacy_stock_restore --no-owner < pharmacy_stock.dump
+
+# 3. Compare: the two lines must be identical
+cd src/backend
+DB_NAME=pharmacy_stock npm run balances
+DB_NAME=pharmacy_stock_restore npm run balances
+```
+
+`balances` prints the number of batches and stock movements with a hash of
+every batch's sellable, quarantine and pending-destruction quantities and of
+the whole movement history, so identical lines mean identical balances
+(NFR-09). To go back to a backup, restore it the same way into an empty
+`pharmacy_stock` and start the backend. Keep `.dump` files out of the
+repository: they hold real data.
 
 ## Repository layout
 

@@ -44,24 +44,25 @@ was then checked directly where the expected result is about stock.
 
 ## 3.y.2 Results
 
-*Table 3.y — Manual test cases by result on 30/10/2026.*
+*Table 3.y — Manual test cases by result on 03/11/2026 (`main`).*
 
 | Result | Cases |
 |---|---|
-| Pass | 51 |
+| Pass | 53 |
 | Fail | 0 |
-| Not run yet | 14 |
+| Not run yet | 12 |
 | **Total** | **65** |
 
-The 14 not run are planned for weeks 8 and 9: the duplicate-dispensing and
-stress cases of week 8 (TC-25, 26, 27, 54), performance and backup (TC-29,
-30), the Should features (TC-40, 41, 44, 61), the outside-user and
-fresh-clone checks (TC-32, 33), the submission check (TC-34) and TC-53's
-manual record. *The final version replaces this table with the full case
+The 12 not run yet are planned for weeks 8 and 9: the race and stress cases
+(TC-26, 27, 54), performance and backup (TC-29, 30), the Should features
+(TC-40, 41, 61), the outside-user and fresh-clone checks (TC-32, 33), the
+submission check (TC-34) and TC-53's manual record. First runs of TC-26,
+29, 30, 41 and 54 are recorded in pull requests still open on 03/11. *The final version replaces this table with the full case
 table and actual results from `test-cases.md` on `v1.0`.*
 
-In total 70 runs were recorded, 67 passing and 3 failing. Every failure led
-to a defect that was fixed and re-run (Table 3.z).
+In total 81 runs were recorded on `main`, 78 passing and 3 failing (runs
+77–84 are in the open pull requests). Every failure led to a defect that was
+fixed and re-run (Table 3.z).
 
 ## 3.y.3 Defects found and fixed
 
@@ -70,15 +71,19 @@ to a defect that was fixed and re-run (Table 3.z).
 | Defect | Found by | Severity | Fix | Re-test |
 |---|---|---|---|---|
 | #125 Receipt form turned an invalid quantity (0, −1, 2.5) into a valid one | TC-02, runs 4–5 | S3 | #126 | Run 14, Pass |
-| #183 Price field turned 10.5 into 105 | Exploratory testing (#77) | S3 | #197 | Pending |
-| #185 Some field errors showed the validator's default text | Exploratory testing (#77) | S4 | #197 | Pending |
-| #184 A medicine with all batches at 0 could not be counted | Exploratory testing (#77) | S3 | #212 | Pending |
+| #183 Price field turned 10.5 into 105 | Exploratory testing (#77) | S3 | #197, #249 | Run 76, Pass |
+| #185 Some field errors showed the validator's default text | Exploratory testing (#77) | S4 | #197 | API re-test 31/10 (Duy Anh), Pass |
+| #184 A medicine with all batches at 0 could not be counted | Exploratory testing (#77) | S3 | #212 | Run 72 (TC-19), Pass |
 | #201 A licence differing only in letter case was accepted | TC-49, run 55 | S3 | #205 | Run 64, Pass |
-| #209 Batch history showed return lines by id, not slip number | TC-18, run 60 | S4 | #220 | Pending |
+| #209 Batch history showed return lines by id, not slip number | TC-18, run 60 | S4 | #220 | Run 73 (TC-48), Pass |
 | #215 A manager whose count was overwritten could approve it | Code review | S3 | #226 | Runs 69–70 (TC-51, TC-20), Pass |
+| #244 A price of five digits or more, typed key by key, was saved much smaller | Re-test of #183 (31/10) | S2 | #249 | Run 75, Pass |
+| #263 The audit log's role-change row did not name the user | TC-44, run 74 | S4 | #272 | Pending |
 
-No S1 or S2 defect was found. Two lessons were applied in the process
-itself:
+No S1 defect was found. The one S2, #244, was caused by the fix for #183
+and found when #183 was re-tested by hand: `100000` typed into the price
+field was saved as 10 ₫, with no error. Two lessons were applied in the
+process itself:
 - `main` stopped building once on 24/10, when two pull requests each passed
   CI but were never tested together. Merging now requires the branch to be up
   to date with `main`.
@@ -94,8 +99,16 @@ Sixteen manual cases are re-run before every tag (`v0.1`, `v0.2`, `v1.0`),
 on a freshly seeded database. They cover receipts, the dispensing rules,
 sales and returns, stock control, access and one end-to-end flow (TC-31,
 from receiving to the report). In week 7, B's and C's areas were run on
-27/10 (runs 39–53), and A's area on 29/10 (runs 67–68, Duy Anh). The
-whole pack is run again before `v1.0` (#72, #81).
+27/10 (runs 39–53), and A's area on 29/10 (runs 67–68, Duy Anh). In
+week 8, once every Should feature was on `main`, the areas they touch were
+run again on 03/11 (runs 85–89, `0da5088`): a return into quarantine and the
+new release from it, an oversell refused while stock sits in quarantine, a
+stock take with a difference, and the low-stock alert. All passed, and the
+ledger check found no batch whose quantities differ from its movements.
+These runs used the working database, not a fresh one, because TC-40 needed
+a price scheduled for the next day. The automated tests passed on the same
+commit (126 unit, 644 end-to-end, 29 web client). The whole pack is run
+again on a fresh database before `v1.0` (#81).
 
 *Table 3.w — Pack R and its result on each tag. To be filled from `runs.md`
 for `v0.2` and `v1.0`.*

@@ -108,6 +108,28 @@ describe('UC15 users, roles and audit log (e2e, AUTH_MODE=jwt)', () => {
     expect(padded.body.fullName).toBe('Nguyen Thi Thu');
   });
 
+  it('UC15-13 Bob and bob added at the same moment: one is created, the other gets 409', async () => {
+    const m = await tokenFor('manager');
+    const results = await Promise.all([
+      t.http().post('/api/users').set(as(m)).send(newUser({ username: 'Bob.Tran' })),
+      t.http().post('/api/users').set(as(m)).send(newUser({ username: 'bob.tran' })),
+    ]);
+    expect(results.map((r) => r.status).sort()).toEqual([201, 409]);
+    expect(results.find((r) => r.status === 409)?.body.code).toBe('USERNAME_TAKEN');
+    const [{ n }] = await t.dataSource.query<Array<{ n: string }>>(
+      `SELECT count(*) AS n FROM users WHERE LOWER(username) = 'bob.tran'`,
+    );
+    expect(Number(n)).toBe(1);
+  });
+
+  it('UC15-14 the audit log refuses a period whose last day is before its first', async () => {
+    const m = await tokenFor('manager');
+    const res = await t.http().get('/api/audit-logs').set(as(m)).query({ from: '2026-11-02', to: '2026-11-01' });
+    expect(res.status).toBe(400);
+    expect(res.body.errors[0].field).toBe('to');
+    expect((await t.http().get('/api/audit-logs').set(as(m)).query({ from: '2026-11-01', to: '2026-11-01' })).status).toBe(200);
+  });
+
   it('UC15-03 TC-44: a cashier made pharmacist gets the new permissions on the next request, without signing in again', async () => {
     const m = await tokenFor('manager');
     const c = await tokenFor('cashier');

@@ -30,7 +30,8 @@ import {
 } from '../api/medicines';
 import { formatVnd } from '../ui/format';
 import { useLoad } from '../api/useLoad';
-import { parseGroupedNumber, wholeNumber } from '../forms/numberRules';
+import { MoneyInput } from '../forms/MoneyInput';
+import { wholeNumber } from '../forms/numberRules';
 import { StockPanel } from './StockPanel';
 
 const NO_MEDICINES: Medicine[] = [];
@@ -401,11 +402,7 @@ function MedicineFormModal({ medicine, reference, onClose, onSaved }: MedicineFo
               wholeNumber('Price', { min: 1 }),
             ]}
           >
-            <InputNumber<number>
-              style={{ width: 200 }}
-              formatter={(v) => `${v ?? ''}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.')}
-              parser={parseGroupedNumber}
-            />
+            <MoneyInput style={{ width: 200 }} />
           </Form.Item>
           <Form.Item
             name="reorderLevel"

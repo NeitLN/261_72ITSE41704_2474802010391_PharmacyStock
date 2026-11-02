@@ -12,7 +12,7 @@ import {
   type StockMovementRow,
 } from '../api/reports';
 import { useLoad } from '../api/useLoad';
-import { formatVnd } from '../ui/format';
+import { formatDateTime, formatVnd } from '../ui/format';
 
 const NO_REFERENCE = { categories: [] as Reference[], units: [] as Reference[] };
 
@@ -21,9 +21,6 @@ function defaultPeriod(): StockMovementQuery {
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
   return { from: `${today.slice(0, 8)}01`, to: today };
 }
-
-const dateTime = (value: string) =>
-  new Date(value).toLocaleString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
 
 const signed = (n: number) => (n > 0 ? `+${n}` : n === 0 ? '' : `${n}`);
 
@@ -82,7 +79,7 @@ export function StockMovementPanel() {
       fixed: 'left',
       width: 220,
       render: (_, r) => (
-        <Space direction="vertical" size={0}>
+        <Space orientation="vertical" size={0}>
           <span>
             {r.medicine.code} — {r.medicine.name}
           </span>
@@ -149,7 +146,7 @@ export function StockMovementPanel() {
       {report && (
         <>
           <Typography.Paragraph type="secondary" style={{ marginTop: 16 }}>
-            Period {report.query.from} – {report.query.to} · produced {dateTime(report.producedAt)} by{' '}
+            Period {report.query.from} – {report.query.to} · produced {formatDateTime(report.producedAt)} by{' '}
             {report.producedBy.fullName} · sorted by cost of net issued
           </Typography.Paragraph>
           <Table
@@ -223,7 +220,7 @@ function MovementsModal({
   );
   const { data, loading } = useLoad(fetchMovements, null);
   const columns: ColumnsType<MovementLine> = [
-    { title: 'Time', width: 170, render: (_, m) => dateTime(m.occurredAt) },
+    { title: 'Time', width: 170, render: (_, m) => formatDateTime(m.occurredAt) },
     {
       title: 'Type',
       width: 140,

@@ -23,15 +23,13 @@ import { showApiError } from '../api/errors';
 import { useLoad } from '../api/useLoad';
 import { type AuditEntry, type RoleCode, type RoleRow, type UserRow, usersApi } from '../api/users';
 import { useAuth } from '../auth/authContext';
+import { formatDateTime } from '../ui/format';
 
 const ROLE_OPTIONS: Array<{ value: RoleCode; label: string }> = [
   { value: 'MANAGER', label: 'Manager' },
   { value: 'PHARMACIST', label: 'Pharmacist' },
   { value: 'CASHIER', label: 'Cashier' },
 ];
-
-const at = (value: string | null) =>
-  value ? new Date(value).toLocaleString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' }) : '—';
 
 /** UC15 users, roles and the audit log (FR-40, FR-41). Manager only. */
 export function AdministrationPage() {
@@ -69,7 +67,7 @@ function UsersTab() {
       width: 110,
       render: (_, u) => (u.isActive ? <Tag color="green">Active</Tag> : <Tag color="red">Locked</Tag>),
     },
-    { title: 'Last sign-in', width: 190, render: (_, u) => at(u.lastLoginAt) },
+    { title: 'Last sign-in', width: 190, render: (_, u) => formatDateTime(u.lastLoginAt) },
     {
       title: '',
       width: 90,
@@ -386,7 +384,7 @@ function AuditTab() {
   const { data, loading } = useLoad(fetchLog, { items: [] as AuditEntry[], total: 0 });
 
   const columns: ColumnsType<AuditEntry> = [
-    { title: 'When', width: 190, render: (_, e) => at(e.occurredAt) },
+    { title: 'When', width: 190, render: (_, e) => formatDateTime(e.occurredAt) },
     { title: 'Who', width: 180, render: (_, e) => e.performedBy?.fullName ?? '—' },
     { title: 'Action', width: 200, render: (_, e) => <code>{e.action}</code> },
     {

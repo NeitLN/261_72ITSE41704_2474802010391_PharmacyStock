@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { Repository } from 'typeorm';
+import { AuditService } from '../audit/audit.service.js';
 import { Unauthenticated } from '../common/errors.js';
 import { User } from '../entities/index.js';
 import { type Actor, toActor } from './actor.js';
@@ -35,6 +36,7 @@ export class AuthService {
   constructor(
     @InjectRepository(User) private readonly users: Repository<User>,
     private readonly jwt: JwtService,
+    private readonly audit: AuditService,
   ) {}
 
   /**
@@ -51,16 +53,23 @@ export class AuthService {
 
     if (!user) {
       await verifyPassword(password, await dummyPasswordHash());
+      await this.failed(username, null, 'unknown user');
       throw new Unauthenticated(BAD_CREDENTIALS);
     }
     if (!(await verifyPassword(password, user.passwordHash))) {
+      await this.failed(username, user.id, 'wrong password');
       throw new Unauthenticated(BAD_CREDENTIALS);
     }
     if (!user.isActive) {
+      await this.failed(username, user.id, 'account locked');
       throw new Unauthenticated('This account is locked. Ask the manager.');
     }
 
     await this.users.update(user.id, { lastLoginAt: new Date() });
+    await this.audit.record(this.users.manager, user.id, 'auth.login', {
+      entityName: 'User',
+      entityId: user.id,
+    });
 
     const payload: TokenPayload = { sub: user.id };
     const accessToken = await this.jwt.signAsync(payload, {
@@ -71,6 +80,29 @@ export class AuthService {
       expiresAt: new Date(Date.now() + SESSION_SECONDS * 1000).toISOString(),
       user: AuthService.view(toActor(user)),
     };
+  }
+
+  /** FR-41: who signed out. The token itself is discarded by the client. */
+  async logout(actor: Actor): Promise<void> {
+    await this.audit.record(this.users.manager, actor.id, 'auth.logout', {
+      entityName: 'User',
+      entityId: actor.id,
+    });
+  }
+
+  /** FR-41: the username tried and why, never the password. */
+  private async failed(
+    username: string,
+    userId: string | null,
+    why: string,
+  ): Promise<void> {
+    await this.audit.record(
+      this.users.manager,
+      null,
+      'auth.login_failed',
+      { entityName: 'User', entityId: userId },
+      { username, why },
+    );
   }
 
   /**

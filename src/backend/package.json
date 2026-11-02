@@ -25,7 +25,10 @@
     "test:cov": "vitest run --coverage",
     "test:debug": "vitest --inspect-brk --no-file-parallelism",
     "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
-    "diagrams": "npm run build && node scripts/diagrams.mjs"
+    "diagrams": "npm run build && node scripts/diagrams.mjs",
+    "perf:load": "npm run build && node dist/perf/load-volume.js",
+    "perf:measure": "node scripts/perf-measure.mjs",
+    "balances": "node scripts/balances.mjs"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",

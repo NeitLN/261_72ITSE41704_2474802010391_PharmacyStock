@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { expiryInfo } from './expiry';
-import { formatQty, formatVnd } from './format';
+import { formatDateTime, formatQty, formatVnd } from './format';
 import { statusOf, STATUSES, TONE_COLOURS } from './status';
 
 describe('formatVnd and formatQty', () => {
@@ -13,6 +13,19 @@ describe('formatVnd and formatQty', () => {
   it('puts the unit after a whole quantity', () => {
     expect(formatQty(8, 'tablet')).toBe('8 tablet');
     expect(formatQty(1200, 'capsule')).toBe('1.200 capsule');
+  });
+});
+
+describe('formatDateTime (ui-design §5)', () => {
+  it('shows a moment as YYYY-MM-DD HH:mm in pharmacy time', () => {
+    expect(formatDateTime('2026-11-01T19:08:39Z')).toBe('2026-11-02 02:08');
+    expect(formatDateTime('2026-10-31T23:30:00Z')).toBe('2026-11-01 06:30');
+  });
+
+  it('has no clock at midnight and no missing value', () => {
+    expect(formatDateTime('2026-11-01T17:00:00Z')).toBe('2026-11-02 00:00');
+    expect(formatDateTime(null)).toBe('—');
+    expect(formatDateTime(undefined)).toBe('—');
   });
 });
 

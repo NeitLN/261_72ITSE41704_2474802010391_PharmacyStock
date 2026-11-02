@@ -3,7 +3,7 @@
 > Generated from the TypeORM entities by `npm run diagrams` in `src/backend`.
 > Do not edit by hand; change the entity and run it again.
 
-29 tables in six subsystems. Crow's feet read as usual: `||--o{` is one parent to zero or more children; `|o` marks an optional parent (nullable foreign key). A table from another subsystem appears as a stub with its key only.
+30 tables in six subsystems. Crow's feet read as usual: `||--o{` is one parent to zero or more children; `|o` marks an optional parent (nullable foreign key). A table from another subsystem appears as a stub with its key only.
 
 ### Catalogue
 
@@ -179,6 +179,19 @@ erDiagram
         uuid batch_id FK
         uuid acknowledged_by_id FK
     }
+    destruction_records {
+        uuid id PK
+        integer quantity
+        date destroyedOn
+        enum method
+        varchar methodNote
+        varchar witness
+        varchar note
+        timestamptz recordedAt
+        uuid batch_id FK
+        uuid movement_id FK, UK
+        uuid recorded_by_id FK
+    }
     medicines ||--o{ batches : "medicine_id"
     users |o--o{ batches : "status_changed_by_id"
     batches ||--o{ stock_movements : "batch_id"
@@ -197,6 +210,9 @@ erDiagram
     users |o--o{ stock_alerts : "acknowledged_by_id"
     batches |o--o{ stock_alerts : "batch_id"
     medicines ||--o{ stock_alerts : "medicine_id"
+    batches ||--o{ destruction_records : "batch_id"
+    stock_movements ||--|| destruction_records : "movement_id"
+    users ||--o{ destruction_records : "recorded_by_id"
     medicines {
         uuid id PK
     }

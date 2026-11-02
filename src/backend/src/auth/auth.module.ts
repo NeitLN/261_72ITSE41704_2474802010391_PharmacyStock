@@ -29,7 +29,9 @@ export class AuthController {
    */
   @Post('logout')
   @HttpCode(204)
-  logout(): void {}
+  async logout(@CurrentUser() actor: Actor): Promise<void> {
+    await this.auth.logout(actor);
+  }
 
   /** Who the API thinks you are; the UI builds its menu from the permissions. */
   @Get('me')

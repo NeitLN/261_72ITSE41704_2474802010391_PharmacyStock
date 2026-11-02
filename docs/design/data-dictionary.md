@@ -217,6 +217,24 @@ Every table and column, with its type, nullability, default and keys; enumeratio
 - Unique index `uq_stock_alerts_open_level`: (`medicine_id`) where `"type" IN ('low_stock', 'out_of_stock') AND "status" <> 'resolved'`
 - Check `ck_stock_alerts_batch_by_type`: `("type" IN ('expiring_soon', 'expired') AND "batch_id" IS NOT NULL) OR ("type" IN ('low_stock', 'out_of_stock') AND "batch_id" IS NULL)`
 
+### `destruction_records` — DestructionRecord
+
+| Column | Type | Null | Default | Key | Notes |
+|---|---|---|---|---|---|
+| `id` | uuid | no | `gen_random_uuid()` | PK |  |
+| `quantity` | integer | no |  |  |  |
+| `destroyedOn` | date | no |  |  |  |
+| `method` | enum | no |  |  | `supplier_return`, `licensed_contractor`, `other` |
+| `methodNote` | varchar | yes |  |  |  |
+| `witness` | varchar | no |  |  |  |
+| `note` | varchar | yes |  |  |  |
+| `recordedAt` | timestamptz | no | `now()` |  |  |
+| `batch_id` | uuid | no |  | FK → `batches` |  |
+| `movement_id` | uuid | no |  | FK → `stock_movements`, unique |  |
+| `recorded_by_id` | uuid | no |  | FK → `users` |  |
+
+- Check `ck_destruction_records_quantity`: `"quantity" > 0`
+
 ## Prescriptions and dispensing
 
 ### `customers` — Customer

@@ -20,6 +20,7 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import { useCallback, useState } from 'react';
 import { showApiError, toApiError } from '../api/errors';
+import { PricesDrawer } from './PricesDrawer';
 import { useMe } from '../api/me';
 import {
   type Classification,
@@ -30,7 +31,8 @@ import {
 } from '../api/medicines';
 import { formatVnd } from '../ui/format';
 import { useLoad } from '../api/useLoad';
-import { parseGroupedNumber, wholeNumber } from '../forms/numberRules';
+import { MoneyInput } from '../forms/MoneyInput';
+import { wholeNumber } from '../forms/numberRules';
 import { StockPanel } from './StockPanel';
 
 const NO_MEDICINES: Medicine[] = [];
@@ -69,6 +71,7 @@ function MedicinesPanel() {
   const [categoryId, setCategoryId] = useState<string | undefined>();
   const [includeInactive, setIncludeInactive] = useState(false);
   const [editing, setEditing] = useState<Medicine | 'new' | null>(null);
+  const [pricesOf, setPricesOf] = useState<string | null>(null);
 
   const fetchReference = useCallback(() => medicinesApi.referenceData(), []);
   const { data: reference } = useLoad(fetchReference, NO_REFERENCE);
@@ -97,7 +100,7 @@ function MedicinesPanel() {
       title: 'Name',
       dataIndex: 'name',
       render: (_, m) => (
-        <Space direction="vertical" size={0}>
+        <Space orientation="vertical" size={0}>
           <span>{m.name}</span>
           {m.activeIngredient && (
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
@@ -148,11 +151,14 @@ function MedicinesPanel() {
     columns.push({
       title: '',
       key: 'actions',
-      width: 190,
+      width: 260,
       render: (_, medicine) => (
         <Space>
           <Button size="small" onClick={() => setEditing(medicine)}>
             Edit
+          </Button>
+          <Button size="small" onClick={() => setPricesOf(medicine.id)}>
+            Prices
           </Button>
           <Popconfirm
             title={medicine.isActive ? 'Deactivate this medicine?' : 'Reactivate this medicine?'}
@@ -223,6 +229,7 @@ function MedicinesPanel() {
           reload();
         }}
       />
+      <PricesDrawer medicineId={pricesOf} onClose={() => setPricesOf(null)} onChanged={reload} />
     </>
   );
 }
@@ -401,11 +408,7 @@ function MedicineFormModal({ medicine, reference, onClose, onSaved }: MedicineFo
               wholeNumber('Price', { min: 1 }),
             ]}
           >
-            <InputNumber<number>
-              style={{ width: 200 }}
-              formatter={(v) => `${v ?? ''}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.')}
-              parser={parseGroupedNumber}
-            />
+            <MoneyInput style={{ width: 200 }} />
           </Form.Item>
           <Form.Item
             name="reorderLevel"

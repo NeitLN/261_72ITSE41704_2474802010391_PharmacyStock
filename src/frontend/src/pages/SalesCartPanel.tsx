@@ -380,10 +380,11 @@ export function ReceiptView({
           </Descriptions.Item>
         </Descriptions>
         <Table
-          rowKey={(_, index) => String(index)}
+          // Receipt lines have no id and never reorder, so their position is a stable key.
+          rowKey="position"
           size="small"
           pagination={false}
-          dataSource={sale.lines}
+          dataSource={sale.lines.map((line, position) => ({ ...line, position }))}
           columns={[
             {
               title: 'Medicine',

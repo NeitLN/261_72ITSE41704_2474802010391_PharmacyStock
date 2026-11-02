@@ -151,6 +151,16 @@ classDiagram
         +timestamptz resolvedAt?
         +timestamptz raisedAt
     }
+    class DestructionRecord {
+        +uuid id
+        +integer quantity
+        +date destroyedOn
+        +DestructionRecordMethod method
+        +varchar methodNote?
+        +varchar witness
+        +varchar note?
+        +timestamptz recordedAt
+    }
     Batch "*" --> "1" Medicine : medicine
     Batch "*" --> "0..1" User : statusChangedBy
     StockMovement "*" --> "1" Batch : batch
@@ -169,12 +179,21 @@ classDiagram
     StockAlert "*" --> "0..1" User : acknowledgedBy
     StockAlert "*" --> "0..1" Batch : batch
     StockAlert "*" --> "1" Medicine : medicine
+    DestructionRecord "*" --> "1" Batch : batch
+    DestructionRecord "1" --> "1" StockMovement : movement
+    DestructionRecord "*" --> "1" User : recordedBy
     class BatchStatus {
         <<enumeration>>
         active
         on_hold
         recalled
         rejected
+    }
+    class DestructionRecordMethod {
+        <<enumeration>>
+        supplier_return
+        licensed_contractor
+        other
     }
     class StockAlertStatus {
         <<enumeration>>
@@ -546,6 +565,14 @@ classDiagram
         UC11
         +writeOff(actor, batchId, reason)
         +setStatus(actor, batchId, status, reason)
+        +pendingDestruction(actor)
+        +recordDestruction(actor, batchId, dto)
+        +destructions(actor, batchId)
+    }
+    class QuarantineService {
+        UC11 · FR-46
+        +list(actor)
+        +assess(actor, returnLineId, dto)
     }
     class AuthService {
         UC16
@@ -580,6 +607,7 @@ classDiagram
     ReturnsService ..> StockLedger
     StockTakesService ..> StockLedger
     BatchesService ..> StockLedger
+    QuarantineService ..> StockLedger
     AlertsService ..> AlertEvaluator
     UsersService ..> AuditService
     AuthService ..> AuditService

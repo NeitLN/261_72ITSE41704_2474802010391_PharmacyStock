@@ -5,6 +5,7 @@ import { escapeHtml, safeUrl } from '../core/escape.js';
 import { formatDay } from '../core/dates.js';
 import { STATUS_LABELS } from '../core/tasks.js';
 import { HEALTH_LABELS } from '../core/burndown.js';
+import { icon } from './icons.js';
 
 export const esc = escapeHtml;
 
@@ -29,11 +30,11 @@ export function meter(ratio, label) {
   return `<div class="meter" role="img" aria-label="${esc(label)}: ${Math.round(width)} %"><span style="width:${width.toFixed(1)}%"></span></div>`;
 }
 
-const HEALTH_ICONS = { on_track: '✓', completed: '✓', at_risk: '!', delayed: '✕', insufficient: '?' };
+const HEALTH_ICONS = { on_track: 'check', completed: 'check', at_risk: 'alert', delayed: 'alert', insufficient: 'info' };
 
 export function healthBadge(health) {
   const status = health?.status ?? 'insufficient';
-  return `<span class="health ${status}"><span aria-hidden="true">${HEALTH_ICONS[status]}</span>${esc(HEALTH_LABELS[status])}</span>`;
+  return `<span class="health ${status}">${icon(HEALTH_ICONS[status])}${esc(HEALTH_LABELS[status])}</span>`;
 }
 
 const PROVENANCE = {

@@ -6,6 +6,7 @@
 import { addDays, dayKey, dayRange, diffDays, formatDay } from '../core/dates.js';
 import { STATUS_LABELS } from '../core/tasks.js';
 import { esc } from '../ui/dom.js';
+import { icon } from '../ui/icons.js';
 
 export const title = 'Roadmap';
 
@@ -52,7 +53,7 @@ export function render(model) {
     const done = list.filter((t) => t.status === 'done').length;
     const head = week
       ? `<div class="gantt-row gantt-group">
-          <div class="gantt-label"><span class="caret" aria-hidden="true"></span>Week ${week.number} · ${done}/${list.length} done</div>
+          <div class="gantt-label">${icon('chevron', 'caret')}Week ${week.number} · ${done}/${list.length} done</div>
           <div class="gantt-track" role="img" aria-label="Week ${week.number}, ${esc(formatDay(week.start))} to ${esc(formatDay(week.end))}${week.milestoneData ? `, milestone ${esc(week.milestoneData.title)}` : ''}">
             ${todayLine}
             <span class="bar week" style="left:${pos(week.start).toFixed(2)}%;width:${width(week.start, week.end).toFixed(2)}%"></span>

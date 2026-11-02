@@ -5,7 +5,7 @@
 import { STATUSES, STATUS_LABELS } from '../core/tasks.js';
 import { day, esc, link, memberName, people, taskChips } from '../ui/dom.js';
 
-export const title = 'Kanban';
+export const title = 'Task board';
 
 const filters = { member: '', week: '', severity: '', label: '', status: '' };
 let focusAfterRender = null;
@@ -49,11 +49,15 @@ export function render(model) {
   const shown = tasks.filter(matches);
   const dropped = shown.filter((t) => t.status === 'dropped');
   const boardSource = model.freshness.sources.projectV2 === 'ok';
+  // The Done column sits last and can fall outside a laptop-width board, so it
+  // is summarised above the board as well.
+  const doneList = shown.filter((t) => t.status === 'done');
+  const recentDone = [...doneList].sort((a, b) => (b.closedAt ?? '').localeCompare(a.closedAt ?? '')).slice(0, 2);
 
   const html = `
   <div class="stack">
     <div class="section-head">
-      <h2>Kanban</h2>
+      <h2>Task board</h2>
       <p>Read only. Open a card to see or change the issue on GitHub.</p>
     </div>
     <form class="filters no-print" id="kb-filters" aria-label="Filter tasks" onsubmit="return false">
@@ -66,11 +70,15 @@ export function render(model) {
       <span class="small muted" aria-live="polite">${shown.length} of ${tasks.length} tasks</span>
     </form>
     ${boardSource ? '' : '<div class="banner note"><span aria-hidden="true">i</span><div>The project board could not be read in the last collection, so open issues are shown as Todo (with a milestone) or Backlog.</div></div>'}
+    <div class="done-summary">
+      <p><strong>Done: ${doneList.length} task(s)</strong>${recentDone.length ? ` · latest: ${recentDone.map((t) => `${link(t.url, `#${t.number}`)} ${esc(t.title)}`).join('; ')}` : ''}</p>
+      <button type="button" class="icon-button" id="kb-show-done">View Done column</button>
+    </div>
     <div class="board">
       ${STATUSES.map((status) => {
         const list = shown.filter((t) => t.status === status);
-        return `<section class="column" aria-label="${esc(STATUS_LABELS[status])}">
-          <div class="column-head"><span>${esc(STATUS_LABELS[status])}</span><span class="count">${list.length}</span></div>
+        return `<section class="column" id="kb-col-${status}" aria-label="${esc(STATUS_LABELS[status])}">
+          <div class="column-head" tabindex="-1"><span>${esc(STATUS_LABELS[status])}</span><span class="count">${list.length}</span></div>
           <div class="cards">${list.length ? list.map((t) => card(model, t)).join('') : '<p class="empty">No tasks.</p>'}</div>
         </section>`;
       }).join('')}
@@ -91,6 +99,11 @@ export function render(model) {
         filters[e.target.name] = e.target.value;
         focusAfterRender = `[name="${e.target.name}"]`;
         window.dispatchEvent(new Event('dashboard:render'));
+      });
+      root.querySelector('#kb-show-done').addEventListener('click', () => {
+        const column = root.querySelector('#kb-col-done');
+        column.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'end' });
+        column.querySelector('.column-head').focus({ preventScroll: true });
       });
       root.querySelector('#kb-reset').addEventListener('click', () => {
         for (const key of Object.keys(filters)) filters[key] = '';

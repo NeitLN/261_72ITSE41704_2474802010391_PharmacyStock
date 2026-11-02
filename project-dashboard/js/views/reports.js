@@ -15,7 +15,7 @@ export function render(model, params) {
 
   const html = `
   <div class="stack-lg">
-    <div class="section-head no-print"><h2>Weekly Reports</h2><p>Generated from the same data as the rest of the dashboard.</p></div>
+    <div class="section-head no-print"><h2>Reports</h2><p>Generated from the same data as the rest of the dashboard.</p></div>
     ${weekPicker(model, week.number, 'reports')}
     <div class="toolbar no-print">
       <button type="button" class="icon-button" id="rp-print">Print / Save as PDF</button>

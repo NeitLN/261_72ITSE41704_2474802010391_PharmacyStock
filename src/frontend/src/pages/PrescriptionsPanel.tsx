@@ -33,6 +33,7 @@ import {
   prescriptionsApi,
 } from '../api/prescriptions';
 import { useLoad } from '../api/useLoad';
+import { useBusinessToday } from '../api/clock';
 import { decimal, wholeNumber } from '../forms/numberRules';
 import { STATUSES, statusOf, TONE_COLOURS } from '../ui/status';
 import { StatusTag } from '../ui/tags';
@@ -43,14 +44,6 @@ const NO_PRESCRIPTIONS: PrescriptionSummary[] = [];
 const NO_CUSTOMERS: Customer[] = [];
 const NO_PRESCRIBERS: Prescriber[] = [];
 const NO_MEDICINES: Medicine[] = [];
-
-/**
- * Today's business date, `YYYY-MM-DD` in Asia/Ho_Chi_Minh (decision 10), the
- * same calendar the API uses, whatever the browser's time zone.
- */
-function businessToday(): string {
-  return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
-}
 
 /** Adds whole days to a `YYYY-MM-DD` date. Display only; the server computes. */
 function addDays(date: string, days: number): string {
@@ -68,6 +61,8 @@ function ageMonthsAt(birth: string, today: string): number {
 
 /** UC05 Take in a prescription: list, entry form with quick-create, details. */
 export function PrescriptionsPanel() {
+  // Read early, so a form opened from here starts on the server's date (#255).
+  useBusinessToday();
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<PrescriptionStatus | undefined>(undefined);
   const [forming, setForming] = useState<Prescription | 'new' | null>(null);
@@ -211,6 +206,7 @@ function PrescriptionFormModal({
   onClose: () => void;
   onSaved: (saved: Prescription) => void;
 }) {
+  const today = useBusinessToday();
   const { modal } = App.useApp();
   const [form] = Form.useForm<FormValues>();
   const [saving, setSaving] = useState(false);
@@ -253,7 +249,7 @@ function PrescriptionFormModal({
   // Same order as the server (FR-13): the date of birth wins, measured at the
   // issue date of the prescription; the typed age is used only without one.
   const chosenCustomer = customers.find((c) => c.id === customerId);
-  const ageAt = issuedDate ? issuedDate.format('YYYY-MM-DD') : businessToday();
+  const ageAt = issuedDate ? issuedDate.format('YYYY-MM-DD') : today;
   const showChildGroup = chosenCustomer?.dateOfBirth
     ? ageMonthsAt(chosenCustomer.dateOfBirth, ageAt) < 72
     : ageYears != null && ageYears < 6;
@@ -278,7 +274,7 @@ function PrescriptionFormModal({
           daysOfUse: item.daysOfUse,
         })),
       }
-    : { issuedDate: dayjs(businessToday(), 'YYYY-MM-DD'), items: [EMPTY_ITEM] };
+    : { issuedDate: dayjs(today, 'YYYY-MM-DD'), items: [EMPTY_ITEM] };
 
   async function save(input: PrescriptionInput) {
     setSaving(true);

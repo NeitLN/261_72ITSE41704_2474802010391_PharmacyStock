@@ -28,6 +28,7 @@ import {
 import { useLoad } from '../api/useLoad';
 import { TONE_COLOURS } from '../ui/status';
 import { ResultAppear } from './ResultAppear';
+import { formatDateTime } from '../ui/format';
 
 const NO_OPTIONS: PrescriptionSummary[] = [];
 
@@ -487,7 +488,7 @@ function DispenseResultView({ result, onNew }: { result: DispenseResult; onNew: 
       <Space orientation="vertical" style={{ width: '100%' }}>
         <Descriptions size="small" column={2} title="Hand-over recorded">
           <Descriptions.Item label="Status">{result.status}</Descriptions.Item>
-          <Descriptions.Item label="Dispensed at">{result.dispensedAt}</Descriptions.Item>
+          <Descriptions.Item label="Dispensed at">{formatDateTime(result.dispensedAt)}</Descriptions.Item>
         </Descriptions>
         {result.items.map((item) => (
           <div key={item.prescriptionItemId}>

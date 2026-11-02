@@ -5,7 +5,7 @@ this is that matrix, written early as a living draft so week 9 only has to
 update it. Each FR has one row: where it lives in the code, the automated tests
 that cover it, the manual runs recorded in
 [`tests/manual/runs.md`](../../tests/manual/runs.md), and one status. Snapshot:
-checked against `main` at `737c84c` on 02/11/2026; PR numbers refer to open
+checked against `main` at `13b28ad` on 02/11/2026; PR numbers refer to open
 pull requests, so "In review" means not on `main` yet.
 
 ## How to read
@@ -50,7 +50,7 @@ pull requests, so "In review" means not on `main` yet.
 | FR-20 | Must | UC06 | `PrescriptionValidator` (BR07), `DispensingService` | `dispensing.e2e-spec.ts` UC06-06, 14; `prescriptions/prescription-validator.spec.ts` BR07-01…05 | TC-37 run 31 | Built |
 | FR-21 | Must | UC06 | `PrescriptionValidator` (BR10), re-checked at every visit | `dispensing.e2e-spec.ts` UC06-08; `prescriptions.e2e-spec.ts` UC05-11; `prescriptions/prescription-validator.spec.ts` BR10-01…05 | TC-38 run 32 | Built |
 | FR-22 | Must | UC06 | statuses set in `DispensingService` | `dispensing.e2e-spec.ts` UC06-05, 06 | TC-37 run 31 | Built |
-| FR-23 | Must | UC06–08 | request-ID idempotency in `DispensingService`, `SalesService` and `ReturnsService` | `dispensing.e2e-spec.ts` UC06-09; `sales.e2e-spec.ts` UC07-09; `sales/sales.service.spec.ts` UC07-U4; `dispensing/dispensing.service.spec.ts` UC06-U3, U4; `returns.e2e-spec.ts` UC08-07 | TC-18 run 60; TC-27 run 27 | Built |
+| FR-23 | Must | UC06–08 | request-ID idempotency in `DispensingService`, `SalesService` and `ReturnsService` | `dispensing.e2e-spec.ts` UC06-09; `sales.e2e-spec.ts` UC07-09; `sales/sales.service.spec.ts` UC07-U4; `dispensing/dispensing.service.spec.ts` UC06-U3, U4; `returns.e2e-spec.ts` UC08-07 | TC-18 run 60; — (TC-27) | Built, not run |
 | FR-45 | Must | UC06, 07 | `DispensingService.dispense` → `handOver`; `SalesService.record`; cancel dialogs in `DispensePanel` (`Cancel hand-over`) and `SalesCartPanel` (`Cancel cart`) leave stock unchanged | `dispensing.e2e-spec.ts` UC06-01…05; `sales.e2e-spec.ts` UC07-01 | TC-59 run 58 | Built |
 | FR-24 | Must | UC07 | `SalesService.record`, screen `SalesCartPanel` | `sales.e2e-spec.ts` UC07-01…14; `sales/sales.service.spec.ts` UC07-U1…U7 | TC-35 runs 20, 46; TC-55 run 22 | Built |
 | FR-25 | Must | UC07 | `SalesService.record` OTC classification check | `sales.e2e-spec.ts` UC07-05 | TC-36 run 21 | Built |
@@ -71,8 +71,8 @@ pull requests, so "In review" means not on `main` yet.
 | FR-48 | Must | UC11 | `BatchesService.setStatus` → `StockLedger.setBatchStatus`; FEFO skips a batch that is not ACTIVE; screen `ExpiryPanel` | `expiry.e2e-spec.ts` UC11-08, 09, 12 | TC-60 run 54 | Built |
 | FR-38 | Must | UC16 | `AuthService`, `AuthGuard`, screen `LoginPage` | `auth.e2e-spec.ts` UC16-01…13; `auth/auth-config.spec.ts` | TC-42 run 7; TC-43 runs 8, 52 | Built |
 | FR-39 | Must | All | `assertPermission` at every service entry, `AuthGuard` | `access-matrix.e2e-spec.ts` TC-53 route × role table, one test per route and role, plus "without a session every endpoint except sign-in is 401 (NFR-05)"; `suppliers.e2e-spec.ts` UC02-08; `goods-receipts.e2e-spec.ts` UC03-12; `prescriptions.e2e-spec.ts` UC05-13; `parties.e2e-spec.ts` UC05-27; `dispensing.e2e-spec.ts` UC06-12; `sales.e2e-spec.ts` UC07-10; `auth.e2e-spec.ts` UC16-10; `users.e2e-spec.ts` UC15-10 | TC-28 run 51; — (TC-53) | Built, not run |
-| FR-40 | Should | UC15 | `UsersService`, screen `AdministrationPage` (Users and Roles tabs) | `users.e2e-spec.ts` UC15-01…07, 11, 12 | — (TC-44) | Built, not run |
-| FR-41 | Should | UC15 | `AuditService`; sign-ins, user and role changes and approved stock takes are logged; price changes come with the price command in #259; screen `AdministrationPage` (Audit log tab) | `users.e2e-spec.ts` UC15-08, 09 | — (TC-44) | Should — after the gate |
+| FR-40 | Should | UC15 | `UsersService`, screen `AdministrationPage` (Users and Roles tabs) | `users.e2e-spec.ts` UC15-01…07, 10…12 | TC-44 run 74 | Built |
+| FR-41 | Should | UC15 | `AuditService`; sign-ins, user and role changes and approved stock takes are logged; price changes come with the price command in #259; screen `AdministrationPage` (Audit log tab) | `users.e2e-spec.ts` UC15-08, 09 | TC-44 run 74 (users, roles, sign-ins); price changes — with #259 | Should — after the gate |
 | FR-42 | Could | UC03, 06 | — | — | none by design | Could — not built |
 | FR-43 | Could | UC11, 12 | — | — | none by design | Could — not built |
 
@@ -83,17 +83,17 @@ OC-21 ticket:
 
 | Status | Count | FRs |
 |---|---|---|
-| Built | 40 | FR-01, 02, 03, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 44, 45, 48 |
-| Built, not run | 2 | FR-39, 40 |
+| Built | 40 | FR-01, 02, 03, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 40, 44, 45, 48 |
+| Built, not run | 2 | FR-23, 39 |
 | In review | 0 | — |
 | Planned (week 8) | 0 | — |
 | Should — after the gate | 4 | FR-04, 41, 46, 47 |
 | Could — not built | 2 | FR-42, 43 |
 
-### Must FRs not Built (1)
+### Must FRs not Built (2)
 
 - `Built, not run` — code and tests are on `main`, but a manual case has no
-  passing run in `runs.md` yet: FR-39 (TC-53).
+  passing run in `runs.md` yet: FR-23 (TC-27), FR-39 (TC-53).
 
 ## Reading notes
 

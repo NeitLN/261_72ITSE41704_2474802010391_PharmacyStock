@@ -1,7 +1,7 @@
 import { WarningOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Modal, Select, Space, Table, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { showApiError } from '../api/errors';
 import { medicinesApi, type Reference } from '../api/medicines';
 import {
@@ -12,18 +12,15 @@ import {
   type StockMovementRow,
 } from '../api/reports';
 import { useLoad } from '../api/useLoad';
-import { formatVnd } from '../ui/format';
+import { useBusinessToday } from '../api/clock';
+import { formatDateTime, formatVnd } from '../ui/format';
 
 const NO_REFERENCE = { categories: [] as Reference[], units: [] as Reference[] };
 
-/** Today and the first of this month, in Asia/Ho_Chi_Minh (decision 10). */
-function defaultPeriod(): StockMovementQuery {
-  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
+/** The first of this month to today, on the server's business date (#255). */
+function defaultPeriod(today: string): StockMovementQuery {
   return { from: `${today.slice(0, 8)}01`, to: today };
 }
-
-const dateTime = (value: string) =>
-  new Date(value).toLocaleString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
 
 const signed = (n: number) => (n > 0 ? `+${n}` : n === 0 ? '' : `${n}`);
 
@@ -45,6 +42,11 @@ const TYPE_LABELS: Record<string, string> = {
  */
 export function StockMovementPanel() {
   const [form] = Form.useForm<StockMovementQuery>();
+  const today = useBusinessToday();
+  // The server's date can arrive after the form shows; move an untouched period to it.
+  useEffect(() => {
+    if (!form.isFieldsTouched()) form.setFieldsValue(defaultPeriod(today));
+  }, [form, today]);
   const [report, setReport] = useState<StockMovementReport | null>(null);
   const [running, setRunning] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -82,7 +84,7 @@ export function StockMovementPanel() {
       fixed: 'left',
       width: 220,
       render: (_, r) => (
-        <Space direction="vertical" size={0}>
+        <Space orientation="vertical" size={0}>
           <span>
             {r.medicine.code} — {r.medicine.name}
           </span>
@@ -120,7 +122,7 @@ export function StockMovementPanel() {
       <Form
         form={form}
         layout="inline"
-        initialValues={defaultPeriod()}
+        initialValues={defaultPeriod(today)}
         onFinish={run}
         disabled={running}
       >
@@ -149,7 +151,7 @@ export function StockMovementPanel() {
       {report && (
         <>
           <Typography.Paragraph type="secondary" style={{ marginTop: 16 }}>
-            Period {report.query.from} – {report.query.to} · produced {dateTime(report.producedAt)} by{' '}
+            Period {report.query.from} – {report.query.to} · produced {formatDateTime(report.producedAt)} by{' '}
             {report.producedBy.fullName} · sorted by cost of net issued
           </Typography.Paragraph>
           <Table
@@ -223,7 +225,7 @@ function MovementsModal({
   );
   const { data, loading } = useLoad(fetchMovements, null);
   const columns: ColumnsType<MovementLine> = [
-    { title: 'Time', width: 170, render: (_, m) => dateTime(m.occurredAt) },
+    { title: 'Time', width: 170, render: (_, m) => formatDateTime(m.occurredAt) },
     {
       title: 'Type',
       width: 140,

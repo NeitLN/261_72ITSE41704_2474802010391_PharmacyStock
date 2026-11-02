@@ -51,15 +51,16 @@ screenshots is made in week 8).
 | Catalogue › Stock | UC04 | Tiến | `/stock` | TC-48 | built | [as-built](../diagrams/wireframes/catalogue-stock.png) |
 | Suppliers › Suppliers | UC02 | Tiến | `/suppliers` | TC-46 | built | [as-built](../diagrams/wireframes/suppliers.png) |
 | Suppliers › Goods receipts | UC03 | Tiến | `/goods-receipts` | TC-01, 02, 03, 64 | built | [as-built](../diagrams/wireframes/goods-receipt.png) |
-| Dispensing › Prescriptions | UC05 | Duy Anh | `/prescriptions` | TC-47, 58 | built | week 8, as-built |
-| Dispensing › Dispense | UC06 | Duy Anh | `/dispensings` | TC-04…14, 37, 38, 57 | built | week 8, as-built |
-| Sales › Over-the-counter sale | UC07 | Duy Anh | `POST /sales` | TC-35, 36, 55 | built | week 8, as-built |
-| Sales › Bill a dispensing | UC07 | Duy Anh | `/sales/billable`, `POST /sales` | TC-15, 52 | *in review #141, #142* | week 8, as-built |
+| Dispensing › Prescriptions | UC05 | Duy Anh | `/prescriptions` | TC-47, 58 | built | [as-built](../diagrams/wireframes/prescriptions.png) |
+| Dispensing › Dispense | UC06 | Duy Anh | `/dispensings` | TC-04…14, 37, 38, 57 | built | [as-built](../diagrams/wireframes/dispense.png) |
+| Sales › Over-the-counter sale | UC07 | Duy Anh | `POST /sales` | TC-35, 36, 55 | built | [as-built](../diagrams/wireframes/sales-cart.png) |
+| Sales › Bill a dispensing | UC07 | Duy Anh | `/sales/billable`, `POST /sales` | TC-15, 52 | built | [as-built](../diagrams/wireframes/bill-dispensing.png) |
 | Sales › Returns | UC08 | Duy Anh | planned | TC-16, 17, 18, 50 | *being built, #174* | [design](../diagrams/wireframes/sales-returns.png) |
 | Reports › Stock take | UC09 | Minh | `/stock-takes` | TC-19, 20, 39, 51 | built | week 8, as-built |
 | Reports › Alerts | UC10 | Minh | `/alerts` | TC-21, 63 | built | week 8, as-built |
 | Reports › Expiry and batch status | UC11 | Minh | `/reports/expiry`, `/batches/:id/write-off`, `/batches/:id/status` | TC-22, 56, 60 | *planned* | [design](../diagrams/wireframes/reports-expiry.png) |
 | Reports › Stock movement | UC12 | Minh | `/reports/stock-movement` | TC-23 | *planned* | [design](../diagrams/wireframes/reports-movement.png) |
+| Catalogue › Medicines › Prices | UC13 *(S)* | Tiến | `/medicines/:id/prices` | TC-40, 41 | *design gate #103* | [design](../diagrams/wireframes/catalogue-prices.png) |
 | Users & roles | UC15 *(S)* | Minh | planned | TC-44 | *planned, Should* | only if the Must-core gate passes |
 | Patients & prescribers screens | UC14 *(S)* | Duy Anh | `/customers`, `/prescribers` | TC-49 | API built; screens Should | only if the gate passes |
 

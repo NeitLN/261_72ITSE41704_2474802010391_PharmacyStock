@@ -220,13 +220,27 @@ function EditUserModal({ user, onClose, onDone }: { user: UserRow; onClose: () =
         roleCode: values.roleCode,
         isActive: values.isActive,
       });
-      if (values.password) {
-        await usersApi.resetPassword(user.id, values.password, values.passwordConfirm ?? '');
-      }
-      message.success(`${user.username} saved.`);
-      onDone();
     } catch (error) {
       setRefusal(showApiError(form, error));
+      setSaving(false);
+      return;
+    }
+    if (values.password) {
+      try {
+        await usersApi.resetPassword(user.id, values.password, values.passwordConfirm ?? '');
+      } catch (error) {
+        // Two calls: say which part was saved, so nobody retypes the rest.
+        const reason = showApiError(form, error);
+        setRefusal(
+          `The name, role and account state are saved. The password was not changed${reason ? `: ${reason}` : '.'}`,
+        );
+        setSaving(false);
+        return;
+      }
+    }
+    try {
+      message.success(`${user.username} saved.`);
+      onDone();
     } finally {
       setSaving(false);
     }

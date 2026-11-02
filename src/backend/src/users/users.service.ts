@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource, type EntityManager, In } from 'typeorm';
+import { DataSource, type EntityManager, In, QueryFailedError } from 'typeorm';
 import { AuditService } from '../audit/audit.service.js';
 import { type Actor, assertPermission } from '../auth/actor.js';
 import { hashPassword } from '../auth/passwords.js';
@@ -88,15 +88,31 @@ export class UsersService {
           'username',
         );
       }
-      const user = await manager.save(
-        manager.create(User, {
-          username: input.username,
-          fullName: input.fullName.trim(),
-          role,
-          passwordHash,
-          isActive: true,
-        }),
-      );
+      const user = await manager
+        .save(
+          manager.create(User, {
+            username: input.username,
+            fullName: input.fullName.trim(),
+            role,
+            passwordHash,
+            isActive: true,
+          }),
+        )
+        .catch((error: unknown) => {
+          // Two managers adding `Bob` and `bob` at once: the index refuses one.
+          if (
+            error instanceof QueryFailedError &&
+            (error.driverError as { constraint?: string }).constraint ===
+              'uq_users_username_lower'
+          ) {
+            throw new Conflict(
+              'USERNAME_TAKEN',
+              `The username ${input.username} is already taken.`,
+              'username',
+            );
+          }
+          throw error;
+        });
       await this.audit.record(
         manager,
         actor.id,

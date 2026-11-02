@@ -140,7 +140,9 @@ describe('UC15 users, roles and audit log (e2e, AUTH_MODE=jwt)', () => {
     expect(res.body.role.code).toBe('PHARMACIST');
     expect((await t.http().get('/api/prescriptions').set(as(c))).status).toBe(200);
     const [changed] = await entries('user.role_changed');
-    expect(JSON.parse(changed.details)).toEqual({ from: 'CASHIER', to: 'PHARMACIST' });
+    // #263: the entry names whose role changed, like the other user.* entries.
+    expect(JSON.parse(changed.details)).toEqual({ username: 'cashier', from: 'CASHIER', to: 'PHARMACIST' });
+    expect(changed.entityId).toBe(await userId('cashier'));
   });
 
   it('UC15-04 TC-44: a locked user is refused at once and at sign-in; unlocked, they sign in again', async () => {

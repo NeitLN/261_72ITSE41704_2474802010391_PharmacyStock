@@ -9,6 +9,7 @@ export interface Session {
 }
 
 const STORAGE_KEY = 'pharmacy.session';
+const EXPIRED_KEY = 'pharmacy.session-expired';
 
 /**
  * Kept in sessionStorage, so closing the tab signs the user out. Scripts on
@@ -22,11 +23,24 @@ export function loadSession(): Session | null {
     const session = JSON.parse(raw) as Session;
     if (Date.parse(session.expiresAt) <= Date.now()) {
       sessionStorage.removeItem(STORAGE_KEY);
+      // Expired while the page was closed: sign-in says so (#257).
+      sessionStorage.setItem(EXPIRED_KEY, '1');
       return null;
     }
     return session;
   } catch {
     return null;
+  }
+}
+
+/** True once after `loadSession` found the stored session expired. */
+export function takeExpiredNotice(): boolean {
+  try {
+    const expired = sessionStorage.getItem(EXPIRED_KEY) !== null;
+    sessionStorage.removeItem(EXPIRED_KEY);
+    return expired;
+  } catch {
+    return false;
   }
 }
 

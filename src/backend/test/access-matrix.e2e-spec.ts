@@ -188,6 +188,7 @@ describe('TC-53 role × endpoint matrix (e2e)', () => {
   const P = Permission;
   const ROUTES: Route[] = [
     { method: 'get', path: '/api/auth/me', permission: null },
+    { method: 'get', path: '/api/clock', permission: null },
     // UC01
     { method: 'get', path: '/api/medicines', permission: P.STOCK_VIEW },
     { method: 'get', path: '/api/medicines/reference-data', permission: P.STOCK_VIEW },

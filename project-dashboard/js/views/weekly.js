@@ -2,7 +2,7 @@ import { burndownChart } from '../ui/charts.js';
 import { day, esc, healthBadge, link, meter, pct, people, prov, taskList } from '../ui/dom.js';
 import { burndownData, burndownTable } from './burndown.js';
 
-export const title = 'Weekly Progress';
+export const title = 'Weekly progress';
 
 const STATE_LABEL = { past: 'Finished', current: 'This week', upcoming: 'Upcoming' };
 
@@ -42,7 +42,7 @@ export function render(model, params) {
 
   const html = `
   <div class="stack-lg">
-    <div class="section-head"><h2>Weekly Progress</h2><p>Plan, delivery and evidence for each week.</p></div>
+    <div class="section-head"><h2>Weekly progress</h2><p>Plan, delivery and evidence for each week.</p></div>
     ${weekPicker(model, week.number, 'weekly')}
 
     <section class="grid two" aria-labelledby="wk-head">
@@ -90,7 +90,7 @@ export function render(model, params) {
       <section class="card stack" aria-labelledby="wk-ev">
         <h3 id="wk-ev">Evidence</h3>
         ${evidence ? `<ul>${evidence}</ul>` : '<p class="muted small">No documents or releases linked to this week.</p>'}
-        <p class="small">${week.mergedPulls.length} pull request(s) merged during the week. <a href="#evidence/${week.number}">See them in the Evidence Center</a>.</p>
+        <p class="small">${week.mergedPulls.length} pull request(s) merged during the week. <a href="#evidence/${week.number}">See them on the Evidence page</a>.</p>
       </section>
     </div>
 

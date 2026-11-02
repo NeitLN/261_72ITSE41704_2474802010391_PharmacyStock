@@ -99,7 +99,7 @@ function MedicinesPanel() {
       title: 'Name',
       dataIndex: 'name',
       render: (_, m) => (
-        <Space direction="vertical" size={0}>
+        <Space orientation="vertical" size={0}>
           <span>{m.name}</span>
           {m.activeIngredient && (
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>

@@ -380,7 +380,9 @@ export function ReceiptView({
           </Descriptions.Item>
         </Descriptions>
         <Table
-          rowKey={(_, index) => String(index)}
+          rowKey={(l) =>
+            `${l.medicine.id}-${l.batch.id}-${l.billed ? 'billed' : 'otc'}-${l.quantity}-${l.unitPrice}`
+          }
           size="small"
           pagination={false}
           dataSource={sale.lines}

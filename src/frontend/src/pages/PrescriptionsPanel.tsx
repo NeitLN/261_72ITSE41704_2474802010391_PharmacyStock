@@ -35,6 +35,7 @@ import {
 import { useLoad } from '../api/useLoad';
 import { useBusinessToday } from '../api/clock';
 import { decimal, wholeNumber } from '../forms/numberRules';
+import { formatDateTime } from '../ui/format';
 import { STATUSES, statusOf, TONE_COLOURS } from '../ui/status';
 import { StatusTag } from '../ui/tags';
 import { QuickCreateCustomerModal } from './QuickCreateCustomerModal';
@@ -645,7 +646,7 @@ function PrescriptionDetailsModal({
             </Descriptions.Item>
             <Descriptions.Item label="Verified by">
               {prescription.verifiedBy
-                ? `${prescription.verifiedBy.fullName} at ${prescription.verifiedAt ?? '—'}`
+                ? `${prescription.verifiedBy.fullName} at ${formatDateTime(prescription.verifiedAt)}`
                 : '—'}
             </Descriptions.Item>
             {prescription.verificationNote && (

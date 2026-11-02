@@ -405,7 +405,7 @@ function ReturnResultView({
           </Descriptions.Item>
         </Descriptions>
         <Table
-          rowKey={(_, index) => String(index)}
+          rowKey="saleLineId"
           size="small"
           pagination={false}
           dataSource={result.lines}

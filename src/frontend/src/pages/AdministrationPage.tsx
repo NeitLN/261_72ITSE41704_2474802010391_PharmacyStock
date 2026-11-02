@@ -190,7 +190,7 @@ function NewUserModal({ onClose, onDone }: { onClose: () => void; onDone: () => 
           <Input.Password autoComplete="new-password" />
         </Form.Item>
       </Form>
-      {refusal && <Alert type="error" showIcon message={refusal} />}
+      {refusal && <Alert type="error" showIcon title={refusal} />}
     </Modal>
   );
 }
@@ -275,7 +275,7 @@ function EditUserModal({ user, onClose, onDone }: { user: UserRow; onClose: () =
           </Form.Item>
         )}
       </Form>
-      {refusal && <Alert type="error" showIcon message={refusal} />}
+      {refusal && <Alert type="error" showIcon title={refusal} />}
     </Modal>
   );
 }
@@ -347,7 +347,7 @@ function RolesTab() {
           </Button>
         ))}
       </Space>
-      {refusal && <Alert type="error" showIcon message={refusal} style={{ marginTop: 12 }} />}
+      {refusal && <Alert type="error" showIcon title={refusal} style={{ marginTop: 12 }} />}
     </>
   );
 }

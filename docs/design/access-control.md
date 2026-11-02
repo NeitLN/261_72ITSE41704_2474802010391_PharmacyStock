@@ -171,6 +171,7 @@ all three are listed. The two `stock-movement` routes need `?from=&to=`.
 | POST | `/api/auth/login` | none (`@Public()`) | ✓ | ✓ | ✓ |
 | GET | `/api/auth/me` | signed in | ✓ | ✓ | ✓ |
 | POST | `/api/auth/logout` | signed in | ✓ | ✓ | ✓ |
+| GET | `/api/clock` | signed in | ✓ | ✓ | ✓ |
 | GET | `/api/users` | `user.manage` | ✓ | 403 | 403 |
 | POST | `/api/users` | `user.manage` | ✓ | 403 | 403 |
 | PATCH | `/api/users/:id` | `user.manage` | ✓ | 403 | 403 |

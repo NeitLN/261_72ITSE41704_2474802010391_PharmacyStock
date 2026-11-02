@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="../kit.css"><title>Dispense</title></head>
+<body>
+<div class="frame">
+  <span class="label">UC06 Prescriptions &amp; dispensing › Dispense — 1. preview, a batch expires within the alert window <span class="tag">as-built · Duy Anh · 02/11/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Pharmacist <span class="tag">Pharmacist</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Catalogue &amp; batches</div><div class="on">Prescriptions &amp; dispensing</div><div>Stock control &amp; reports</div></div>
+    <div class="page" style="padding-bottom: 380px">
+      <h1>Prescriptions &amp; dispensing</h1>
+      <div class="tabs"><div>Prescriptions</div><div class="on">Dispense</div><div>Customers</div><div>Prescribers</div></div>
+      <div class="row"><b>Step 1 — Choose a verified prescription</b></div>
+      <div class="row"><span class="field" style="width: 100%">RX-20261102-0003 — Bui Thanh Long ▾</span></div>
+      <div class="row"><b>Step 2 — Quantities to hand over now</b></div>
+      <table>
+        <tr><th>Medicine</th><th>Strength</th><th class="num">Prescribed</th><th class="num">Dispensed</th><th class="num">Outstanding</th><th class="num">Hand over now</th></tr>
+        <tr><td>AMOX500 — Amoxicillin 500 mg</td><td>500 mg</td><td class="num">3</td><td class="num">0</td><td class="num">3</td><td class="num"><span class="field" style="min-width: 80px">3</span></td></tr>
+        <tr><td>EFF-PARA — Paracetamol effervescent 500 mg</td><td>500 mg</td><td class="num">4</td><td class="num">0</td><td class="num">4</td><td class="num"><span class="field" style="min-width: 80px">4</span></td></tr>
+      </table>
+      <div class="row"><span class="btn primary">Preview</span></div>
+      <div class="row"><b>Step 3 — Batches FEFO will take</b></div>
+      <table>
+        <tr><th>Medicine</th><th class="num">Requested</th><th>Batches</th><th>Partial supply note</th></tr>
+        <tr><td>AMOX500 — Amoxicillin 500 mg</td><td class="num">3</td><td>AMOX527092 — exp 2027-09-17 — 3</td><td>—</td></tr>
+        <tr><td>EFF-PARA — Paracetamol effervescent 500 mg</td><td class="num">4</td><td>EFFPA26112 — exp 2026-11-11 — 4 <span class="tag">Expires in 9 days</span></td><td>—</td></tr>
+      </table>
+      <div class="row"><span class="btn primary">Confirm hand-over</span><span class="btn danger">Cancel hand-over</span></div>
+    </div>
+  </div>
+  <div class="note" data-n="1" style="top: 600px; right: 20px">UC06 steps 1–2 (FR-16, BR01, DEC-07): only VERIFIED or PARTIALLY_DISPENSED prescriptions are offered; FEFO takes the earliest expiry first. BR02: a batch inside the alert window shows the days left.</div>
+  <div class="note" data-n="2" style="top: 760px; right: 20px">Preview reserves nothing (DEC-05). FR-23: confirming sends one request ID; a retry reuses it, so a failure cannot dispense twice.</div>
+</div>
+
+<div class="frame" style="min-height: 560px">
+  <span class="label">UC06 Dispense — 2. hand-over recorded <span class="tag">as-built · Duy Anh · 02/11/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Pharmacist <span class="tag">Pharmacist</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Catalogue &amp; batches</div><div class="on">Prescriptions &amp; dispensing</div><div>Stock control &amp; reports</div></div>
+    <div class="page" style="padding-bottom: 260px">
+      <h1>Prescriptions &amp; dispensing</h1>
+      <div class="tabs"><div>Prescriptions</div><div class="on">Dispense</div><div>Customers</div><div>Prescribers</div></div>
+      <h2 style="font-size: 18px">Hand-over recorded</h2>
+      <div class="row"><span>Status</span><span>fully_dispensed</span><span>Dispensed at</span><span>2026-11-02 16:19</span></div>
+      <div class="row"><b>AMOX500 — Amoxicillin 500 mg: dispensed 3, outstanding 0</b></div>
+      <table>
+        <tr><th>Batch</th><th>Expiry</th><th class="num">Quantity</th><th>Warning</th></tr>
+        <tr><td>AMOX527092</td><td>2027-09-17</td><td class="num">3</td><td>—</td></tr>
+      </table>
+      <div class="row"><b>EFF-PARA — Paracetamol effervescent 500 mg: dispensed 4, outstanding 0</b></div>
+      <table>
+        <tr><th>Batch</th><th>Expiry</th><th class="num">Quantity</th><th>Warning</th></tr>
+        <tr><td>EFFPA26112</td><td>2026-11-11</td><td class="num">4</td><td><span class="tag">Expires in 9 days</span></td></tr>
+      </table>
+      <div class="row"><span class="btn">New dispensing</span></div>
+    </div>
+  </div>
+  <div class="note" data-n="3" style="top: 590px; right: 20px">FR-22: the status and the per-item dispensed/outstanding quantities after one hand-over. DEC-05, FR-45: one DISPENSE movement per batch, posted only at this confirmed hand-over; the preview moved nothing.</div>
+</div>
+
+<div class="frame" style="min-height: 520px">
+  <span class="label">UC06 Dispense — 3. refusal: more than the sellable quantity <span class="tag">as-built · Duy Anh · 02/11/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Pharmacist <span class="tag">Pharmacist</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Catalogue &amp; batches</div><div class="on">Prescriptions &amp; dispensing</div><div>Stock control &amp; reports</div></div>
+    <div class="page" style="padding-bottom: 280px">
+      <h1>Prescriptions &amp; dispensing</h1>
+      <div class="tabs"><div>Prescriptions</div><div class="on">Dispense</div><div>Customers</div><div>Prescribers</div></div>
+      <div class="row"><b>Step 1 — Choose a verified prescription</b></div>
+      <div class="row"><span class="field" style="width: 100%">RX-20261102-0004 — Bui Thanh Long ▾</span></div>
+      <div class="row"><b>Step 2 — Quantities to hand over now</b></div>
+      <table>
+        <tr><th>Medicine</th><th>Strength</th><th class="num">Prescribed</th><th class="num">Dispensed</th><th class="num">Outstanding</th><th class="num">Hand over now</th></tr>
+        <tr><td>EFF-PARA — Paracetamol effervescent 500 mg</td><td>500 mg</td><td class="num">60</td><td class="num">0</td><td class="num">60</td><td class="num"><span class="field" style="min-width: 80px">60</span></td></tr>
+      </table>
+      <div class="row"><span class="btn primary">Preview</span></div>
+      <div class="row"><b>Step 3 — Batches FEFO will take</b></div>
+      <table>
+        <tr><th>Medicine</th><th class="num">Requested</th><th>Batches</th><th>Partial supply note</th></tr>
+        <tr><td>EFF-PARA — Paracetamol effervescent 500 mg</td><td class="num">60</td><td><span class="err">Only 49 available</span></td><td>—</td></tr>
+      </table>
+      <div class="row"><span class="btn" style="color: #999">Confirm hand-over</span><span class="btn danger">Cancel hand-over</span></div>
+    </div>
+  </div>
+  <div class="note" data-n="4" style="top: 510px; right: 20px">FR-18, BR03, TC-09: the preview shows the sellable quantity and disables the confirmation; nothing was reserved or moved.</div>
+  <div class="note" data-n="5" style="top: 610px; right: 20px">On a confirm that loses a race the API answers 422 <code>INSUFFICIENT_STOCK</code>, "Only N can be issued now." under the item, and "Not enough stock that can be issued; nothing was dispensed."</div>
+</div>
+<ol class="notes">
+  <li>UC06 steps 1–2, FR-16, BR01, DEC-07; only VERIFIED or PARTIALLY_DISPENSED (FR-44). BR02/FR-16 warning, "Expires in 9 days"; the alert window comes from the medicine (default 90 days).</li>
+  <li>DEC-05 (preview reserves nothing), UC06 step 3, FR-23 (one request ID, reused on a retry).</li>
+  <li>FR-22, UC06 step 6: status and the per-item quantities after the hand-over. DEC-05/FR-45: stock leaves once, at the confirmed hand-over.</li>
+  <li>UC06 A4, FR-18, BR03, TC-09: a shortage refuses the line and changes nothing; the preview reserves nothing.</li>
+  <li>The confirm-side refusal is UC06 A4/A10: the message names the quantity that can be issued now and the whole command is refused.</li>
+</ol>
+</body>
+</html>

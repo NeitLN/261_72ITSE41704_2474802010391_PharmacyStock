@@ -48,6 +48,7 @@ Commit the HTML and the PNG together.
 | Sales › Returns | UC08 | design (week-7 gate) | Tiến | [sales-returns.png](sales-returns.png) |
 | Reports › Expiry and batch status | UC11 | design (week-7 gate) | Tiến | [reports-expiry.png](reports-expiry.png) |
 | Reports › Stock movement | UC12 | design (week-7 gate) | Tiến | [reports-movement.png](reports-movement.png) |
+| Catalogue › Medicines › Prices | UC13 | design (week-8 gate) | Tiến | [catalogue-prices.png](catalogue-prices.png) |
 
 UI design is Tiến's; Duy Anh reviews every wireframe pull request, may
 change or extend the wireframes, and develops the design further (motion and

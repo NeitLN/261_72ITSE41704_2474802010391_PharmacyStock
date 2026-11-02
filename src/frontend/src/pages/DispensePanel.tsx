@@ -297,7 +297,7 @@ export function DispensePanel() {
         <DispenseResultView result={result} onNew={resetAll} />
       ) : (
         <>
-          <Space direction="vertical" style={{ width: '100%' }} size="large">
+          <Space orientation="vertical" style={{ width: '100%' }} size="large">
             <div>
               <Typography.Text strong>Step 1 — Choose a verified prescription</Typography.Text>
               <Select
@@ -439,7 +439,7 @@ function PreviewTable({
             pi.batches.length === 0 ? (
               <Typography.Text type="danger">Only {pi.available} available</Typography.Text>
             ) : (
-              <Space direction="vertical">
+              <Space orientation="vertical">
                 {pi.batches.map((b) => (
                   <Space key={b.batchId} wrap>
                     <span>
@@ -484,7 +484,7 @@ function PreviewTable({
 function DispenseResultView({ result, onNew }: { result: DispenseResult; onNew: () => void }) {
   return (
     <ResultAppear>
-      <Space direction="vertical" style={{ width: '100%' }}>
+      <Space orientation="vertical" style={{ width: '100%' }}>
         <Descriptions size="small" column={2} title="Hand-over recorded">
           <Descriptions.Item label="Status">{result.status}</Descriptions.Item>
           <Descriptions.Item label="Dispensed at">{result.dispensedAt}</Descriptions.Item>

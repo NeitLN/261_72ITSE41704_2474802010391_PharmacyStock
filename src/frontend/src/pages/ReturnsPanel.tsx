@@ -11,7 +11,7 @@ import {
 } from 'antd';
 import { useState } from 'react';
 import { type FieldError, toApiError } from '../api/errors';
-import { formatVnd } from '../ui/format';
+import { formatDateTime, formatVnd } from '../ui/format';
 import {
   type ReturnableSale,
   type ReturnLineInput,
@@ -272,9 +272,7 @@ export function ReturnsPanel() {
           <div>
             <Typography.Text strong>
               Lines of {sale.receiptNumber} — sold{' '}
-              {new Date(sale.soldAt).toLocaleString('vi-VN', {
-                timeZone: 'Asia/Ho_Chi_Minh',
-              })}
+              {formatDateTime(sale.soldAt)}
               {sale.customer ? ` to ${sale.customer.code} — ${sale.customer.fullName}` : ''}
             </Typography.Text>
             <Table
@@ -397,9 +395,7 @@ function ReturnResultView({
       <Space orientation="vertical" style={{ width: '100%' }} size="middle">
         <Descriptions size="small" column={2} title={`Return ${result.referenceNumber}`}>
           <Descriptions.Item label="Returned at">
-            {new Date(result.returnedAt).toLocaleString('vi-VN', {
-              timeZone: 'Asia/Ho_Chi_Minh',
-            })}
+            {formatDateTime(result.returnedAt)}
           </Descriptions.Item>
           <Descriptions.Item label="Receipt">
             {result.sale.receiptNumber}

@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="../kit.css"><title>Sales — cart and receipt</title></head>
+<body>
+<div class="frame" style="min-height: 500px">
+  <span class="label">UC07 Sales &amp; returns › Over-the-counter sale — 1. cart before payment <span class="tag">as-built · Duy Anh · 02/11/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Cashier <span class="tag">Cashier</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Catalogue &amp; batches</div><div class="on">Sales &amp; returns</div></div>
+    <div class="page">
+      <h1>Sales &amp; returns</h1>
+      <div class="tabs"><div class="on">Over-the-counter sale</div><div>Bill a dispensing</div><div>Returns</div></div>
+      <div class="row"><b>Add a medicine to the cart</b></div>
+      <div class="row"><span class="field" style="width: 480px">Search by code or name ▾</span></div>
+      <div class="row"><b>Cart</b></div>
+      <table>
+        <tr><th>Medicine</th><th class="num">Price</th><th class="num">Quantity</th><th class="num">Line total</th><th></th></tr>
+        <tr><td>EFF-PARA — Paracetamol effervescent 500 mg</td><td class="num">2.500 ₫</td><td class="num"><span class="field" style="min-width: 70px">2</span></td><td class="num">5.000 ₫</td><td><span class="btn">Remove</span></td></tr>
+      </table>
+      <div class="row"><b style="font-size: 16px">Estimated total: 5.000 ₫</b></div>
+      <div class="row muted">Estimate — the receipt shows the total charged.</div>
+      <div class="row"><span class="btn primary">Pay</span><span class="btn danger">Cancel cart</span></div>
+    </div>
+  </div>
+  <div class="note" data-n="1" style="top: 150px; right: 20px">UC07 main flow 2–3 (FR-24): only active OTC medicines are offered (BR04, DEC-09); the cart moves and reserves nothing (DEC-05, FR-45).</div>
+  <div class="note" data-n="2" style="top: 380px; right: 20px">Prices and totals come from the server; the cart estimate is not the charged total.</div>
+  <div class="note" data-n="3" style="top: 450px; right: 20px">FR-23: one request ID per cart; changing the cart replaces it, a retry reuses it.</div>
+</div>
+
+<div class="frame" style="min-height: 540px">
+  <span class="label">UC07 Over-the-counter sale — 2. refusal: more than can be sold <span class="tag">as-built · Duy Anh · 02/11/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Cashier <span class="tag">Cashier</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Catalogue &amp; batches</div><div class="on">Sales &amp; returns</div></div>
+    <div class="page">
+      <h1>Sales &amp; returns</h1>
+      <div class="tabs"><div class="on">Over-the-counter sale</div><div>Bill a dispensing</div><div>Returns</div></div>
+      <div class="row"><b>Add a medicine to the cart</b></div>
+      <div class="row"><span class="field" style="width: 480px">Search by code or name ▾</span></div>
+      <div class="row"><b>Cart</b></div>
+      <table>
+        <tr><th>Medicine</th><th class="num">Price</th><th class="num">Quantity</th><th class="num">Line total</th><th></th></tr>
+        <tr><td>EFF-PARA — Paracetamol effervescent 500 mg</td><td class="num">2.500 ₫</td><td class="num"><span class="field" style="min-width: 70px">500</span><br><span class="err">Only 40 can be sold now.</span></td><td class="num">1.250.000 ₫</td><td><span class="btn">Remove</span></td></tr>
+      </table>
+      <div class="row"><b style="font-size: 16px">Estimated total: 1.250.000 ₫</b></div>
+      <div class="row muted">Estimate — the receipt shows the total charged.</div>
+      <div class="row"><span class="btn primary">Pay</span><span class="btn danger">Cancel cart</span></div>
+      <div class="box"><b>✖ Not enough stock that can be sold; nothing was sold.</b></div>
+      <div class="row muted">Retrying sends the same request, so a network failure can never charge twice.</div>
+    </div>
+  </div>
+  <div class="note" data-n="4" style="top: 170px; right: 20px">UC07 A2, FR-18, BR03, TC-55: the line shows the sellable quantity and the whole sale is refused; no sale, no movement.</div>
+  <div class="note" data-n="5" style="top: 480px; right: 20px">The cart keeps the typed quantity so the cashier can lower it and pay again.</div>
+</div>
+
+<div class="frame" style="min-height: 480px">
+  <span class="label">UC07 Over-the-counter sale — 3. receipt <span class="tag">as-built · Duy Anh · 02/11/2026</span></span>
+  <div class="top"><b>Pharmacy Stock &amp; Prescription Dispensing</b><span>Sample Cashier <span class="tag">Cashier</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Catalogue &amp; batches</div><div class="on">Sales &amp; returns</div></div>
+    <div class="page">
+      <h1>Sales &amp; returns</h1>
+      <div class="tabs"><div class="on">Over-the-counter sale</div><div>Bill a dispensing</div><div>Returns</div></div>
+      <h2 style="font-size: 18px">Receipt RC-20261102-0001</h2>
+      <div class="row"><span>Sold at</span><span>2026-11-02 16:19</span><span>Customer</span><span>—</span></div>
+      <table>
+        <tr><th>Medicine</th><th>Batch</th><th>Expiry</th><th class="num">Quantity</th><th class="num">Unit price</th><th class="num">Line total</th><th>Warning</th></tr>
+        <tr><td>EFF-PARA — Paracetamol effervescent 500 mg</td><td>EFFPA26112</td><td>2026-11-11</td><td class="num">2</td><td class="num">2.500 ₫</td><td class="num">5.000 ₫</td><td><span class="tag">Expires in 9 days</span></td></tr>
+      </table>
+      <div class="row"><span>Total:</span><b>5.000 ₫</b></div>
+      <div class="row"><span class="btn primary">New sale</span></div>
+    </div>
+  </div>
+  <div class="note" data-n="6" style="top: 140px; right: 20px">FR-24: the receipt number is <code>RC-YYYYMMDD-NNNN</code>, running per business day; the customer is optional for an OTC sale.</div>
+  <div class="note" data-n="7" style="top: 380px; right: 20px">FR-16, BR02: a near-expiry batch carries "Expires in N days" on its line. The line price is the price in force on the sale date (decision 12, BR09).</div>
+</div>
+<ol class="notes">
+  <li>UC07 main flow 1–3, FR-24; OTC only (FR-25, DEC-09); nothing moves until payment (DEC-05, FR-45).</li>
+  <li>The estimate is client-side; the server's receipt is authoritative.</li>
+  <li>FR-23: the request ID changes when the cart changes and is reused on a retry.</li>
+  <li>UC07 A2, FR-18, BR03, TC-55: 422 <code>INSUFFICIENT_STOCK</code>, field <code>otcLines.0.quantity</code>; nothing is saved.</li>
+  <li>UC07 A2/A9: the same refusal covers expired/held/recalled-only batches and a race with a hand-over (TC-62).</li>
+  <li>UC07 main flow 6, FR-24; receipt number per business day (decision 12/BR09 for prices).</li>
+  <li>BR02/FR-16 warning; a split line becomes one sale line per batch.</li>
+</ol>
+</body>
+</html>

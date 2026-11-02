@@ -100,6 +100,12 @@ describe('TC-53 role × endpoint matrix (e2e)', () => {
       [ids.medicine2],
     );
     ids.alert = alert.id;
+    // UC15: a user to change and a role whose permissions are set to what they are.
+    const [cashierUser] = await t.dataSource.query<Array<{ id: string }>>(
+      `SELECT id FROM users WHERE username = 'cashier'`,
+    );
+    ids.cashierUser = cashierUser.id;
+    ids.roleCode = 'PHARMACIST';
   });
 
   afterAll(async () => {
@@ -254,6 +260,14 @@ describe('TC-53 role × endpoint matrix (e2e)', () => {
     { method: 'get', path: '/api/reports/stock-movement/medicines/:medicine?from=2026-10-01&to=2026-10-13', permission: P.REPORT_VIEW },
     // UC16
     { method: 'post', path: '/api/auth/logout', permission: null },
+    // UC15 users, roles and the audit log
+    { method: 'get', path: '/api/users', permission: P.USER_MANAGE },
+    { method: 'post', path: '/api/users', permission: P.USER_MANAGE, body: () => ({ username: `matrix.${next()}`, fullName: 'Matrix User', roleCode: 'CASHIER', password: 'Matrix-pass-1', passwordConfirm: 'Matrix-pass-1' }) },
+    { method: 'patch', path: '/api/users/:cashierUser', permission: P.USER_MANAGE, body: () => ({ fullName: 'Sample Cashier' }) },
+    { method: 'post', path: '/api/users/:cashierUser/password', permission: P.USER_MANAGE, body: () => ({ password: 'Matrix-pass-1', passwordConfirm: 'Matrix-pass-1' }) },
+    { method: 'get', path: '/api/roles', permission: P.USER_MANAGE },
+    { method: 'put', path: '/api/roles/:roleCode/permissions', permission: P.USER_MANAGE, body: () => ({ permissions: ROLE_PERMISSIONS[RoleCode.PHARMACIST] }) },
+    { method: 'get', path: '/api/audit-logs', permission: P.USER_MANAGE },
   ];
 
   const resolve = (path: string) =>

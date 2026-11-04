@@ -70,7 +70,7 @@ pull requests, so "In review" means not on `main` yet.
 | FR-47 | Should | UC11 | ledger commands `release`, `reject`, `destroy` built (#178); no assessment or destruction screen yet | — | — (TC-61) | Should — after the gate |
 | FR-48 | Must | UC11 | `BatchesService.setStatus` → `StockLedger.setBatchStatus`; FEFO skips a batch that is not ACTIVE; screen `ExpiryPanel` | `expiry.e2e-spec.ts` UC11-08, 09, 12 | TC-60 run 54 | Built |
 | FR-38 | Must | UC16 | `AuthService`, `AuthGuard`, screen `LoginPage` | `auth.e2e-spec.ts` UC16-01…13; `auth/auth-config.spec.ts` | TC-42 run 7; TC-43 runs 8, 52 | Built |
-| FR-39 | Must | All | `assertPermission` at every service entry, `AuthGuard` | `access-matrix.e2e-spec.ts` TC-53 route × role table, one test per route and role, plus "without a session every endpoint except sign-in is 401 (NFR-05)"; `suppliers.e2e-spec.ts` UC02-08; `goods-receipts.e2e-spec.ts` UC03-12; `prescriptions.e2e-spec.ts` UC05-13; `parties.e2e-spec.ts` UC05-27; `dispensing.e2e-spec.ts` UC06-12; `sales.e2e-spec.ts` UC07-10; `auth.e2e-spec.ts` UC16-10; `users.e2e-spec.ts` UC15-10 | TC-28 run 51; — (TC-53) | Built, not run |
+| FR-39 | Must | All | `assertPermission` at every service entry, `AuthGuard` | `access-matrix.e2e-spec.ts` TC-53 route × role table, one test per route and role, plus "without a session every endpoint except sign-in is 401 (NFR-05)"; `suppliers.e2e-spec.ts` UC02-08; `goods-receipts.e2e-spec.ts` UC03-12; `prescriptions.e2e-spec.ts` UC05-13; `parties.e2e-spec.ts` UC05-27; `dispensing.e2e-spec.ts` UC06-12; `sales.e2e-spec.ts` UC07-10; `auth.e2e-spec.ts` UC16-10; `users.e2e-spec.ts` UC15-10 | TC-28 run 51; TC-53 run 91 | Built |
 | FR-40 | Should | UC15 | `UsersService`, screen `AdministrationPage` (Users and Roles tabs) | `users.e2e-spec.ts` UC15-01…07, 10…12 | TC-44 run 74 | Built |
 | FR-41 | Should | UC15 | `AuditService`; sign-ins, user and role changes and approved stock takes are logged; price changes come with the price command in #259; screen `AdministrationPage` (Audit log tab) | `users.e2e-spec.ts` UC15-08, 09 | TC-44 run 74 (users, roles, sign-ins); price changes — with #259 | Should — after the gate |
 | FR-42 | Could | UC03, 06 | — | — | none by design | Could — not built |
@@ -83,17 +83,17 @@ OC-21 ticket:
 
 | Status | Count | FRs |
 |---|---|---|
-| Built | 40 | FR-01, 02, 03, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 40, 44, 45, 48 |
-| Built, not run | 2 | FR-23, 39 |
+| Built | 41 | FR-01, 02, 03, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 44, 45, 48 |
+| Built, not run | 1 | FR-23 |
 | In review | 0 | — |
 | Planned (week 8) | 0 | — |
 | Should — after the gate | 4 | FR-04, 41, 46, 47 |
 | Could — not built | 2 | FR-42, 43 |
 
-### Must FRs not Built (2)
+### Must FRs not Built (1)
 
 - `Built, not run` — code and tests are on `main`, but a manual case has no
-  passing run in `runs.md` yet: FR-23 (TC-27), FR-39 (TC-53).
+  passing run in `runs.md` yet: FR-23 (TC-27).
 
 ## Reading notes
 

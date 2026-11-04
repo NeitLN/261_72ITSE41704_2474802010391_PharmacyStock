@@ -49,8 +49,8 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-26 | 8 | UC06 / BR03 | Two sessions request 4 of the last 5 | Two concurrent dispensings, 20 runs | Only one succeeds each time; never negative | Duy Anh | Tiến | BR03-02 (ledger) | Not run |
 | TC-27 | 8 | UC06 | Resubmit the same dispensing | Same request ID twice | No duplicate | Duy Anh | Tiến | — | Not run |
 | TC-28 | 8 | Access | Cashier calls a manager function | Cashier sends a supplier or catalogue change to the API | Refused in the business layer (403) | Minh | Duy Anh | UC02-08, UC01-09 | Pass |
-| TC-29 | 8 | NFR-01, 02, 13 | Measure search, report and counter time | Large data set in a separate database; 10 runs, median | Within NFR thresholds; machine recorded | Tiến | Minh | — | Not run |
-| TC-30 | 8 | NFR-09 *(S)* | Backup and restore | `pg_dump`, restore into an empty database | Balances match | Tiến | Minh | — | Not run |
+| TC-29 | 8 | NFR-01, 02, 13 | Measure search, report and counter time | Large data set in a separate database; 10 runs, median | Within NFR thresholds; machine recorded | Tiến | Minh | — | Pass |
+| TC-30 | 8 | NFR-09 *(S)* | Backup and restore | `pg_dump`, restore into an empty database | Balances match | Tiến | Minh | — | Pass |
 | TC-31 | 9 | UC03–08 | End-to-end flow | Receive → prescription → dispense → bill → return → report | Every step and report consistent | Tiến | Minh | — | Pass |
 | TC-32 | 9 | NFR-03 | Two outside users perform tasks | One-page task sheet: 2-line receipt; 2-item dispensing | Each ≤ 5 minutes with at most one help request | Minh | Duy Anh | — | Not run |
 | TC-33 | 9 | NFR-10 | Fresh clone on another machine | Follow the README only | Runs with seed data within 30 minutes | Minh | Duy Anh | — | Not run |

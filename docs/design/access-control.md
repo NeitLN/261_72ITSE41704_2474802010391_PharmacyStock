@@ -153,7 +153,7 @@ see the table below.
 
 ## Endpoint → permission table (TC-53, #70)
 
-Every route the API serves (75, with #105's routes), the permission its service checks, and what each
+Every route the API serves (77 behind a session, plus the public sign-in), the permission its service checks, and what each
 role gets. "✓" means the role is let through (it may still get 400, 404, 409
 or 422 for business reasons); "403" means `PERMISSION_DENIED`. Roles follow
 `ROLE_PERMISSIONS` in `src/backend/src/auth/permissions.ts` (Proposal

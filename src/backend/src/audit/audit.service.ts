@@ -3,6 +3,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { Between, DataSource, type EntityManager, type FindOptionsWhere } from 'typeorm';
 import { type Actor, assertPermission } from '../auth/actor.js';
 import { Permission } from '../auth/permissions.js';
+import { ValidationFailed } from '../common/errors.js';
 import { AuditLog } from '../entities/index.js';
 
 /** The actions written to the audit log (FR-41). */
@@ -71,6 +72,9 @@ export class AuditService {
     query: AuditQuery,
   ): Promise<{ items: AuditEntryView[]; total: number }> {
     assertPermission(actor, Permission.USER_MANAGE);
+    if (query.from && query.to && query.from > query.to) {
+      throw ValidationFailed.field('to', 'The last day cannot be before the first.');
+    }
     const where: FindOptionsWhere<AuditLog> = {};
     if (query.from || query.to) {
       // Whole days in Asia/Ho_Chi_Minh, as the screen shows them.

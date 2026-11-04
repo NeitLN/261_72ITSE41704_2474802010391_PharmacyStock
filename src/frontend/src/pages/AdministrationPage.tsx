@@ -91,6 +91,7 @@ function UsersTab() {
         loading={loading}
         pagination={{ pageSize: 20, hideOnSinglePage: true }}
         style={{ marginTop: 16 }}
+        locale={{ emptyText: 'No user yet.' }}
       />
       {adding && (
         <NewUserModal
@@ -220,13 +221,27 @@ function EditUserModal({ user, onClose, onDone }: { user: UserRow; onClose: () =
         roleCode: values.roleCode,
         isActive: values.isActive,
       });
-      if (values.password) {
-        await usersApi.resetPassword(user.id, values.password, values.passwordConfirm ?? '');
-      }
-      message.success(`${user.username} saved.`);
-      onDone();
     } catch (error) {
       setRefusal(showApiError(form, error));
+      setSaving(false);
+      return;
+    }
+    if (values.password) {
+      try {
+        await usersApi.resetPassword(user.id, values.password, values.passwordConfirm ?? '');
+      } catch (error) {
+        // Two calls: say which part was saved, so nobody retypes the rest.
+        const reason = showApiError(form, error);
+        setRefusal(
+          `The name, role and account state are saved. The password was not changed${reason ? `: ${reason}` : '.'}`,
+        );
+        setSaving(false);
+        return;
+      }
+    }
+    try {
+      message.success(`${user.username} saved.`);
+      onDone();
     } finally {
       setSaving(false);
     }
@@ -309,7 +324,7 @@ function RolesTab() {
 
   const permissionsOf = (role: RoleRow) => edits[role.code] ?? role.permissions;
 
-  if (!data) return <Table loading={loading} />;
+  if (!data) return <Table loading={loading} locale={{ emptyText: 'No permission to show.' }} />;
   const columns: ColumnsType<{ code: string; description: string }> = [
     { title: 'Permission', render: (_, p) => <><code>{p.code}</code><br /><Typography.Text type="secondary">{p.description}</Typography.Text></> },
     ...data.roles.map((role) => ({
@@ -339,7 +354,7 @@ function RolesTab() {
         What each role may do. A change applies to everyone with that role on their next action. At
         least one active user must keep <code>user.manage</code>.
       </Typography.Paragraph>
-      <Table rowKey="code" size="small" columns={columns} dataSource={data.allPermissions} pagination={false} />
+      <Table rowKey="code" size="small" columns={columns} dataSource={data.allPermissions} pagination={false} locale={{ emptyText: 'No permission to show.' }} />
       <Space style={{ marginTop: 16 }}>
         {data.roles.map((role) => (
           <Button key={role.code} loading={saving === role.code} onClick={() => save(role)}>

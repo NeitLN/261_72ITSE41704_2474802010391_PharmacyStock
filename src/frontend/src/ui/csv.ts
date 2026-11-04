@@ -3,7 +3,7 @@ function cell(value: string | number | null): string {
   let text = value === null ? '' : String(value);
   // Numbers cannot carry a formula, so only text is escaped this way; a
   // negative number keeps its sign instead of turning into text.
-  if (typeof value === 'string' && /^[=+\-@]/.test(text)) text = `'${text}`;
+  if (typeof value === 'string' && /^[=+\-@\t\r]/.test(text)) text = `'${text}`;
   return `"${text.replace(/"/g, '""')}"`;
 }
 

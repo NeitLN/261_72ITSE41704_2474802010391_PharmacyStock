@@ -148,9 +148,14 @@ user again with their role and permissions, so a locked account or a changed
 role takes effect on the next request, not when the token expires. A wrong
 password and an unknown username get the same message (TC-42). The menu
 shows only the screens the role may open, and a screen typed into the
-address bar by a role without access shows *No access* (TC-43, TC-65). Every
-service method checks its permission first; TC-53 tries every role on all 61
-endpoints and checks that only the permitted calls succeed.
+address bar by a role without access shows *No access* (TC-43, TC-65).
+Managers and cashiers start on the *Overview* screen and the pharmacist on
+the first screen of their menu. The web client reads the permissions again
+whenever its tab comes back into focus, so a role changed by the manager
+updates the menu without signing in again (#288). Every service method
+checks its permission first; TC-53 tries all three roles on every one of the
+77 routes behind sign-in and checks that only the permitted calls succeed
+(run 91).
 
 | Input | Output |
 |---|---|

@@ -10,7 +10,8 @@ import {
   Tag,
   Typography,
 } from 'antd';
-import { useCallback, useState } from 'react';
+import { PrinterOutlined } from '@ant-design/icons';
+import { useCallback, useRef, useState } from 'react';
 import {
   type DispensePreview,
   type DispenseResult,
@@ -485,39 +486,61 @@ function PreviewTable({
 }
 
 function DispenseResultView({ result, onNew }: { result: DispenseResult; onNew: () => void }) {
+  const printedAt = useRef<HTMLSpanElement>(null);
+
+  function print() {
+    if (printedAt.current) printedAt.current.textContent = formatDateTime(new Date().toISOString());
+    window.print();
+  }
+
   return (
     <ResultAppear>
       <Space orientation="vertical" style={{ width: '100%' }}>
-        <Descriptions size="small" column={2} title="Hand-over recorded">
-          <Descriptions.Item label="Status">{result.status}</Descriptions.Item>
-          <Descriptions.Item label="Dispensed at">{formatDateTime(result.dispensedAt)}</Descriptions.Item>
-        </Descriptions>
-        {result.items.map((item) => (
-          <div key={item.prescriptionItemId}>
-            <Typography.Text strong>
-              {item.medicine.code} — {item.medicine.name}: dispensed {item.quantityDispensed},
-              outstanding {item.quantityOutstanding}
+        <div className="print-area">
+          <div className="print-only">
+            <Typography.Title level={4} style={{ margin: 0 }}>
+              LotOrder
+            </Typography.Title>
+            <Typography.Text>
+              Printed <span ref={printedAt} />
             </Typography.Text>
-            <Table
-              rowKey="dispenseLineId"
-              size="small"
-              pagination={false}
-              dataSource={item.lines}
-              style={{ marginTop: 8 }}
-              locale={{ emptyText: 'No batch is allocated to this line.' }}
-              columns={[
-                { title: 'Batch', dataIndex: 'batchNumber' },
-                { title: 'Expiry', dataIndex: 'expiryDate' },
-                { title: 'Quantity', dataIndex: 'quantity', align: 'right' },
-                {
-                  title: 'Warning',
-                  render: (_, line) => (line.warning ? <WarningTag warning={line.warning} /> : '—'),
-                },
-              ]}
-            />
           </div>
-        ))}
-        <Button onClick={onNew}>New dispensing</Button>
+          <Descriptions size="small" column={2} title="Hand-over recorded">
+            <Descriptions.Item label="Status">{result.status}</Descriptions.Item>
+            <Descriptions.Item label="Dispensed at">{formatDateTime(result.dispensedAt)}</Descriptions.Item>
+          </Descriptions>
+          {result.items.map((item) => (
+            <div key={item.prescriptionItemId}>
+              <Typography.Text strong>
+                {item.medicine.code} — {item.medicine.name}: dispensed {item.quantityDispensed},
+                outstanding {item.quantityOutstanding}
+              </Typography.Text>
+              <Table
+                rowKey="dispenseLineId"
+                size="small"
+                pagination={false}
+                dataSource={item.lines}
+                style={{ marginTop: 8 }}
+                locale={{ emptyText: 'No batch is allocated to this line.' }}
+                columns={[
+                  { title: 'Batch', dataIndex: 'batchNumber' },
+                  { title: 'Expiry', dataIndex: 'expiryDate' },
+                  { title: 'Quantity', dataIndex: 'quantity', align: 'right' },
+                  {
+                    title: 'Warning',
+                    render: (_, line) => (line.warning ? <WarningTag warning={line.warning} /> : '—'),
+                  },
+                ]}
+              />
+            </div>
+          ))}
+        </div>
+        <Space>
+          <Button icon={<PrinterOutlined />} onClick={print}>
+            Print
+          </Button>
+          <Button onClick={onNew}>New dispensing</Button>
+        </Space>
       </Space>
     </ResultAppear>
   );

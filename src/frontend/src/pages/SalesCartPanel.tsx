@@ -5,6 +5,7 @@ import {
   Descriptions,
   Input,
   InputNumber,
+  Popconfirm,
   Select,
   Space,
   Table,
@@ -271,6 +272,7 @@ export function SalesCartPanel() {
               pagination={false}
               dataSource={cart}
               style={{ marginTop: 8 }}
+              locale={{ emptyText: 'The cart is empty. Search a medicine by code or name to add it.' }}
               columns={[
                 {
                   title: 'Medicine',
@@ -314,14 +316,18 @@ export function SalesCartPanel() {
                   title: '',
                   align: 'right',
                   render: (_, c) => (
-                    <Button
-                      type="text"
-                      danger
-                      onClick={() => removeLine(c.medicineId)}
-                      aria-label={`Remove ${c.name} from the cart`}
+                    <Popconfirm
+                      title={`Remove ${c.name} from the cart?`}
+                      description="The line leaves the cart; nothing has been charged or taken from stock."
+                      okText="Remove"
+                      okButtonProps={{ danger: true }}
+                      cancelText="Keep it"
+                      onConfirm={() => removeLine(c.medicineId)}
                     >
-                      Remove
-                    </Button>
+                      <Button type="text" danger aria-label={`Remove ${c.name} from the cart`}>
+                        Remove
+                      </Button>
+                    </Popconfirm>
                   ),
                 },
               ]}
@@ -385,6 +391,7 @@ export function ReceiptView({
           size="small"
           pagination={false}
           dataSource={sale.lines.map((line, position) => ({ ...line, position }))}
+          locale={{ emptyText: 'This sale has no line.' }}
           columns={[
             {
               title: 'Medicine',

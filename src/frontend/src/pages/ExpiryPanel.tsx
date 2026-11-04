@@ -203,6 +203,7 @@ function WriteOffModal({
         pagination={false}
         rowKey={() => row.batch.id}
         dataSource={[row]}
+        locale={{ emptyText: 'No batch to show.' }}
         columns={[
           { title: 'Sellable now', align: 'right', render: () => row.sellable },
           { title: 'To pending destruction', align: 'right', render: () => row.sellable },

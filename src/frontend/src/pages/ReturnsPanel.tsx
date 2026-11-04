@@ -409,6 +409,7 @@ function ReturnResultView({
           size="small"
           pagination={false}
           dataSource={result.lines}
+          locale={{ emptyText: 'This return has no line.' }}
           columns={[
             {
               title: 'Medicine',

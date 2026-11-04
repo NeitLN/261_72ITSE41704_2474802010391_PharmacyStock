@@ -382,6 +382,7 @@ function BatchHistoryModal({ batchId, onClose }: { batchId: string | null; onClo
         dataSource={history?.movements ?? []}
         loading={loading}
         pagination={false}
+        locale={{ emptyText: 'No movement recorded for this batch.' }}
       />
     </Modal>
   );

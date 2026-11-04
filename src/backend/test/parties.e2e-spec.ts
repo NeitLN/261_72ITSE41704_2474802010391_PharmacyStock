@@ -103,6 +103,39 @@ describe('UC05 customers and prescribers (e2e)', () => {
     });
   });
 
+  it('UC14-01 #279 searching by phone ignores spaces and dashes', async () => {
+    const created = await http()
+      .post('/api/customers')
+      .set(as('pharmacist'))
+      .send({ fullName: 'Le Minh Anh', phone: '0900 000 003' });
+    expect(created.status).toBe(201);
+    const { code } = created.body as { code: string };
+
+    const other = await http()
+      .post('/api/customers')
+      .set(as('pharmacist'))
+      .send({ fullName: 'Tran Van Khac', phone: '0911 222 333' });
+    expect(other.status).toBe(201);
+
+    for (const search of ['0900000003', '0900-000-003', '000 003']) {
+      const found = await http()
+        .get(`/api/customers?search=${encodeURIComponent(search)}`)
+        .set(as('pharmacist'));
+      expect(found.status).toBe(200);
+      expect(found.body.map((c: { code: string }) => c.code)).toEqual([code]);
+    }
+
+    const byName = await http()
+      .get('/api/customers?search=Le%20Minh')
+      .set(as('pharmacist'));
+    expect(byName.body.map((c: { code: string }) => c.code)).toEqual([code]);
+
+    const noDigits = await http()
+      .get('/api/customers?search=abc')
+      .set(as('pharmacist'));
+    expect(noDigits.body).toEqual([]);
+  });
+
   it('UC05-24 a pharmacist creates a prescriber; duplicate licence is 409 on its field', async () => {
     const first = await http()
       .post('/api/prescribers')

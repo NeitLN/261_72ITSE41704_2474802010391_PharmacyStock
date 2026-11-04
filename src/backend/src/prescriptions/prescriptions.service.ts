@@ -105,6 +105,11 @@ export class PrescriptionsService {
     if (query.status) {
       qb.andWhere('p.status = :status', { status: query.status });
     }
+    if (query.customerId) {
+      qb.andWhere('customer.id = :customerId', {
+        customerId: query.customerId,
+      });
+    }
     if (query.search) {
       qb.andWhere(
         '(p.referenceNumber ILIKE :pattern OR customer.fullName ILIKE :pattern' +

@@ -1,3 +1,4 @@
+import { DownloadOutlined } from '@ant-design/icons';
 import { Alert, App, Button, Form, Input, Modal, Radio, Select, Space, Table, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useCallback, useState } from 'react';
@@ -6,7 +7,10 @@ import { showApiError } from '../api/errors';
 import { medicinesApi, type Reference } from '../api/medicines';
 import { useLoad } from '../api/useLoad';
 import { useAuth } from '../auth/authContext';
+import { downloadCsv, toCsv } from '../ui/csv';
+import { expiryInfo } from '../ui/expiry';
 import { formatVnd } from '../ui/format';
+import { statusOf } from '../ui/status';
 import { StatusTag } from '../ui/tags';
 
 const NO_REFERENCE = { categories: [] as Reference[], units: [] as Reference[] };
@@ -72,6 +76,22 @@ export function ExpiryPanel() {
     });
   }
 
+  /** The table's own columns and raw API values (FR-43). */
+  function exportCsv() {
+    if (!report) return;
+    const headers = ['Medicine', 'Batch', 'Expiry', 'Days left', 'Sellable', 'Value at cost', 'Status'];
+    const rows = report.rows.map((r) => [
+      `${r.medicine.code} — ${r.medicine.name}`,
+      r.batch.batchNumber,
+      r.batch.expiryDate,
+      expiryInfo(r.batch.expiryDate, report.totals.businessDate, r.medicine.expiryAlertDays).text,
+      r.sellable,
+      r.value,
+      statusOf('batch', r.batch.status).label,
+    ]);
+    downloadCsv(`expiry-${report.totals.businessDate}.csv`, toCsv(headers, rows));
+  }
+
   return (
     <>
       <Space wrap>
@@ -83,6 +103,13 @@ export function ExpiryPanel() {
           onChange={setCategoryId}
           options={reference.categories.map((c) => ({ value: c.id, label: c.name }))}
         />
+        <Button
+          icon={<DownloadOutlined />}
+          disabled={!report || report.rows.length === 0}
+          onClick={exportCsv}
+        >
+          Export CSV
+        </Button>
         {report && (
           <Typography.Text type="secondary">
             Business date {report.totals.businessDate} · each medicine’s own alert window ·{' '}
@@ -176,6 +203,7 @@ function WriteOffModal({
         pagination={false}
         rowKey={() => row.batch.id}
         dataSource={[row]}
+        locale={{ emptyText: 'No batch to show.' }}
         columns={[
           { title: 'Sellable now', align: 'right', render: () => row.sellable },
           { title: 'To pending destruction', align: 'right', render: () => row.sellable },

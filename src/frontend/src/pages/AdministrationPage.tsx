@@ -91,6 +91,7 @@ function UsersTab() {
         loading={loading}
         pagination={{ pageSize: 20, hideOnSinglePage: true }}
         style={{ marginTop: 16 }}
+        locale={{ emptyText: 'No user yet.' }}
       />
       {adding && (
         <NewUserModal
@@ -323,7 +324,7 @@ function RolesTab() {
 
   const permissionsOf = (role: RoleRow) => edits[role.code] ?? role.permissions;
 
-  if (!data) return <Table loading={loading} />;
+  if (!data) return <Table loading={loading} locale={{ emptyText: 'No permission to show.' }} />;
   const columns: ColumnsType<{ code: string; description: string }> = [
     { title: 'Permission', render: (_, p) => <><code>{p.code}</code><br /><Typography.Text type="secondary">{p.description}</Typography.Text></> },
     ...data.roles.map((role) => ({
@@ -353,7 +354,7 @@ function RolesTab() {
         What each role may do. A change applies to everyone with that role on their next action. At
         least one active user must keep <code>user.manage</code>.
       </Typography.Paragraph>
-      <Table rowKey="code" size="small" columns={columns} dataSource={data.allPermissions} pagination={false} />
+      <Table rowKey="code" size="small" columns={columns} dataSource={data.allPermissions} pagination={false} locale={{ emptyText: 'No permission to show.' }} />
       <Space style={{ marginTop: 16 }}>
         {data.roles.map((role) => (
           <Button key={role.code} loading={saving === role.code} onClick={() => save(role)}>

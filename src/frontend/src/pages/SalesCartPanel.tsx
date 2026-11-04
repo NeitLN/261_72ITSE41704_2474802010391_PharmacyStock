@@ -272,6 +272,7 @@ export function SalesCartPanel() {
               pagination={false}
               dataSource={cart}
               style={{ marginTop: 8 }}
+              locale={{ emptyText: 'The cart is empty. Search a medicine by code or name to add it.' }}
               columns={[
                 {
                   title: 'Medicine',
@@ -390,6 +391,7 @@ export function ReceiptView({
           size="small"
           pagination={false}
           dataSource={sale.lines.map((line, position) => ({ ...line, position }))}
+          locale={{ emptyText: 'This sale has no line.' }}
           columns={[
             {
               title: 'Medicine',

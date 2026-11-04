@@ -175,6 +175,7 @@ export function BillDispensingPanel() {
             pagination={false}
             dataSource={selected.lines}
             style={{ marginTop: 8 }}
+            locale={{ emptyText: 'This bill has no line to pay for.' }}
             columns={[
               {
                 title: 'Medicine',

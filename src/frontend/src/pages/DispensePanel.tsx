@@ -327,6 +327,7 @@ export function DispensePanel() {
                   loading={{ spinning: loadingDetail, delay: 300 }}
                   dataSource={prescription.items}
                   style={{ marginTop: 8 }}
+                  locale={{ emptyText: 'This prescription has no item left to hand over.' }}
                   columns={[
                     {
                       title: 'Medicine',
@@ -428,6 +429,7 @@ function PreviewTable({
       pagination={false}
       dataSource={preview.items}
       style={{ marginTop: 8 }}
+      locale={{ emptyText: 'There is nothing to hand over.' }}
       columns={[
         {
           title: 'Medicine',
@@ -502,6 +504,7 @@ function DispenseResultView({ result, onNew }: { result: DispenseResult; onNew: 
               pagination={false}
               dataSource={item.lines}
               style={{ marginTop: 8 }}
+              locale={{ emptyText: 'No batch is allocated to this line.' }}
               columns={[
                 { title: 'Batch', dataIndex: 'batchNumber' },
                 { title: 'Expiry', dataIndex: 'expiryDate' },

@@ -124,7 +124,7 @@ sequenceDiagram
 | `src/backend/src/auth/auth.service.ts` | `login()` and `actorFromToken()` |
 | `src/backend/src/auth/auth-config.ts`, `passwords.ts` | `AUTH_MODE`, `JWT_SECRET` checks, the 8-hour lifetime; bcrypt cost 10 |
 | `src/backend/src/seed/access-control.seed.ts` | Sample accounts get a bcrypt hash of `SEED_PASSWORD`, hashed once per run. An account still holding the old placeholder `!` is upgraded; a password already set is kept. The seed is kept by Tiến (CODEOWNERS) |
-| `src/frontend/src/auth/` | `AuthProvider` (session in `sessionStorage`, sign-out at expiry), `useAuth()`, route guards, the screen-to-permission map |
+| `src/frontend/src/auth/` | `AuthProvider` (session in `sessionStorage`, sign-out at expiry; it refreshes `/auth/me` when the tab regains focus, so a changed role or a locked account applies without a reload, #288), `useAuth()`, route guards, the screen-to-permission map (`/overview` needs `alert.manage` or `sale.create`, #292) |
 | `src/frontend/src/api/client.ts` | Sends the token; a 401 ends the session and returns to sign-in |
 | `src/frontend/src/pages/LoginPage.tsx` | The sign-in page |
 

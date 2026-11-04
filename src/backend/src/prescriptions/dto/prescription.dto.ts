@@ -139,4 +139,9 @@ export class ListPrescriptionsQuery {
   @IsOptional()
   @IsEnum(PrescriptionStatus, { message: 'Unknown prescription status.' })
   status?: PrescriptionStatus;
+
+  /** Only this customer's prescriptions, for the history drawer (UC14). */
+  @IsOptional()
+  @IsUUID('4', { message: 'Choose a customer.' })
+  customerId?: string;
 }

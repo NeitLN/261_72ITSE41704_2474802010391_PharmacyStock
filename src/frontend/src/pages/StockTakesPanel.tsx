@@ -515,6 +515,7 @@ function LinesTable({
       columns={columns}
       dataSource={take.lines}
       pagination={false}
+      locale={{ emptyText: 'This stock take has no line.' }}
     />
   );
 }

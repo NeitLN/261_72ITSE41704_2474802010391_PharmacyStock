@@ -38,6 +38,10 @@ prescriber who may no longer prescribe stops being accepted.
    full name (required), phone, date of birth and address.
 4. The system checks the fields (A1–A3), trims the text, generates the next
    `KHnnnn` code for a new customer, stores it and shows it in the list.
+5. The pharmacist chooses *History* on a row to see that customer's
+   prescriptions (reference, issue date, prescriber, item count, status); the
+   drawer is read-only and says "No prescriptions for this customer yet." when
+   there are none (#291).
 
 ## Main flow — prescribers
 

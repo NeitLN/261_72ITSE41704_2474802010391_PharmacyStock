@@ -4,6 +4,7 @@ import { RequireScreen, RequireSignIn, StartPage } from './auth/guards';
 import { MainLayout } from './layouts/MainLayout';
 import { AdministrationPage } from './pages/AdministrationPage';
 import { CataloguePage } from './pages/CataloguePage';
+import { DashboardPage } from './pages/DashboardPage';
 import { DispensingPage } from './pages/DispensingPage';
 import { LoginPage } from './pages/LoginPage';
 import { NotFoundPage } from './pages/NotFoundPage';
@@ -12,6 +13,7 @@ import { SalesPage } from './pages/SalesPage';
 import { SuppliersPage } from './pages/SuppliersPage';
 
 const screens: { path: string; element: ReactNode }[] = [
+  { path: '/overview', element: <DashboardPage /> },
   { path: '/catalogue', element: <CataloguePage /> },
   { path: '/suppliers', element: <SuppliersPage /> },
   { path: '/dispensing', element: <DispensingPage /> },

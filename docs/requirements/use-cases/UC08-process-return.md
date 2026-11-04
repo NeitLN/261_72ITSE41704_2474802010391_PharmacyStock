@@ -55,6 +55,8 @@ again by mistake.
    status, and computes the refund.
 6. The system shows the return: number, lines, refund total, and that the
    goods are in quarantine waiting for assessment.
+7. The cashier may choose *Print* to print the return slip: *LotOrder*, the
+   print time, the lines, the refund total and the quarantine note (#290).
 
 After this use case, a manager assesses each line in UC11 (Minh, FR-46):
 release to sellable stock, or reject to pending destruction (DEC-04).

@@ -1,5 +1,6 @@
 import {
   AlertOutlined,
+  DashboardOutlined,
   FileTextOutlined,
   MedicineBoxOutlined,
   LogoutOutlined,
@@ -21,6 +22,11 @@ const { Header, Sider, Content } = Layout;
  * user sees only the screens their role may open (src/auth/access.ts).
  */
 const allMenuItems = [
+  {
+    key: '/overview',
+    icon: <DashboardOutlined />,
+    label: <Link to="/overview">Overview</Link>,
+  },
   {
     key: '/catalogue',
     icon: <MedicineBoxOutlined />,

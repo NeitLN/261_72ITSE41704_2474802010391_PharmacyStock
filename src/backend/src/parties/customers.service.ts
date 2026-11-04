@@ -33,10 +33,24 @@ export class CustomersService {
       .orderBy('c.fullName', 'ASC')
       .limit(50);
     if (query.search) {
-      qb.andWhere(
-        '(c.fullName ILIKE :pattern OR c.code ILIKE :pattern OR c.phone ILIKE :pattern)',
-        { pattern: likePattern(query.search) },
-      );
+      // Phones are typed with spaces or dashes (`0900 000 003`), so the phone
+      // part compares digits and `+` only; a search with no digit at all has no
+      // phone part (#279).
+      const conditions = [
+        'c.fullName ILIKE :pattern',
+        'c.code ILIKE :pattern',
+      ];
+      const params: Record<string, string> = {
+        pattern: likePattern(query.search),
+      };
+      const phoneDigits = query.search.replace(/[^0-9+]/g, '');
+      if (phoneDigits) {
+        conditions.push(
+          "regexp_replace(c.phone, '[^0-9+]', '', 'g') ILIKE :phonePattern",
+        );
+        params.phonePattern = `%${phoneDigits}%`;
+      }
+      qb.andWhere(`(${conditions.join(' OR ')})`, params);
     }
     return qb.getMany();
   }

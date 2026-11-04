@@ -43,3 +43,39 @@ body {
     transform: none;
   }
 }
+
+/* The print heading (shop name and print time) exists only on paper. */
+.print-only {
+  display: none;
+}
+
+/* On paper: the receipt, the return slip or the hand-over record, nothing else. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+
+  .print-area {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    color: #000;
+    background: #fff;
+  }
+
+  .print-area .ant-table,
+  .print-area .ant-table-cell {
+    border: 1px solid #999;
+    border-collapse: collapse;
+  }
+
+  .print-only {
+    display: block;
+    margin-bottom: 16px;
+  }
+}

@@ -75,6 +75,8 @@ differ; a difference means a defect.
 7. The manager opens a row.
 8. The system lists the movements behind it: date, type, batch, quantity per
    state, user and source document.
+9. The manager may choose *Export CSV* to download the table as CSV (#286,
+   FR-43); CSV replaces Excel/PDF.
 
 ## Alternative and error flows
 

@@ -1,7 +1,29 @@
 import { describe, expect, it } from 'vitest';
+import { toCsv } from './csv';
 import { expiryInfo } from './expiry';
 import { formatDateTime, formatQty, formatVnd } from './format';
 import { statusOf, STATUSES, TONE_COLOURS } from './status';
+
+describe('toCsv (FR-43)', () => {
+  it('quotes every cell, doubles quotes, keeps commas and newlines inside a cell', () => {
+    const csv = toCsv(['Name', 'Note'], [['Le "Minh" Anh', 'dòng 1\ndòng 2, phẩy']]);
+    expect(csv).toContain('"Le ""Minh"" Anh"');
+    expect(csv).toContain('"dòng 1\ndòng 2, phẩy"');
+    expect(csv).toContain('\r\n');
+  });
+
+  it('writes null as an empty cell', () => {
+    expect(toCsv(['A'], [[null]])).toContain('\r\n""\r\n');
+  });
+
+  it('stops a cell that looks like a formula', () => {
+    expect(toCsv(['A'], [['=SUM(1)']])).toContain('"\'=SUM(1)"');
+  });
+
+  it('starts with a BOM so Excel reads UTF-8', () => {
+    expect(toCsv(['A'], [['x']]).startsWith('\uFEFF"')).toBe(true);
+  });
+});
 
 describe('formatVnd and formatQty', () => {
   it('shows VND with dots and keeps cents only when present', () => {

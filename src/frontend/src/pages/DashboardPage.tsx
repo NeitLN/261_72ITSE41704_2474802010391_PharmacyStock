@@ -65,7 +65,7 @@ export function DashboardPage() {
                   Expiry {expiryAlerts}
                 </Typography.Text>
                 <div style={{ marginTop: 8 }}>
-                  <Link to="/reports">Open the alerts</Link>
+                  <Link to="/reports?tab=alerts">Open the alerts</Link>
                 </div>
               </Card>
             </Col>
@@ -83,7 +83,7 @@ export function DashboardPage() {
                   Expired or inside their alert window.
                 </Typography.Text>
                 <div style={{ marginTop: 8 }}>
-                  <Link to="/reports">Open the expiry list</Link>
+                  <Link to="/reports?tab=expiry">Open the expiry list</Link>
                 </div>
               </Card>
             </Col>
@@ -100,7 +100,7 @@ export function DashboardPage() {
                   Hand-overs with no sale yet.
                 </Typography.Text>
                 <div style={{ marginTop: 8 }}>
-                  <Link to="/sales">Open the sales screen</Link>
+                  <Link to="/sales?tab=bill">Open the sales screen</Link>
                 </div>
               </Card>
             </Col>

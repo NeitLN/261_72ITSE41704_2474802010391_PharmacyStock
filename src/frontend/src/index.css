@@ -61,8 +61,10 @@ body {
   }
 
   .print-area {
-    position: fixed;
-    inset: 0;
+    /* absolute, not fixed: a fixed box repeats on every page and cuts a long receipt at one. */
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     color: #000;
     background: #fff;

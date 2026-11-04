@@ -5,6 +5,7 @@ import {
   Descriptions,
   Input,
   InputNumber,
+  Popconfirm,
   Select,
   Space,
   Table,
@@ -314,14 +315,18 @@ export function SalesCartPanel() {
                   title: '',
                   align: 'right',
                   render: (_, c) => (
-                    <Button
-                      type="text"
-                      danger
-                      onClick={() => removeLine(c.medicineId)}
-                      aria-label={`Remove ${c.name} from the cart`}
+                    <Popconfirm
+                      title={`Remove ${c.name} from the cart?`}
+                      description="The line leaves the cart; nothing has been charged or taken from stock."
+                      okText="Remove"
+                      okButtonProps={{ danger: true }}
+                      cancelText="Keep it"
+                      onConfirm={() => removeLine(c.medicineId)}
                     >
-                      Remove
-                    </Button>
+                      <Button type="text" danger aria-label={`Remove ${c.name} from the cart`}>
+                        Remove
+                      </Button>
+                    </Popconfirm>
                   ),
                 },
               ]}

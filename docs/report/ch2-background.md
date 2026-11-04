@@ -37,10 +37,14 @@ When several batches of the same medicine are in stock, the one that expires
 first is issued first, so that stock does not run out of date on the shelf.
 This is called *first expiry, first out* (FEFO). It differs from *first in,
 first out* (FIFO) when a later delivery expires sooner than an earlier one.
-**[source to add: a published definition of FEFO, e.g. the WHO good storage
-and distribution practices for medical products; read before the final.]** In
-the system FEFO is business rule BR01, applied by `FefoAllocator` for both
-dispensing and over-the-counter sales.
+The WHO good storage and distribution practices define FEFO as "a distribution
+procedure that ensures that the stock with the earliest expiry date is
+distributed and/or used before an identical stock item with a later expiry
+date is distributed and/or used" [8, §3], and ask that stock be rotated by
+that principle [8, §12.30]. In the system FEFO is business rule BR01, applied
+by `FefoAllocator` for both dispensing and over-the-counter sales. Refusing a
+batch that expires today (DEC-01) is the team's own rule, not part of the WHO
+definition.
 
 ### Prescriptions, dispensing and returns
 
@@ -102,14 +106,18 @@ order, so two commands cannot wait for each other in a cycle (§3.x).
 
 ### The user interface
 
-The client is a React single-page application built with Vite and the Ant
-Design component library, talking to the server over a JSON API with a signed
-token. **[source to add for React, Vite and Ant Design if the final relies on
-more than naming them; reference [7] covers Vite configuration only.]**
+The client is a React single-page application, talking to the server over a
+JSON API with a signed token. React builds the interface out of components, "a
+piece of the UI (user interface) that has its own logic and appearance" [9].
+Vite supplies the development server and the production build [7], and the Ant
+Design library supplies the tables, forms and dialogs as ready-made React
+components [10].
 
 ## References (this chapter)
 
-Numbering follows `docs/report/references.md`; new entries are marked.
+Numbered for this chapter; entries not yet in `docs/report/references.md` are
+marked *(new)*. The chapters' lists are merged into one numbering when the
+draft is assembled (#74).
 
 [1] World Health Organization and International Pharmaceutical Federation,
 "Joint FIP/WHO guidelines on good pharmacy practice: standards for quality of
@@ -135,4 +143,18 @@ Documentation, §13.3.2 Row-Level Locks." [Online]. Available:
 https://www.postgresql.org/docs/current/explicit-locking.html (read
 02/11/2026).
 
-[7] Vite, "Configuring Vite." [Online]. Available: https://vite.dev/config/
+[7] *(new)* Vite, "Getting Started." [Online]. Available:
+https://vite.dev/guide/ (read 03/11/2026). `references.md` lists the
+"Configuring Vite" page, cited from `vite.config.ts`.
+
+[8] *(new)* World Health Organization, "Good storage and distribution practices
+for medical products," WHO Technical Report Series, No. 1025, Annex 7, 2020.
+[Online]. Available: https://www.who.int/publications/m/item/trs-1025-annex-7
+(copy read: https://www.gmp-compliance.org/files/guidemgr/TRS1025_Annex7.pdf,
+03/11/2026).
+
+[9] *(new)* React, "Quick Start." [Online]. Available: https://react.dev/learn
+(read 03/11/2026).
+
+[10] *(new)* Ant Design, "Ant Design of React." [Online]. Available:
+https://ant.design/docs/react/introduce/ (read 03/11/2026).

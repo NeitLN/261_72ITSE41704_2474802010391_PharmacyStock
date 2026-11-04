@@ -61,7 +61,7 @@ recorded in pull requests still under review on 05/11. *The final version
 replaces this table with the full case table and actual results from
 `test-cases.md` on `v1.0`.*
 
-By 05/11, 97 runs were recorded, 94 passing and 3 failing (runs 77–84, still
+By 05/11, 98 runs were recorded, 95 passing and 3 failing (runs 77–84, still
 under review, are not counted). Every failure led to a defect that was fixed
 and re-run (Table 3.z).
 

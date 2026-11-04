@@ -116,6 +116,8 @@ and they changed the dispensing, cart, returns and billing screens. So on
 dispensing rules (TC-04, 06, 07, 09, 12), sales and returns (TC-15, 16, 35,
 50), stock control (TC-19, 21), the quarantine release and the end-to-end
 flow (TC-31). All passed, and the ledger check again found no difference.
+The automated tests passed on that commit too (126 unit, 646 end-to-end,
+36 web client).
 Receipts (TC-01, 03) were not re-run, as their screens changed only in an
 empty-table text. TC-28 and TC-43 (access) were left to their runner, Duy
 Anh, because Minh wrote that code. TC-19 and TC-21 are also Minh's, so those

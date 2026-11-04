@@ -44,25 +44,26 @@ was then checked directly where the expected result is about stock.
 
 ## 3.y.2 Results
 
-*Table 3.y — Manual test cases by result on 03/11/2026 (`main`).*
+*Table 3.y — Manual test cases by result on 05/11/2026.*
 
 | Result | Cases |
 |---|---|
-| Pass | 53 |
+| Pass | 56 |
 | Fail | 0 |
-| Not run yet | 12 |
+| Not run yet | 9 |
 | **Total** | **65** |
 
-The 12 not run yet are planned for weeks 8 and 9: the race and stress cases
-(TC-26, 27, 54), performance and backup (TC-29, 30), the Should features
-(TC-40, 41, 61), the outside-user and fresh-clone checks (TC-32, 33), the
-submission check (TC-34) and TC-53's manual record. First runs of TC-26,
-29, 30, 41 and 54 are recorded in pull requests still open on 03/11. *The final version replaces this table with the full case
-table and actual results from `test-cases.md` on `v1.0`.*
+The 9 not run yet are planned for weeks 8 and 9: the race and stress cases
+(TC-26, 27, 54), performance and backup (TC-29, 30), the Should feature
+TC-41, the outside-user and fresh-clone checks (TC-32, 33) and the
+submission check (TC-34). First runs of TC-26, 29, 30, 41 and 54 are
+recorded in pull requests still under review on 05/11. *The final version
+replaces this table with the full case table and actual results from
+`test-cases.md` on `v1.0`.*
 
-In total 81 runs were recorded on `main`, 78 passing and 3 failing (runs
-77–84 are in the open pull requests). Every failure led to a defect that was
-fixed and re-run (Table 3.z).
+By 05/11, 97 runs were recorded, 94 passing and 3 failing (runs 77–84, still
+under review, are not counted). Every failure led to a defect that was fixed
+and re-run (Table 3.z).
 
 ## 3.y.3 Defects found and fixed
 
@@ -104,11 +105,24 @@ week 8, once every Should feature was on `main`, the areas they touch were
 run again on 03/11 (runs 85–89, `0da5088`): a return into quarantine and the
 new release from it, an oversell refused while stock sits in quarantine, a
 stock take with a difference, and the low-stock alert. All passed, and the
-ledger check found no batch whose quantities differ from its movements.
-These runs used the working database, not a fresh one, because TC-40 needed
-a price scheduled for the next day. The automated tests passed on the same
-commit (126 unit, 644 end-to-end, 29 web client). The whole pack is run
-again on a fresh database before `v1.0` (#81).
+ledger check found no batch whose quantities differ from its movements. The
+automated tests passed on the same commit (126 unit, 644 end-to-end, 29 web
+client).
+
+On 04/11 eleven more pull requests were merged (printing, the overview page,
+CSV export, a confirmation before removing a cart line, customer history),
+and they changed the dispensing, cart, returns and billing screens. So on
+05/11 the regression was run again on `b807fd7` (runs 93–105): the
+dispensing rules (TC-04, 06, 07, 09, 12), sales and returns (TC-15, 16, 35,
+50), stock control (TC-19, 21), the quarantine release and the end-to-end
+flow (TC-31). All passed, and the ledger check again found no difference.
+Receipts (TC-01, 03) were not re-run, as their screens changed only in an
+empty-table text. TC-28 and TC-43 (access) were left to their runner, Duy
+Anh, because Minh wrote that code. TC-19 and TC-21 are also Minh's, so those
+re-runs check for regressions and do not replace Duy Anh's acceptance runs.
+The week-8 runs used the working database, not a fresh one, because TC-40
+needed a price scheduled for 04/11. The whole pack is run again on a fresh
+database before `v1.0` (#81).
 
 *Table 3.w — Pack R and its result on each tag. To be filled from `runs.md`
 for `v0.2` and `v1.0`.*

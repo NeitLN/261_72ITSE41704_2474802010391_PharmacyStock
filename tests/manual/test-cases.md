@@ -60,7 +60,7 @@ verdict. Evidence files go in `evidence/`, named after the test case.
 | TC-37 | 6 | UC06 / BR07 | Dispense over two visits beyond prescribed | Prescribed 10; dispense 6, then 6 | Second visit refused; status correct | Duy Anh | Tiến | — | Pass |
 | TC-38 | 6 | UC06 / BR10 | Validity day 5 and day 6 | Dispense on issue date + 5 and + 6; try to edit valid-until | Day 5 accepted, day 6 refused; field read-only | Duy Anh | Tiến | — | Pass |
 | TC-39 | 6 | UC09 | Stock take with no differences | Counted = system for every line | Approved; no adjustment posted | Minh | Duy Anh | UC09-03 | Pass |
-| TC-40 | 8 | UC13 / BR09 *(S)* | Sale after a scheduled price change | Price changes tomorrow; sell tomorrow | Valued at the new price | Tiến | Minh | — | Not run |
+| TC-40 | 8 | UC13 / BR09 *(S)* | Sale after a scheduled price change | Price changes tomorrow; sell tomorrow | Valued at the new price | Tiến | Minh | — | Pass |
 | TC-41 | 8 | UC13 / BR09 *(S)* | Price change after a sale | Sell, then change the price | Past sale and report unchanged | Tiến | Minh | UC01-05 (price history) | Not run |
 | TC-42 | 5 | UC16 | Wrong password; locked account | Sign in with a wrong password; with a locked user | Generic message; refused | Minh | Duy Anh | UC16-03, UC16-05 | Pass |
 | TC-43 | 5 | UC16 | Menu by role and session expiry | Sign in as each role; let the session expire | Correct menu; redirect when expired | Minh | Duy Anh | UC16-01, UC16-08, UC16-09 | Pass |

@@ -74,7 +74,7 @@ pull requests, so "In review" means not on `main` yet.
 | FR-40 | Should | UC15 | `UsersService`, screen `AdministrationPage` (Users and Roles tabs) | `users.e2e-spec.ts` UC15-01…07, 10…12 | TC-44 run 74 | Built |
 | FR-41 | Should | UC15 | `AuditService`; sign-ins, user and role changes and approved stock takes are logged; price changes come with the price command in #259; screen `AdministrationPage` (Audit log tab) | `users.e2e-spec.ts` UC15-08, 09 | TC-44 run 74 (users, roles, sign-ins); price changes — with #259 | Should — after the gate |
 | FR-42 | Could | UC03, 06 | — | — | none by design | Could — not built |
-| FR-43 | Could | UC11, 12 | — | — | none by design | Could — not built |
+| FR-43 | Could | UC11, 12 | `ui/csv.ts` (`toCsv`, `downloadCsv`), *Export CSV* on `ExpiryPanel` and `StockMovementPanel` (#286); CSV replaces Excel/PDF | `ui.test.ts` `toCsv (FR-43)` | — | Built, not run |
 
 ## Totals
 
@@ -84,11 +84,11 @@ OC-21 ticket:
 | Status | Count | FRs |
 |---|---|---|
 | Built | 41 | FR-01, 02, 03, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 44, 45, 48 |
-| Built, not run | 1 | FR-23 |
+| Built, not run | 2 | FR-23, FR-43 |
 | In review | 0 | — |
 | Planned (week 8) | 0 | — |
 | Should — after the gate | 4 | FR-04, 41, 46, 47 |
-| Could — not built | 2 | FR-42, 43 |
+| Could — not built | 1 | FR-42 |
 
 ### Must FRs not Built (1)
 

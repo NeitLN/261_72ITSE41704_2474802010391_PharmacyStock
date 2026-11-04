@@ -1,0 +1,1487 @@
+{
+ "schemaVersion": 1,
+ "date": "2026-11-04",
+ "observedAt": "2026-11-04T06:21:40.711Z",
+ "dataGeneratedAt": "2026-11-04T06:21:40.166Z",
+ "source": "issues+projects-v2",
+ "collectionStatus": "ok",
+ "errors": [],
+ "totals": {
+  "scope": 121,
+  "done": 77,
+  "remaining": 44,
+  "dropped": 7
+ },
+ "weeks": {
+  "1": {
+   "scope": 7,
+   "done": 7,
+   "remaining": 0,
+   "dropped": 2
+  },
+  "2": {
+   "scope": 9,
+   "done": 9,
+   "remaining": 0,
+   "dropped": 0
+  },
+  "3": {
+   "scope": 4,
+   "done": 4,
+   "remaining": 0,
+   "dropped": 5
+  },
+  "4": {
+   "scope": 9,
+   "done": 9,
+   "remaining": 0,
+   "dropped": 0
+  },
+  "5": {
+   "scope": 9,
+   "done": 9,
+   "remaining": 0,
+   "dropped": 0
+  },
+  "6": {
+   "scope": 13,
+   "done": 13,
+   "remaining": 0,
+   "dropped": 0
+  },
+  "7": {
+   "scope": 18,
+   "done": 17,
+   "remaining": 1,
+   "dropped": 0
+  },
+  "8": {
+   "scope": 26,
+   "done": 2,
+   "remaining": 24,
+   "dropped": 0
+  },
+  "9": {
+   "scope": 9,
+   "done": 2,
+   "remaining": 7,
+   "dropped": 0
+  },
+  "10": {
+   "scope": 9,
+   "done": 0,
+   "remaining": 9,
+   "dropped": 0
+  }
+ },
+ "tasks": [
+  {
+   "number": 1,
+   "milestone": 1,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 2,
+   "milestone": 1,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 3,
+   "milestone": 1,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 4,
+   "milestone": 1,
+   "state": "closed",
+   "stateReason": "not_planned",
+   "status": "dropped",
+   "boardStatus": "Done",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 5,
+   "milestone": 1,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 6,
+   "milestone": 1,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 7,
+   "milestone": 1,
+   "state": "closed",
+   "stateReason": "not_planned",
+   "status": "dropped",
+   "boardStatus": "Done",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 8,
+   "milestone": 1,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 9,
+   "milestone": 1,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 10,
+   "milestone": 2,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 11,
+   "milestone": 2,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 12,
+   "milestone": 2,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "In review",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 13,
+   "milestone": 2,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 14,
+   "milestone": 2,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 15,
+   "milestone": 2,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 16,
+   "milestone": 2,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "In review",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 17,
+   "milestone": 2,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "In review",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 18,
+   "milestone": 2,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 19,
+   "milestone": 3,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 20,
+   "milestone": 3,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 21,
+   "milestone": 3,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 22,
+   "milestone": 3,
+   "state": "closed",
+   "stateReason": "not_planned",
+   "status": "dropped",
+   "boardStatus": "Done",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 23,
+   "milestone": 3,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "In Progress",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 24,
+   "milestone": 3,
+   "state": "closed",
+   "stateReason": "not_planned",
+   "status": "dropped",
+   "boardStatus": "Done",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 25,
+   "milestone": 3,
+   "state": "closed",
+   "stateReason": "not_planned",
+   "status": "dropped",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 26,
+   "milestone": 3,
+   "state": "closed",
+   "stateReason": "not_planned",
+   "status": "dropped",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 27,
+   "milestone": 3,
+   "state": "closed",
+   "stateReason": "not_planned",
+   "status": "dropped",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 28,
+   "milestone": 4,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 29,
+   "milestone": 4,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 30,
+   "milestone": 4,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 31,
+   "milestone": 4,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 32,
+   "milestone": 4,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 33,
+   "milestone": 4,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 34,
+   "milestone": 4,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "In review",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 35,
+   "milestone": 4,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "In review",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 36,
+   "milestone": 4,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "In Progress",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 37,
+   "milestone": 5,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 38,
+   "milestone": 5,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "In review",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 39,
+   "milestone": 5,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 40,
+   "milestone": 5,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 41,
+   "milestone": 5,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 42,
+   "milestone": 5,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 43,
+   "milestone": 5,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 44,
+   "milestone": 5,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 45,
+   "milestone": 5,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "In Progress",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 46,
+   "milestone": 6,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 47,
+   "milestone": 6,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 48,
+   "milestone": 6,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 49,
+   "milestone": 6,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "In review",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 50,
+   "milestone": 6,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "In Progress",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 51,
+   "milestone": 6,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "In Progress",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 52,
+   "milestone": 6,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 53,
+   "milestone": 6,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 54,
+   "milestone": 6,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 55,
+   "milestone": 7,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 56,
+   "milestone": 7,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 57,
+   "milestone": 7,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 58,
+   "milestone": 7,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 59,
+   "milestone": 7,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 60,
+   "milestone": 7,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 61,
+   "milestone": 7,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 62,
+   "milestone": 7,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 63,
+   "milestone": 7,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 64,
+   "milestone": 8,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 65,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 66,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 67,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 68,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 69,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 70,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 71,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 72,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 73,
+   "milestone": 9,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 74,
+   "milestone": 9,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 75,
+   "milestone": 9,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 76,
+   "milestone": 9,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 77,
+   "milestone": 9,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 78,
+   "milestone": 9,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 79,
+   "milestone": 9,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 80,
+   "milestone": 9,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 81,
+   "milestone": 9,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 82,
+   "milestone": 10,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 83,
+   "milestone": 10,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 84,
+   "milestone": 10,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 85,
+   "milestone": 10,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 86,
+   "milestone": 10,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 87,
+   "milestone": 10,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 88,
+   "milestone": 10,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 89,
+   "milestone": 10,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 90,
+   "milestone": 10,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 103,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 104,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 105,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "todo",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 125,
+   "milestone": 6,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": null,
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 127,
+   "milestone": 6,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Done",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 128,
+   "milestone": 6,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 129,
+   "milestone": 6,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": null,
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 152,
+   "milestone": 7,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 153,
+   "milestone": 7,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": "Todo",
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 154,
+   "milestone": 7,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": null,
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 155,
+   "milestone": 7,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": null,
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 156,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "backlog",
+   "boardStatus": null,
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 157,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "backlog",
+   "boardStatus": null,
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 158,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "backlog",
+   "boardStatus": null,
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 159,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "backlog",
+   "boardStatus": null,
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 183,
+   "milestone": 7,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": null,
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 184,
+   "milestone": 7,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": null,
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 185,
+   "milestone": 7,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": null,
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 191,
+   "milestone": 7,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": null,
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 201,
+   "milestone": null,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": null,
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 202,
+   "milestone": null,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": null,
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 203,
+   "milestone": null,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": null,
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 209,
+   "milestone": null,
+   "state": "open",
+   "stateReason": null,
+   "status": "backlog",
+   "boardStatus": null,
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 214,
+   "milestone": 7,
+   "state": "open",
+   "stateReason": null,
+   "status": "backlog",
+   "boardStatus": null,
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 215,
+   "milestone": null,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": null,
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 223,
+   "milestone": null,
+   "state": "open",
+   "stateReason": null,
+   "status": "backlog",
+   "boardStatus": null,
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 242,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "backlog",
+   "boardStatus": null,
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 244,
+   "milestone": null,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": null,
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 250,
+   "milestone": 8,
+   "state": "closed",
+   "stateReason": "completed",
+   "status": "done",
+   "boardStatus": null,
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 251,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "backlog",
+   "boardStatus": null,
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 254,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "backlog",
+   "boardStatus": null,
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 255,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "backlog",
+   "boardStatus": null,
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 256,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "backlog",
+   "boardStatus": null,
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 257,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "backlog",
+   "boardStatus": null,
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 258,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "backlog",
+   "boardStatus": null,
+   "assignees": [
+    "anh7032"
+   ]
+  },
+  {
+   "number": 263,
+   "milestone": null,
+   "state": "open",
+   "stateReason": null,
+   "status": "backlog",
+   "boardStatus": null,
+   "assignees": [
+    "Jayson135724"
+   ]
+  },
+  {
+   "number": 274,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "backlog",
+   "boardStatus": null,
+   "assignees": [
+    "NeitLN"
+   ]
+  },
+  {
+   "number": 279,
+   "milestone": 8,
+   "state": "open",
+   "stateReason": null,
+   "status": "backlog",
+   "boardStatus": null,
+   "assignees": [
+    "anh7032"
+   ]
+  }
+ ]
+}

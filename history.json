@@ -383,5 +383,82 @@
     "dropped": 0
    }
   }
+ },
+ {
+  "schemaVersion": 1,
+  "date": "2026-11-07",
+  "observedAt": "2026-11-07T05:57:57.924Z",
+  "dataGeneratedAt": "2026-11-07T05:57:57.385Z",
+  "source": "issues+projects-v2",
+  "collectionStatus": "ok",
+  "errors": [],
+  "totals": {
+   "scope": 121,
+   "done": 78,
+   "remaining": 43,
+   "dropped": 7
+  },
+  "weeks": {
+   "1": {
+    "scope": 7,
+    "done": 7,
+    "remaining": 0,
+    "dropped": 2
+   },
+   "2": {
+    "scope": 9,
+    "done": 9,
+    "remaining": 0,
+    "dropped": 0
+   },
+   "3": {
+    "scope": 4,
+    "done": 4,
+    "remaining": 0,
+    "dropped": 5
+   },
+   "4": {
+    "scope": 9,
+    "done": 9,
+    "remaining": 0,
+    "dropped": 0
+   },
+   "5": {
+    "scope": 9,
+    "done": 9,
+    "remaining": 0,
+    "dropped": 0
+   },
+   "6": {
+    "scope": 13,
+    "done": 13,
+    "remaining": 0,
+    "dropped": 0
+   },
+   "7": {
+    "scope": 18,
+    "done": 17,
+    "remaining": 1,
+    "dropped": 0
+   },
+   "8": {
+    "scope": 26,
+    "done": 3,
+    "remaining": 23,
+    "dropped": 0
+   },
+   "9": {
+    "scope": 9,
+    "done": 2,
+    "remaining": 7,
+    "dropped": 0
+   },
+   "10": {
+    "scope": 9,
+    "done": 0,
+    "remaining": 9,
+    "dropped": 0
+   }
+  }
  }
 ]

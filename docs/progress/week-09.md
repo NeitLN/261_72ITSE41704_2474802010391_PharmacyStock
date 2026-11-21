@@ -57,6 +57,6 @@ _(not recorded)_
 
 | Member | Delivered (self-report, with links) | Reviewer's findings | Revisions (issue, severity, due) |
 |---|---|---|---|
-| Duy Anh (B) | _(to be filled in by Duy Anh)_ | Tiến: _(to be filled in)_ | |
-| Minh (C) | _(to be filled in by Minh)_ | Tiến: _(to be filled in)_ | |
-| Tiến (A) | _(to be filled in by Tiến)_ | Minh: _(to be filled in)_ | |
+| Duy Anh (B) | _(to be filled in by Duy Anh)_ | Tiến: no commits, pull requests, reviews or runs this week. B's week-9 work (#76 functions with screenshots, #74 the assembled draft, #77 and #78 updates) did not start. | — |
+| Minh (C) | _(to be filled in by Minh)_ | Tiến: no commits, pull requests, reviews or runs this week; the final regression and the `v1.0` tag (#81), TC-32 (#79) and TC-33 (#80) did not start. His week-8 pull requests were still waiting for review, which was my part. | — |
+| Tiến (A) | Nothing this week: no commits, reviews or merges. The review queue in #274 stayed open, and #73, #75, #83 and #156 did not start. | Minh: _(to be filled in)_ | |

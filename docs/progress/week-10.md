@@ -50,6 +50,6 @@ pass (#82) and export (#84); reconciliation and §3.3.3 (#85); references
 
 | Member | Delivered (self-report, with links) | Reviewer's findings | Revisions (issue, severity, due) |
 |---|---|---|---|
-| Duy Anh (B) | _(to be filled in by Duy Anh)_ | Tiến: _(to be filled in)_ | |
-| Minh (C) | _(to be filled in by Minh)_ | Tiến: _(to be filled in)_ | |
-| Tiến (A) | _(to be filled in by Tiến)_ | Minh: _(to be filled in)_ | |
+| Duy Anh (B) | _(to be filled in by Duy Anh)_ | Tiến (22/11): nothing on GitHub yet this week. Still to come from B: #85 reconciliation and §3.3.3 (note: password reset, FR-40, *is* built), #86 references, #87 Appendix C with signatures, and a commit on `main` for the fifth course week. | — |
+| Minh (C) | _(to be filled in by Minh)_ | Tiến (22/11): #295 is a clear map of what's left before submission, checked row by row against the course requirements. It found the commit-weeks problem early enough to fix. Approved 22/11, with the 12.2 and 12.3 wording added. Still to come: re-approve #280, `v1.0` (#81), TC-32 and TC-33, #88 and #89. | — |
+| Tiến (A) | Cleared the review queue in #274: merged #275–#277, merged `main` into #280, approved #273, #278 and #281–#283, and #295 (22/11). Report: Ch.1, Ch.3 functions of A with ten screenshots, Ch.4 and the Proposal feedback table (#296; #73, #75, #83). As-built wireframes for five screens (#297, #156). Weekly reports for weeks 8–10 (this pull request). | Minh: _(to be filled in)_ | |

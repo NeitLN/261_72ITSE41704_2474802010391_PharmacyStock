@@ -51,6 +51,8 @@ never goes negative.
    quantity and the prescription status.
 6. The system shows the dispensing with one line per batch used and each
    item's dispensed and outstanding quantities.
+7. The pharmacist may choose *Print* to print the hand-over record: *LotOrder*,
+   the print time, and each item with its batch and quantity (#290).
 
 ## Alternative and error flows
 

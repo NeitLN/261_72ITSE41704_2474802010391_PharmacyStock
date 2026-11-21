@@ -1,12 +1,15 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { App, Button, Form, Input, Modal, Space, Table, Typography } from 'antd';
+import { App, Button, Drawer, Form, Input, Modal, Space, Table, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useCallback, useState } from 'react';
 import { type Customer, type CustomerInput, customersApi } from '../api/customers';
 import { showApiError } from '../api/errors';
+import { type PrescriptionSummary, prescriptionsApi } from '../api/prescriptions';
 import { useLoad } from '../api/useLoad';
+import { StatusTag } from '../ui/tags';
 
 const NO_CUSTOMERS: Customer[] = [];
+const NO_PRESCRIPTIONS: PrescriptionSummary[] = [];
 
 /**
  * UC14 customers: search by name, code or phone, add and edit. The code is
@@ -17,6 +20,7 @@ export function CustomersPanel() {
   const { message } = App.useApp();
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<Customer | 'new' | null>(null);
+  const [history, setHistory] = useState<Customer | null>(null);
 
   const fetchCustomers = useCallback(() => customersApi.list(search || undefined), [search]);
   const { data: customers, loading, reload } = useLoad(fetchCustomers, NO_CUSTOMERS);
@@ -35,11 +39,16 @@ export function CustomersPanel() {
     {
       title: '',
       key: 'actions',
-      width: 90,
+      width: 180,
       render: (_, customer) => (
-        <Button size="small" onClick={() => setEditing(customer)}>
-          Edit
-        </Button>
+        <Space>
+          <Button size="small" onClick={() => setEditing(customer)}>
+            Edit
+          </Button>
+          <Button size="small" onClick={() => setHistory(customer)}>
+            History
+          </Button>
+        </Space>
       ),
     },
   ];
@@ -80,7 +89,63 @@ export function CustomersPanel() {
           reload();
         }}
       />
+
+      {history && (
+        <CustomerHistoryDrawer
+          key={history.id}
+          customer={history}
+          onClose={() => setHistory(null)}
+        />
+      )}
     </>
+  );
+}
+
+/** UC14: a customer's prescriptions, read-only. */
+function CustomerHistoryDrawer({
+  customer,
+  onClose,
+}: {
+  customer: Customer;
+  onClose: () => void;
+}) {
+  const fetchHistory = useCallback(
+    () => prescriptionsApi.list({ customerId: customer.id }),
+    [customer.id],
+  );
+  const { data: prescriptions, loading } = useLoad(fetchHistory, NO_PRESCRIPTIONS);
+
+  return (
+    <Drawer
+      open
+      title={`Prescriptions of ${customer.fullName}`}
+      onClose={onClose}
+      size={760}
+    >
+      <Typography.Text strong>
+        {prescriptions.length} prescription{prescriptions.length === 1 ? '' : 's'}
+      </Typography.Text>
+      <Table
+        rowKey="id"
+        size="small"
+        columns={[
+          { title: 'Reference', dataIndex: 'referenceNumber', width: 150 },
+          { title: 'Issued', dataIndex: 'issuedDate', width: 110 },
+          { title: 'Prescriber', render: (_, p) => p.prescriber.fullName },
+          { title: 'Items', dataIndex: 'itemCount', width: 70, align: 'right' },
+          {
+            title: 'Status',
+            width: 160,
+            render: (_, p) => <StatusTag kind="prescription" value={p.status} />,
+          },
+        ]}
+        dataSource={prescriptions}
+        loading={loading}
+        pagination={false}
+        locale={{ emptyText: 'No prescriptions for this customer yet.' }}
+        style={{ marginTop: 12 }}
+      />
+    </Drawer>
   );
 }
 

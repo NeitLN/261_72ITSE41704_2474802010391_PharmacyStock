@@ -1,4 +1,4 @@
-import { WarningOutlined } from '@ant-design/icons';
+import { DownloadOutlined, WarningOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Modal, Select, Space, Table, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useCallback, useEffect, useState } from 'react';
@@ -13,6 +13,7 @@ import {
 } from '../api/reports';
 import { useLoad } from '../api/useLoad';
 import { useBusinessToday } from '../api/clock';
+import { downloadCsv, toCsv } from '../ui/csv';
 import { formatDateTime, formatVnd } from '../ui/format';
 
 const NO_REFERENCE = { categories: [] as Reference[], units: [] as Reference[] };
@@ -77,8 +78,7 @@ export function StockMovementPanel() {
     dataIndex: key,
     align: 'right' as const,
     width: 90,
-  });
-  const columns: ColumnsType<StockMovementRow> = [
+  });  const columns: ColumnsType<StockMovementRow> = [
     {
       title: 'Medicine',
       fixed: 'left',
@@ -116,7 +116,49 @@ export function StockMovementPanel() {
     },
   ];
 
+  /** The table's own columns and raw API values (FR-43). */
+  function exportCsv() {
+    if (!report) return;
+    const headers = [
+      'Medicine',
+      'Opening',
+      'Received',
+      'Dispensed',
+      'Sold',
+      'Returned',
+      'Released',
+      'Rejected',
+      'Written off',
+      'Destroyed',
+      'Adjusted',
+      'Closing',
+      'Net issued',
+      'Cost of net issued',
+    ];
+    const rows = report.rows.map((r) => [
+      `${r.medicine.code} — ${r.medicine.name}`,
+      r.opening,
+      r.received,
+      r.dispensed,
+      r.sold,
+      r.returned,
+      r.released,
+      r.rejected,
+      r.writtenOff,
+      r.destroyed,
+      r.adjusted,
+      r.closing.total,
+      r.netIssued,
+      r.costNetIssued,
+    ]);
+    downloadCsv(
+      `stock-movement-${report.query.from}-to-${report.query.to}.csv`,
+      toCsv(headers, rows),
+    );
+  }
+
   const totals = report?.totals;
+
   return (
     <>
       <Form
@@ -143,6 +185,15 @@ export function StockMovementPanel() {
         <Form.Item>
           <Button type="primary" htmlType="submit" loading={running}>
             Run
+          </Button>
+        </Form.Item>
+        <Form.Item>
+          <Button
+            icon={<DownloadOutlined />}
+            disabled={!report || report.rows.length === 0}
+            onClick={exportCsv}
+          >
+            Export CSV
           </Button>
         </Form.Item>
       </Form>

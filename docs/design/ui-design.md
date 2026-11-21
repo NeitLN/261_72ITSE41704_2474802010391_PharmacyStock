@@ -46,6 +46,7 @@ screenshots is made in week 8).
 
 | Screen | UC | Owner | API | Manual TC | Status | Wireframe |
 |---|---|---|---|---|---|---|
+| Overview | — | Duy Anh | `/overview` | — | built (#292) | week 8, as-built |
 | Sign in | UC16 | Minh | `POST /auth/login` | TC-42, 43 | built | week 8, as-built |
 | Catalogue › Medicines | UC01 | Tiến | `/medicines` | TC-45, 46 | built | [as-built](../diagrams/wireframes/catalogue-medicines.png) |
 | Catalogue › Stock | UC04 | Tiến | `/stock` | TC-48 | built | [as-built](../diagrams/wireframes/catalogue-stock.png) |
@@ -62,7 +63,13 @@ screenshots is made in week 8).
 | Reports › Stock movement | UC12 | Minh | `/reports/stock-movement` | TC-23 | *planned* | [design](../diagrams/wireframes/reports-movement.png) |
 | Catalogue › Medicines › Prices | UC13 *(S)* | Tiến | `/medicines/:id/prices` | TC-40, 41 | *design gate #103* | [design](../diagrams/wireframes/catalogue-prices.png) |
 | Users & roles | UC15 *(S)* | Minh | planned | TC-44 | *planned, Should* | only if the Must-core gate passes |
-| Patients & prescribers screens | UC14 *(S)* | Duy Anh | `/customers`, `/prescribers` | TC-49 | API built; screens Should | only if the gate passes |
+| Dispensing › Customers | UC14 *(S)* | Duy Anh | `/customers` | TC-49 | built (#247) | week 8, as-built |
+| Dispensing › Prescribers | UC14 *(S)* | Duy Anh | `/prescribers` | TC-49 | built (#247) | week 8, as-built |
+
+Receipts (UC07), return slips (UC08) and hand-over records (UC06) carry a
+*Print* button that prints only the document (#290). The Expiry (UC11) and
+Stock movement (UC12) tables carry *Export CSV* (#286, FR-43); CSV replaces the
+Excel/PDF export sketched earlier.
 
 ## 3. Workflow contracts for actions that move stock or money
 

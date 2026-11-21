@@ -103,7 +103,7 @@ what to cut. Table 1.2 shows what came of each part.
 | Priority | Proposed | Built |
 |---|---|---|
 | Must (13 use cases) | UC01–UC12 and UC16: catalogue with price and classification, suppliers, goods receipts, stock lookup and batch history, prescriptions with pharmacist verification, dispensing, sales, returns into quarantine, stock take, low-stock and expiry alerts with write-off, stock movement report, sign in/out; BR01–05, BR07, BR10, BR11; three roles | All built |
-| Should (3 use cases and extras) | UC13 price history, UC14 customers and prescribers, UC15 users and roles; quarantine assessment and destruction records (FR-46, FR-47); BR08, BR09; backup and restore | All built after the Must-core gate in week 7, except two parts of UC15: resetting a password and auditing price changes (Ch.3, *functions not implemented*) |
+| Should (3 use cases and extras) | UC13 price history, UC14 customers and prescribers, UC15 users and roles; quarantine assessment and destruction records (FR-46, FR-47); BR08, BR09; backup and restore | All built after the Must-core gate in week 7, except one part of FR-41: price changes are not written to the audit log (Ch.3, *functions not implemented*) |
 | Could | Unit-of-measure conversion (BR06, FR-42); export of reports to Excel or PDF (FR-43) | BR06 not built (cut first, as planned). FR-43 built as CSV export of the expiry and stock movement reports, plus printing of receipts, return slips and hand-over records |
 | Added | — | A role-aware overview page as the start page for managers and cashiers; the LotOrder visual identity |
 

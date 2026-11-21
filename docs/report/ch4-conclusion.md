@@ -18,7 +18,7 @@ named tests. Table 4.1 sums up each part.
 | Part of the Proposal | Proposed | Completed |
 |---|---|---|
 | Must use cases | 13 (UC01–UC12, UC16) | 13, each from screen to database, surviving a restart |
-| Should use cases | UC13, UC14, UC15 after the week 7 gate | All three, after the gate passed; UC15 without password reset and without auditing price changes (§4.3) |
+| Should use cases | UC13, UC14, UC15 after the week 7 gate | All three, after the gate passed; the audit log does not cover price changes (§4.3) |
 | Should extras | Quarantine assessment and destruction (FR-46, FR-47); backup and restore | Built; TC-61 (release, reject, destroy) and TC-30 (restore gives identical balance checksums) pass |
 | Could | BR06 unit conversion; report export | BR06 not built; report export built as CSV, plus printed receipts, return slips and hand-over records |
 | Requirements | 48 FR, 13 NFR, all traced | 48 FR, 13 NFR, traced FR → UC → code → test → status in `traceability-matrix.md` |
@@ -49,11 +49,8 @@ named tests. Table 4.1 sums up each part.
 
 Not built, or built only in part:
 
-- **UC15 password reset** (part of FR-40). A manager can create, lock, unlock
-  and change the role of an account, but a forgotten password can only be
-  reset by re-seeding. Cut in week 8 for time.
-- **Audit log coverage** (part of FR-41). Sign-ins, user and role changes and
-  approved stock takes are audited. Price changes are not written to the audit
+- **Audit log coverage** (part of FR-41). Sign-ins, user and role changes,
+  password resets and approved stock takes are audited. Price changes are not written to the audit
   log (the price history still records who set each price), and stock-take
   approvals are the only stock decision in it.
 - **Unit-of-measure conversion** (BR06, FR-42, Could): all quantities are in the
@@ -87,7 +84,7 @@ Limitations of the process and the evidence:
 
 ## 4.4 Future work
 
-1. Password reset by the manager, with a forced change at next sign-in.
+1. A forced password change at the next sign-in after the manager resets one.
 2. Audit entries for price changes and for every manager decision on stock
    (write-off, quarantine assessment, destruction), shown in one audit view.
 3. Pack-unit conversion at receipt and dispensing (BR06).

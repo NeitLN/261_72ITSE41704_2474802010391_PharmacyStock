@@ -4,8 +4,8 @@
 > [`ui-design.md`](../design/ui-design.md) and [`brand.md`](../design/brand.md).
 > Final in W09-A1 and W09-A4, with screenshots taken on `v1.0` and the
 > as-built wireframes (#156). The use-case and sequence diagrams of this
-> section are Duy Anh's part (W08-B3, W09-B1). Describes `main` at `2e0203f`
-> (02/11/2026).
+> section are Duy Anh's part (W08-B3, W09-B1). Describes `main` at `9063509`
+> (22/11/2026).
 
 ## 3.x.1 Who uses which screen
 
@@ -19,11 +19,16 @@ one pharmacy (1280 px wide and up). Every screen follows the same layout:
 
 The menu depends on the role. An entry appears when the user holds any
 permission of that screen (Table 3.x). Hiding an entry is a convenience, not
-the protection: every action is checked again by the server (FR-39). The UX
-walk-through on 02/11/2026 confirmed the entries per role:
-- manager: six entries;
-- pharmacist: three;
-- cashier: two.
+the protection: every action is checked again by the server (FR-39). On
+`main` at `9063509` the entries per role are:
+- manager: seven entries, starting on *Overview*;
+- pharmacist: three, starting on *Catalogue & batches*;
+- cashier: three, starting on *Overview*.
+
+The *Overview* page (#292) shows what needs attention, as cards the role is
+allowed to act on: open alerts by type and batches expired or expiring (for
+the manager), and dispensings handed over but not yet paid (for the manager
+and the cashier). Each card links to the tab that handles it.
 
 An address the role may not open shows *403 No access*, and an unknown address
 shows *404 Page not found* with a way back to the start page (#157).
@@ -32,15 +37,17 @@ shows *404 Page not found* with a way back to the start page (#157).
 
 | Menu entry | Tabs | Manager | Pharmacist | Cashier |
 |---|---|---|---|---|
+| Overview | — | all | — | all |
 | Catalogue & batches | Medicines · Stock | all | look up | look up |
 | Suppliers & receipts | Suppliers · Goods receipts | all | — | — |
 | Prescriptions & dispensing | Prescriptions · Dispense · Customers · Prescribers | all | all | — |
 | Sales & returns | Over-the-counter sale · Bill a dispensing · Returns | all | — | all |
-| Stock control & reports | Stock take · Alerts · Expiry · Stock movement | all | count only | — |
-| Users & roles | — | all (UC15, Should) | — | — |
+| Stock control & reports | Stock take · Alerts · Expiry · Quarantine · Pending destruction · Stock movement | all | count only | — |
+| Users & roles | Users · Roles · Audit log | all (UC15, Should) | — | — |
 
-*Figure 3.x — The over-the-counter sale tab, with the menu of a cashier
-(screenshot on `v1.0`).*
+![Figure 3.x — The over-the-counter sale tab](figures/I01-cashier-sale.png)
+
+*Figure 3.x — The over-the-counter sale tab, with the menu of a cashier.*
 
 ## 3.x.2 Designing a screen before coding it
 
@@ -61,11 +68,24 @@ normal, empty, a field error, a rule refusal, and the confirmation or result.
 Each numbered note cites the use-case step, requirement or rule behind a
 control.
 
+![Wireframe of the returns screen](../diagrams/wireframes/sales-returns.png)
+
 *Figure 3.x — Wireframe of the returns screen (UC08) in its five states,
 drawn before the code (week 7).*
 
+![Wireframe of the price history](../diagrams/wireframes/catalogue-prices.png)
+
 *Figure 3.x — Wireframe of the price history (UC13): schedule, field error,
 date taken, cancel confirmation (week 8, #253).*
+
+Screens built before a wireframe existed were drawn afterwards and marked
+*as-built*, for example the stock take with its refusals, shown below. All
+nineteen wireframes are in `docs/diagrams/wireframes/`.
+
+![As-built wireframe of the stock take](../diagrams/wireframes/stock-take.png)
+
+*Figure 3.x — As-built wireframe of the stock take (UC09): list, open, count
+sheet with the submit refused, approval, and BR08 (#156).*
 
 ## 3.x.3 What every screen does the same way
 
@@ -128,6 +148,10 @@ them would be read as a status (`brand.md` A4). It appears in four places:
 It is not an invented pharmacy: no shop brand, customer or figure is made up.
 The report keeps the faculty template's cover unchanged.
 
+![The LotOrder lockup](figures/I02-lotorder-lockup.png)
+
 *Figure 3.x — The LotOrder mark and lockup (`docs/assets/`).*
 
-*Figure 3.x — The sign-in page (screenshot on `v1.0`).*
+![The sign-in page](figures/I03-sign-in.png)
+
+*Figure 3.x — The sign-in page.*

@@ -41,3 +41,28 @@ Task IDs refer to the weekly plans in [`../plan/`](../plan/).
 Sources for the evidence: [`../progress/`](../progress/) (weekly reports),
 [`../../tests/manual/`](../../tests/manual/) (test runs),
 [`../journal.md`](../journal.md) (meetings and decisions).
+
+## Building the DOCX
+
+The chapters stay as Markdown here; the Word file is assembled from them, so
+nobody edits the DOCX by hand between builds:
+
+```sh
+python docs/report/build_report.py --template <path>/Template_Final-Project-Report.docx --date 27/11/2026
+```
+
+It needs `python-docx` and Node.js (diagrams are rendered with
+mermaid-cli through `npx`). The script fills the cover and the declaration,
+puts each file under the template's section headings in the template's order,
+numbers figures, tables and code excerpts per chapter (and rewrites the
+references to them), merges the per-chapter reference lists into one IEEE list
+in order of first citation, and inserts the FR and NFR tables from
+`docs/requirements/functional-requirements.md`. The output and
+`out/build-log.md` (every placeholder still to fill) go to `docs/report/out/`,
+which Git ignores. Open the DOCX in Word and accept the field update so the
+contents and the lists of figures and tables are built, then export the PDF.
+
+Writers keep the conventions the script relies on: a caption is an italic
+paragraph starting with *Figure* or *Table*, below a figure and above a
+table; a screenshot is a Markdown image line just before its caption; a
+section's own references go under `## References (this chapter)`.

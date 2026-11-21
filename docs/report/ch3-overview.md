@@ -46,8 +46,6 @@ data only, run locally.
 The system is decomposed into seven modules. Each is owned by one member from
 screen to test, and each maps to NestJS modules on the server (Figure 3.1).
 
-*Figure 3.1 — Functional decomposition*
-
 ```mermaid
 flowchart TB
     SYS["LotOrder — pharmacy stock and prescription dispensing"]
@@ -66,6 +64,8 @@ flowchart TB
     M6 --> M6a["Stock take"] & M6b["Alerts, expiry, write-off"] & M6c["Quarantine, destruction"] & M6d["Stock movement report"]
     M7 --> M7a["Sign in/out"] & M7b["Users, roles, audit log"]
 ```
+
+*Figure 3.1 — Functional decomposition into seven modules and their owners.*
 
 ### Use case diagram
 

@@ -115,7 +115,7 @@ what to cut. Table 1.2 shows what came of each part.
 | Meaningful domain classes | 16–22 | 25 | 29 entity classes in `src/backend/src/entities/` |
 | Roles with distinct permissions | 3+ | 3 | 3 (Manager, Pharmacist, Cashier), 14 permissions checked in the service layer |
 | Non-trivial business rules | 6+ | 11 | 10 (BR06 not built) |
-| Documented test cases | 20+ | 63 | 65, plus 307 automated end-to-end and 109 unit tests |
+| Documented test cases | 20+ | 63 | 65, plus 126 unit, 646 end-to-end and 36 web-client automated tests (on `b807fd7`) |
 
 The out-of-scope list of the Proposal still holds: one branch and one storage
 location only; no link to the national pharmacy data system, e-prescriptions,

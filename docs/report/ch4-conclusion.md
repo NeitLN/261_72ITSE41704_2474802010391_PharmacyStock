@@ -23,7 +23,7 @@ named tests. Table 4.1 sums up each part.
 | Could | BR06 unit conversion; report export | BR06 not built; report export built as CSV, plus printed receipts, return slips and hand-over records |
 | Requirements | 48 FR, 13 NFR, all traced | 48 FR, 13 NFR, traced FR → UC → code → test → status in `traceability-matrix.md` |
 | Releases | `v0.1` week 5, `v0.2` week 7, `v1.0` week 9 | `v0.1` and `v0.2` on time; `v1.0` later than planned (§4.3) |
-| Tests | 63 test cases, ≥ 45 run by someone other than the author | 65 test cases; 307 automated end-to-end and 109 unit tests run on every pull request in CI |
+| Tests | 63 test cases, ≥ 45 run by someone other than the author | 65 test cases; 126 unit, 646 end-to-end and 36 web-client tests, run on every pull request in CI (counts on `b807fd7`) |
 | Quality targets | NFR-01, 02, 13 on a reference machine | Met by a wide margin: 22 ms, 71 ms and 258 ms against 1 s, 3 s and 2 s (TC-29) |
 
 ## 4.2 Achievements
@@ -78,8 +78,10 @@ Limitations of the process and the evidence:
 - **`v1.0` was tagged after the planned week 9 freeze**, because the final
   regression and several test-log pull requests waited for review in weeks 8–9.
 - **Validation is informal.** The business decisions were reviewed by one
-  practising pharmacist, a relative of the team leader; usability was checked
-  with people outside the team only at the end (TC-32).
+  practising pharmacist, a relative of the team leader, and the week-5
+  follow-up on DEC-09 and DEC-10 was never held, so those two stay team
+  decisions (see the Proposal feedback table). Usability was checked with
+  people outside the team only at the end (TC-32).
 - **Simulated data only**, one pharmacy, one storage location, run locally.
 
 ## 4.4 Future work

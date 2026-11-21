@@ -331,6 +331,7 @@ function ReceiptDetailsModal({ id, onClose }: { id: string; onClose: () => void 
             pagination={false}
             loading={loading}
             dataSource={receipt.lines}
+            locale={{ emptyText: 'This receipt has no line.' }}
             columns={[
               { title: '#', dataIndex: 'lineNumber', width: 40 },
               { title: 'Medicine', render: (_, l) => `${l.medicine.code} — ${l.medicine.name}` },

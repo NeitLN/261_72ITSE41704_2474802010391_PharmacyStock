@@ -5,12 +5,14 @@ import {
   Descriptions,
   Input,
   InputNumber,
+  Popconfirm,
   Select,
   Space,
   Table,
   Typography,
 } from 'antd';
-import { useCallback, useMemo, useState } from 'react';
+import { PrinterOutlined } from '@ant-design/icons';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { type FieldError, toApiError } from '../api/errors';
 import { medicinesApi, type Medicine } from '../api/medicines';
 import { formatDateTime, formatVnd } from '../ui/format';
@@ -271,6 +273,7 @@ export function SalesCartPanel() {
               pagination={false}
               dataSource={cart}
               style={{ marginTop: 8 }}
+              locale={{ emptyText: 'The cart is empty. Search a medicine by code or name to add it.' }}
               columns={[
                 {
                   title: 'Medicine',
@@ -314,14 +317,18 @@ export function SalesCartPanel() {
                   title: '',
                   align: 'right',
                   render: (_, c) => (
-                    <Button
-                      type="text"
-                      danger
-                      onClick={() => removeLine(c.medicineId)}
-                      aria-label={`Remove ${c.name} from the cart`}
+                    <Popconfirm
+                      title={`Remove ${c.name} from the cart?`}
+                      description="The line leaves the cart; nothing has been charged or taken from stock."
+                      okText="Remove"
+                      okButtonProps={{ danger: true }}
+                      cancelText="Keep it"
+                      onConfirm={() => removeLine(c.medicineId)}
                     >
-                      Remove
-                    </Button>
+                      <Button type="text" danger aria-label={`Remove ${c.name} from the cart`}>
+                        Remove
+                      </Button>
+                    </Popconfirm>
                   ),
                 },
               ]}
@@ -368,55 +375,78 @@ export function ReceiptView({
   onNew: () => void;
   newText?: string;
 }) {
+  const printedAt = useRef<HTMLSpanElement>(null);
+
+  function print() {
+    if (printedAt.current) printedAt.current.textContent = formatDateTime(new Date().toISOString());
+    window.print();
+  }
+
   return (
     <ResultAppear>
       <Space orientation="vertical" style={{ width: '100%' }}>
-        <Descriptions size="small" title={`Receipt ${sale.receiptNumber}`}>
-          <Descriptions.Item label="Sold at">
-            {formatDateTime(sale.soldAt)}
-          </Descriptions.Item>
-          <Descriptions.Item label="Customer">
-            {sale.customer ? `${sale.customer.code} — ${sale.customer.fullName}` : '—'}
-          </Descriptions.Item>
-        </Descriptions>
-        <Table
-          // Receipt lines have no id and never reorder, so their position is a stable key.
-          rowKey="position"
-          size="small"
-          pagination={false}
-          dataSource={sale.lines.map((line, position) => ({ ...line, position }))}
-          columns={[
-            {
-              title: 'Medicine',
-              render: (_, l) => `${l.medicine.code} — ${l.medicine.name}`,
-            },
-            { title: 'Batch', dataIndex: ['batch', 'batchNumber'] },
-            { title: 'Expiry', dataIndex: ['batch', 'expiryDate'] },
-            { title: 'Quantity', dataIndex: 'quantity', align: 'right' },
-            {
-              title: 'Unit price',
-              align: 'right',
-              render: (_, l) => formatVnd(l.unitPrice),
-            },
-            {
-              title: 'Line total',
-              align: 'right',
-              render: (_, l) => formatVnd(l.lineTotal),
-            },
-            {
-              title: 'Warning',
-              render: (_, l) => (l.warning ? <WarningTag warning={l.warning} /> : '—'),
-            },
-          ]}
-        />
-        <Descriptions size="small" column={1}>
-          <Descriptions.Item label="Total">
-            {formatVnd(sale.totalAmount)}
-          </Descriptions.Item>
-        </Descriptions>
-        <Button type="primary" onClick={onNew}>
-          {newText}
-        </Button>
+        <div className="print-area">
+          <div className="print-only">
+            <Typography.Title level={4} style={{ margin: 0 }}>
+              LotOrder
+            </Typography.Title>
+            <Typography.Text>
+              Printed <span ref={printedAt} />
+            </Typography.Text>
+          </div>
+          <Descriptions size="small" title={`Receipt ${sale.receiptNumber}`}>
+            <Descriptions.Item label="Sold at">
+              {formatDateTime(sale.soldAt)}
+            </Descriptions.Item>
+            <Descriptions.Item label="Customer">
+              {sale.customer ? `${sale.customer.code} — ${sale.customer.fullName}` : '—'}
+            </Descriptions.Item>
+          </Descriptions>
+          <Table
+            // Receipt lines have no id and never reorder, so their position is a stable key.
+            rowKey="position"
+            size="small"
+            pagination={false}
+            dataSource={sale.lines.map((line, position) => ({ ...line, position }))}
+            locale={{ emptyText: 'This sale has no line.' }}
+            columns={[
+              {
+                title: 'Medicine',
+                render: (_, l) => `${l.medicine.code} — ${l.medicine.name}`,
+              },
+              { title: 'Batch', dataIndex: ['batch', 'batchNumber'] },
+              { title: 'Expiry', dataIndex: ['batch', 'expiryDate'] },
+              { title: 'Quantity', dataIndex: 'quantity', align: 'right' },
+              {
+                title: 'Unit price',
+                align: 'right',
+                render: (_, l) => formatVnd(l.unitPrice),
+              },
+              {
+                title: 'Line total',
+                align: 'right',
+                render: (_, l) => formatVnd(l.lineTotal),
+              },
+              {
+                title: 'Warning',
+                render: (_, l) => (l.warning ? <WarningTag warning={l.warning} /> : '—'),
+              },
+            ]}
+          />
+          <Descriptions size="small" column={1}>
+            <Descriptions.Item label="Total">
+              {formatVnd(sale.totalAmount)}
+            </Descriptions.Item>
+          </Descriptions>
+        </div>
+        <Space>
+          <Button icon={<PrinterOutlined />} onClick={print}>
+            Print
+          </Button>
+          <Button type="primary" onClick={onNew}>
+            {newText}
+          </Button>
+        </Space>
       </Space>
     </ResultAppear>
   );

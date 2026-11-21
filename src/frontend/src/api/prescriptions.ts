@@ -76,6 +76,8 @@ export interface PrescriptionInput {
 export interface PrescriptionListQuery {
   search?: string;
   status?: PrescriptionStatus;
+  /** Only this customer's prescriptions (UC14 history). */
+  customerId?: string;
 }
 
 export const prescriptionsApi = {

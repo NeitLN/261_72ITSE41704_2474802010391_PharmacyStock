@@ -56,28 +56,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => window.clearTimeout(timer);
   }, [session, end]);
 
-  // After a reload, refresh the permissions: a manager may have changed them.
+  // After a reload, and whenever the tab comes back into focus, refresh the
+  // permissions: a manager may have changed the role meanwhile (#77).
   const token = session?.accessToken;
   useEffect(() => {
     if (!token) return;
     let cancelled = false;
-    apiClient.get<Me>('/auth/me').then(
-      ({ data }) => {
-        if (cancelled) return;
-        setSession((current) => {
-          if (!current) return current;
-          const next = { ...current, user: data };
-          saveSession(next);
-          return next;
-        });
-      },
-      () => {
-        // A 401 is handled by the API client; anything else keeps the
-        // stored user until the next request.
-      },
-    );
+    const refresh = () =>
+      apiClient.get<Me>('/auth/me').then(
+        ({ data }) => {
+          if (cancelled) return;
+          setSession((current) => {
+            if (!current) return current;
+            const next = { ...current, user: data };
+            saveSession(next);
+            return next;
+          });
+        },
+        () => {
+          // A 401 is handled by the API client; anything else keeps the
+          // stored user until the next request.
+        },
+      );
+    refresh();
+    window.addEventListener('focus', refresh);
     return () => {
       cancelled = true;
+      window.removeEventListener('focus', refresh);
     };
   }, [token]);
 

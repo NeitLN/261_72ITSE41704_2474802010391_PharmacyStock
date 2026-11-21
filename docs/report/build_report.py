@@ -135,7 +135,8 @@ MANIFEST = [
     ('h', 2, 'Appendix D. Rubric self-check'),
     ('file', '../appendix-d-self-check.md', None, 3, {}),
     ('h', 2, 'Appendix E. Manual test cases'),
-    ('file', '../../tests/manual/test-cases.md', None, 3, {'tables_only': 1, 'caption': 'Table — Manual test cases and their latest result (full run log: tests/manual/runs.md).'}),
+    ('file', '../../tests/manual/test-cases.md', None, 3, {'tables_only': 1, 'caption': 'Table — Manual test cases and their latest result.'}),
+    ('file', '../../tests/manual/runs.md', None, 3, {'tables_only': 1, 'caption': 'Table — The run log: every manual test run with its commit, actual result and verdict.'}),
     ('h', 2, 'Appendix F. Libraries, licences and generated code'),
     ('file', 'references.md', None, 3, {'skip': ('References', 'Use of AI tools')}),
 
@@ -444,6 +445,9 @@ class Writer:
             s = st.add_style('Heading 5', WD_STYLE_TYPE.PARAGRAPH)
             s.base_style = st['Heading 4']
             s.font.italic = True
+            lvl = OxmlElement('w:outlineLvl')
+            lvl.set(qn('w:val'), '4')
+            s.element.get_or_add_pPr().append(lvl)
         if 'Code Block' not in names:
             s = st.add_style('Code Block', WD_STYLE_TYPE.PARAGRAPH)
             s.base_style = st['Normal']
@@ -461,9 +465,9 @@ class Writer:
         def sub(m):
             n = int(m.group(1))
             if n in self.local_refs:
-                return f'[{REFS.cite(self.local_refs[n])}]'
+                return f'[{REFS.cite(self.local_refs[n])}{m.group(2) or ""}]'
             return m.group(0)
-        return re.sub(r'(?<![\w`])\[(\d+)\](?!\()', sub, text)
+        return re.sub(r'(?<![\w`])\[(\d+)(, [^\]]+)?\](?!\()', sub, text)
 
     def runs(self, p, text, italic=False, size=None):
         text = map_labels(self.cite(text), self.path or '')
@@ -497,6 +501,8 @@ class Writer:
         return p
 
     def para(self, text):
+        for m in re.finditer(r'(Figure|Table)s? \d+\.[xyzw]', text):
+            log('label', self.path, f'unnumbered reference "{m.group(0)}" in: {text[:80]}')
         p = self.doc.add_paragraph()
         p.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
         self.runs(p, text)
@@ -520,6 +526,8 @@ class Writer:
             r.font.color.rgb = RGBColor(0, 0, 0)
         self.last_was_figure = False
 
+    table_captioned = False
+
     def caption(self, kind, label, rest):
         style = {'Table': 'Table Caption', 'Figure': 'Figure Caption'}.get(kind, 'Listing Caption')
         p = self.doc.add_paragraph(style=style)
@@ -528,6 +536,7 @@ class Writer:
             self.runs(p, rest[0].upper() + rest[1:])
         if kind != 'Figure':
             p.paragraph_format.keep_with_next = True
+        self.table_captioned = kind == 'Table'
 
     def picture(self, path, width_cm=15.5):
         from PIL import Image
@@ -565,6 +574,7 @@ class Writer:
                     set_cell_shading(cell, 'E7EEEC')
         self.doc.add_paragraph()
         self.last_was_figure = False
+        self.table_captioned = False
 
     def code(self, lines):
         for ln in lines or ['']:
@@ -753,6 +763,8 @@ def render(w, plan):
             elif bkind == 'list':
                 w.listing(payload)
             elif bkind == 'table':
+                if not w.table_captioned:
+                    log('table', path, 'table without a caption: ' + payload[0][:70])
                 w.table(payload)
             elif bkind == 'code':
                 lang, body = payload
@@ -910,6 +922,7 @@ def build(template, date, collect):
 
 
 def main():
+    sys.stdout.reconfigure(encoding='utf-8')
     ap = argparse.ArgumentParser()
     ap.add_argument('--template', required=True)
     ap.add_argument('--date', default='27/11/2026')

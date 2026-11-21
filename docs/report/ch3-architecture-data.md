@@ -33,7 +33,9 @@ flowchart LR
 Inside the server each use-case group is a NestJS module (16 modules in
 `src/backend/src/`, for example `catalogue`, `receiving`, `dispensing`,
 `sales`, `returns`, `stocktake`, `reports`). A module has the same three
-layers everywhere:
+layers everywhere (Table 3.L):
+
+*Table 3.L — The three layers of every server module.*
 
 | Layer | What it does | What it never does |
 |---|---|---|
@@ -70,7 +72,7 @@ groups (Table 3.1). The ERD follows below.
 | Access, audit, infrastructure | `User`, `Role`, `Permission`, `AuditLog`, `ProcessedRequest` |
 
 The ERD is generated from the entities by `npm run diagrams` (#71) and drawn
-per subsystem, so each part stays readable (Figures 3.2–3.7). The full
+per subsystem, so each part stays readable (the six figures below). The full
 column list of every table is in the data dictionary
 (`docs/design/data-dictionary.md`).
 

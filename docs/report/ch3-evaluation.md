@@ -37,7 +37,8 @@
   deployment, no scheduled backups. Backup and restore are manual commands.
 - **Validation of the domain is informal:** one pharmacist reviewed the
   business decisions, and two of them (DEC-09, DEC-10) were never confirmed.
-  Usability was tried with people outside the team only at the end (TC-32).
+  Usability with people outside the team (TC-32) was planned only for the end
+  of the project.
 - **Simulated data:** the seed is realistic in shape and volume, but no real
   pharmacy's data or workload was used.
 - **Known defects** at the time of writing are cosmetic (S4) and are listed

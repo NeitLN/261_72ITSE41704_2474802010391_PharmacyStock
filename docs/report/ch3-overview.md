@@ -118,7 +118,9 @@ route for every role. Errors have one shape,
 - Tests: 65 manual test cases and the log of every run with its evidence
   (`tests/manual/`).
 - Process: the ten weekly plans, weekly progress reports, meeting journal and
-  the GitHub project board.
+  the GitHub project board [2].
+
+Everything above is in the team repository [1].
 
 ### Deployment files
 
@@ -133,3 +135,12 @@ As-built and design wireframes (`docs/diagrams/wireframes/`), the LotOrder
 identity (`docs/assets/`), the performance and backup scripts (`npm run
 perf:load`, `perf:measure`, `balances`), and the progress dashboard on GitHub
 Pages.
+
+## References (this chapter)
+
+[1] NeitLN, "261_72ITSE41704_2474802010391_PharmacyStock," GitHub repository.
+[Online]. Available:
+https://github.com/NeitLN/261_72ITSE41704_2474802010391_PharmacyStock
+
+[2] NeitLN, "Pharmacy stock — project board," GitHub Projects. [Online].
+Available: https://github.com/users/NeitLN/projects/1

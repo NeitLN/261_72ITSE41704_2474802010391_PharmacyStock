@@ -18,7 +18,7 @@ one pharmacy (1280 px wide and up). Every screen follows the same layout:
 - a page that is one card, with one tab per use case.
 
 The menu depends on the role. An entry appears when the user holds any
-permission of that screen (Table 3.x). Hiding an entry is a convenience, not
+permission of that screen (Table I.1). Hiding an entry is a convenience, not
 the protection: every action is checked again by the server (FR-39). On
 `main` at `9063509` the entries per role are:
 - manager: seven entries, starting on *Overview*;
@@ -33,7 +33,7 @@ and the cashier). Each card links to the tab that handles it.
 An address the role may not open shows *403 No access*, and an unknown address
 shows *404 Page not found* with a way back to the start page (#157).
 
-*Table 3.x — Menu entries, tabs and roles.*
+*Table I.1 — Menu entries, tabs and roles.*
 
 | Menu entry | Tabs | Manager | Pharmacist | Cashier |
 |---|---|---|---|---|
@@ -80,7 +80,7 @@ date taken, cancel confirmation (week 8, #253).*
 
 Screens built before a wireframe existed were drawn afterwards and marked
 *as-built*, for example the stock take with its refusals, shown below. All
-nineteen wireframes are in `docs/diagrams/wireframes/`.
+seventeen wireframes are in `docs/diagrams/wireframes/`.
 
 ![As-built wireframe of the stock take](../diagrams/wireframes/stock-take.png)
 

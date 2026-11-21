@@ -74,7 +74,7 @@ reports in `docs/progress/`.
 
 | ID | Objective | Measure of success (Proposal) | Result |
 |---|---|---|---|
-| SO1 | Specify the system as numbered, testable requirements | 48 FR and 13 measurable NFR; every Must FR traced to a use case and a test case; decisions reviewed by a practising pharmacist | Met. 48 FR and 13 NFR in `functional-requirements.md`, each traced in `traceability-matrix.md`; DEC-01–10 reviewed in week 4 and followed up in week 5 |
+| SO1 | Specify the system as numbered, testable requirements | 48 FR and 13 measurable NFR; every Must FR traced to a use case and a test case; decisions reviewed by a practising pharmacist | Met. 48 FR and 13 NFR in `functional-requirements.md`, each traced in `traceability-matrix.md`; DEC-01–10 reviewed in week 4; the follow-up on DEC-09 and DEC-10 was prepared but not held |
 | SO2 | Implement the Must use cases end to end | 13/13 Must use cases from UI to database, surviving a restart | Met, and beyond: 13 Must and all 3 Should use cases (UC13–UC15) are built |
 | SO3 | Enforce the business rules in the business layer | BR01–05, BR07, BR10, BR11 in domain/service classes, each with ≥ 3 automated tests | Met. Each rule has `BRxx-*` tests (`docs/design/business-rule-scenarios.md`); BR08 and BR09 (Should) too |
 | SO4 | Separate three roles | 0 forbidden calls succeed in the role × endpoint test (TC-53) | Met. TC-53: 77 routes × 3 roles, 233 checks pass (run 91) |
@@ -147,9 +147,10 @@ following standard practice [7]–[9].
 Informal observation as customers
 of small pharmacies. In week 4 a practising pharmacist reviewed our ten business
 decisions in a recorded conversation; the written summary is
-`docs/requirements/pharmacist-review-week4.md`, and the two points left open
-(DEC-09, DEC-10) were followed up in week 5
-(`pharmacist-followup-week5.md`). The reviewer is a relative of the team
+`docs/requirements/pharmacist-review-week4.md`. A follow-up on the two points
+left open (DEC-09, DEC-10) was prepared for week 5
+(`pharmacist-followup-week5.md`) but not held, so those two remain team
+decisions. The reviewer is a relative of the team
 leader and the only reviewer, so this is an informal validation.
 
 ### Data analysis

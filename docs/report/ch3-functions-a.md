@@ -55,7 +55,9 @@ dialog stays open, so nothing is half saved.
 *Figure A.2 — Add medicine, saved without a category, base unit or price: each
 field says what is missing and nothing is saved.*
 
-*Edit* changes everything except the code. *Deactivate* never deletes: an
+*Edit* changes any field; a new code must still be unique, and the base unit
+cannot change once the medicine has a batch, because quantities and prices are
+stored in it. *Deactivate* never deletes: an
 inactive medicine cannot be received, dispensed or sold, but its batches and
 history stay visible (FR-02). The check is made by the service that receives,
 dispenses or sells, not only by hiding the medicine in a list, so a stale
@@ -65,7 +67,7 @@ screen cannot get around it.
 (`src/backend/src/catalogue/`); screen `CataloguePage.tsx`. The low-stock
 switch and the expiry-alert window are read by Minh's alerts (UC10, UC11).
 
-**Tests.** 14 e2e tests in `medicines.e2e-spec.ts` (UC01-01…14). TC-45 and
+**Tests.** 14 e2e tests in `medicines.e2e-spec.ts`. TC-45 and
 TC-46 pass (runs 1, 6, 23, 26 in `tests/manual/runs.md`).
 
 ## UC13 — Manage medicine prices
@@ -167,7 +169,8 @@ must be after the receipt date."; nothing is saved.*
 When everything is valid, the receipt, its lines, any new batch and one
 `RECEIPT` movement per line are written **in one transaction** (FR-06, FR-09):
 if any line fails, nothing of the receipt is saved. The new stock is sellable
-at once, and the receipt opens to show what was recorded (Figure A.7).
+at once (unless a backdated receipt brings a batch whose expiry has already
+passed by today; it is then shown as expired), and the receipt opens to show what was recorded (Figure A.7).
 
 ![Figure A.7 — The saved receipt](figures/A12-receipt-saved.png)
 
@@ -185,12 +188,13 @@ batches with the same expiry by the earlier receipt (DEC-07).
 `GoodsReceiptsPanel.tsx`.
 
 **Tests.** 16 e2e tests in `goods-receipts.e2e-spec.ts` (UC03-01…16). TC-01
-(runs 2, 24, 67), TC-02 (runs 4, 5, 14, 25), TC-03 (runs 3, 68) and TC-25
+(runs 2, 24, 67), TC-02 (failed in runs 4–5, bug #125; passed after the fix in runs 14 and 25), TC-03 (runs 3, 68) and TC-25
 (run 71, a failed line saves nothing) pass.
 
 ## UC04 — Look up stock and batch history
 
-Anyone signed in can answer "how many can we sell, and from which batch?". The
+Every role holds `stock.view` by default, so anyone at the counter can answer
+"how many can we sell, and from which batch?". The
 *Stock* tab lists each medicine with its sellable quantity and the next expiry
 (Figure A.8). Sellable leaves out every unit that may not be issued: expired,
 held, recalled, rejected, in quarantine or pending destruction (FR-10). The
@@ -220,7 +224,7 @@ quarantine, released back to sellable, sold 4.*
 
 The history is read straight from the stock ledger, which is never edited: a
 mistake is corrected by a new opposite movement (BR05). The balance after every
-row therefore always adds up to the quantity on the batch, and TC-24 checks
+row therefore always adds up to the quantity on the batch, and TC-48 checks
 exactly that.
 
 **Implementation.** `StockLookupController` → `StockLookupService`

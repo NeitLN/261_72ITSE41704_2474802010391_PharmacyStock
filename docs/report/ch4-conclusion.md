@@ -61,7 +61,9 @@ Not built, or built only in part:
 - **Report export** is CSV only, not Excel or PDF as FR-43 suggested.
 
 Known defects. All are severity S4 (cosmetic). Each has a fix on `main`; the
-issue stays open until someone other than the author re-tests it:
+issue stays open until someone other than the author re-tests it (Table 4.D):
+
+*Table 4.D — Known defects at the time of writing.*
 
 | Issue | Defect | Fix |
 |---|---|---|
@@ -83,8 +85,8 @@ Limitations of the process and the evidence:
 - **Validation is informal.** The business decisions were reviewed by one
   practising pharmacist, a relative of the team leader, and the week-5
   follow-up on DEC-09 and DEC-10 was never held, so those two stay team
-  decisions (see the Proposal feedback table). Usability was checked with
-  people outside the team only at the end (TC-32).
+  decisions (see the Proposal feedback table). Usability with people outside
+  the team (TC-32) was left to the end of the project.
 - **Simulated data only**, one pharmacy, one storage location, run locally.
 
 ### Future work

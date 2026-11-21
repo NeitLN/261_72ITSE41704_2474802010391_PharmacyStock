@@ -29,12 +29,13 @@ Weeks 1–4 were written on 12/10/2026 from the existing evidence and say so.
 | 4 | 05/10–11/10 | Design and foundations | Not delivered in week 4; Proposal v1.1 resubmitted 11/10 | [receipt](docs/evidence/proposal-resubmission-receipt-2026-10-11.png) | [week 4](docs/progress/week-04.md) |
 | 5 | 12/10–18/10 | Release `v0.1` | Flow and CI on `main`; tagged 20/10, late (#45) | #93–#102, #98, #107–#120 | [week 5](docs/progress/week-05.md) |
 | 6 | 19/10–25/10 | Test-case table with real runs | Delivered: UC04, UC07, UC09, UC10; 30 runs | #121–#148 | [week 6](docs/progress/week-06.md) |
-| 7 | 26/10–01/11 | Release `v0.2`, Must-core gate, Appendix D | In progress: UC08, UC11, UC12 on `main`; regression of B's and C's areas, TC-31 | #155–#216 | in #200 |
-| 8 | 02/11–08/11 | Hardening, updated design | — | — | — |
+| 7 | 26/10–01/11 | Release `v0.2`, Must-core gate, Appendix D | Delivered: UC08, UC11, UC12; Must-core gate passed (#233); `v0.2` tagged 31/10; Appendix D 8.0 / 10 (#243) | #155–#247 | [week 7](docs/progress/week-07.md) |
+| 8 | 02/11–08/11 | Hardening, updated design | In progress: the four Should items on `main` (FR-46/47 #235, UC14 #247, UC15 #236, UC13 #259) | #248–#275 | — |
 | 9 | 09/11–15/11 | Release `v1.0`, draft report | — | — | — |
 | 10 | 16/11–22/11 | **Final Report (80%)** | — | — | — |
 
-Live task status: [project board](https://github.com/users/NeitLN/projects/1) ·
+Live task status: [progress dashboard](https://neitln.github.io/261_72ITSE41704_2474802010391_PharmacyStock/project-dashboard/) ·
+[project board](https://github.com/users/NeitLN/projects/1) ·
 [milestones](https://github.com/NeitLN/261_72ITSE41704_2474802010391_PharmacyStock/milestones?direction=asc&sort=due_date) ·
 [pull requests](https://github.com/NeitLN/261_72ITSE41704_2474802010391_PharmacyStock/pulls?q=is%3Apr).
 
@@ -365,6 +366,7 @@ The ten-week plan is tracked as GitHub issues — one per work package, assigned
 to its owner, under a milestone for each week.
 
 - **Board:** [Pharmacy Stock — 10-week plan](https://github.com/users/NeitLN/projects/1)
+- **Dashboard:** [progress dashboard](https://neitln.github.io/261_72ITSE41704_2474802010391_PharmacyStock/project-dashboard/), read-only, rebuilt from the issues, pull requests and board every six hours ([how it works](project-dashboard/README.md))
 - **Milestones:** [by week](https://github.com/NeitLN/261_72ITSE41704_2474802010391_PharmacyStock/milestones?direction=asc&sort=due_date)
 
 Pull requests reference their issue with `Refs #n`; the tester closes it after the

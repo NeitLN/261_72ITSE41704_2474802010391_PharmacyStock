@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="../kit.css"><title>Sign in</title></head>
+<body>
+<div class="frame">
+  <span class="label">UC16 Sign in — 1. normal <span class="tag">as-built · Tiến · 22/11/2026</span></span>
+  <div class="layout" style="min-height: 636px">
+    <div class="menu" style="width: 420px; padding: 40px 32px; background: #ddd">
+      <div style="border: none; font-size: 26px; font-weight: bold">▤ LotOrder</div>
+      <div style="border: none" class="muted">Pharmacy Stock &amp; Prescription Dispensing</div>
+      <div style="margin-top: 40px">Stock balances trace back to recorded movements.</div>
+      <div>Only sellable stock from active, unexpired batches is issued.</div>
+      <div>Dispensing never exceeds the quantity prescribed.</div>
+      <div style="border: none; margin-top: 260px; font-size: 11px">Course project · Van Lang University · 72ITSE41704</div>
+    </div>
+    <div class="page" style="display: flex; justify-content: center; align-items: center">
+      <div style="width: 320px; margin-right: 120px">
+        <h1>Sign in</h1>
+        <div class="muted" style="margin-bottom: 14px">Use the account your manager set up for you.</div>
+        
+        <div>Username</div><div class="field" style="width: 100%; margin-bottom: 10px">👤 manager</div>
+        <div>Password</div><div class="field" style="width: 100%; margin-bottom: 14px">•••••••• 👁</div>
+        <div class="btn primary" style="text-align: center">Sign in</div>
+        <div class="muted" style="text-align: center; margin-top: 10px">Need access? Ask the manager.</div>
+      </div>
+    </div>
+  </div>
+  <div class="note" data-n="1" style="top: 120px; right: 20px">UC16 step 1–2. Username and password only; no self sign-up (accounts come from UC15).</div>
+  <div class="note" data-n="2" style="top: 330px; right: 20px">Main flow: a valid sign-in opens the start page of the role — Overview for manager and cashier, Catalogue for the pharmacist.</div>
+</div>
+<div class="frame">
+  <span class="label">UC16 Sign in — 2. wrong password or unknown user <span class="tag">as-built · Tiến · 22/11/2026</span></span>
+  <div class="layout" style="min-height: 636px">
+    <div class="menu" style="width: 420px; padding: 40px 32px; background: #ddd">
+      <div style="border: none; font-size: 26px; font-weight: bold">▤ LotOrder</div>
+      <div style="border: none" class="muted">Pharmacy Stock &amp; Prescription Dispensing</div>
+      <div style="margin-top: 40px">Stock balances trace back to recorded movements.</div>
+      <div>Only sellable stock from active, unexpired batches is issued.</div>
+      <div>Dispensing never exceeds the quantity prescribed.</div>
+      <div style="border: none; margin-top: 260px; font-size: 11px">Course project · Van Lang University · 72ITSE41704</div>
+    </div>
+    <div class="page" style="display: flex; justify-content: center; align-items: center">
+      <div style="width: 320px; margin-right: 120px">
+        <h1>Sign in</h1>
+        <div class="muted" style="margin-bottom: 14px">Use the account your manager set up for you.</div>
+        <div class="box" style="border-style: solid">✕ Incorrect username or password.</div>
+        <div>Username</div><div class="field" style="width: 100%; margin-bottom: 10px">👤 cashier</div>
+        <div>Password</div><div class="field" style="width: 100%; margin-bottom: 14px">•••••••• 👁</div>
+        <div class="btn primary" style="text-align: center">Sign in</div>
+        <div class="muted" style="text-align: center; margin-top: 10px">Need access? Ask the manager.</div>
+      </div>
+    </div>
+  </div>
+  <div class="note" data-n="3" style="top: 160px; right: 20px">A1: wrong password and unknown user get the <b>same</b> message, so the screen does not reveal which usernames exist. The password field is cleared. TC-42.</div>
+  <div class="note" data-n="4" style="top: 330px; right: 20px">Every failure writes <code>auth.login_failed</code> to the audit log with the reason (FR-41).</div>
+</div>
+<div class="frame">
+  <span class="label">UC16 Sign in — 3. locked account <span class="tag">as-built · Tiến · 22/11/2026</span></span>
+  <div class="layout" style="min-height: 636px">
+    <div class="menu" style="width: 420px; padding: 40px 32px; background: #ddd">
+      <div style="border: none; font-size: 26px; font-weight: bold">▤ LotOrder</div>
+      <div style="border: none" class="muted">Pharmacy Stock &amp; Prescription Dispensing</div>
+      <div style="margin-top: 40px">Stock balances trace back to recorded movements.</div>
+      <div>Only sellable stock from active, unexpired batches is issued.</div>
+      <div>Dispensing never exceeds the quantity prescribed.</div>
+      <div style="border: none; margin-top: 260px; font-size: 11px">Course project · Van Lang University · 72ITSE41704</div>
+    </div>
+    <div class="page" style="display: flex; justify-content: center; align-items: center">
+      <div style="width: 320px; margin-right: 120px">
+        <h1>Sign in</h1>
+        <div class="muted" style="margin-bottom: 14px">Use the account your manager set up for you.</div>
+        <div class="box" style="border-style: solid">✕ This account is locked. Ask the manager.</div>
+        <div>Username</div><div class="field" style="width: 100%; margin-bottom: 10px">👤 tc44.thu</div>
+        <div>Password</div><div class="field" style="width: 100%; margin-bottom: 14px">•••••••• 👁</div>
+        <div class="btn primary" style="text-align: center">Sign in</div>
+        <div class="muted" style="text-align: center; margin-top: 10px">Need access? Ask the manager.</div>
+      </div>
+    </div>
+  </div>
+  <div class="note" data-n="5" style="top: 160px; right: 20px">A2: shown only when the password is right, so a guess does not learn that the account exists. The manager unlocks it in Users &amp; roles (UC15). TC-42, TC-44.</div>
+</div>
+<ol class="notes">
+  <li>UC16 steps 1–2. Accounts are created by the manager (UC15); there is no sign-up link.</li>
+  <li>UC16 main flow. The start page depends on the role's permissions (<code>src/frontend/src/auth/access.ts</code>).</li>
+  <li>UC16 A1, NFR-05. One message for both cases; the password field is cleared. TC-42.</li>
+  <li>FR-41: <code>auth.login_failed</code> with <code>{"username","why"}</code> in the details.</li>
+  <li>UC16 A2. A locked account is refused only after the password is checked. TC-42, TC-44.</li>
+</ol>
+</body>
+</html>

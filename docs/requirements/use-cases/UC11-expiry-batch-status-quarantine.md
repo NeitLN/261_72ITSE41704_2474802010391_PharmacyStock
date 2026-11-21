@@ -71,6 +71,8 @@ business date directly.
    (FR-36).
 7. The system shows the batch with sellable 0 and the quantity pending
    destruction.
+8. The manager may choose *Export CSV* to download the expiry list as CSV
+   (#286, FR-43); CSV replaces Excel/PDF.
 
 ## Alternative and error flows
 

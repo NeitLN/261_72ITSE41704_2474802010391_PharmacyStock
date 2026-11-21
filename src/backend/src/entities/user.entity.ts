@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -10,6 +11,8 @@ import {
 import { Role } from './role.entity.js';
 
 @Entity('users')
+// On LOWER(username); created by migration 1793300000000, which TypeORM cannot express.
+@Index('uq_users_username_lower', { synchronize: false })
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;

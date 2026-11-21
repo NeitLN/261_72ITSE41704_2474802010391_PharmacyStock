@@ -2,14 +2,14 @@
 
 > Draft by Minh, 29/10/2026, on `main` after the week 7 merges. Final in
 > week 9 on `v1.0`: screenshots retaken on the seeded data, figure and table
-> numbers fixed by the editor, UC15 filled in if it is built. Sources:
+> numbers fixed by the editor, UC15 filled in on 02/11 (#236). Sources:
 > [`use-cases/`](../requirements/use-cases/), [`runs.md`](../../tests/manual/runs.md),
 > [`access-control.md`](../design/access-control.md).
 
 Member C built the stock-control and access part of the system: the stock
 take (UC09), stock-level alerts (UC10), expiry, batch status and write-off
 (UC11), the stock movement report (UC12), and sign-in (UC16). UC15, user and
-role administration, is a Should use case planned for week 8 (Section 3.x.6).
+role administration, is a Should use case built in week 8 (Section 3.x.6).
 Every function below changes stock only through the `StockLedger`, so each
 change leaves one movement behind it and the book quantity can always be
 traced (BR05).
@@ -161,8 +161,39 @@ endpoints and checks that only the permitted calls succeed.
 
 ## 3.x.6 Users and roles (UC15) — Should
 
-Planned for week 8 (#105) once the Must-core gate passes: creating users,
-changing a role's permissions, locking accounts (FR-40), and the audit log of FR-41.
-The permission model is already data-driven (`roles`, `permissions`,
-`role_permissions`), so UC15 adds screens and services, not a new design.
-*To be completed in the final version: built or not, and why.*
+**Purpose.** Give each member of staff their own account with the right role,
+take access away when someone leaves, and see afterwards who did what (FR-40,
+FR-41). Built in week 8 after the Must-core gate passed (#105, #236).
+
+**How it works.** The *Users & roles* screen has three tabs.
+- **Users:** the manager adds an account with a temporary password, changes
+  its name or role, locks or unlocks it, or sets a new password. Usernames are
+  unique without regard to letter case, enforced by a unique index on
+  `LOWER(username)` as well as by the service. Passwords are stored as bcrypt
+  hashes (NFR-05).
+- **Roles:** a grid of permissions by role. A change applies to every user of
+  that role on their next request, because the server reads the user's role and
+  permissions on every request (UC16).
+- **Audit log:** sign-ins, failed sign-ins (the username tried, never the
+  password), sign-outs, user and role changes, and approved stock takes, with
+  who and when, filtered by period and action. Each entry is written in the
+  same transaction as the change it records, so a change that fails leaves no
+  entry.
+
+One rule guards the system itself: any change that would leave no active user
+with `user.manage` is refused (`LAST_USER_MANAGER`). That covers locking
+yourself, demoting yourself, and removing the permission from a role. The
+rows of every user manager are locked first, so two managers locking each
+other at the same moment cannot both succeed (UC15-11).
+
+| Input | Output |
+|---|---|
+| Username, full name, role, temporary password; a role's permissions; an audit period | The account, its role and state; the role's permissions; audit entries |
+
+*Figure 3.x — The Roles tab, and the refusal when the last user manager would
+lose `user.manage`. Screenshot on `v1.0`.*
+
+**Scope.** The week 8 plan left out the password reset and the audit of
+sign-ins and stock takes. Both were built, because the design gate (#234)
+specified them and their tests pass (UC15-01…14). Price changes are recorded
+once UC13 calls the same `AuditService`.

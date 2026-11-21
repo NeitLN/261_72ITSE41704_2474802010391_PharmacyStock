@@ -313,4 +313,39 @@ describe('UC05 prescriptions (e2e)', () => {
       .set(as('pharmacist'));
     expect(missing.status).toBe(404);
   });
+
+  it('UC05-14 #customer-history: filters by customer and rejects a malformed id', async () => {
+    const other = await t.dataSource.getRepository(Customer).save({
+      code: 'KH0002',
+      fullName: 'Tran Thi Binh',
+      dateOfBirth: '1990-02-02',
+      address: '2 Le Loi',
+    });
+    await create();
+    await create({ referenceNumber: 'RX-0002', customerId: other.id });
+
+    const forAdult = await t
+      .http()
+      .get(`/api/prescriptions?customerId=${adult.id}`)
+      .set(as('pharmacist'));
+    expect(forAdult.status).toBe(200);
+    expect(
+      forAdult.body.map((p: { referenceNumber: string }) => p.referenceNumber),
+    ).toEqual(['RX-0001']);
+
+    const combined = await t
+      .http()
+      .get(`/api/prescriptions?customerId=${other.id}&search=rx-0002`)
+      .set(as('pharmacist'));
+    expect(
+      combined.body.map((p: { referenceNumber: string }) => p.referenceNumber),
+    ).toEqual(['RX-0002']);
+
+    const malformed = await t
+      .http()
+      .get('/api/prescriptions?customerId=not-a-uuid')
+      .set(as('pharmacist'));
+    expect(malformed.status).toBe(400);
+    expect(fields(malformed)).toEqual(['customerId']);
+  });
 });

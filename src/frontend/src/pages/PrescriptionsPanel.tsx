@@ -660,6 +660,7 @@ function PrescriptionDetailsModal({
             loading={{ spinning: loading, delay: 300 }}
             dataSource={prescription.items}
             style={{ marginTop: 16 }}
+            locale={{ emptyText: 'This prescription has no item.' }}
             columns={[
               {
                 title: 'Medicine',

@@ -59,6 +59,8 @@ dispensed against a prescription or paid for, and never both counted twice.
    unit price and line total, and the total. A line from a batch that expires
    within the medicine's alert window carries a warning with the days left
    (BR02, FR-16), so the cashier can point it out to the customer.
+7. The cashier may choose *Print* to print the receipt: *LotOrder*, the print
+   time, the lines and the total (#290).
 
 ## Main flow — billing a dispensing
 

@@ -6,7 +6,7 @@
 > them into the report's reference list. Table numbers are set when the
 > chapters are joined.
 
-## 1.1 Background and rationale
+## 1.1 Background and Rationale
 
 ### Reasons for selecting the topic
 
@@ -44,7 +44,7 @@ negative stock, a valid prescription for controlled medicines, and a stock
 ledger corrected only by a new opposite entry [3], [4]. And its size, rated
 *Substantial* for two to three students [3], fits our team of three.
 
-### Importance and practical significance
+### Importance and practical significance of the topic
 
 With the system, a pharmacy can (1) stop selling expired medicine, because the
 system refuses to issue it; (2) waste less, because older batches leave first;
@@ -53,9 +53,9 @@ what, from which batch, and when". This is a student project with simulated
 data: it gives no medical advice, does not check drug interactions and is not
 certified against any regulation.
 
-## 1.2 Objectives of the project
+## 1.2 Objectives of the Project
 
-### General objective
+### General objectives
 
 To analyse, design, build and test, in ten weeks, a web application that helps
 one pharmacy track every medicine by batch from the moment it is received
@@ -63,7 +63,7 @@ until it is dispensed, sold or returned, so that the system, not the memory of
 the staff, stops expired stock from being issued and every change in stock can
 be traced to a person and a document.
 
-### Specific objectives and how far they were met
+### Specific objectives
 
 Table 1.1 keeps the objectives and measures of the Proposal and adds the
 result. The evidence is in the repository: requirements in
@@ -83,7 +83,7 @@ reports in `docs/progress/`.
 | SO7 | Deliver a system others can run | 50–200 realistic seed records; a fresh clone runs from the README in ≤ 30 min | Seed: 60 medicines, 10 suppliers, 12 patients, 7 prescribers, 120 batches from 24 receipts and two months of sales. Run guide `docs/run-guide.md`; a dry run took 5 minutes. TC-33 on another machine — see Ch.3 *Testing* |
 | SO8 | Work as a team with visible evidence | Weeks 4–9: every member merges a reviewed PR for their own slice and reviews another member's PR each week | Partly met. Duy Anh and Minh made no commits in weeks 2–4, and nobody committed in week 4; from week 5 all three merged reviewed pull requests for their own slices (exact counts per week in Appendix C) |
 
-## 1.3 Scope of the project
+## 1.3 Scope of the Study
 
 ### Research scope
 
@@ -93,7 +93,7 @@ over-the-counter sales and returns, stock takes, alerts and stock reports.
 Regulations [1], [6], [17] and WHO guidance [2] were used only to understand the
 domain; pharmacology and clinical decisions were not studied.
 
-### System scope as built
+### System/application scope
 
 The scope was prioritised with MoSCoW in the Proposal so that we would know
 what to cut. Table 1.2 shows what came of each part.
@@ -125,22 +125,26 @@ mobile app or public deployment (a documented local run procedure is
 delivered [4]); only simulated data; no special dates for narcotic ("N")
 prescriptions.
 
-### Time and organisational scope
+### Organizational and time scope
 
 Ten weeks, Monday 14/09/2026 (week 1) to Sunday 22/11/2026 (week 10), about 12
 hours per member per week. Supervised online by Dr. Nguyen Tri Hai. One
 pharmacy, prices in VND, every date rule in Vietnam time (Asia/Ho_Chi_Minh).
 
-## 1.4 Research methodologies
+## 1.4 Research Methodologies
 
-**Information collection.** Requirements came mainly from documents: the
+### Data collection
+
+Requirements came mainly from documents: the
 catalogue entry for topic 12 [3], the course guidelines and self-study
 materials [4], [5], the Law on Pharmacy [6], the GPP circular [1], the
 prescription circular [17] and WHO storage guidance [2]. From these we took the
 business rules, key terms and roles, and wrote requirements and use cases
 following standard practice [7]–[9].
 
-**Observation and practical investigation.** Informal observation as customers
+### Observation and practical investigation
+
+Informal observation as customers
 of small pharmacies. In week 4 a practising pharmacist reviewed our ten business
 decisions in a recorded conversation; the written summary is
 `docs/requirements/pharmacist-review-week4.md`, and the two points left open
@@ -148,46 +152,37 @@ decisions in a recorded conversation; the written summary is
 (`pharmacist-followup-week5.md`). The reviewer is a relative of the team
 leader and the only reviewer, so this is an informal validation.
 
-**Data analysis.** The domain was turned into an entity model and an ERD
+### Data analysis
+
+The domain was turned into an entity model and an ERD
 generated from the code (`docs/design/`). Each open business question got a
 decision table with options, choice and reason
 (`docs/requirements/business-decisions.md`, `decisions/`). Every requirement
 has a MoSCoW priority and is traced to use case, code and test.
 
-**Comparative and statistical methods.** Desktop and web, and several
+### Comparative and statistical methods
+
+Desktop and web, and several
 frameworks, were compared before the stack was chosen (Ch.2). Performance was
 measured as the median of 10 runs on one recorded machine with a separate,
 large database (TC-29); backup and restore were checked by comparing balance
 checksums before and after (TC-30).
 
-**Engineering method.** Vertical slices per use case, three releases (`v0.1`
+### Interviews and surveys
+
+The pharmacist review above was a structured conversation over a list of
+questions, one per business decision; no survey was run.
+
+### Development method
+
+Vertical slices per use case, three releases (`v0.1`
 in week 5, `v0.2` in week 7, `v1.0` in week 9), tests first for every business
 rule, and every change through a feature branch and a pull request reviewed by
 another member under a protected `main` with required CI. Work packages are
 GitHub Issues under weekly milestones; meetings and decisions are in
 `docs/journal.md`, and weekly reports for the lecturer in `docs/progress/`.
 
-## 1.5 Outcomes
-
-**Knowledge and skills.** Requirements engineering, UML, layered architecture,
-object-oriented TypeScript, PostgreSQL transactions and locking, automated
-testing, Git teamwork and technical English. Each member describes what they
-gained in Chapter 4.
-
-**Products delivered.**
-
-- *Reports:* the Project Proposal (week 3, v1.1 in week 4) and this Final
-  Project Report, in PDF and DOCX.
-- *Software:* LotOrder, a web application with a React and Ant Design client
-  and a NestJS REST API, in the team repository, tagged `v0.1`, `v0.2` and
-  `v1.0`.
-- *Database:* a PostgreSQL 18 schema built only by migrations, with a seed of
-  realistic simulated data for all three roles.
-- *Documentation:* README and run guide; use-case, class and sequence diagrams;
-  ERD and data dictionary generated from the code; wireframes; the test-case
-  table and run log; the journal and weekly reports.
-
-## 1.6 Structure of the report
+## 1.5 Structure of the Report
 
 The report follows the course template [4]. Chapter 2 presents the theoretical
 background (the layered architecture, the persistence technology, FEFO), the

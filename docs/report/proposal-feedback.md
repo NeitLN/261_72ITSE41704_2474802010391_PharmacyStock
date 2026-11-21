@@ -38,4 +38,4 @@ The Proposal was submitted on 04/10/2026 (v1.0) and resubmitted as v1.1 on
 Every point has an action. Two points, DEC-09 and DEC-10, were built as the
 team decided, but the pharmacist never confirmed them: the week-5 follow-up
 (`docs/requirements/pharmacist-followup-week5.md`) was prepared and not held.
-The report lists this under the limitations of validation (Ch.4 §4.3).
+The report lists this under the limitations of validation (Ch.4, *Limitations*).

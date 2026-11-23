@@ -131,7 +131,7 @@ MANIFEST = [
     ('h', 2, 'Appendix B. Declaration of AI-tool use'),
     ('todo', 'Appendix B is written by Võ Việt Tiến.'),
     ('h', 2, 'Appendix C. Individual contribution table'),
-    ('todo', 'Appendix C (#87, Bùi Duy Anh): contributions from Git and GitHub and the typed signatures of all three members.'),
+    ('file', 'appendix-c.md', None, 3, {}),
     ('h', 2, 'Appendix D. Rubric self-check'),
     ('file', '../appendix-d-self-check.md', None, 3, {}),
     ('h', 2, 'Appendix E. Manual test cases'),

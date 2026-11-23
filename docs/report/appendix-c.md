@@ -112,11 +112,11 @@ describes the work we did in this project.
 
 **Table C.4** Signatures.
 
-| Member | Role | Typed signature | Date |
-|---|---|---|---|
-| Võ Việt Tiến | A, team leader | *to be typed by the member* | |
-| Bùi Duy Anh | B | Bùi Duy Anh | 23/11/2026 |
-| Võ Hoàng Minh | C | *to be typed by the member* | |
+| Member | Role | Student ID | Typed signature | Date |
+|---|---|---|---|---|
+| Võ Việt Tiến | A, team leader | 2474802010391 | *to be typed by the member* | |
+| Bùi Duy Anh | B | 2474802010525 | Bùi Duy Anh | 23/11/2026 |
+| Võ Hoàng Minh | C | 2474802010242 | *to be typed by the member* | |
 
 The two remaining signatures are collected on the printed copy before the
 submission on 27/11/2026; each member signs after reading C.2 and C.3.

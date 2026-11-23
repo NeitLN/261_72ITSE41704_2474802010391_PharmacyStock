@@ -387,6 +387,8 @@ Every table and column, with its type, nullability, default and keys; enumeratio
 | `createdAt` | timestamptz | no | `now()` |  |  |
 | `role_id` | uuid | no |  | FK → `roles` |  |
 
+- Unique index `uq_users_username_lower`: (`LOWER(username)`, created by a migration)
+
 ### `roles` — Role
 
 | Column | Type | Null | Default | Key | Notes |

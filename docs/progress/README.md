@@ -14,7 +14,10 @@ Plans and task details live in [`../plan/`](../plan/) (Vietnamese) and on the
 | 4 | 05/10–11/10 | Design and foundations | Not delivered in week 4; Proposal v1.1 resubmitted 11/10 | [week-04](week-04.md) |
 | 5 | 12/10–18/10 | Release `v0.1` | Flow and CI delivered; 11 test cases passed (5 of them in #124); tag `v0.1` late (#45) | [week-05](week-05.md) |
 | 6 | 19/10–25/10 | Prescription rules, sales, stock take | In progress | [week-06](week-06.md) |
-| 6–10 | 19/10–22/11 | — | Not started | — |
+| 7 | 26/10–01/11 | Release `v0.2` | 13 Must use cases; Must-core gate passed (#233); tag `v0.2` 31/10 | [week-07](week-07.md) |
+| 8 | 02/11–08/11 | Hardening | All four Should items merged; test-log pull requests left open; TC-32 pilot not run | [week-08](week-08.md) |
+| 9 | 09/11–15/11 | Feature freeze, `v1.0` | Not delivered: no commits, no `v1.0` tag | [week-09](week-09.md) |
+| 10 | 16/11–22/11 | **Final Report (80%)**, due 30/11 | In progress | [week-10](week-10.md) |
 
 ## Running contribution record (for Appendix C)
 
@@ -29,6 +32,8 @@ a record, not a ranking.
 | 3 | Proposal v1.0 submitted; no commits | — | — |
 | 4 | Pharmacist review; Proposal v1.1 resubmitted; no commits | — | — |
 | 5 | 43 commits; 11 PRs merged; 6 reviews | 23 commits; 8 PRs merged; 6 reviews; 2 test runs | 13 commits; 6 PRs merged; 12 reviews; 6 test runs |
+| 8 | 13 commits; 8 PRs merged; 6 reviews; 3 test runs | 29 commits; 18 PRs merged; 4 reviews; 3 test runs | 21 commits; 6 PRs merged; 21 reviews; 27 test runs (in open PRs) |
+| 9 | — | — | — |
 
 A new week's report starts from [`_template.md`](_template.md).
 

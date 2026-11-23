@@ -62,7 +62,7 @@ with the matching evidence from section B.
 | 28 | Ch.4: built against proposed, limitations with **every open bug**, future work | Not in `docs/report/`. Open bugs today: #209 (fixed in #220, re-tested in run 73, not closed), #279 (fixed in #284, no re-test logged), #254–#258 (S4, UX) | Open | Tiến |
 | 29 | Ch.4: a skills paragraph from each member | Not in the repository | Open | Each member |
 | 30 | Appendix B: AI tools, for what, how the output was checked | `docs/ai-use-log.md` holds the rows; the appendix is not written | Open | Tiến |
-| 31 | Appendix C: contributions from Git and GitHub, typed signatures of all three | Not in the repository | Open | Duy Anh (W10-B3) |
+| 31 | Appendix C: contributions from Git and GitHub, typed signatures of all three | `docs/report/appendix-c.md`; Duy Anh signed, Tiến's and Minh's signatures to collect | Draft | Duy Anh (W10-B3) |
 | 32 | Appendix D: rubric self-check | `docs/appendix-d-self-check.md` (week 7) | Draft | Duy Anh |
 | 33 | Third-party libraries with licence and purpose; generated code named | `docs/report/references.md` | Draft | Duy Anh (W10-B2) |
 

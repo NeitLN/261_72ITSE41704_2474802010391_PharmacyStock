@@ -144,8 +144,7 @@ https://www.postgresql.org/docs/current/explicit-locking.html (read
 02/11/2026).
 
 [7] *(new)* Vite, "Getting Started." [Online]. Available:
-https://vite.dev/guide/ (read 03/11/2026). `references.md` lists the
-"Configuring Vite" page, cited from `vite.config.ts`.
+https://vite.dev/guide/ (read 03/11/2026).
 
 [8] *(new)* World Health Organization, "Good storage and distribution practices
 for medical products," WHO Technical Report Series, No. 1025, Annex 7, 2020.

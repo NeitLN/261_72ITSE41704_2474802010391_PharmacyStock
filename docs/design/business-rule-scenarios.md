@@ -397,7 +397,8 @@ and not built yet; the ledger rows above are what they will call.
 
 ## Coverage
 
-Checked on 23/11/2026 against `main` at `2354426`: all 98 test names used in
+Checked on 23/11/2026 against `main` at `2354426` (merged after it that day:
+documentation and test logs only): all 98 test names used in
 this document are the names of tests that exist in the two suites, and both
 suites were green on that commit — 126 unit tests and 646 end-to-end tests,
 with 12 skipped. The manual column below is copied from
@@ -407,14 +408,14 @@ with 12 skipped. The manual column below is copied from
 |---|---|---|---|
 | BR01 | 7 (BR01-01…07) | UC06-01 "7 from A=3 (expires first) and B=8 leaves A=0, B=4…" in `test/dispensing.e2e-spec.ts`; BR05-11 "a receipt then a hand-over over two FEFO batches…" in `test/ledger-invariant.e2e-spec.ts` (#123) | TC-04, run 9, 2026-10-20, pass |
 | BR02 | 9 (BR02-01…09) | UC06-03 "a batch expiring on or before the business date is never issued"; UC06-10 "preview shows the batches and warnings" — both in `test/dispensing.e2e-spec.ts` | TC-06, run 10, 2026-10-20, pass |
-| BR03 | 3 (BR03-U1…U3) | 8 rows (BR03-01…03, UC06-13; RACE-01, 03, 04 in `test/races.e2e-spec.ts`, 20 rounds each; UC06-14, RACE-02 and 05 are the BR07 checks) | TC-09, run 11, 2026-10-20, pass; TC-10, run 18, 2026-10-20, pass; TC-25, run 71, 2026-10-31, pass; TC-62, run 61, 2026-10-27, pass; TC-26 and TC-54: first runs recorded, waiting in pull request #280 |
+| BR03 | 3 (BR03-U1…U3) | 8 rows (BR03-01…03, UC06-13; RACE-01, 03, 04 in `test/races.e2e-spec.ts`, 20 rounds each; UC06-14, RACE-02 and 05 are the BR07 checks) | TC-09, run 11, 2026-10-20, pass; TC-10, run 18, 2026-10-20, pass; TC-25, run 71, 2026-10-31, pass; TC-62, run 61, 2026-10-27, pass; TC-26, run 77, 2026-11-03, pass; TC-54, run 78, 2026-11-03, pass |
 | BR04 | 6 (BR04-01…06) | 3 rows (UC05-08 "a pharmacist verifies a prescription", UC06-07 "a prescription that is not verified cannot be dispensed", UC07-05 "prescription-only and controlled medicines are refused on their lines") | TC-12, run 28, 2026-10-22, pass; TC-13, run 29, 2026-10-22, pass; TC-14, run 30, 2026-10-22, pass; TC-36, run 21, 2026-10-20, pass; TC-58, run 13, 2026-10-20, pass |
 | BR05 | 2 (BR05-U1, U2) | 14 rows (BR05-01…06 in `test/stock-ledger.e2e-spec.ts`, BR05-11…17 in `test/ledger-invariant.e2e-spec.ts`, UC06-09 in `test/dispensing.e2e-spec.ts`) | TC-16, run 47, 2026-10-27, pass; TC-19, run 35, 2026-10-22, pass; TC-27, run 107, 2026-11-23, pass; TC-25, run 71, 2026-10-31, pass |
-| BR07 | 5 (BR07-01…05) | 6 rows (UC05-10 "a prescription that has been dispensed cannot be edited", UC06-05 "a smaller hand-over needs a note", UC06-06 "a second visit may take the rest", UC06-14 "two pharmacists dispensing the same item at once"; RACE-02 and RACE-05, 20 rounds each) | TC-09, run 11, 2026-10-20, pass; TC-37, run 31, 2026-10-22, pass; TC-54: first run recorded, waiting in pull request #280 |
+| BR07 | 5 (BR07-01…05) | 6 rows (UC05-10 "a prescription that has been dispensed cannot be edited", UC06-05 "a smaller hand-over needs a note", UC06-06 "a second visit may take the rest", UC06-14 "two pharmacists dispensing the same item at once"; RACE-02 and RACE-05, 20 rounds each) | TC-09, run 11, 2026-10-20, pass; TC-37, run 31, 2026-10-22, pass; TC-54, run 78, 2026-11-03, pass |
 | BR10 | 5 (BR10-01…05) | 2 rows (UC05-11 "past valid-until cannot be verified", UC06-08 "refused after valid-until, checked again at every visit") | TC-38, run 32, 2026-10-22, pass |
 | BR06 | 0 named (no pack-unit test; the ledger guard `refuses an empty or fractional movement as a programming error` in `src/backend/src/stock/stock-deltas.spec.ts` covers code, not input) | 4 rows (UC03-03, UC07-11, UC09-08, UC01-13) | TC-02, run 25, 2026-10-21, pass; no case for pack → base conversion (BR06 is *Could*) |
 | BR08 | 0 (no spec for `src/backend/src/stocktake/`) | 6 rows (UC09-02, UC09-06, UC09-11, UC09-11b, UC09-11c, UC09-11d) | TC-20, run 37, 2026-10-22, pass; TC-19, run 35, 2026-10-22, pass; TC-51, run 69, 2026-10-29, pass |
-| BR09 | 0 (the rule is one SQL query; see the database rows) | 8 rows (BR09-01…06 in `test/price-book.e2e-spec.ts`; UC01-05, UC07-03) | TC-40 and TC-41: first runs recorded, waiting in pull request #281 |
+| BR09 | 0 (the rule is one SQL query; see the database rows) | 8 rows (BR09-01…06 in `test/price-book.e2e-spec.ts`; UC01-05, UC07-03) | TC-40, run 92, 2026-11-05, pass; TC-41, run 82, 2026-11-03, pass |
 | BR11 | 0 (ledger commands are tested end to end) | 8 rows (LEDGER-W7-03, 06, 07, 08; UC08-01, 04, 05, 06) | TC-50, run 48, 2026-10-27, pass; TC-16, run 47, 2026-10-27, pass; TC-61, run 90, 2026-11-04, pass |
 
 After every test that moves stock, `findLedgerMismatches` must find nothing

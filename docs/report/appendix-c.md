@@ -1,9 +1,9 @@
 # Appendix C — Contributions from Git and GitHub
 
 > Draft by Duy Anh (W10-B3, #87), 23/11/2026. The numbers come from the
-> repository, not from memory: `main` at `2354426`, read on 23/11/2026. The
-> commands in C.1 reproduce every cell, so the tables can be regenerated after
-> the pull requests still open on that date merge.
+> repository, not from memory: `main` at `368ae91`, read on 23/11/2026 after
+> the day's merges. The commands in C.1 reproduce every cell, so the tables can
+> be regenerated after the last pull requests merge.
 
 ## C.1 What was counted, and how
 
@@ -28,34 +28,34 @@ gh issue list --state all --limit 400 --json number,state,assignees
 Three details decide the totals. Merge commits are left out, so the counts
 describe authored work rather than integration. Each member has one git
 identity (`Võ Việt Tiến`, `Duy Anh`, `Jayson135724`), so no aliasing is needed.
-The run count includes the runs 77–106 that live in the test-log pull requests
-open on the snapshot date (#278, #280–#283); they are recorded, reviewed and
-approved, and only wait for their merge.
+The run count includes run 107, logged in the pull request that records
+TC-27; runs 77–106 were merged into `main` on 23/11.
 
 ## C.2 Counts per member
 
-**Table C.1** Work per member, `main` at `2354426`, 23/11/2026.
+**Table C.1** Work per member, `main` at `368ae91`, 23/11/2026.
 
 | Member (role) | Commits | Span of commits | Files | Lines added | Lines removed | PRs opened | PRs merged | PRs open | PRs reviewed | Issues closed | Manual runs |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| Võ Việt Tiến (A, leader) | 117 | 22/09 – 03/11 | 840 | 40 680 | 3 205 | 51 | 46 | 4 | 45 | 31 | 40 |
-| Bùi Duy Anh (B) | 125 | 13/10 – 04/11 | 420 | 16 472 | 1 308 | 73 | 73 | — | 58 | 27 | 20 |
-| Võ Hoàng Minh (C) | 60 | 12/10 – 20/11 | 292 | 12 942 | 472 | 47 | 40 | 6 | 93 | 28 | 47 |
-| **All three** | **302** | 22/09 – 20/11 | 1 552 | 70 094 | 4 985 | **171** | **159** | **10** | **196** | **86** | **107** |
+| Võ Việt Tiến (A, leader) | 127 | 22/09 – 22/11 | 904 | 43 037 | 3 337 | 51 | 49 | 1 | 45 | 31 | 40 |
+| Bùi Duy Anh (B) | 125 | 13/10 – 04/11 | 420 | 16 472 | 1 308 | 75 | 73 | 2 | 59 | 28 | 20 |
+| Võ Hoàng Minh (C) | 78 | 12/10 – 23/11 | 359 | 13 292 | 557 | 47 | 46 | — | 93 | 28 | 47 |
+| **All three** | **330** | 22/09 – 23/11 | 1 683 | 70 801 | 5 202 | **173** | **168** | **3** | **197** | **87** | **107** |
 
 Two features of the table are worth naming rather than hiding. The written
-code stops in the first days of November for A and B, while C's last commit is
-20/11: after the code freeze of 09/11 the repository changed only in
-documentation, tests and the report, and much of that text sits in the ten pull
-requests still open on the snapshot date. And the spread between the members is
-real — A wrote most of the documentation and set up the data model, B opened
-the most pull requests, C reviewed the most and ran the most manual cases.
+code stops in early November for A and B, while C's last commit is 23/11:
+after the code freeze of 09/11 the repository changed only in documentation,
+tests and the report. And the spread between the members is real — A wrote most
+of the documentation and set up the data model, B opened the most pull
+requests, C reviewed the most and ran the most manual cases.
 
 ## C.3 Contribution percentages
 
 Each counter is normalised to its own total, so each column of Table C.2 adds
-up to 100 %. No single counter describes a member's contribution — C has the
-fewest commits but the most reviews and runs — so the percentage in Table C.3
+up to 100 % (the pull-request column shows 100.1 % because three rounded
+values cannot sum to 100.0; Table C.3 uses the unrounded shares). No single
+counter describes a member's contribution — C has the fewest commits but the
+most reviews and runs — so the percentage in Table C.3
 is the **mean of the member's five shares**, each counter weighing the same.
 The rule is stated here before the numbers, so that no counter a member cannot
 influence alone decides the outcome.
@@ -64,17 +64,17 @@ influence alone decides the outcome.
 
 | Member | Commits | PRs opened | PRs reviewed | Issues closed | Manual runs |
 |---|---|---|---|---|---|
-| Võ Việt Tiến (A) | 38.7 | 29.8 | 23.0 | 36.0 | 37.4 |
-| Bùi Duy Anh (B) | 41.4 | 42.7 | 29.6 | 31.4 | 18.7 |
-| Võ Hoàng Minh (C) | 19.9 | 27.5 | 47.4 | 32.6 | 43.9 |
+| Võ Việt Tiến (A) | 38.5 | 29.5 | 22.8 | 35.6 | 37.4 |
+| Bùi Duy Anh (B) | 37.9 | 43.4 | 29.9 | 32.2 | 18.7 |
+| Võ Hoàng Minh (C) | 23.6 | 27.2 | 47.2 | 32.2 | 43.9 |
 
 **Table C.3** Contribution, mean of the five shares.
 
 | Member | Mean | **Contribution** |
 |---|---|---|
-| Võ Việt Tiến (A) | 33.0 % | **33 %** |
-| Bùi Duy Anh (B) | 32.7 % | **33 %** |
-| Võ Hoàng Minh (C) | 34.3 % | **34 %** |
+| Võ Việt Tiến (A) | 32.8 % | **33 %** |
+| Bùi Duy Anh (B) | 32.4 % | **32 %** |
+| Võ Hoàng Minh (C) | 34.8 % | **35 %** |
 | **Total** | 100.0 % | **100 %** |
 
 The percentages round to whole numbers, so the column adds to 100 exactly.

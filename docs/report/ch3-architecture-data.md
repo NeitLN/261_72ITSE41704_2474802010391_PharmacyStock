@@ -2,8 +2,8 @@
 
 > **Draft for W08-A3 (#66), written by Tiến.** Final in W09-A1, on `v1.0`:
 > the ERD and class diagram are regenerated from the code then (#71), and table
-> and figure numbers are set by the editor. Describes `main` at `2e0203f`
-> (02/11/2026).
+> and figure numbers are set by the editor. Describes `main` at `9063509`
+> (22/11/2026).
 
 ## 3.1 Architecture
 
@@ -12,13 +12,30 @@ and a PostgreSQL 18 database (Figure 3.1). The client never reaches the
 database; every read and write goes through the server's JSON API under
 `/api`, and every request except sign-in carries a signed token (NFR-05).
 
-*Figure 3.1 — Client, server and database, with the three server layers (from
-the README architecture diagram, redrawn for the report).*
+```mermaid
+flowchart LR
+    subgraph Browser["Browser"]
+        UI["React client<br/>Ant Design · React Router"]
+    end
+    subgraph Server["NestJS server (Node.js)"]
+        C["Controllers<br/>routes · DTO validation"]
+        S["Services<br/>assertPermission · business rules · transactions"]
+        D["Data access<br/>TypeORM entities · StockLedger"]
+        C --> S --> D
+    end
+    DB[("PostgreSQL 18")]
+    UI -- "JSON over HTTP /api<br/>signed token" --> C
+    D -- "SQL, row locks" --> DB
+```
+
+*Figure 3.1 — Client, server and database, with the three server layers.*
 
 Inside the server each use-case group is a NestJS module (16 modules in
 `src/backend/src/`, for example `catalogue`, `receiving`, `dispensing`,
 `sales`, `returns`, `stocktake`, `reports`). A module has the same three
-layers everywhere:
+layers everywhere (Table 3.L):
+
+*Table 3.L — The three layers of every server module.*
 
 | Layer | What it does | What it never does |
 |---|---|---|
@@ -40,8 +57,8 @@ format to handle.
 
 ## 3.2 Data
 
-The schema has 28 entities (`src/backend/src/entities/`). They fall into six
-groups (Table 3.1). The ERD is Figure 3.2.
+The schema has 29 entities (`src/backend/src/entities/`). They fall into six
+groups (Table 3.1). The ERD follows below.
 
 *Table 3.1 — Entity groups.*
 
@@ -51,10 +68,31 @@ groups (Table 3.1). The ERD is Figure 3.2.
 | Purchasing | `Supplier`, `GoodsReceipt`, `GoodsReceiptLine` |
 | Prescriptions and dispensing | `Customer`, `Prescriber`, `Prescription`, `PrescriptionItem`, `DispenseLine` |
 | Sales and returns | `Sale`, `SaleLine`, `SaleReturn`, `ReturnLine` |
-| Stock control | `Batch`, `StockMovement`, `StockTake`, `StockTakeLine`, `StockTakeMedicine`, `StockTakeCounter`, `StockAlert` |
+| Stock control | `Batch`, `StockMovement`, `StockTake`, `StockTakeLine`, `StockTakeMedicine`, `StockTakeCounter`, `StockAlert`, `DestructionRecord` |
 | Access, audit, infrastructure | `User`, `Role`, `Permission`, `AuditLog`, `ProcessedRequest` |
 
-*Figure 3.2 — ERD (generated from the entities by `npm run diagrams`, #71).*
+The ERD is generated from the entities by `npm run diagrams` (#71) and drawn
+per subsystem, so each part stays readable (the six figures below). The full
+column list of every table is in the data dictionary
+(`docs/design/data-dictionary.md`).
+
+{{diagram:erd.md@Catalogue|Figure 3.2 — ERD: catalogue}}
+
+{{diagram:erd.md@Purchasing|Figure 3.3 — ERD: purchasing}}
+
+{{diagram:erd.md@Stock and control|Figure 3.4 — ERD: stock and control}}
+
+{{diagram:erd.md@Prescriptions and dispensing|Figure 3.5 — ERD: prescriptions and dispensing}}
+
+{{diagram:erd.md@Sales and returns|Figure 3.6 — ERD: sales and returns}}
+
+{{diagram:erd.md@Access and infrastructure|Figure 3.7 — ERD: access and infrastructure}}
+
+The services and domain classes around the ledger are in Figure 3.8 (class
+diagram, written by hand; the entity classes are generated like the ERD,
+`docs/diagrams/class-diagram.md`).
+
+{{diagram:class-diagram.md@Stock: the ledger and the rules it applies|Figure 3.8 — Class diagram: the stock ledger and the rules it applies}}
 
 Five decisions shape the data model:
 
@@ -141,7 +179,7 @@ wait (`races.e2e-spec.ts`, RACE-01…05).
 
 ## 3.4 Data flow of one command
 
-Figure 3.3 follows an over-the-counter sale of three lines:
+Figure 3.9 follows an over-the-counter sale of three lines:
 
 1. The client sends the lines with a request ID it created for this
    confirmation.
@@ -154,8 +192,8 @@ Figure 3.3 follows an over-the-counter sale of three lines:
 7. It stores the result under the request ID (`ProcessedRequest`), so a
    repeated request returns the same receipt instead of selling twice (FR-23).
 
-On the reference data volume, this takes a median of 27 ms on the server
-(TC-29 trial run, #260; the official TC-29 run is in week 9).
+With 1,000 medicines, 5,000 batches and 10,000 movements in the database,
+this takes a median of 66 ms on the server and 258 ms from the click on *Pay*
+to the receipt on screen (TC-29, run 83).
 
-*Figure 3.3 — Sequence of an over-the-counter sale (sequence diagram of UC07,
-`docs/diagrams/sequence-diagrams.md`).*
+{{diagram:sequence-diagrams.md@2a. Over-the-counter sale|Figure 3.9 — Sequence of an over-the-counter sale (UC07)}}

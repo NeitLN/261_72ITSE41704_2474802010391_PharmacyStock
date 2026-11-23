@@ -1,7 +1,7 @@
 # Tuần 10 — Final Project Report, 80% (T2 16/11 – CN 22/11/2026)
 
 > **Mốc chấm điểm: Final Project Report — PDF + DOCX + source (link repo) + run guide, nộp trên CTE.**
-> Hạn chính thức: **giả định CN 22/11** — A xác nhận trên CTE ngày T2 02/11 (W08). Nếu hạn khác, dời khóa nội dung và ngày nộp theo, luôn giữ 2 ngày dự phòng trước hạn. Hạn nội bộ hiện tại: **khóa nội dung T5 19/11**, **nộp T6 20/11**; T7–CN dự phòng.
+> Hạn chính thức: **CN 30/11/2026** (A xác nhận ngày 22/11; trước đó giả định CN 22/11). Theo quy tắc giữ 2 ngày dự phòng, hạn nội bộ dời thành: **khóa nội dung T5 26/11**, **nộp T6 27/11**; T7–CN 28–30/11 dự phòng.
 > Milestone: *Week 10 — Final Report (80%)*. Module tự học: 10.
 > Rubric: 5 tiêu chí × 2 điểm.
 
@@ -24,7 +24,7 @@ Nộp báo cáo tiếng Anh đúng template, phản ánh **đúng cái đã xây
 |---|---|---|---|---|---|---|
 | W10-A1 | **Biên tập để nhất quán** theo template: thứ tự chương, mục lục, danh sách hình/bảng, tham chiếu chéo, thuật ngữ. **Không viết lại phần của người khác**; góp ý nội dung gửi lại người viết | 4 | B | Nháp tuần 9 | Không mục template nào thiếu | #82 |
 | W10-A2 | **Ch.4** hoàn thiện từ nháp W09-A5 (đã làm so với đề xuất, hạn chế gồm **mọi lỗi còn mở**, hướng phát triển; mỗi người tự viết đoạn "kỹ năng đạt được" của mình); **Appendix B do Tiến tự soạn** từ ghi chép dùng AI của cả 3 người | 3 | C | A1 | Hạn chế khớp release note | #83 |
-| W10-A3 | Xuất PDF + DOCX, tên `2474802010391_VoVietTien_ApplicationProgrammingProject`; **nộp CTE T6 20/11** kèm link repo + run guide; tải lại, mở thử; lưu biên nhận (**TC-34**, C chạy) | 2 | B | mọi việc | Biên nhận; hai file mở được | #84 |
+| W10-A3 | Xuất PDF + DOCX, tên `2474802010391_VoVietTien_ApplicationProgrammingProject`; **nộp CTE T6 27/11** kèm link repo + run guide; tải lại, mở thử; lưu biên nhận (**TC-34**, C chạy) | 2 | B | mọi việc | Biên nhận; hai file mở được | #84 |
 | — | A: họp 2 · review 2 · dự phòng 7 | 11 | — | — | — | — |
 | W10-B1 | **Đối chiếu tài liệu ↔ code** theo ma trận truy vết; viết mục **"3.3.3 chức năng chưa triển khai và lý do"** (mục Should bị cắt ở tuần 8 kèm lý do; phần FR-40 không làm: đặt lại mật khẩu; phần FR-41 không làm: audit đăng nhập, đổi giá, duyệt kiểm kê); chỗ nào không khớp thì sửa văn bản (không sửa code sau freeze, trừ S1) | 4 | C | ma trận W09-B3 | Không FR nào mô tả sai so với code | #85 |
 | W10-B2 | **Tài liệu tham khảo, thư viện, license** (mục đích + license của mọi thư viện chính); **nêu rõ phần code sinh tự động** (scaffold NestJS/Vite, công cụ) theo FAQ Guidelines | 3 | C | — | Danh sách đầy đủ; một kiểu trích dẫn | #86 |
@@ -47,12 +47,14 @@ Nộp báo cáo tiếng Anh đúng template, phản ánh **đúng cái đã xây
 
 | Ngày | Việc |
 |---|---|
-| T2 16/11 | B1, B2, B3 bắt đầu; A biên tập; C chạy máy khác |
-| T3 17/11 | Mọi góp ý nội dung gửi về người viết; mỗi người nộp đoạn "kỹ năng" và ghi chép AI cho Tiến |
-| T4 18/11 | Bản gần cuối; C chạy checklist; B thu chữ ký |
-| **T5 19/11** | **Khóa nội dung** |
-| **T6 20/11** | **Nộp CTE**; tải lại; biên nhận |
-| T7–CN 21–22/11 | Dự phòng (CTE lỗi: chụp màn hình, email GV kèm file, nộp lại khi hệ thống chạy) |
+| T2 23/11 | Merge các PR log test (#278, #280–#283) và #295; hồi quy cuối trên DB seed mới; **tag `v1.0`** (#81) |
+| T3 24/11 | Ảnh chụp trên `v1.0`; B1, B2, B3; A tải template Final Report và biên tập; C chạy máy khác (#88) |
+| T4 25/11 | Mọi góp ý nội dung gửi về người viết; mỗi người nộp đoạn "kỹ năng" và ghi chép AI cho Tiến; C chạy checklist; B thu chữ ký |
+| **T5 26/11** | **Khóa nội dung** |
+| **T6 27/11** | **Nộp CTE**; tải lại; biên nhận |
+| T7–CN 28–30/11 | Dự phòng (CTE lỗi: chụp màn hình, email GV kèm file, nộp lại khi hệ thống chạy) |
+
+> Lịch 16–20/11 ban đầu không thực hiện được (tuần 9 và đầu tuần 10 không có hoạt động); xem `docs/progress/week-09.md` và `week-10.md`.
 
 ## 6. Vòng chất lượng tuần này
 

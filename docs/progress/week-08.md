@@ -1,0 +1,96 @@
+# Week 8 — Hardening (02/11–08/11/2026)
+
+> Written on **22/11/2026** from the repository and GitHub, two weeks after the
+> week ended: the report was not kept during the week. Counts are from Git and
+> GitHub for 02/11–08/11. The meeting notes, the retrospective and the
+> members' own self-reports were not recorded at the time and are left for the
+> members to fill in; nothing below is backdated.
+> Process: [CONTRIBUTING — the weekly cycle](../../CONTRIBUTING.md#the-weekly-cycle).
+
+## Planned
+
+From [`tuan-08.md`](../plan/tuan-08.md), milestone *Week 08 — Hardening*:
+all four Should items if the Must-core gate passed (UC13 prices, UC14
+customers and prescribers, FR-46/47 quarantine assessment and destruction,
+UC15 users and roles); hardening (TC-25 rollback, TC-26/54 forced races, TC-27
+duplicate submission, TC-29 performance, TC-30 backup and restore, TC-53
+access audit); the UX walk-through and the S3/S4 fixes it finds; the TC-32
+pilot; regression of the changed parts; report drafts of Ch.2, Ch.3
+architecture and data, and each member's functions.
+
+The Must-core gate had passed on 30/10 (#233), so all four Should items went
+ahead.
+
+## Delivered
+
+| Item | Owner | Evidence | Status |
+|---|---|---|---|
+| UC13 price scheduling: design gate, then schedule, cancel and list prices | Tiến | #253, #259 (#103) | Merged 02/11; TC-41 Pass (run 82), TC-40 Pass (run 92) |
+| TC-29 data load and timings, TC-30 backup and restore check | Tiến | #260 (#65) | Merged 02/11; runs 83–84 by Minh in #282 |
+| Report drafts: Ch.2 background, Ch.3 architecture and data, Ch.3 interface design | Tiến | #261, #277 (#66) | Merged 02/11 and 21/11 |
+| Price field keeps every digit typed key by key (bug #244, S2) | Tiến | #249 | Merged 02/11; re-tested in runs 75–76 (#271) |
+| UX walk-through of every screen against `ui-design.md` §4–§5 | Tiến | comment on #157 (01/11), issues #254–#258 | Done; issues fixed by Duy Anh |
+| TC-26 and TC-54 forced races, UC14 acceptance | Tiến | runs 77–79, #280 | Awaiting review (re-approval after a merge from `main`) |
+| Progress dashboard and its redesign | Tiến | #225, #248 (#242) | Merged 02/11 |
+| UC14 screens accepted; UX fixes from the walk-through (#254–#258) | Duy Anh | #262, #266, #268 | Merged 02/11 |
+| Customer phone search ignores spaces and dashes (bug #279) | Duy Anh | #284 | Merged 04/11 |
+| As-built wireframes of prescriptions, dispensing and sales | Duy Anh | #267 (#156) | Merged 02/11 |
+| Traceability matrix to week 8 | Duy Anh | #265 (#78) | Merged 02/11 |
+| Customer prescription history; print receipts, return slips, hand-over records; CSV export (FR-43); overview page; refresh permissions on focus | Duy Anh | #286, #288, #290–#292, #294 | Merged 04/11 |
+| UI consistency: confirm removing a cart line, empty text on every table | Duy Anh | #287 (#158) | Merged 04/11 |
+| Specs, `ui-design.md` and access-control notes brought up to the new features | Duy Anh | #293 | Merged 04/11 |
+| TC-44 (run 74), TC-61 (run 90), TC-53 (run 91) | Duy Anh | #264, #285, #289 | Merged |
+| FR-46/47 quarantine assessment and destruction | Minh | #235 (#105) | Merged 02/11; TC-61 Pass (run 90) |
+| UC15 users, roles and audit log; usernames unique without case; audit names the user | Minh | #236, #269, #272 (#105, #263) | Merged 02/11 |
+| Report draft: UC15 section | Minh | #270 (#72) | Merged 02/11 |
+| Run guide for a new computer | Minh | #273 (#80) | Awaiting merge (approved 22/11 with one change asked) |
+| TC-42/43 after the identity, TC-41, TC-29/30, week-8 regression (runs 80–89, 92–106) | Minh | #278, #281, #282, #283 | Awaiting review |
+
+**Not delivered in week 8:** the TC-32 pilot's write-up (the pilot with one
+person outside the team took place on 04/11; #159); TC-27 duplicate submission (#68); the as-built wireframes of A's
+screens, moved to week 9 by the plan and drawn on 22/11 (#156, #297).
+
+## Repository activity (02/11–08/11)
+
+| Member | Commits (all branches) | Pull requests opened · merged | Reviews given | Test runs recorded |
+|---|---|---|---|---|
+| Tiến (A) | 13 | 4 opened (#275–#277, #280) · 8 merged (#225, #248, #249, #252, #253, #259–#261) | 6 (#235, #269–#273) | 3 (runs 77–79) |
+| Duy Anh (B) | 29 | 17 opened · 18 merged (#246, #262, #264–#268, #284–#294) | 4 (#236, #253, #276, #277) | 3 (runs 74, 90, 91) |
+| Minh (C) | 21 | 9 opened (#269–#273, #278, #281–#283) · 6 merged (#235, #236, #269–#272) | 29 (#225, #248, #249, #252, #253, #259–#262, #264–#268, #275–#277, #280, #284–#294) | 27 (runs 75–76, 80–89, 92–106) |
+
+Duy Anh's pull requests this week were reviewed by Minh, not by Tiến as the
+rotation says; Tiến made no reviews after 03/11.
+
+## Meetings
+
+**Wednesday 04/11 — early-warning check.** _(not recorded; to be filled in by
+the members if it took place)_
+
+**Saturday 07/11.** _(not recorded)_
+
+## Risks
+
+| Risk | Owner | Trigger | Mitigation | Next review |
+|---|---|---|---|---|
+| Test-log pull requests waiting for review (#278, #280–#283) leave `runs.md` and the test-case statuses behind the real results | Tiến | Still open at the freeze | Review and merge before `v1.0`; the report's testing figures wait for them | Week 9 |
+| TC-32 needs people outside the team | Minh | Pilot (#159) held on 04/11, write-up not done by 08/11 | Run it with the final users in week 9 (#79) | Week 9 |
+| Leader inactive after 03/11 | Tiến | No review or merge from Tiến for a week | Minh and Duy Anh review each other; Tiến's queue in #274 | Week 9 |
+
+## Retrospective
+
+_(not recorded)_
+
+## AI use this week
+
+Rows for this week are in [`../ai-use-log.md`](../ai-use-log.md).
+
+## Self-report and leader's weekly review
+
+| Member | Delivered (self-report, with links) | Reviewer's findings | Revisions (issue, severity, due) |
+|---|---|---|---|
+| Duy Anh (B) | _(to be filled in by Duy Anh)_ | Tiến: the most delivered week of the project. The five UX issues from my walk-through (#254–#258) were fixed in two days (#262, #266, #268) and #279 the day after it was filed (#284). TC-44, TC-61 and TC-53 were run for Minh's features (runs 74, 90, 91), and the traceability matrix and the specs were brought up to the new features (#265, #293). To change: 17 pull requests opened against 4 reviews given, back to the ratio #202 asked to fix. And on 04/11, five days before the freeze, eleven pull requests went in on one day, partly work outside the plan (the overview page #292, printing #290), so Minh had to run the regression again on 05/11. The fixed issues #254–#258 and #279 are still open, waiting for a re-test by someone else. | — (raised here; no issue filed, 22/11) |
+| Minh (C) | **Built (#105):** FR-46/47 quarantine assessment and destruction (#235) and UC15 users, roles and the audit log (#236), merged 02/11 after the design gate; follow-ups #269 (usernames unique regardless of case) and #272 (audit entries name the user, #263). **Tests:** re-tests of #244 and #183 (runs 75–76, #271); TC-42 and TC-43 on `main` after #216 (runs 80–81, #278; UC16 is mine, so the runs say so); TC-41 and the scheduled half of TC-40 (run 82, #281), and TC-40's sale on 05/11 at the new price (run 92); first runs of TC-29 and TC-30 (runs 83–84, #282); the regression of the changed areas twice, on `0da5088` (runs 85–89) and again on `b807fd7` after the 04/11 merges (runs 93–105), with the first check of the CSV export, FR-43 (run 106), and the automated suite on both commits (#283). **TC-32 pilot (#159):** held on 04/11 with one person outside the team; the write-up was handed to Duy Anh. **Docs:** run guide for a new computer from a TC-33 dry run, clone to sign-in in 5 minutes (#273, #80); report: the UC15 section (#270), the testing chapter and C's functions brought to 05/11 (#283). **Reviews (29):** #225, #248, #249, #252, #253, #259–#262, #264–#268, #275–#277, #280, #284–#294. **Not done:** my four test-log pull requests were not merged in the week, so `test-cases.md` on `main` stayed behind the real results. | Tiến: both of the biggest Should items are on `main`: FR-46/47 quarantine and destruction (#235) and UC15 users, roles and audit (#236), with the follow-ups #269 and #272. TC-29 and TC-30 were done a week early (runs 83–84, #282), and the week-8 regression was run twice, the second time after the 04/11 merges (runs 85–106, #283). 21 reviews and 27 runs, the most of anyone. To change: four test-log pull requests (#278, #281–#283) sat open from 02–05/11, so `test-cases.md` on `main` still shows TC-26, 29, 30, 41 and 54 as *Not run*. Partly that was my missing reviews (#274). | — |
+| Tiến (A) | UC13 price scheduling with its design gate (#253, #259, #103); TC-29 load and timing scripts and the TC-30 backup check (#260, #65); report drafts of Ch.2, Ch.3 architecture and data, and interface design (#261, #66); fix of the S2 price bug #244 (#249); the UX walk-through of every screen, which produced #254–#258 (#157); TC-26 and TC-54 forced races and the UC14 acceptance check (runs 77–79, #280); the dashboard split into #225 and #248 as #242 asked. Reviews (6): #235, #269–#273. Not done: no reviews or merges after 03/11, so #273, #278 and #280–#283 waited (#274); the wireframes moved to week 9. | Minh: checked against GitHub. UC13 (#253, #259) merged on 02/11 and passed on my runs (TC-41 run 82, TC-40 run 92). The TC-29 and TC-30 scripts (#260) worked as written for runs 83–84. #249 fixed the S2 #244, re-tested in run 75. The race runs 77–79 I checked when re-approving #280 on 23/11. To change: no review or merge after 03/11, so #273, #278 and #280–#283 waited about three weeks and `main` showed stale test results through week 9; this report was also written afterwards (22/11). | |
+
+Revisions from last week: #251 (Minh) closed 04/11; #242 (Tiến) open, its
+work done (#225 and #248 merged 02/11), waiting for Minh to close it.

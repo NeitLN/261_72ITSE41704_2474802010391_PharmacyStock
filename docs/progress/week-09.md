@@ -47,7 +47,7 @@ _(not recorded)_
 |---|---|---|---|---|
 | No `v1.0` tag one week before the report | Minh (#81), Tiến | Not tagged by 15/11 | Tag right after the open test-log pull requests merge; the report names the commit it describes | Week 10 |
 | Report parts missing: Ch.1, A's functions, Ch.4, Proposal feedback, Appendices B and C | Tiến, Duy Anh | Not in the repository by 15/11 | Write them in week 10; the submission deadline is 30/11 | Week 10 |
-| Commit weeks: Duy Anh and Minh have commits on `main` in only four course weeks (5–8); the course asks for five | Duy Anh, Minh | No commit on `main` in week 10 | Merge one of their open pull requests in week 10 | Week 10 |
+| Commit weeks: Duy Anh and Minh have commits on `main` in only four course weeks (5–8); the course asks for five | Duy Anh, Minh | No commit on `main` in week 10 | A new commit from each merged in week 10; merging an older pull request does not add a week | Week 10 |
 
 ## Retrospective
 
@@ -58,5 +58,5 @@ _(not recorded)_
 | Member | Delivered (self-report, with links) | Reviewer's findings | Revisions (issue, severity, due) |
 |---|---|---|---|
 | Duy Anh (B) | _(to be filled in by Duy Anh)_ | Tiến: no commits, pull requests, reviews or runs this week. B's week-9 work (#76 functions with screenshots, #74 the assembled draft, #77 and #78 updates) did not start. | — |
-| Minh (C) | _(to be filled in by Minh)_ | Tiến: no commits, pull requests, reviews or runs this week; the final regression and the `v1.0` tag (#81), TC-32 (#79) and TC-33 (#80) did not start. His week-8 pull requests were still waiting for review, which was my part. | — |
-| Tiến (A) | Nothing this week: no commits, reviews or merges. The review queue in #274 stayed open, and #73, #75, #83 and #156 did not start. | Minh: _(to be filled in)_ | |
+| Minh (C) | Nothing on GitHub apart from closing #263 on 10/11 with the evidence of its fix (#272; UC15-03 checks the entry names the user). The final regression and `v1.0` (#81), TC-32 (#79) and TC-33 (#80) did not start. | Tiến: no commits, pull requests, reviews or runs this week; the final regression and the `v1.0` tag (#81), TC-32 (#79) and TC-33 (#80) did not start. His week-8 pull requests were still waiting for review, which was my part. | — |
+| Tiến (A) | Nothing this week: no commits, reviews or merges. The review queue in #274 stayed open, and #73, #75, #83 and #156 did not start. | Minh: agreed. Nobody did anything on GitHub this week, me included. The open queue (#274) and the missing `v1.0` were the main risk, and none of us acted on it. | |

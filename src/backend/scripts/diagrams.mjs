@@ -7,13 +7,22 @@
 // part; the service part below it is written by hand and kept), and
 // docs/design/data-dictionary.md. Sorted, so a re-run only changes what the
 // entities changed.
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DataSource } from 'typeorm';
 import { dataSourceOptions } from '../dist/database/data-source-options.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
+
+/** `CREATE [UNIQUE] INDEX "name" ON "table" (expr)` statements in the migrations, by index name. */
+const expressionIndexes = new Map();
+for (const file of readdirSync(resolve(here, '../src/migrations')).filter((f) => f.endsWith('.ts'))) {
+  const text = readFileSync(resolve(here, '../src/migrations', file), 'utf8');
+  for (const [, unique, name, on] of text.matchAll(/CREATE (UNIQUE )?INDEX "([^"]+)" ON "[^"]+" \((.+?)\)`/g)) {
+    expressionIndexes.set(name, { unique: Boolean(unique), on: on.replace(/"/g, '') });
+  }
+}
 const docs = resolve(here, '../../../docs');
 
 /** Subsystems, as in docs/design/domain-model.md. */
@@ -254,9 +263,12 @@ function dictionary(m) {
   }
   for (const i of m.indices) {
     const where = i.where ? ` where \`${i.where}\`` : '';
-    extra.push(
-      `- ${i.isUnique ? 'Unique index' : 'Index'} \`${i.name}\`: (${i.columns.map((c) => `\`${c.databaseName}\``).join(', ')})${where}`,
-    );
+    // An expression index (`synchronize: false`) has no columns in the
+    // metadata; its definition is the migration that creates it.
+    const expr = i.columns.length === 0 ? expressionIndexes.get(i.name) : undefined;
+    const unique = i.isUnique || expr?.unique;
+    const on = expr ? `\`${expr.on}\`, created by a migration` : i.columns.map((c) => `\`${c.databaseName}\``).join(', ');
+    extra.push(`- ${unique ? 'Unique index' : 'Index'} \`${i.name}\`: (${on})${where}`);
   }
   for (const ch of m.checks)
     extra.push(

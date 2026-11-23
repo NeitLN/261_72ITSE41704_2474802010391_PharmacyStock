@@ -112,10 +112,7 @@ MANIFEST = [
     ('h', 4, 'Stock control, reporting and access control (Võ Hoàng Minh)'),
     ('file', 'ch3-functions-c.md', None, 5, {'skip': NOT_BUILT}),
     ('h', 3, '3.3.3 Unimplemented or Incomplete Functions'),
-    ('todo', '#85 (Bùi Duy Anh): one consolidated section. Until then the parts '
-             'each writer listed are collected below.'),
-    ('file', 'ch3-functions-a.md', '## What was not built', 4, {'heading_text': 'Catalogue, prices, purchasing, stock lookup'}),
-    ('file', 'ch3-functions-b.md', '## What is not built', 4, {'heading_text': 'Prescriptions, dispensing, sales and returns'}),
+    ('file', 'ch3-unimplemented.md', None, 4, {}),
     ('file', 'ch3-overview.md', '## 3.3.4 ', 3, {'keep_heading': True}),
     ('h', 2, '3.4 Testing and Evaluation'),
     ('h', 3, '3.4.1 Testing Process'),

@@ -98,13 +98,14 @@ Wait for **`Local: http://localhost:5173/`**, then open that address.
 ## 6. Check that it works (2 minutes)
 
 Sign in with each sample account. The password for all three is
-**`Pharmacy@2026`** (`SEED_PASSWORD` in `src/backend/.env`).
+**`Pharmacy@2026`** (`SEED_PASSWORD` in `src/backend/.env`). The manager and
+the cashier start on *Overview*; the pharmacist starts on *Catalogue & batches*.
 
 | Account | You should see in the left menu |
 |---|---|
-| `manager` | Catalogue & batches · Suppliers & receipts · Prescriptions & dispensing · Sales & returns · Stock control & reports · Users & roles |
+| `manager` | Overview · Catalogue & batches · Suppliers & receipts · Prescriptions & dispensing · Sales & returns · Stock control & reports · Users & roles |
 | `pharmacist` | Catalogue & batches · Prescriptions & dispensing · Stock control & reports |
-| `cashier` | Catalogue & batches · Sales & returns |
+| `cashier` | Overview · Catalogue & batches · Sales & returns |
 
 Then, as the **manager**:
 - *Catalogue & batches* lists medicines (60 in the sample data).

@@ -1,9 +1,10 @@
 # Ch.3 — Functions of B: prescriptions, dispensing, sales and returns (draft)
 
-> **Draft for W08-B3 (#69), written by Duy Anh.** Final in W09-B1 (#76), on `v1.0`:
-> screenshots from the seeded data go where a *Figure* placeholder stands, and
-> table and figure numbers are set by the editor when the chapters are joined.
-> Everything below describes `main` at `63e66ab` (29/10/2026).
+> **Written by Duy Anh (W08-B3, #69), brought to the submitted build in
+> W09-B1 (#76).** Everything below describes `main` at `368ae91` (23/11/2026).
+> The figure captions name the screenshot in `tests/manual/evidence/` that
+> shows the same screen; the editor sets the final figure numbers when the
+> chapters are joined.
 
 This part covers the five use cases that move medicine from the shelf to the
 customer and back: taking in a prescription (UC05), dispensing it (UC06),
@@ -51,7 +52,9 @@ be reviewed again; once anything has been dispensed it can no longer be edited
 `PrescriptionValidator`, so verification and every later dispensing apply
 exactly the same rules.
 
-*Figure — the prescription form with an error under one item line (v1.0).*
+*Figure B.1 — the prescription form refusing an item line: missing strength,
+then missing dose (`tests/manual/evidence/TC-47-4-missing-strength-2026-10-20.png`,
+`TC-47-5-missing-dose-2026-10-20.png`).*
 
 Test evidence: TC-47 (multi-item prescription, missing fields) and TC-58
 (dispense unverified, edit after verification) pass; 13 e2e tests in
@@ -143,7 +146,9 @@ same transaction as the movements, so either both exist or neither does. A
 request ID reused with different content is refused rather than silently
 answered with an unrelated result.
 
-*Figure — the dispense tab: preview with an expiry warning, then the hand-over result (v1.0).*
+*Figure B.2 — the dispense tab: the preview of FEFO batches, then the same
+hand-over after *Hand over* (`tests/manual/evidence/TC-04-w8-1-preview-2026-11-05.png`,
+`TC-04-w8-2-recorded-2026-11-05.png`).*
 
 Concurrency: when two pharmacists, or a pharmacist and a cashier, reach for
 the last units at the same moment, the medicine row lock makes them take turns;
@@ -152,8 +157,8 @@ the second sees the new quantity and is refused, never driving stock negative
 two of them with the overlap forced by holding the lock until both requests
 wait (#67).
 
-Test evidence: TC-04 to TC-14, TC-37, TC-38, TC-57, TC-59, TC-60 and TC-62
-pass; TC-26, TC-27 and TC-54 are automated and wait for their manual run. 14
+Test evidence: TC-04 to TC-14, TC-26 (run 77), TC-27 (run 107), TC-37, TC-38,
+TC-54 (run 78), TC-57, TC-59, TC-60 and TC-62 pass; 14
 e2e tests in `dispensing.e2e-spec.ts`, plus `BR01-*`, `BR02-*`, `BR03-*`,
 `BR07-*` unit tests.
 
@@ -178,7 +183,8 @@ receipt. Money is stored as PostgreSQL `numeric(12,2)` and travels as a string; 
 service converts it to whole *xu* (hundredths of a dong) for the arithmetic and
 back (`money.ts`), so no amount ever passes through floating point.
 
-*Figure — a receipt with an OTC line and a billed dispensing (v1.0).*
+*Figure B.3 — a receipt with an over-the-counter line and a billed dispensing
+(`tests/manual/evidence/TC-15-w8-1-receipt-2026-11-05.png`).*
 
 Test evidence: TC-15, TC-35, TC-36, TC-52, TC-55 and TC-59 pass; 23 e2e tests in
 `sales.e2e-spec.ts` and `sales-billing.e2e-spec.ts`; `BR09-01…06` against the
@@ -203,7 +209,8 @@ a returned item of unknown storage history cannot be sold again by mistake,
 and the low-stock alert is not cleared by goods that may never come back
 (TC-63).
 
-*Figure — the return slip, Pending assessment (v1.0).*
+*Figure B.4 — the return slip, its lines *Pending assessment*
+(`tests/manual/evidence/R-1-tc16-return-slip-2026-11-05.png`).*
 
 Test evidence: TC-16, TC-17, TC-18 and TC-50 pass; 14 e2e tests in
 `returns.e2e-spec.ts` and the ledger tests for `receiveReturn`.
@@ -218,17 +225,18 @@ is deactivated, not deleted, so every past prescription still shows who wrote
 it, while a new prescription cannot refer to them.
 
 **What is built.** The API (list, search, create, edit, deactivate and
-activate) and the quick-create from the prescription form are on `main`. The
-separate list screens for customers and prescribers are a *Should* item
-planned for week 8 (#104), only if the Must-core gate passes; if they are cut,
-this section says so in the final report.
+activate), the quick-create from the prescription form, and the two list
+screens `CustomersPanel` and `PrescribersPanel` (UC14, #247), both reachable
+from *Prescriptions & dispensing*. The customer search ignores spaces and
+dashes in a phone number (#279), and a customer's prescription history opens
+from the same screen (#291).
 
-Test evidence: TC-49 passes (run 64); 10 e2e tests in `parties.e2e-spec.ts`.
+Test evidence: TC-49 passes (run 64, after the licence-case fix #201), the
+screen checks of run 79 cover search, add, edit, deactivate and the
+validation errors, and `parties.e2e-spec.ts` holds the API tests.
 
 ## What is not built, and why
 
-- **Customer and prescriber list screens** (UC14 UI): see above; depends on the
-  Must-core gate (#63).
 - **Cancelling a RECEIVED prescription** that will never be dispensed: no
   requirement defines who may do it (UC05, open question).
 - **Pack-unit entry** (BR06, *Could*): quantities are entered in base units

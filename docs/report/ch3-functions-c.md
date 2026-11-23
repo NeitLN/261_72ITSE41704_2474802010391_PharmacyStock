@@ -200,5 +200,21 @@ lose `user.manage`. Screenshot on `v1.0`.*
 
 **Scope.** The week 8 plan left out the password reset and the audit of
 sign-ins and stock takes. Both were built, because the design gate (#234)
-specified them and their tests pass (UC15-01…14). Price changes are recorded
-once UC13 calls the same `AuditService`.
+specified them and their tests pass (UC15-01…14). Price changes are not in
+the audit log; see below.
+
+## What was not built
+
+- **Part of FR-41, the audit of price changes and stock decisions.** The audit
+  log records sign-ins and failed sign-ins, sign-outs, every user and role
+  change, password resets and approved stock takes. `price.changed` is
+  declared in `AuditAction`, but the UC13 price command does not write it. The
+  price history still shows who set each price and from when. Write-offs,
+  quarantine assessments and destructions are recorded in the stock ledger
+  with the user who made them, but not in the audit log, so the audit view
+  does not show every manager decision in one place.
+- **Part of FR-43, the export format.** The expiry and stock movement reports
+  export to CSV, which opens in Excel, but not to an Excel workbook or a PDF.
+- **Known defect #299 (S4).** When the alerts list is empty, the *Alerts* tab
+  always says that no monitored medicine is at or below its reorder level,
+  even when the filter is *Expired* or *Expiring soon*.

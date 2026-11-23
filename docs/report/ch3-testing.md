@@ -44,26 +44,23 @@ was then checked directly where the expected result is about stock.
 
 ## 3.y.2 Results
 
-*Table 3.y — Manual test cases by result on 05/11/2026.*
+*Table 3.y — Manual test cases by result on 23/11/2026.*
 
 | Result | Cases |
 |---|---|
-| Pass | 56 |
+| Pass | 61 |
 | Fail | 0 |
-| Not run yet | 9 |
+| Not run yet | 4 |
 | **Total** | **65** |
 
-The 9 not run yet are planned for weeks 8 and 9: the race and stress cases
-(TC-26, 27, 54), performance and backup (TC-29, 30), the Should feature
-TC-41, the outside-user and fresh-clone checks (TC-32, 33) and the
-submission check (TC-34). First runs of TC-26, 29, 30, 41 and 54 are
-recorded in pull requests still under review on 05/11. *The final version
-replaces this table with the full case table and actual results from
-`test-cases.md` on `v1.0`.*
+The 4 not run yet are TC-27 (the same dispensing request sent twice), the
+outside-user and fresh-clone checks (TC-32, 33) and the submission check
+(TC-34). *The final version replaces this table with the full case table
+and actual results from `test-cases.md` on `v1.0`.*
 
-By 05/11, 98 runs were recorded, 95 passing and 3 failing (runs 77–84, still
-under review, are not counted). Every failure led to a defect that was fixed
-and re-run (Table 3.z).
+In total 106 runs were recorded, 103 passing and 3 failing; one of the
+passing runs (79) also found an S4 defect, #279. Every failure led to a
+defect that was fixed and re-run (Table 3.z).
 
 ## 3.y.3 Defects found and fixed
 
@@ -79,7 +76,8 @@ and re-run (Table 3.z).
 | #209 Batch history showed return lines by id, not slip number | TC-18, run 60 | S4 | #220 | Run 73 (TC-48), Pass |
 | #215 A manager whose count was overwritten could approve it | Code review | S3 | #226 | Runs 69–70 (TC-51, TC-20), Pass |
 | #244 A price of five digits or more, typed key by key, was saved much smaller | Re-test of #183 (31/10) | S2 | #249 | Run 75, Pass |
-| #263 The audit log's role-change row did not name the user | TC-44, run 74 | S4 | #272 | Pending |
+| #263 The audit log's role-change row did not name the user | TC-44, run 74 | S4 | #272 | Automated: UC15-03 checks the entry names the user; no manual re-run |
+| #279 Customer search by phone matched only when spaces were typed the same way | UC14 acceptance, run 79 | S4 | #284 | Pending |
 
 No S1 defect was found. The one S2, #244, was caused by the fix for #183
 and found when #183 was re-tested by hand: `100000` typed into the price

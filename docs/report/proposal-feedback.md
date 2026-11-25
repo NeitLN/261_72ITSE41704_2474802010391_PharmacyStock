@@ -2,25 +2,41 @@
 
 > **W09-A3 (#75), written by Tiến.** For the Final Report: every point of
 > feedback on the Project Proposal, what the team did about it, and where the
-> evidence is. Checked against `main` at `9063509` (22/11/2026).
+> evidence is. Checked against `v1.0` (26/11/2026).
 
 ## Where the feedback came from
 
-The Proposal was submitted on 04/10/2026 (v1.0) and resubmitted as v1.1 on
-11/10/2026 in the *Project Proposal Resubmission (After Review/Update)* slot
-(receipt: `docs/evidence/proposal-resubmission-receipt-2026-10-11.png`).
+The Proposal was submitted on 04/10/2026 (v1.0). The lecturer reviewed it, and
+the team revised it into v1.1, resubmitted on 11/10/2026 in the *Project
+Proposal Resubmission (After Review/Update)* slot (receipt:
+`docs/evidence/proposal-resubmission-receipt-2026-10-11.png`). Two kinds of
+feedback went into v1.1:
 
-- **Domain review.** In week 4 a practising pharmacist reviewed the ten
-  business decisions of the Proposal (DEC-01–DEC-10) in a recorded
-  conversation. v1.1 took in the changes, and the summary is
-  `docs/requirements/pharmacist-review-week4.md`. This is the feedback the
-  table below follows, one row per point.
-- **Lecturer.** _(Tiến to confirm before export: if the lecturer's comments on
-  the Proposal arrived on E-learning, add one row per comment under the same
-  columns. If none arrived, keep this sentence instead: "No written comments
-  from the lecturer on the Proposal were received before the Final Report.")_
+- **The lecturer's review of v1.0.** The comments were given outside the
+  repository and are not kept in it, so they are not quoted here.
+- **The pharmacist's review (domain).** In week 4 a practising pharmacist
+  reviewed the ten business decisions of the Proposal (DEC-01–DEC-10) in a
+  recorded conversation (`docs/requirements/pharmacist-review-week4.md`).
 
-## Table — feedback, action and evidence
+Table A.1 lists what changed between the two submitted files, found by
+comparing them section by section, with the source of each change as v1.1
+states it and what was then built; *Review of v1.0* marks a change that v1.1
+does not attribute to the pharmacist. Table A.2 follows the pharmacist's
+review one decision at a time.
+
+*Table A.1 — What changed from Proposal v1.0 to v1.1, and what was built.*
+
+| Area | v1.0 (04/10) | v1.1 (11/10) | Source of the change | What was built (evidence) |
+|---|---|---|---|---|
+| Validation of the requirements | "We will try to ask a practising pharmacist" in week 4; decisions otherwise team assumptions | The review was held; its outcome per decision is Appendix D of v1.1, the relationship to the reviewer is disclosed, open points are marked | Review of v1.0 | Table A.2; `business-decisions.md`; DEC-09/10 still marked as team decisions |
+| Business rules and requirements | 10 business rules (6 Must); 43 FR, 12 NFR | 11 business rules (8 Must), with quarantine of returns (BR11) and pharmacist verification; 48 FR, 13 NFR including NFR-13, the time at the counter | Pharmacist review (DEC-03, 04, 10) | All 10 rules built except BR06 (Could); NFR-13 measured at 258 ms (TC-29) |
+| Scope and priorities | 14 Must, 2 Should; customer and prescriber screens (UC14) Must | 13 Must, 3 Should; UC14 screens Should, quick-create Must; no Should work before a Must-core gate in week 7 | Keeping the total realistic after the rules added by the pharmacist review | Gate passed 30/10 (#233); all 16 use cases built (Ch.1 Table 1.2) |
+| Teamwork and contribution | "Every member owns a slice"; a check that everyone merged a pull request each week | A contribution rule from week 4: each member merges a reviewed pull request for their own slice and reviews another member's every week; the leader stops committing into the others' slices; the weekly check recorded in the journal | Review of v1.0 (risk of uneven participation) | Review rotation, protected `main`, the leader's weekly reviews in `docs/progress/`; Appendix C: 33 % / 32 % / 35 % |
+| Concurrency design | One line: row locking inside `StockLedger` | The lock protocol written out: one transaction per stock command, row locks in a fixed order, retry on deadlock, a request ID against double submission | The pharmacist asked what happens when two staff sell the last units (DEC-10) | `StockLedger` (Ch.3 §3.2.3); TC-26, TC-54, TC-62 (20 rounds each, never negative); TC-27 |
+| Prescription validity | Valid-until date optional, defaulting to issue date + 5 days | Always computed, never edited, with the prescription circular as its source [17] | Pharmacist review (DEC-03) | BR10 (FR-14, FR-21); TC-38 |
+| Declaration of AI-tool use | Tools and uses listed | The share of AI-assisted text estimated, with the method of estimating it | Review of v1.0 | Appendix B of this report |
+
+*Table A.2 — The pharmacist's review: feedback, action and evidence.*
 
 | ID | Feedback (summarised) | Action taken | Evidence in the built system |
 |---|---|---|---|

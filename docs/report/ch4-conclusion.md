@@ -60,21 +60,23 @@ Not built, or built only in part:
   base unit.
 - **Report export** is CSV only, not Excel or PDF as FR-43 suggested.
 
-Known defects. All are severity S4 (cosmetic). All but #299 have a fix on
-`main`; an issue stays open until someone other than the author re-tests it (Table 4.D):
+Defects. Every defect found was severity S4 (cosmetic) or fixed (Ch.3,
+Table T.2). The S4 defects of the last weeks were all fixed and re-tested by
+someone other than the author on `v1.0`, except #299, which is still open
+(Table 4.D):
 
-*Table 4.D — Known defects at the time of writing.*
+*Table 4.D — The S4 defects of weeks 7–10 and their state at `v1.0`.*
 
 | Issue | Defect | Fix |
 |---|---|---|
 | #209 | Batch history showed an internal id instead of the slip number for returns and stock-take adjustments | #220; re-tested in run 73 (#245) |
-| #254 | Dates and times were shown in three formats | #262 |
-| #255 | Some forms took "today" from the browser clock instead of the server's business date | #266 |
-| #256 | "Cannot reach the server" was shown twice | #266 |
-| #257 | A session that expired while the tab was closed returned to sign-in without saying why | #266, #288 |
-| #258 | Ant Design 6 deprecation warnings in the browser console | #262 |
-| #279 | Customer search by phone matched only when spaces were typed the same way | #284 |
-| #299 | The Alerts tab's empty text talks about low stock whatever the filter | Not fixed (open) |
+| #254 | Dates and times were shown in three formats | #262; re-tested 26/11 (run 124) |
+| #255 | Some forms took "today" from the browser clock instead of the server's business date | #266; re-tested 26/11 (run 125) |
+| #256 | "Cannot reach the server" was shown twice | #266; re-tested 26/11 (run 126) |
+| #257 | A session that expired while the tab was closed returned to sign-in without saying why | #266, #288; re-tested in run 123 |
+| #258 | Ant Design 6 deprecation warnings in the browser console | #262; re-tested 26/11 (run 127) |
+| #279 | Customer search by phone matched only when spaces were typed the same way | #284; re-tested 26/11 (run 128) |
+| #299 | The Alerts tab's empty text talks about low stock whatever the filter | **Not fixed, open** |
 
 Limitations of the process and the evidence:
 

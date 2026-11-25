@@ -60,7 +60,7 @@ was available before the content lock, so both are reported as not run
 rather than replaced by a run inside the team (Ch.3 §3.4.2). The full case
 table with the latest verdict of each case is Appendix E.
 
-In total 123 runs were recorded, 120 passing and 3 failing; one of the
+In total 128 runs were recorded, 125 passing and 3 failing; one of the
 passing runs (79) also found an S4 defect, #279. Every run is in the run log
 (Appendix E). Every failure led to a
 defect that was fixed and re-run (Table T.2).
@@ -80,7 +80,7 @@ defect that was fixed and re-run (Table T.2).
 | #215 A manager whose count was overwritten could approve it | Code review | S3 | #226 | Runs 69–70 (TC-51, TC-20), Pass |
 | #244 A price of five digits or more, typed key by key, was saved much smaller | Re-test of #183 (31/10) | S2 | #249 | Run 75, Pass |
 | #263 The audit log's role-change row did not name the user | TC-44, run 74 | S4 | #272 | Automated: UC15-03 checks the entry names the user; no manual re-run |
-| #279 Customer search by phone matched only when spaces were typed the same way | UC14 acceptance, run 79 | S4 | #284 | Pending |
+| #279 Customer search by phone matched only when spaces were typed the same way | UC14 acceptance, run 79 | S4 | #284 | Run 128, Pass |
 
 No S1 defect was found. The one S2, #244, was caused by the fix for #183
 and found when #183 was re-tested by hand: `100000` typed into the price

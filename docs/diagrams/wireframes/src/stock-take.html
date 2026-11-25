@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="../kit.css"><title>Stock take</title></head>
+<body>
+<div class="frame">
+  <span class="label">UC09 Stock control › Stock take — 1. list <span class="tag">as-built · Tiến · 22/11/2026</span></span>
+  <div class="top"><b>LotOrder</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Overview</div><div>Catalogue &amp; batches</div><div>Suppliers &amp; receipts</div><div>Prescriptions &amp; dispensing</div><div>Sales &amp; returns</div><div class="on">Stock control &amp; reports</div><div>Users &amp; roles</div></div>
+    <div class="page">
+      <h1>Stock control &amp; reports</h1>
+      <div class="tabs"><div class="on">Stock take</div><div>Alerts</div><div>Expiry</div><div>Quarantine</div><div>Pending destruction</div><div>Stock movement</div></div>
+      <div class="row"><span class="field">Any status ▾</span><span style="flex: 1"></span><span class="btn primary">+ New stock take</span></div>
+      <table>
+        <tr><th>Reference</th><th>Status</th><th class="num">Counted</th><th>Opened by</th><th>Counted by</th><th>Approved by</th><th>Opened</th><th></th></tr>
+        <tr><td>ST-20261122-0002</td><td><span class="tag">Waiting for approval</span></td><td class="num">2 / 2</td><td>Sample Manager</td><td>Sample Manager</td><td>—</td><td>2026-11-22 01:50</td><td><span class="btn">Open</span></td></tr>
+        <tr><td>ST-20261122-0001</td><td><span class="tag">Approved</span></td><td class="num">3 / 3</td><td>Sample Manager</td><td>Sample Pharmacist</td><td>Sample Manager</td><td>2026-11-22 01:48</td><td><span class="btn">Open</span></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="note" data-n="1" style="top: 260px; right: 20px">Only a user with <code>stock_take.approve</code> (manager) sees <b>New stock take</b>; the pharmacist sees the list and counts.</div>
+  <div class="note" data-n="2" style="top: 400px; right: 20px">Empty list: "No stock takes yet." Status, who opened, counted and approved, so BR08 can be checked at a glance.</div>
+</div>
+<div class="frame">
+  <span class="label">UC09 Stock take — 2. open a stock take <span class="tag">as-built · Tiến · 22/11/2026</span></span>
+  <div class="top"><b>LotOrder</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Overview</div><div>Catalogue &amp; batches</div><div>Suppliers &amp; receipts</div><div>Prescriptions &amp; dispensing</div><div>Sales &amp; returns</div><div class="on">Stock control &amp; reports</div><div>Users &amp; roles</div></div>
+    <div class="page">
+      <h1>Stock control &amp; reports</h1>
+      <div class="tabs"><div class="on">Stock take</div><div>Alerts</div><div>Expiry</div><div>Quarantine</div><div>Pending destruction</div><div>Stock movement</div></div>
+      <div class="row"><span class="field">Any status ▾</span><span style="flex: 1"></span><span class="btn primary">+ New stock take</span></div>
+    </div>
+  </div>
+  <div class="overlay"></div>
+  <div class="modal" style="top: 80px; left: 330px; width: 620px">
+    <h2>New stock take</h2>
+    <div>Medicines to count*</div>
+    <div class="field" style="width: 100%">[ACC200 — Acetylcysteine 200 mg ×] ▾</div>
+    <div class="muted" style="margin-bottom: 10px">One line is made for every batch of these medicines that has stock on the book.</div>
+    <div>Note</div><div class="field" style="width: 100%; margin-bottom: 14px"></div>
+    <div class="row" style="justify-content: flex-end"><span class="btn">Cancel</span><span class="btn primary">Open stock take</span></div>
+  </div>
+  <div class="note" data-n="3" style="top: 420px; right: 20px">UC09 step 1 (FR-29). The system quantity of each batch is stored at this moment. A medicine with no batch at all is refused: "None of these medicines has a batch to count."</div>
+</div>
+<div class="frame">
+  <span class="label">UC09 Stock take — 3. count sheet, submit refused <span class="tag">as-built · Tiến · 22/11/2026</span></span>
+  <div class="top"><b>LotOrder</b><span>Sample Pharmacist <span class="tag">Pharmacist</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Catalogue &amp; batches</div><div>Prescriptions &amp; dispensing</div><div class="on">Stock control &amp; reports</div></div>
+    <div class="page">
+      <h1>Stock control &amp; reports</h1>
+      <div class="tabs"><div class="on">Stock take</div><div>Alerts</div><div>Expiry</div><div>Quarantine</div><div>Pending destruction</div><div>Stock movement</div></div>
+      <div class="row"><span class="field">Any status ▾</span><span style="flex: 1"></span><span class="btn primary">+ New stock take</span></div>
+    </div>
+  </div>
+  <div class="overlay"></div>
+  <div class="modal" style="top: 60px; left: 160px; width: 960px">
+    <h2>Stock take ST-20261122-0001 <span class="tag">Counting</span></h2>
+    <div class="row"><span>Opened by: Sample Manager, 2026-11-22 01:48</span><span style="flex: 1"></span><span>Counted by: —</span><span>Approved by: —</span></div>
+    <div class="muted" style="margin-bottom: 8px">Count what is on the shelf for each batch. The book quantity stays hidden until the count is submitted, so it does not steer the count. Where your count will differ from the book, give a reason.</div>
+    <div class="box" style="border-style: solid">✕ <b>This step could not be done:</b><br>• Acetylcysteine 200 mg, batch ACC2029031: give a reason for the difference.<br>• Acetylcysteine 200 mg, batch ACC2029042: enter the counted quantity.</div>
+    <div class="row">Add a batch the sheet does not list: <span class="field">Medicine ▾</span><span class="field">Batch ▾</span><span class="btn">+ Add batch</span></div>
+    <table>
+      <tr><th>Medicine</th><th>Batch</th><th>Expiry</th><th>Count and reason</th></tr>
+      <tr><td>ACC200 — Acetylcysteine 200 mg</td><td>ACC2611X</td><td>2028-06-30</td><td><span class="field" style="min-width: 70px">40</span> <span class="field wide muted">Reason, if different</span> <span class="btn">Saved: 40</span></td></tr>
+      <tr><td>ACC200 — Acetylcysteine 200 mg</td><td>ACC2029031</td><td>2029-03-02</td><td><span class="field" style="min-width: 70px">57</span> <span class="field wide muted">Reason, if different</span> <span class="btn">Saved: 57</span></td></tr>
+      <tr><td>ACC200 — Acetylcysteine 200 mg</td><td>ACC2029042</td><td>2029-04-09</td><td><span class="field" style="min-width: 70px"></span> <span class="field wide muted">Reason, if different</span> <span class="btn">Save</span></td></tr>
+    </table>
+    <div class="row" style="justify-content: flex-end"><span class="btn primary">Submit for approval</span><span class="btn">Close</span></div>
+  </div>
+  <div class="note" data-n="4" style="top: 230px; right: 20px">UC09 step 3 (FR-29): a blind count — the book quantity is hidden while counting. Each line saves on its own.</div>
+  <div class="note" data-n="5" style="top: 560px; right: 20px">FR-30: on <b>Submit</b>, every line missing a count or a reason for a difference is listed; nothing is submitted. TC-20.</div>
+  <div class="note" data-n="6" style="top: 480px; right: 1000px">UC09 A3 (#184): a batch at 0 on the book can still be added, e.g. stock found on a back shelf.</div>
+</div>
+<div class="frame">
+  <span class="label">UC09 Stock take — 4. waiting for approval, confirm <span class="tag">as-built · Tiến · 22/11/2026</span></span>
+  <div class="top"><b>LotOrder</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Overview</div><div>Catalogue &amp; batches</div><div>Suppliers &amp; receipts</div><div>Prescriptions &amp; dispensing</div><div>Sales &amp; returns</div><div class="on">Stock control &amp; reports</div><div>Users &amp; roles</div></div>
+    <div class="page">
+      <h1>Stock control &amp; reports</h1>
+      <div class="tabs"><div class="on">Stock take</div><div>Alerts</div><div>Expiry</div><div>Quarantine</div><div>Pending destruction</div><div>Stock movement</div></div>
+      <div class="row"><span class="field">Any status ▾</span><span style="flex: 1"></span><span class="btn primary">+ New stock take</span></div>
+    </div>
+  </div>
+  <div class="overlay"></div>
+  <div class="modal" style="top: 60px; left: 160px; width: 960px">
+    <h2>Stock take ST-20261122-0001 <span class="tag">Waiting for approval</span></h2>
+    <div class="row"><span>Opened by: Sample Manager, 2026-11-22 01:48</span><span style="flex: 1"></span><span>Counted by: Sample Pharmacist, 2026-11-22 01:50</span><span>Approved by: —</span></div>
+    <table>
+      <tr><th>Medicine</th><th>Batch</th><th>Expiry</th><th class="num">Book</th><th class="num">Counted</th><th class="num">Difference</th><th class="num">Value</th><th>Reason</th></tr>
+      <tr><td>ACC200 — Acetylcysteine 200 mg</td><td>ACC2611X</td><td>2028-06-30</td><td class="num">40</td><td class="num">40</td><td class="num">0</td><td class="num">0 ₫</td><td>—</td></tr>
+      <tr><td>ACC200 — Acetylcysteine 200 mg</td><td>ACC2029031</td><td>2029-03-02</td><td class="num">59</td><td class="num">57</td><td class="num"><b>−2</b></td><td class="num">−3.036 ₫</td><td>Two boxes damaged on the shelf</td></tr>
+      <tr><td>ACC200 — Acetylcysteine 200 mg</td><td>ACC2029042</td><td>2029-04-09</td><td class="num">376</td><td class="num">376</td><td class="num">0</td><td class="num">0 ₫</td><td>—</td></tr>
+    </table>
+    <div class="row" style="justify-content: flex-end"><span class="btn primary">Approve</span><span class="btn">Return for recount</span><span class="btn danger">Cancel stock take</span><span class="btn">Close</span></div>
+  </div>
+  <div class="modal" style="top: 330px; left: 440px; width: 400px">
+    <h2>Approve this stock take?</h2>
+    <div style="margin-bottom: 12px">Every difference is posted to stock now. This cannot be undone.</div>
+    <div class="row" style="justify-content: flex-end"><span class="btn">Cancel</span><span class="btn primary">Approve</span></div>
+  </div>
+  <div class="note" data-n="7" style="top: 470px; right: 20px">UC09 step 5 (FR-31): book, count, difference and its value. <b>Approve</b> posts one ADJUSTMENT movement per non-zero line in one transaction (BR05). TC-19, TC-39.</div>
+  <div class="note" data-n="8" style="top: 470px; right: 1000px"><b>Return for recount</b> asks what to recount and sends it back to Counting; <b>Cancel</b> posts nothing and keeps the record.</div>
+</div>
+<div class="frame">
+  <span class="label">UC09 Stock take — 5. approving your own count is refused (BR08) <span class="tag">as-built · Tiến · 22/11/2026</span></span>
+  <div class="top"><b>LotOrder</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Overview</div><div>Catalogue &amp; batches</div><div>Suppliers &amp; receipts</div><div>Prescriptions &amp; dispensing</div><div>Sales &amp; returns</div><div class="on">Stock control &amp; reports</div><div>Users &amp; roles</div></div>
+    <div class="page">
+      <h1>Stock control &amp; reports</h1>
+      <div class="tabs"><div class="on">Stock take</div><div>Alerts</div><div>Expiry</div><div>Quarantine</div><div>Pending destruction</div><div>Stock movement</div></div>
+      <div class="row"><span class="field">Any status ▾</span><span style="flex: 1"></span><span class="btn primary">+ New stock take</span></div>
+    </div>
+  </div>
+  <div class="overlay"></div>
+  <div class="box" style="position: absolute; top: 8px; left: 440px; background: #fff; border-style: solid">✕ A stock take must be approved by someone who did not count it.</div>
+  <div class="modal" style="top: 70px; left: 160px; width: 960px">
+    <h2>Stock take ST-20261122-0002 <span class="tag">Waiting for approval</span></h2>
+    <div class="row"><span>Opened by: Sample Manager, 2026-11-22 01:50</span><span style="flex: 1"></span><span>Counted by: <b>Sample Manager</b>, 2026-11-22 01:50</span><span>Approved by: —</span></div>
+    <table>
+      <tr><th>Medicine</th><th>Batch</th><th>Expiry</th><th class="num">Book</th><th class="num">Counted</th><th class="num">Difference</th><th class="num">Value</th><th>Reason</th></tr>
+      <tr><td>AMLO5 — Amlodipine 5 mg</td><td>AMLO527102</td><td>2027-10-13</td><td class="num">29</td><td class="num">1</td><td class="num"><b>−28</b></td><td class="num">−17.640 ₫</td><td>Recount test</td></tr>
+      <tr><td>AMLO5 — Amlodipine 5 mg</td><td>AMLO528091</td><td>2028-09-13</td><td class="num">30</td><td class="num">1</td><td class="num"><b>−29</b></td><td class="num">−16.443 ₫</td><td>Recount test</td></tr>
+    </table>
+    <div class="row" style="justify-content: flex-end"><span class="btn primary">Approve</span><span class="btn">Return for recount</span><span class="btn danger">Cancel stock take</span><span class="btn">Close</span></div>
+  </div>
+  <div class="note" data-n="9" style="top: 360px; right: 20px">BR08 (Should, FR-32): the person who counted cannot approve. Checked in the service on <b>Approve</b>, not by hiding the button, so the rule also holds when the count is overwritten (#215). TC-51.</div>
+</div>
+<ol class="notes">
+  <li>UC09 list. Opening needs <code>stock_take.approve</code>; counting needs <code>stock_take.count</code> (pharmacist and manager).</li>
+  <li>Columns as built; empty text "No stock takes yet.".</li>
+  <li>UC09 step 1, FR-29. "Stock take ST-… opened with N line(s)." The count sheet opens straight away.</li>
+  <li>UC09 step 3, FR-29: blind count; "Saved: N" confirms each line.</li>
+  <li>FR-30: one refusal lists every incomplete line; TC-20.</li>
+  <li>UC09 A3: add a batch the sheet does not list (#184).</li>
+  <li>UC09 step 5, FR-31, BR05, TC-19, TC-39: differences become ADJUSTMENT movements, never an edit of the batch. "Approved; differences posted."</li>
+  <li>UC09 A4/A5: return for recount with a comment; cancel posts nothing.</li>
+  <li>BR08, FR-32, TC-51: "A stock take must be approved by someone who did not count it."</li>
+</ol>
+</body>
+</html>

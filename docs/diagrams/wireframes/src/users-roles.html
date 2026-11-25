@@ -1,0 +1,142 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="../kit.css"><title>Users and roles</title></head>
+<body>
+<div class="frame">
+  <span class="label">UC15 Users &amp; roles › Users — 1. list <span class="tag">as-built · Tiến · 22/11/2026</span></span>
+  <div class="top"><b>LotOrder</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Overview</div><div>Catalogue &amp; batches</div><div>Suppliers &amp; receipts</div><div>Prescriptions &amp; dispensing</div><div>Sales &amp; returns</div><div>Stock control &amp; reports</div><div class="on">Users &amp; roles</div></div>
+    <div class="page">
+      <h1>Users &amp; roles</h1>
+      <div class="tabs"><div class="on">Users</div><div>Roles</div><div>Audit log</div></div>
+      <div class="row"><span class="btn primary">New user</span></div>
+      <table>
+        <tr><th>Username</th><th>Full name</th><th>Role</th><th>Account</th><th>Last sign-in</th><th></th></tr>
+        <tr><td>cashier</td><td>Sample Cashier</td><td>Cashier</td><td><span class="tag">Active</span></td><td>—</td><td><span class="btn">Edit</span></td></tr>
+        <tr><td>manager</td><td>Sample Manager</td><td>Manager</td><td><span class="tag">Active</span></td><td>2026-11-22 01:47</td><td><span class="btn">Edit</span></td></tr>
+        <tr><td>pharmacist</td><td>Sample Pharmacist</td><td>Pharmacist</td><td><span class="tag">Active</span></td><td>—</td><td><span class="btn">Edit</span></td></tr>
+        <tr><td>tc44.thu</td><td>Nguyen Thi Thu</td><td>Pharmacist</td><td><span class="tag">Locked</span></td><td>2026-11-02 14:05</td><td><span class="btn">Edit</span></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="note" data-n="1" style="top: 290px; right: 20px">UC15 (FR-40): manager only (<code>user.manage</code>); other roles get No access, and the API answers 403 (TC-53).</div>
+  <div class="note" data-n="2" style="top: 420px; right: 20px">No delete: an account is locked (<i>Account active</i> off), so its history keeps a name. A locked user is refused at sign-in (UC16 A2).</div>
+</div>
+<div class="frame">
+  <span class="label">UC15 Users — 2. new user, invalid username <span class="tag">as-built · Tiến · 22/11/2026</span></span>
+  <div class="top"><b>LotOrder</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Overview</div><div>Catalogue &amp; batches</div><div>Suppliers &amp; receipts</div><div>Prescriptions &amp; dispensing</div><div>Sales &amp; returns</div><div>Stock control &amp; reports</div><div class="on">Users &amp; roles</div></div>
+    <div class="page">
+      <h1>Users &amp; roles</h1>
+      <div class="tabs"><div class="on">Users</div><div>Roles</div><div>Audit log</div></div>
+      <div class="row"><span class="btn primary">New user</span></div>
+      <table>
+        <tr><th>Username</th><th>Full name</th><th>Role</th><th>Account</th><th>Last sign-in</th><th></th></tr>
+        <tr><td>cashier</td><td>Sample Cashier</td><td>Cashier</td><td><span class="tag">Active</span></td><td>—</td><td><span class="btn">Edit</span></td></tr>
+        <tr><td>manager</td><td>Sample Manager</td><td>Manager</td><td><span class="tag">Active</span></td><td>2026-11-22 01:47</td><td><span class="btn">Edit</span></td></tr>
+        <tr><td>pharmacist</td><td>Sample Pharmacist</td><td>Pharmacist</td><td><span class="tag">Active</span></td><td>—</td><td><span class="btn">Edit</span></td></tr>
+        <tr><td>tc44.thu</td><td>Nguyen Thi Thu</td><td>Pharmacist</td><td><span class="tag">Locked</span></td><td>2026-11-02 14:05</td><td><span class="btn">Edit</span></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="overlay"></div>
+  <div class="modal" style="top: 80px; left: 400px; width: 480px">
+    <h2>New user</h2>
+    <div>Username*</div><div class="field error" style="width: 100%">t</div>
+    <div class="err" style="margin-bottom: 8px">A username has 3 to 32 letters, digits, dots, dashes or underscores.</div>
+    <div>Full name*</div><div class="field" style="width: 100%; margin-bottom: 8px">Nguyen Thi Thu</div>
+    <div>Role*</div><div class="field" style="width: 100%; margin-bottom: 8px">Cashier ▾</div>
+    <div>Temporary password*</div><div class="field" style="width: 100%; margin-bottom: 8px">••••••••</div>
+    <div>Repeat the password*</div><div class="field" style="width: 100%; margin-bottom: 12px">••••••••</div>
+    <div class="row" style="justify-content: flex-end"><span class="btn">Cancel</span><span class="btn primary">Add user</span></div>
+  </div>
+  <div class="note" data-n="3" style="top: 470px; right: 20px">FR-40: username 3–32 characters, unique ignoring case (#269); the password is stored only as a bcrypt hash (NFR-05). "tc44.thu added as Cashier. Tell them the temporary password."</div>
+</div>
+<div class="frame">
+  <span class="label">UC15 Users — 3. locking the last user manager is refused <span class="tag">as-built · Tiến · 22/11/2026</span></span>
+  <div class="top"><b>LotOrder</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Overview</div><div>Catalogue &amp; batches</div><div>Suppliers &amp; receipts</div><div>Prescriptions &amp; dispensing</div><div>Sales &amp; returns</div><div>Stock control &amp; reports</div><div class="on">Users &amp; roles</div></div>
+    <div class="page">
+      <h1>Users &amp; roles</h1>
+      <div class="tabs"><div class="on">Users</div><div>Roles</div><div>Audit log</div></div>
+      <div class="row"><span class="btn primary">New user</span></div>
+      <table>
+        <tr><th>Username</th><th>Full name</th><th>Role</th><th>Account</th><th>Last sign-in</th><th></th></tr>
+        <tr><td>cashier</td><td>Sample Cashier</td><td>Cashier</td><td><span class="tag">Active</span></td><td>—</td><td><span class="btn">Edit</span></td></tr>
+        <tr><td>manager</td><td>Sample Manager</td><td>Manager</td><td><span class="tag">Active</span></td><td>2026-11-22 01:47</td><td><span class="btn">Edit</span></td></tr>
+        <tr><td>pharmacist</td><td>Sample Pharmacist</td><td>Pharmacist</td><td><span class="tag">Active</span></td><td>—</td><td><span class="btn">Edit</span></td></tr>
+        <tr><td>tc44.thu</td><td>Nguyen Thi Thu</td><td>Pharmacist</td><td><span class="tag">Locked</span></td><td>2026-11-02 14:05</td><td><span class="btn">Edit</span></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="overlay"></div>
+  <div class="modal" style="top: 80px; left: 400px; width: 480px">
+    <h2>Edit manager</h2>
+    <div>Full name*</div><div class="field" style="width: 100%; margin-bottom: 8px">Sample Manager</div>
+    <div>Role</div><div class="field" style="width: 100%; margin-bottom: 8px">Manager ▾</div>
+    <div class="row">Account active <span class="field" style="min-width: 40px">○ off</span></div>
+    <div style="margin: 8px 0 4px"><b>Set a new temporary password (optional)</b></div>
+    <div>New password</div><div class="field" style="width: 100%; margin-bottom: 6px"></div>
+    <div>Repeat the password</div><div class="field" style="width: 100%; margin-bottom: 8px"></div>
+    <div class="box" style="border-style: solid">✕ At least one active user must keep the right to manage users, or nobody could manage them.</div>
+    <div class="row" style="justify-content: flex-end"><span class="btn">Cancel</span><span class="btn primary">Save</span></div>
+  </div>
+  <div class="note" data-n="4" style="top: 470px; right: 20px">UC15 A2: the service refuses any change that would leave no active user with <code>user.manage</code> — locking yourself, or changing your own role. The same dialog resets a forgotten password (8–72 characters), audited as <code>user.password_reset</code>. TC-44.</div>
+</div>
+<div class="frame">
+  <span class="label">UC15 Users &amp; roles › Roles — 4. permission matrix <span class="tag">as-built · Tiến · 22/11/2026</span></span>
+  <div class="top"><b>LotOrder</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Overview</div><div>Catalogue &amp; batches</div><div>Suppliers &amp; receipts</div><div>Prescriptions &amp; dispensing</div><div>Sales &amp; returns</div><div>Stock control &amp; reports</div><div class="on">Users &amp; roles</div></div>
+    <div class="page">
+      <h1>Users &amp; roles</h1>
+      <div class="tabs"><div>Users</div><div class="on">Roles</div><div>Audit log</div></div>
+      <div class="muted" style="margin-bottom: 8px">What each role may do. A change applies to everyone with that role on their next action. At least one active user must keep <code>user.manage</code>.</div>
+      <table>
+        <tr><th>Permission</th><th>Cashier (1)</th><th>Manager (1)</th><th>Pharmacist (1)</th></tr>
+        <tr><td><code>catalogue.manage</code><br>Manage medicines and prices (UC01, UC13)</td><td>☐</td><td>☑</td><td>☐</td></tr>
+        <tr><td><code>stock.view</code><br>Look up stock and batch history (UC04)</td><td>☑</td><td>☑</td><td>☑</td></tr>
+        <tr><td><code>dispense</code><br>Dispense against a prescription (UC06)</td><td>☐</td><td>☑</td><td>☑</td></tr>
+        <tr><td><code>sale.create</code><br>Record sales and bill dispensings (UC07)</td><td>☑</td><td>☑</td><td>☐</td></tr>
+        <tr><td><code>stock_take.count</code><br>Count stock in a stock take (UC09)</td><td>☐</td><td>☑</td><td>☑</td></tr>
+        <tr><td><code>stock_take.approve</code><br>Open and approve stock takes (UC09)</td><td>☐</td><td>☑</td><td>☐</td></tr>
+        <tr><td class="muted" colspan="4">… 14 permissions in all</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="note" data-n="5" style="top: 470px; right: 20px">FR-40: permissions per role, ticked here and checked by every service (<code>assertPermission</code>), not only by the menu. A change applies on the user's next action; the client refreshes them when the tab regains focus (#288).</div>
+</div>
+<div class="frame">
+  <span class="label">UC15 Users &amp; roles › Audit log — 5. recent entries <span class="tag">as-built · Tiến · 22/11/2026</span></span>
+  <div class="top"><b>LotOrder</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Overview</div><div>Catalogue &amp; batches</div><div>Suppliers &amp; receipts</div><div>Prescriptions &amp; dispensing</div><div>Sales &amp; returns</div><div>Stock control &amp; reports</div><div class="on">Users &amp; roles</div></div>
+    <div class="page">
+      <h1>Users &amp; roles</h1>
+      <div class="tabs"><div>Users</div><div>Roles</div><div class="on">Audit log</div></div>
+      <div class="row"><span class="field wide">Start date → End date 📅</span><span class="field wide">All actions ▾</span></div>
+      <table>
+        <tr><th>When</th><th>Who</th><th>Action</th><th>Details</th></tr>
+        <tr><td>2026-11-22 01:52</td><td>Sample Manager</td><td><code>stock_take.approved</code></td><td>{"referenceNumber":"ST-20261122-0001","adjustments":1}</td></tr>
+        <tr><td>2026-11-22 01:47</td><td>Sample Manager</td><td><code>auth.login</code></td><td>—</td></tr>
+        <tr><td>2026-11-22 01:47</td><td>—</td><td><code>auth.login_failed</code></td><td>{"username":"cashier","why":"wrong password"}</td></tr>
+        <tr><td>2026-11-02 14:06</td><td>Sample Manager</td><td><code>user.role_changed</code></td><td>{"username":"tc44.thu","from":"CASHIER","to":"PHARMACIST"}</td></tr>
+        <tr><td>2026-11-02 14:04</td><td>Sample Manager</td><td><code>user.created</code></td><td>{"username":"tc44.thu","role":"CASHIER"}</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="note" data-n="6" style="top: 420px; right: 20px">FR-41 (partly built): sign-ins, failed sign-ins, user and role changes, password resets and approved stock takes. Price changes are not audited yet (Ch.3, not implemented).</div>
+</div>
+<ol class="notes">
+  <li>UC15, FR-40: manager only; TC-53 checks every route for every role.</li>
+  <li>UC15 A1: lock instead of delete; the locked user is refused at sign-in (UC16 A2).</li>
+  <li>FR-40, NFR-05, #269: unique username ignoring case; bcrypt hash only. TC-44.</li>
+  <li>UC15 A2, TC-44: at least one active user keeps <code>user.manage</code>. FR-40 password reset sits in the same dialog.</li>
+  <li>FR-40: the role × permission matrix; enforced in the service layer (NFR-11), refreshed on focus (#288).</li>
+  <li>FR-41 (partial): audited actions as built; price changes not yet.</li>
+</ol>
+</body>
+</html>

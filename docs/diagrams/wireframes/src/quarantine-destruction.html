@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="../kit.css"><title>Quarantine and pending destruction</title></head>
+<body>
+<div class="frame">
+  <span class="label">UC08/UC11 Stock control › Quarantine — 1. returns waiting for assessment <span class="tag">as-built · Tiến · 22/11/2026</span></span>
+  <div class="top"><b>LotOrder</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Overview</div><div>Catalogue &amp; batches</div><div>Suppliers &amp; receipts</div><div>Prescriptions &amp; dispensing</div><div>Sales &amp; returns</div><div class="on">Stock control &amp; reports</div><div>Users &amp; roles</div></div>
+    <div class="page">
+      <h1>Stock control &amp; reports</h1>
+      <div class="tabs"><div>Stock take</div><div>Alerts</div><div>Expiry</div><div class="on">Quarantine</div><div>Pending destruction</div><div>Stock movement</div></div>
+      <div class="muted" style="margin-bottom: 8px">Returned goods wait here until a manager assesses them. A release goes back on sale; a reject goes to pending destruction.</div>
+      <table>
+        <tr><th>Returned</th><th>Slip</th><th>Medicine</th><th>Batch</th><th>Expiry</th><th>Status</th><th class="num">Quantity</th><th>Reason for the return</th><th></th></tr>
+        <tr><td>2026-11-04 10:12</td><td>RT-20261104-0001</td><td>EFF-PARA — Paracetamol effervescent 500 mg</td><td>EFFPA26112</td><td>2027-11-30</td><td><span class="tag">Active</span></td><td class="num">1</td><td>Wrong product</td><td style="white-space: nowrap"><span class="btn">Release</span> <span class="btn danger">Reject</span></td></tr>
+        <tr><td>2026-11-01 10:34</td><td>RT-20261101-0002</td><td>BROM8 — Bromhexine 8 mg</td><td>BROM826111</td><td>2026-11-13</td><td><span class="tag">Active</span></td><td class="num">2</td><td>Duplicate purchase</td><td style="white-space: nowrap"><span class="btn muted">Release</span> <span class="btn danger">Reject</span></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="note" data-n="1" style="top: 300px; right: 20px">BR11 (FR-46): a return is never sellable until a manager assesses it. Each line comes from a return slip (UC08).</div>
+  <div class="note" data-n="2" style="top: 440px; right: 20px"><b>Release</b> is disabled with a reason on hover: "The batch has expired.", "A returned controlled medicine never goes back on the shelf." or "The batch is on hold, recalled or rejected."</div>
+</div>
+<div class="frame">
+  <span class="label">UC11 Quarantine — 2. release, checks missing <span class="tag">as-built · Tiến · 22/11/2026</span></span>
+  <div class="top"><b>LotOrder</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Overview</div><div>Catalogue &amp; batches</div><div>Suppliers &amp; receipts</div><div>Prescriptions &amp; dispensing</div><div>Sales &amp; returns</div><div class="on">Stock control &amp; reports</div><div>Users &amp; roles</div></div>
+    <div class="page">
+      <h1>Stock control &amp; reports</h1>
+      <div class="tabs"><div>Stock take</div><div>Alerts</div><div>Expiry</div><div class="on">Quarantine</div><div>Pending destruction</div><div>Stock movement</div></div>
+      <div class="muted" style="margin-bottom: 8px">Returned goods wait here until a manager assesses them. A release goes back on sale; a reject goes to pending destruction.</div>
+      <table>
+        <tr><th>Returned</th><th>Slip</th><th>Medicine</th><th>Batch</th><th>Expiry</th><th>Status</th><th class="num">Quantity</th><th>Reason for the return</th><th></th></tr>
+        <tr><td>2026-11-04 10:12</td><td>RT-20261104-0001</td><td>EFF-PARA — Paracetamol effervescent 500 mg</td><td>EFFPA26112</td><td>2027-11-30</td><td><span class="tag">Active</span></td><td class="num">1</td><td>Wrong product</td><td style="white-space: nowrap"><span class="btn">Release</span> <span class="btn danger">Reject</span></td></tr>
+        <tr><td>2026-11-01 10:34</td><td>RT-20261101-0002</td><td>BROM8 — Bromhexine 8 mg</td><td>BROM826111</td><td>2026-11-13</td><td><span class="tag">Active</span></td><td class="num">2</td><td>Duplicate purchase</td><td style="white-space: nowrap"><span class="btn muted">Release</span> <span class="btn danger">Reject</span></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="overlay"></div>
+  <div class="modal" style="top: 90px; left: 380px; width: 520px">
+    <h2>Release to sellable stock?</h2>
+    <div class="muted" style="margin-bottom: 8px">RT-20261104-0001 · EFF-PARA, batch EFFPA26112 · 1</div>
+    <div>☐ The packaging is intact and sealed</div>
+    <div class="err" style="margin-bottom: 6px">Confirm the packaging is intact.</div>
+    <div>☑ It was plausibly stored correctly</div>
+    <div style="margin-top: 10px">What you checked*</div>
+    <div class="field error" style="width: 100%"></div>
+    <div class="err" style="margin-bottom: 12px">Write what you checked.</div>
+    <div class="row" style="justify-content: flex-end"><span class="btn">Cancel</span><span class="btn primary">Release 1</span></div>
+  </div>
+  <div class="note" data-n="3" style="top: 480px; right: 20px">FR-46: a release needs both checks and a note of what was checked; a reject needs only the note. Moves quantity quarantine → sellable (or → pending destruction) by one movement pair. TC-61.</div>
+</div>
+<div class="frame">
+  <span class="label">UC11 Stock control › Pending destruction — 3. list <span class="tag">as-built · Tiến · 22/11/2026</span></span>
+  <div class="top"><b>LotOrder</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Overview</div><div>Catalogue &amp; batches</div><div>Suppliers &amp; receipts</div><div>Prescriptions &amp; dispensing</div><div>Sales &amp; returns</div><div class="on">Stock control &amp; reports</div><div>Users &amp; roles</div></div>
+    <div class="page">
+      <h1>Stock control &amp; reports</h1>
+      <div class="tabs"><div>Stock take</div><div>Alerts</div><div>Expiry</div><div>Quarantine</div><div class="on">Pending destruction</div><div>Stock movement</div></div>
+      <div class="muted" style="margin-bottom: 8px">Written-off and rejected stock stays here until its destruction is recorded.</div>
+      <table>
+        <tr><th>Medicine</th><th>Batch</th><th>Expiry</th><th>Status</th><th class="num">Pending destruction</th><th></th></tr>
+        <tr><td>LORA10 — Loratadine 10 mg</td><td>LORA126111</td><td>2026-11-10</td><td><span class="tag">Active</span></td><td class="num">1</td><td><span class="btn danger">Record destruction</span></td></tr>
+        <tr><td>PARA500 — Paracetamol 500 mg</td><td>PARA526101</td><td>2026-10-30</td><td><span class="tag">Expired</span></td><td class="num">150</td><td><span class="btn danger">Record destruction</span></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="note" data-n="4" style="top: 330px; right: 20px">Write-offs (UC11) and rejected returns wait here; this stock is never sellable and never counted in alerts.</div>
+</div>
+<div class="frame">
+  <span class="label">UC11 Pending destruction — 4. record a destruction <span class="tag">as-built · Tiến · 22/11/2026</span></span>
+  <div class="top"><b>LotOrder</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Overview</div><div>Catalogue &amp; batches</div><div>Suppliers &amp; receipts</div><div>Prescriptions &amp; dispensing</div><div>Sales &amp; returns</div><div class="on">Stock control &amp; reports</div><div>Users &amp; roles</div></div>
+    <div class="page">
+      <h1>Stock control &amp; reports</h1>
+      <div class="tabs"><div>Stock take</div><div>Alerts</div><div>Expiry</div><div>Quarantine</div><div class="on">Pending destruction</div><div>Stock movement</div></div>
+      <div class="muted" style="margin-bottom: 8px">Written-off and rejected stock stays here until its destruction is recorded.</div>
+      <table>
+        <tr><th>Medicine</th><th>Batch</th><th>Expiry</th><th>Status</th><th class="num">Pending destruction</th><th></th></tr>
+        <tr><td>LORA10 — Loratadine 10 mg</td><td>LORA126111</td><td>2026-11-10</td><td><span class="tag">Active</span></td><td class="num">1</td><td><span class="btn danger">Record destruction</span></td></tr>
+        <tr><td>PARA500 — Paracetamol 500 mg</td><td>PARA526101</td><td>2026-10-30</td><td><span class="tag">Expired</span></td><td class="num">150</td><td><span class="btn danger">Record destruction</span></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="overlay"></div>
+  <div class="modal" style="top: 70px; left: 380px; width: 520px">
+    <h2>Record destruction of batch PARA526101</h2>
+    <div>Quantity destroyed*</div><div class="field" style="margin-bottom: 8px">150</div>
+    <div>Date destroyed*</div><div class="field" style="margin-bottom: 8px">2026-11-22 📅</div>
+    <div>Method*</div><div class="field wide" style="margin-bottom: 8px">Licensed waste contractor ▾</div>
+    <div>How*</div><div class="field" style="width: 100%; margin-bottom: 8px">Collected by contractor, incinerated</div>
+    <div>Witness*</div><div class="field error" style="width: 100%"></div>
+    <div class="err" style="margin-bottom: 8px">Name the witness.</div>
+    <div>Note (certificate number, for example)</div><div class="field" style="width: 100%; margin-bottom: 12px"></div>
+    <div class="row" style="justify-content: flex-end"><span class="btn">Cancel</span><span class="btn primary">Record destruction</span></div>
+  </div>
+  <div class="note" data-n="5" style="top: 470px; right: 20px">FR-47: quantity, date, method, how and a witness are required; the record is kept with the DESTROY movement. "150 of batch PARA526101 recorded as destroyed." TC-61.</div>
+</div>
+<ol class="notes">
+  <li>UC08 → UC11, BR11, FR-46: returns enter quarantine; only an assessment moves them.</li>
+  <li>Release is blocked for expired batches, controlled medicines and batches on hold/recalled/rejected; the tooltip says which.</li>
+  <li>FR-46: <code>packagingIntact</code>, <code>storageCredible</code> and a note (3–500 characters) for a release. TC-61 (run 90).</li>
+  <li>FR-47: pending destruction is its own stock state, not a deletion.</li>
+  <li>FR-47, TC-61: destruction record with witness; the quantity leaves the book by a DESTROY movement.</li>
+</ol>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><link rel="stylesheet" href="../kit.css"><title>Alerts</title></head>
+<body>
+<div class="frame">
+  <span class="label">UC10/UC11 Stock control › Alerts — 1. not resolved <span class="tag">as-built · Tiến · 22/11/2026</span></span>
+  <div class="top"><b>LotOrder</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Overview</div><div>Catalogue &amp; batches</div><div>Suppliers &amp; receipts</div><div>Prescriptions &amp; dispensing</div><div>Sales &amp; returns</div><div class="on">Stock control &amp; reports</div><div>Users &amp; roles</div></div>
+    <div class="page">
+      <h1>Stock control &amp; reports</h1>
+      <div class="tabs"><div>Stock take</div><div class="on">Alerts</div><div>Expiry</div><div>Quarantine</div><div>Pending destruction</div><div>Stock movement</div></div>
+      <div class="muted" style="margin-bottom: 8px">Stock-level alerts count only stock that can be issued: expired, on-hold, recalled and quarantined units are left out. Expiry alerts are per batch, within each medicine's alert window. An alert closes by itself when its condition no longer holds.</div>
+      <div class="row"><span class="field">Not resolved ▾</span><span class="field">Any type ▾</span></div>
+      <table>
+        <tr><th>Alert</th><th>Medicine</th><th>Batch</th><th class="num">Sellable now</th><th class="num">Reorder level</th><th>Raised</th><th>Status</th><th></th></tr>
+        <tr><td><span class="tag">Expired</span></td><td>DIAZ5 — Diazepam 5 mg</td><td>DIAZ526111 · 2026-11-18</td><td class="num">5</td><td class="num">—</td><td>2026-11-22 01:34</td><td><span class="tag">New</span></td><td><span class="btn">Acknowledge</span></td></tr>
+        <tr><td><span class="tag">Expiring soon</span></td><td>EFF-PARA — Paracetamol effervescent 500 mg</td><td>EFFPA26122 · 2026-12-01</td><td class="num">49</td><td class="num">—</td><td>2026-11-22 01:34</td><td><span class="tag">New</span></td><td><span class="btn">Acknowledge</span></td></tr>
+        <tr><td><span class="tag">Low stock</span></td><td>CETI10 — Cetirizine 10 mg</td><td>—</td><td class="num">49</td><td class="num">100</td><td>2026-11-22 01:34</td><td><span class="tag">Acknowledged</span></td><td></td></tr>
+        <tr><td><span class="tag">Low stock</span></td><td>SALB-INH — Salbutamol inhaler 100 mcg</td><td>—</td><td class="num">3</td><td class="num">8</td><td>2026-11-22 01:34</td><td><span class="tag">New</span></td><td><span class="btn">Acknowledge</span></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="note" data-n="1" style="top: 510px; right: 20px">The explanation is on the screen because the counts differ from the Stock tab on purpose: only issuable stock counts (FR-33, DEC-08).</div>
+  <div class="note" data-n="2" style="top: 510px; right: 260px">Four types: Low stock and Out of stock per medicine (UC10, FR-33/34), Expiring soon and Expired per batch (UC11, FR-35). TC-21, TC-22, TC-63.</div>
+  <div class="note" data-n="3" style="top: 510px; right: 500px"><b>Acknowledge</b> marks it seen ("Acknowledged: &lt;medicine&gt;."); it does not close it. The alert resolves by itself when the condition goes away.</div>
+</div>
+<div class="frame">
+  <span class="label">UC10 Alerts — 2. filter with nothing to show <span class="tag">as-built · Tiến · 22/11/2026</span></span>
+  <div class="top"><b>LotOrder</b><span>Sample Manager <span class="tag">Manager</span> <span class="btn">Sign out</span></span></div>
+  <div class="layout">
+    <div class="menu"><div>Overview</div><div>Catalogue &amp; batches</div><div>Suppliers &amp; receipts</div><div>Prescriptions &amp; dispensing</div><div>Sales &amp; returns</div><div class="on">Stock control &amp; reports</div><div>Users &amp; roles</div></div>
+    <div class="page">
+      <h1>Stock control &amp; reports</h1>
+      <div class="tabs"><div>Stock take</div><div class="on">Alerts</div><div>Expiry</div><div>Quarantine</div><div>Pending destruction</div><div>Stock movement</div></div>
+      <div class="muted" style="margin-bottom: 8px">Stock-level alerts count only stock that can be issued: …</div>
+      <div class="row"><span class="field">Not resolved ▾</span><span class="field">Out of stock ▾</span></div>
+      <table>
+        <tr><th>Alert</th><th>Medicine</th><th>Batch</th><th class="num">Sellable now</th><th class="num">Reorder level</th><th>Raised</th><th>Status</th><th></th></tr>
+        <tr><td colspan="8" class="muted" style="text-align: center; padding: 24px">No alerts match.</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="note" data-n="4" style="top: 360px; right: 20px">Empty state names the situation instead of an empty table. A medicine with <i>Low-stock alerts</i> switched off in UC01 raises no stock-level alert (TC-63).</div>
+</div>
+<ol class="notes">
+  <li>FR-33, DEC-08: stock-level alerts count sellable stock only; the rule is stated on the screen.</li>
+  <li>UC10 (FR-33, FR-34) and UC11 (FR-35). Expiry window per medicine (UC01 <i>Expiry alert (days)</i>). TC-21, TC-22.</li>
+  <li>FR-34: acknowledge records user and time and needs <code>alert.manage</code>; resolution is automatic.</li>
+  <li>UC10 A1: a medicine with monitoring off raises no stock-level alert (TC-63).</li>
+</ol>
+</body>
+</html>

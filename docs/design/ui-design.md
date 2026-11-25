@@ -46,8 +46,8 @@ screenshots is made in week 8).
 
 | Screen | UC | Owner | API | Manual TC | Status | Wireframe |
 |---|---|---|---|---|---|---|
-| Overview | — | Duy Anh | `/overview` | — | built (#292) | week 8, as-built |
-| Sign in | UC16 | Minh | `POST /auth/login` | TC-42, 43 | built | week 8, as-built |
+| Overview | — | Duy Anh | `/overview` | — | built (#292) | none (screenshot in the report) |
+| Sign in | UC16 | Minh | `POST /auth/login` | TC-42, 43 | built | [as-built](../diagrams/wireframes/sign-in.png) |
 | Catalogue › Medicines | UC01 | Tiến | `/medicines` | TC-45, 46 | built | [as-built](../diagrams/wireframes/catalogue-medicines.png) |
 | Catalogue › Stock | UC04 | Tiến | `/stock` | TC-48 | built | [as-built](../diagrams/wireframes/catalogue-stock.png) |
 | Suppliers › Suppliers | UC02 | Tiến | `/suppliers` | TC-46 | built | [as-built](../diagrams/wireframes/suppliers.png) |
@@ -56,15 +56,17 @@ screenshots is made in week 8).
 | Dispensing › Dispense | UC06 | Duy Anh | `/dispensings` | TC-04…14, 37, 38, 57 | built | [as-built](../diagrams/wireframes/dispense.png) |
 | Sales › Over-the-counter sale | UC07 | Duy Anh | `POST /sales` | TC-35, 36, 55 | built | [as-built](../diagrams/wireframes/sales-cart.png) |
 | Sales › Bill a dispensing | UC07 | Duy Anh | `/sales/billable`, `POST /sales` | TC-15, 52 | built | [as-built](../diagrams/wireframes/bill-dispensing.png) |
-| Sales › Returns | UC08 | Duy Anh | planned | TC-16, 17, 18, 50 | *being built, #174* | [design](../diagrams/wireframes/sales-returns.png) |
-| Reports › Stock take | UC09 | Minh | `/stock-takes` | TC-19, 20, 39, 51 | built | week 8, as-built |
-| Reports › Alerts | UC10 | Minh | `/alerts` | TC-21, 63 | built | week 8, as-built |
-| Reports › Expiry and batch status | UC11 | Minh | `/reports/expiry`, `/batches/:id/write-off`, `/batches/:id/status` | TC-22, 56, 60 | *planned* | [design](../diagrams/wireframes/reports-expiry.png) |
-| Reports › Stock movement | UC12 | Minh | `/reports/stock-movement` | TC-23 | *planned* | [design](../diagrams/wireframes/reports-movement.png) |
-| Catalogue › Medicines › Prices | UC13 *(S)* | Tiến | `/medicines/:id/prices` | TC-40, 41 | *design gate #103* | [design](../diagrams/wireframes/catalogue-prices.png) |
-| Users & roles | UC15 *(S)* | Minh | planned | TC-44 | *planned, Should* | only if the Must-core gate passes |
-| Dispensing › Customers | UC14 *(S)* | Duy Anh | `/customers` | TC-49 | built (#247) | week 8, as-built |
-| Dispensing › Prescribers | UC14 *(S)* | Duy Anh | `/prescribers` | TC-49 | built (#247) | week 8, as-built |
+| Sales › Returns | UC08 | Duy Anh | `/returns` | TC-16, 17, 18, 50 | built (#174, #179) | [design](../diagrams/wireframes/sales-returns.png) |
+| Reports › Stock take | UC09 | Minh | `/stock-takes` | TC-19, 20, 39, 51 | built | [as-built](../diagrams/wireframes/stock-take.png) |
+| Reports › Alerts | UC10, UC11 | Minh | `/alerts` | TC-21, 22, 63 | built | [as-built](../diagrams/wireframes/alerts.png) |
+| Reports › Expiry and batch status | UC11 | Minh | `/reports/expiry`, `/batches/:id/write-off`, `/batches/:id/status` | TC-22, 56, 60 | built (#190) | [design](../diagrams/wireframes/reports-expiry.png) |
+| Reports › Stock movement | UC12 | Minh | `/reports/stock-movement` | TC-23 | built (#189) | [design](../diagrams/wireframes/reports-movement.png) |
+| Catalogue › Medicines › Prices | UC13 *(S)* | Tiến | `/medicines/:id/prices` | TC-40, 41 | built (#259) | [design](../diagrams/wireframes/catalogue-prices.png) |
+| Reports › Quarantine | UC11 *(S)* | Minh | `/quarantine` | TC-61 | built (#235) | [as-built](../diagrams/wireframes/quarantine-destruction.png) |
+| Reports › Pending destruction | UC11 *(S)* | Minh | `/quarantine` | TC-61 | built (#235) | [as-built](../diagrams/wireframes/quarantine-destruction.png) |
+| Users & roles › Users, Roles, Audit log | UC15 *(S)* | Minh | `/users`, `/roles`, `/audit-logs` | TC-44, 53 | built (#236) | [as-built](../diagrams/wireframes/users-roles.png) |
+| Dispensing › Customers | UC14 *(S)* | Duy Anh | `/customers` | TC-49 | built (#247) | none (screenshot in the report) |
+| Dispensing › Prescribers | UC14 *(S)* | Duy Anh | `/prescribers` | TC-49 | built (#247) | none (screenshot in the report) |
 
 Receipts (UC07), return slips (UC08) and hand-over records (UC06) carry a
 *Print* button that prints only the document (#290). The Expiry (UC11) and
@@ -215,8 +217,13 @@ three instead of their own timings.
 Low-fidelity, grey boxes, one shared stylesheet:
 [`../diagrams/wireframes/`](../diagrams/wireframes/README.md). Each source is
 an HTML file reviewed in the pull request; the PNG next to it is what the
-report uses. Wireframes of screens built before 22/10 are marked **as-built**
-— drawn after the code, to document it, not to claim it was designed first.
+report uses. Wireframes of screens built before 22/10, and of the screens
+added in weeks 7–8 without a wireframe (sign in, stock take, alerts,
+quarantine and pending destruction, users and roles; #156), are marked
+**as-built** — drawn after the code, to document it, not to claim it was
+designed first. The four *design* wireframes (returns, expiry, stock movement,
+prices) were drawn before the code at the feature design gate and are kept as
+they were.
 
 ## 7. Feature design gate
 

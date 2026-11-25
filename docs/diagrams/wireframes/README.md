@@ -53,9 +53,15 @@ Commit the HTML and the PNG together.
 | Prescriptions & dispensing › Dispense | UC06 | as-built | Duy Anh | [dispense.png](dispense.png) |
 | Sales › Over-the-counter sale | UC07 | as-built | Duy Anh | [sales-cart.png](sales-cart.png) |
 | Sales › Bill a dispensing | UC07 | as-built | Duy Anh | [bill-dispensing.png](bill-dispensing.png) |
+| Sign in | UC16 | as-built | Tiến | [sign-in.png](sign-in.png) |
+| Stock control › Stock take | UC09 | as-built | Tiến | [stock-take.png](stock-take.png) |
+| Stock control › Alerts | UC10, UC11 | as-built | Tiến | [alerts.png](alerts.png) |
+| Stock control › Quarantine, Pending destruction | UC11 | as-built | Tiến | [quarantine-destruction.png](quarantine-destruction.png) |
+| Users & roles › Users, Roles, Audit log | UC15 | as-built | Tiến | [users-roles.png](users-roles.png) |
 
 UI design is Tiến's; Duy Anh reviews every wireframe pull request, may
 change or extend the wireframes, and develops the design further (motion and
 interaction details, [`ui-design.md` §5.1](../../design/ui-design.md#51-motion-and-interaction-details--duy-anh));
-Minh helps when needed. The other built
-screens get as-built wireframes in week 8 with the report draft ([`ui-design.md` §2](../../design/ui-design.md#2-screen-inventory)).
+Minh helps when needed. The screens built without a wireframe got
+as-built wireframes in #156; the Overview and the Customers and Prescribers
+tabs are shown by screenshots in the report instead ([`ui-design.md` §2](../../design/ui-design.md#2-screen-inventory)).

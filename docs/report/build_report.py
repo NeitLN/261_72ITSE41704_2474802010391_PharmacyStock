@@ -124,6 +124,9 @@ MANIFEST = [
 
     ('chapter', 4, 'CHAPTER 4: CONCLUSION'),
     ('file', 'ch4-conclusion.md', None, 2, {}),
+    ('skills', [('Võ Việt Tiến', 'ch4-skills-tien.md'),
+                ('Bùi Duy Anh', 'ch4-skills-duy-anh.md'),
+                ('Võ Hoàng Minh', 'ch4-skills-minh.md')]),
 
     ('chapter', 'A', 'APPENDICES'),
     ('h', 2, 'Appendix A. Proposal feedback and the actions taken'),
@@ -702,6 +705,18 @@ def render(w, plan):
         if kind == 'todo':
             w.path = None
             w.todo(entry[1])
+            continue
+        if kind == 'skills':
+            for name, file in entry[1]:
+                w.path = file
+                w.local_refs = {}
+                w.heading(3, name)
+                if not (REPORT / file).exists():
+                    w.todo(f'{file}: to be written by {name}')
+                    continue
+                for bkind, payload in blocks(section_lines(read(file), None)):
+                    if bkind == 'para':
+                        w.para(payload)
             continue
         if kind == 'references':
             w.heading(1, 'REFERENCES', page_break=True)

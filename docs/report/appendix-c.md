@@ -18,7 +18,7 @@
 | Manual runs | Rows of `tests/manual/runs.md` whose runner is the member | `tests/manual/runs.md` |
 
 ```bash
-git log --no-merges --format='%an' origin/main | sort | uniq -c
+git log --no-merges --format='%ae' origin/main | sort | uniq -c
 git log --no-merges --numstat --format='AUTHOR %an' --date=short origin/main
 gh pr list --state all --limit 400 --json number,author,state,mergedAt
 gh search prs --reviewed-by=<account> --repo <owner>/<repo> --limit 400 --json number
@@ -26,8 +26,9 @@ gh issue list --state all --limit 400 --json number,state,assignees
 ```
 
 Three details decide the totals. Merge commits are left out, so the counts
-describe authored work rather than integration. Each member has one git
-identity (`Võ Việt Tiến`, `Duy Anh`, `Jayson135724`), so no aliasing is needed.
+describe authored work rather than integration. Members are counted by
+e-mail address, not by name: Duy Anh committed both as `Duy Anh` and as
+`Bùi Duy Anh` with the same address, and both count as his.
 The run count includes run 107, logged in the pull request that records
 TC-27; runs 77–106 were merged into `main` on 23/11.
 
@@ -82,28 +83,32 @@ The percentages round to whole numbers, so the column adds to 100 exactly.
 ## C.4 What each member was responsible for
 
 **Võ Việt Tiến (A, team leader).** Project setup and the parts every module
-stands on: the TypeORM data source, the entities and the first migrations, the seed
-data, the error format and the shared configuration. The catalogue (UC01), the
-suppliers and goods receipts (UC03), the stock ledger that writes every
-movement (BR03, BR05), the effective-dated price book (BR09, UC13) and the
-stock-movement reports. Most of the repository's documentation — the plans,
-the weekly reports, the README, the run guide, the reference list — and the
-final edit of the report are also his.
+stands on: the TypeORM data source, the entities and the first migrations, the
+seed data, the error format and the stock ledger that writes every movement
+(BR03, BR05). His use cases are the medicine catalogue (UC01), suppliers
+(UC02), goods receipts (UC03), stock lookup and batch history (UC04) and the
+effective-dated prices (UC13, BR09). He drew the UI design, the wireframes
+(design and as-built) and the LotOrder identity, wrote the plans, weekly
+reports, README and most of the requirement and design documents, and edited
+and assembled the final report.
 
-**Bùi Duy Anh (B).** Prescriptions (UC05), dispensing (UC06), returns (UC08)
-and the customer and prescriber screens (UC14), with the rules behind them:
-the FEFO allocator and the expiry policy (BR01, BR02), the prescription
-validator (BR04, BR07, BR10) and the idempotent command path (FR-23). He wrote
-the design of the business-rule scenarios, the traceability and the
-self-check appendix, and the report chapters for his functions and the
-references.
+**Bùi Duy Anh (B).** Prescriptions (UC05), dispensing (UC06), sales and the
+billing of dispensings (UC07), returns (UC08) and the customer and prescriber
+screens (UC14), with the rules behind them: the FEFO allocator and the expiry
+policy (BR01, BR02), the prescription validator (BR04, BR07, BR10) and the
+idempotent command path (FR-23). He wrote the business-rule scenarios, the
+traceability matrix, the self-check appendix, the report chapter of his
+functions, the library and licence list and this appendix, and merged most of
+the team's pull requests in the last week.
 
-**Võ Hoàng Minh (C).** Stock takes (UC09, BR08), the quarantine assessment and
-the destruction record (UC11, FR-46/47, BR11), users and roles (UC15) and the
-sign-in path (UC16), with the later migrations the stock-take counters needed.
-He produced the access-control matrix and its test (TC-53), the as-built
-wireframes of his screens, the testing chapter and the code map of his
-functions, and he reviewed the largest number of pull requests.
+**Võ Hoàng Minh (C).** Stock takes (UC09, BR08), low-stock alerts (UC10),
+expiry, batch status and write-off (UC11) with the quarantine assessment and
+the destruction record (FR-46/47, BR11), the stock movement report (UC12),
+users and roles (UC15) and the sign-in path (UC16). He produced the
+access-control matrix and its test (TC-53), regenerated the class diagram and
+ERD from the code, wrote the run guide, the final submission checklist and the
+testing chapter, ran the performance and backup checks (TC-29, TC-30), and
+reviewed the largest number of pull requests.
 
 ## C.5 Signatures
 

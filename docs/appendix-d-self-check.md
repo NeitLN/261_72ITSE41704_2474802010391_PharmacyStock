@@ -4,6 +4,8 @@
 together in the meeting; **recorded by:** Duy Anh. The criteria are the five of the Final Report (Guidelines §6.2,
 2.0 points each, `course-requirements.md`) and the technical minimums of §4.1. Each score is the team's own
 judgement against the evidence linked; the *gap* column is what the team agreed to do before the freeze (09/11).
+**Final evidence:** §4 repeats the counters on the submitted build (23/11) and says which gaps closed. The
+scores in §1 are the team's 31/10 judgement and are not re-scored here.
 
 ## 1. Final Report criteria (2.0 each)
 
@@ -36,7 +38,28 @@ judgement against the evidence linked; the *gap* column is what the team agreed 
 - **CLO4:** 13 test cases are not run yet, and four fixed bugs still wait for their re-test.
 - **CLO1:** the traceability matrix was last brought up to date on 27/10; Should features built since then must be reflected.
 
-## 4. Sign-off
+## 4. Final evidence, 23/11/2026
+
+Read on `main` at `368ae91`, with the suites run the same day.
+
+| Counter | At `v0.2` (31/10) | On the submitted build |
+|---|---|---|
+| Backend unit tests | 125 | 126, all passing |
+| End-to-end tests | 562 in 23 files | 646 passing, 12 skipped, in 26 files |
+| Manual test cases Pass | 52 of 65 | 61 of 65 (62 once the TC-27 pull request merges) |
+| Manual runs recorded | 71 | 106 (107 with TC-27) |
+| Commits per member | Tiến 97, Duy Anh 90, Minh 49 | Tiến 127, Duy Anh 125, Minh 78 |
+| Weeks with a commit | 5+ for Tiến, 4 for Duy Anh and Minh | Tiến 5, Minh 5, Duy Anh 5 once the TC-27 pull request adds a 23/11 commit |
+| Bugs still open | #183, #184, #185, #209, the S3/S4 UX set | #209 (fixed in #220, re-tested in run 73, issue not closed); the S4 UX set #254–#258, #279 and #158 are closed with the fixes they name |
+| Report in the repository | Ch.3 of B and C, testing | Ch.2, Ch.3 architecture and data, Ch.3 of B and C, testing and interface design, Appendices C and D, the source lists; Ch.1 and Functions of A still missing |
+
+What still stands between this page and the submission is in
+[`report/final-checklist.md`](report/final-checklist.md): Ch.1 and Ch.4,
+Appendix B, the Proposal-feedback table, numbered figures, the screenshots on
+`v1.0`, the three signatures and the tag itself. Those are the rows the team
+owns by 27/11, not evidence problems.
+
+## 5. Sign-off
 
 | Member | Agrees with the scores |
 |---|---|

@@ -39,9 +39,14 @@ nor submitted (BR08, TC-20, TC-51); since #215 this includes a counter whose
 count was later overwritten. A medicine whose batches the book holds at 0
 can still be counted by adding its batch (A3, #184).
 
-*Figure 3.x — The count sheet during counting (blind) and the approval view
-with book quantity, count and difference. Evidence:
-`TC-19-2-blind-count-grid`, `TC-19-5-approve-book10-count8-minus2`.*
+![The count sheet during counting](figures/C01-count-sheet-blind.png)
+
+![The approval view](figures/C02-stock-take-approval.png)
+
+*Figure 3.x — The count sheet during counting (blind: no book quantity), and
+the approval view with book quantity, count, difference and its value.
+Evidence of the same screens: `TC-19-2-blind-count-grid`,
+`TC-19-5-approve-book10-count8-minus2`.*
 
 ## 3.x.2 Review stock-level alerts (UC10)
 
@@ -62,8 +67,11 @@ stays open until the stock recovers.
 |---|---|
 | Any stock change; the medicine's reorder level and monitoring switch | Alerts list, out-of-stock first; acknowledgement with user and time |
 
-*Figure 3.x — The Alerts tab after the last units of a medicine were sold.
-Evidence: `TC-21-5-alerts-final-out-of-stock`.*
+![The Alerts tab, out of stock](figures/C03-alerts-out-of-stock.png)
+
+*Figure 3.x — The Alerts tab after the last units of HYDRO-CR were sold:
+an Out of stock alert at sellable 0, reorder level 10. Evidence:
+`TC-21-5-alerts-final-out-of-stock`.*
 
 ## 3.x.3 Expiry, batch status and write-off (UC11)
 
@@ -84,8 +92,11 @@ alerts alongside the stock-level ones.
 |---|---|
 | Batch, new status or write-off, and a reason | The batch's new status or a `WRITE_OFF` movement; expiry alerts |
 
-*Figure 3.x — The Expiry tab and the write-off dialog. Evidence:
-`TC-22-1-expiry-list-TC22X`, `TC-56-1-write-off-confirm-E-0`.*
+![The Expiry tab and the write-off dialog](figures/C04-write-off-dialog.png)
+
+*Figure 3.x — The Expiry tab, expired batches first, and the write-off dialog
+for one of them: the whole sellable quantity moves to pending destruction.
+Evidence: `TC-22-1-expiry-list-TC22X`, `TC-56-1-write-off-confirm-E-0`.*
 
 ## 3.x.4 Produce a stock movement report (UC12)
 
@@ -106,8 +117,11 @@ two-month seeded history (TC-23, with a spreadsheet in the evidence).
 |---|---|
 | From and to dates (at most 366 days, not in the future), optional category | Table per medicine, totals, producer and time; drill-down of movements |
 
-*Figure 3.x — The report for September 2026 on the seeded data. Evidence:
-`TC-23-1-report-september`, `TC-23-hand-calculation` (spreadsheet).*
+![The stock movement report](figures/C05-movement-october.png)
+
+*Figure 3.x — The stock movement report for October 2026 on the seeded data.
+Evidence of the hand-checked run (September): `TC-23-1-report-september`,
+`TC-23-hand-calculation` (spreadsheet).*
 
 **Design decision: one report class, three reports.** The three reports
 (low stock, expiry, stock movement) share one abstract class,
@@ -161,8 +175,13 @@ checks its permission first; TC-53 tries all three roles on every one of the
 |---|---|
 | Username and password | Token, expiry and the user's permissions; the role's menu |
 
-*Figure 3.x — The sign-in page and the cashier's menu. Evidence:
-`TC-42-1-wrong-password`, `TC-43-3-cashier-menu`.*
+![The sign-in page](figures/I03-sign-in.png)
+
+![The cashier's menu](figures/C06-cashier-menu.png)
+
+*Figure 3.x — The sign-in page, and the cashier's menu after signing in
+(Overview, Catalogue & batches, Sales & returns). Evidence:
+`TC-42-1-wrong-password`, `TC-43-final-cashier-menu-2026-11-26`.*
 
 ## 3.x.6 Users and roles (UC15) — Should
 
@@ -195,8 +214,12 @@ other at the same moment cannot both succeed (UC15-11).
 |---|---|
 | Username, full name, role, temporary password; a role's permissions; an audit period | The account, its role and state; the role's permissions; audit entries |
 
+![The Roles tab](figures/C07-roles.png)
+
+![The refusal when the last user manager would lock their account](figures/C08-last-manager-refused.png)
+
 *Figure 3.x — The Roles tab, and the refusal when the last user manager would
-lose `user.manage`. Screenshot on `v1.0`.*
+lose `user.manage` by locking their own account.*
 
 **Scope.** The week 8 plan left out the password reset and the audit of
 sign-ins and stock takes. Both were built, because the design gate (#234)

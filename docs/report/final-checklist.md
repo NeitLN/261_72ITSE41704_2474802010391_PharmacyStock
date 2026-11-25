@@ -39,7 +39,7 @@ with the matching evidence from section B.
 | 10 | `/src`, `/docs`, `/tests`, `README.md`, `.gitignore`; no build output or dependency folders | All present; no `node_modules`, `dist` or dump is tracked | Done | — |
 | 11 | `main` always builds | CI passes on every PR into `main`; the last ones on 05/11 (#273, #278, #281–#283) | Done | — |
 | 12 | Tags `v0.1`, `v0.2`, `v1.0` | `v0.1` and `v0.2` exist; **`v1.0` does not** | **Open, blocker** | Tiến tags, after the final regression |
-| 13 | Commits in at least 5 of the 10 weeks, from every member | On `main`: Tiến 5 weeks or more; **Minh 4 (weeks 5–8), Duy Anh 4 (weeks 5–8)** — each needs a commit on `main` dated week 10 | **Open** | Minh, Duy Anh |
+| 13 | Commits in at least 5 of the 10 weeks, from every member | On `main`: Tiến 5 weeks, Minh 5 (weeks 5–8 and 10); **Duy Anh 4 (weeks 5–8)** — his 23/11 commit in #301 adds the fifth | **Open** | Duy Anh |
 | 14 | Every member commits their own work under their own account | Three accounts; Duy Anh's two author names share one address | Done | — |
 
 ### Report content (§6.2, §6.3, `outline.md`)
@@ -57,13 +57,13 @@ with the matching evidence from section B.
 | 23 | Figures and tables numbered, captioned and referred to | Still `Figure 3.x` / `Table 3.x` placeholders: 6 in `ch3-functions-c.md`, 8 in `ch3-interface-design.md`, 4 in `ch3-testing.md` | Open | Each writer; Tiến numbers them when editing |
 | 24 | Screenshots readable, with realistic data, taken on the submitted build | Need `v1.0` | Open | Each writer |
 | 25 | Class diagrams match the submitted code | `npm run diagrams` on `b807fd7`: ERD and class diagram unchanged; data dictionary gains the `LOWER(username)` index (this PR) | Done | Minh |
-| 26 | Traceability FR → UC → code → test → status | `docs/requirements/traceability-matrix.md`, snapshot 02/11; FR-43, 46, 47 can now be marked Built (#283) | Draft | Duy Anh |
+| 26 | Traceability FR → UC → code → test → status | `docs/requirements/traceability-matrix.md`, snapshot 23/11 at `368ae91`: 46 Built, 0 Built-not-run, FR-41 partly built, FR-42 (Could) not built | Done | Duy Anh |
 | 27 | Proposal feedback table: feedback → action → evidence | Not found in `docs/` | Open | Tiến (W09-A3) |
-| 28 | Ch.4: built against proposed, limitations with **every open bug**, future work | Not in `docs/report/`. Open bugs today: #209 (fixed in #220, re-tested in run 73, not closed), #279 (fixed in #284, no re-test logged), #254–#258 (S4, UX) | Open | Tiến |
+| 28 | Ch.4: built against proposed, limitations with **every open bug**, future work | Not in `docs/report/`. Open bugs today: #209 (fixed in #220, re-tested in run 73, not closed), #104 and #159 (acceptance and pilot write-up); the S4 UX set #254–#258, #279 and #158 are closed with their fixes | Open | Tiến |
 | 29 | Ch.4: a skills paragraph from each member | Not in the repository | Open | Each member |
 | 30 | Appendix B: AI tools, for what, how the output was checked | `docs/ai-use-log.md` holds the rows; the appendix is not written | Open | Tiến |
 | 31 | Appendix C: contributions from Git and GitHub, typed signatures of all three | `docs/report/appendix-c.md`; Duy Anh signed, Tiến's and Minh's signatures to collect | Draft | Duy Anh (W10-B3) |
-| 32 | Appendix D: rubric self-check | `docs/appendix-d-self-check.md` (week 7) | Draft | Duy Anh |
+| 32 | Appendix D: rubric self-check | `docs/appendix-d-self-check.md`: the 31/10 scores, with the final evidence of §4 (23/11, `368ae91`) | Done | Duy Anh |
 | 33 | Third-party libraries with licence and purpose; generated code named | `docs/report/references.md` | Draft | Duy Anh (W10-B2) |
 
 ### Technical minimums (§4.1)

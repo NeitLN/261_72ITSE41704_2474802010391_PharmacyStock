@@ -2,6 +2,7 @@ import {
   Injectable,
   Logger,
   type OnApplicationBootstrap,
+  type OnApplicationShutdown,
 } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, Not } from 'typeorm';
@@ -51,14 +52,22 @@ const TYPE_RANK: Record<AlertType, number> = {
  *
  * Alerts are raised and resolved by `AlertEvaluator` as stock moves. Expiry
  * makes stock unsellable at midnight without any movement, so every medicine
- * is evaluated again when the API starts and on the first alert request of a
- * new business date (UC10 decisions).
+ * is evaluated again when the API starts, by a check every few minutes that
+ * notices a new business date, and on the first alert request of a new
+ * business date if that check has not run yet (UC10 decisions, FR-33).
  */
+/** How often the date is checked, and how many medicines one transaction evaluates. */
+const CHECK_EVERY_MS = 5 * 60 * 1000;
+const BATCH_SIZE = 50;
+
 @Injectable()
-export class AlertsService implements OnApplicationBootstrap {
+export class AlertsService implements OnApplicationBootstrap, OnApplicationShutdown {
   private readonly logger = new Logger(AlertsService.name);
   /** Business date of the last full evaluation. */
   private evaluatedOn: string | null = null;
+  /** The evaluation in progress, shared by everyone who asks for one meanwhile. */
+  private running: Promise<void> | null = null;
+  private timer: ReturnType<typeof setInterval> | null = null;
 
   constructor(
     @InjectDataSource() private readonly dataSource: DataSource,
@@ -68,6 +77,15 @@ export class AlertsService implements OnApplicationBootstrap {
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
+    // The new business date is noticed within minutes, without waiting for
+    // someone to open the alerts.
+    this.timer = setInterval(() => {
+      if (this.evaluatedOn === this.clock.today()) return;
+      this.evaluateAll().catch((error) =>
+        this.logger.warn(`Daily alert evaluation failed: ${String(error)}`),
+      );
+    }, CHECK_EVERY_MS);
+    this.timer.unref();
     try {
       await this.evaluateAll();
     } catch (error) {
@@ -75,6 +93,10 @@ export class AlertsService implements OnApplicationBootstrap {
       this.evaluatedOn = null;
       this.logger.warn(`Start-up alert evaluation failed: ${String(error)}`);
     }
+  }
+
+  onApplicationShutdown(): void {
+    if (this.timer) clearInterval(this.timer);
   }
 
   async list(actor: Actor, query: ListAlertsQuery): Promise<AlertView[]> {
@@ -157,18 +179,27 @@ export class AlertsService implements OnApplicationBootstrap {
   }
 
   /**
-   * Every medicine, in one ledger transaction: the ledger locks them in
-   * ascending id and evaluates them before it commits.
+   * Every medicine, a batch at a time: the ledger locks each batch in
+   * ascending id and evaluates it before it commits, so sales and dispensing
+   * of other medicines are not held up for the whole run.
    */
-  private async evaluateAll(): Promise<void> {
-    const today = this.clock.today();
-    const ids = (
-      await this.dataSource.manager.find(Medicine, { select: { id: true } })
-    ).map((m) => m.id);
-    if (ids.length > 0) {
-      await this.ledger.run((tx) => tx.lockMedicines(ids));
-    }
-    this.evaluatedOn = today;
+  private evaluateAll(): Promise<void> {
+    this.running ??= (async () => {
+      const today = this.clock.today();
+      const ids = (
+        await this.dataSource.manager.find(Medicine, { select: { id: true } })
+      )
+        .map((m) => m.id)
+        .sort();
+      for (let i = 0; i < ids.length; i += BATCH_SIZE) {
+        const chunk = ids.slice(i, i + BATCH_SIZE);
+        await this.ledger.run((tx) => tx.lockMedicines(chunk));
+      }
+      this.evaluatedOn = today;
+    })().finally(() => {
+      this.running = null;
+    });
+    return this.running;
   }
 
   private view(alert: StockAlert, sellable: number): AlertView {

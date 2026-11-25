@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { AuditLog, User } from '../src/entities/index.js';
 import { createTestApp, resetDatabase, type TestApp } from './e2e/helpers.js';
+import { businessDateOf } from '../src/stock/clock.js';
 
 /** SEED_PASSWORD in vitest.config.e2e.ts. */
 const PASSWORD = 'Test-password-1';
@@ -25,7 +26,9 @@ describe('UC15 users, roles and audit log (e2e, AUTH_MODE=jwt)', () => {
   });
 
   afterAll(async () => {
-    process.env.AUTH_MODE = previousMode;
+    // Assigning undefined would store the string "undefined".
+    if (previousMode === undefined) delete process.env.AUTH_MODE;
+    else process.env.AUTH_MODE = previousMode;
     await t.app.close();
   });
 
@@ -187,6 +190,7 @@ describe('UC15 users, roles and audit log (e2e, AUTH_MODE=jwt)', () => {
 
   it('UC15-06 a reset password replaces the old one; the log holds no password', async () => {
     const m = await tokenFor('manager');
+    const before = await tokenFor('pharmacist');
     const res = await t
       .http()
       .post(`/api/users/${await userId('pharmacist')}/password`)
@@ -195,6 +199,8 @@ describe('UC15 users, roles and audit log (e2e, AUTH_MODE=jwt)', () => {
     expect(res.status).toBe(204);
     expect((await signIn('pharmacist')).status).toBe(401);
     expect((await signIn('pharmacist', NEW_PASSWORD)).status).toBe(200);
+    // A token issued before the reset no longer works.
+    expect((await t.http().get('/api/auth/me').set(as(before))).status).toBe(401);
     const [reset] = await entries('user.password_reset');
     expect(reset.details).not.toContain(NEW_PASSWORD);
     expect(reset.details).not.toMatch(/\$2[aby]\$/);
@@ -253,10 +259,14 @@ describe('UC15 users, roles and audit log (e2e, AUTH_MODE=jwt)', () => {
       currentPrice: 1000, classification: 'otc', classificationSource: 'Label', classificationDate: '2026-10-01',
     });
     const sup = await t.http().post('/api/suppliers').set(as(m)).send({ name: 'Audit supplier', phone: '028 3855 1234' });
-    await t.http().post('/api/goods-receipts').set(as(m)).send({
-      supplierId: sup.body.id, documentNumber: 'AUD-1', receiptDate: '2026-10-13',
-      lines: [{ medicineId: med.body.id, batchNumber: 'AUD-B', expiryDate: '2027-06-30', quantity: 5, unitCost: 800 }],
+    // Dates follow the business date, so the test does not expire with the calendar.
+    const today = businessDateOf(new Date());
+    const expiry = new Date(Date.parse(`${today}T00:00:00Z`) + 400 * 86_400_000).toISOString().slice(0, 10);
+    const receipt = await t.http().post('/api/goods-receipts').set(as(m)).send({
+      supplierId: sup.body.id, documentNumber: 'AUD-1', receiptDate: today,
+      lines: [{ medicineId: med.body.id, batchNumber: 'AUD-B', expiryDate: expiry, quantity: 5, unitCost: 800 }],
     });
+    expect(receipt.status).toBe(201);
     const take = await t.http().post('/api/stock-takes').set(as(m)).send({ medicineIds: [med.body.id] });
     await t.http().put(`/api/stock-takes/${take.body.id}/lines/${take.body.lines[0].id}`).set(as(p)).send({ countedQuantity: 4, reason: 'One box missing' });
     await t.http().post(`/api/stock-takes/${take.body.id}/submit`).set(as(p));

@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { JwtService } from '@nestjs/jwt';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { AuthService } from '../src/auth/auth.service.js';
 import { hashPassword } from '../src/auth/passwords.js';
 import { User } from '../src/entities/index.js';
 import { seed } from '../src/seed/seed.js';
@@ -24,7 +25,9 @@ describe('UC16 sign in and sign out (e2e, AUTH_MODE=jwt)', () => {
   });
 
   afterAll(async () => {
-    process.env.AUTH_MODE = previousMode;
+    // Assigning undefined would store the string "undefined".
+    if (previousMode === undefined) delete process.env.AUTH_MODE;
+    else process.env.AUTH_MODE = previousMode;
     await t.app.close();
   });
 
@@ -191,6 +194,36 @@ describe('UC16 sign in and sign out (e2e, AUTH_MODE=jwt)', () => {
 
     const token = await tokenFor('manager');
     await t.http().post('/api/auth/logout').set(bearer(token)).expect(204);
+  });
+
+  it('UC16-13: after sign-out the same token no longer works, in any tab', async () => {
+    const token = await tokenFor('pharmacist');
+    await t.http().get('/api/auth/me').set(bearer(token)).expect(200);
+    await t.http().post('/api/auth/logout').set(bearer(token)).expect(204);
+    const after = await t.http().get('/api/auth/me').set(bearer(token));
+    expect(after.status).toBe(401);
+    // Signing in again gives a working token.
+    await t.http().get('/api/auth/me').set(bearer(await tokenFor('pharmacist'))).expect(200);
+  });
+
+  it('UC16-14: a token whose subject is not a user id is refused, and a password typed as the username is not logged', async () => {
+    const forged = await t.app.get(JwtService).signAsync({ sub: "1' OR '1'='1", v: 0 });
+    expect((await t.http().get('/api/auth/me').set(bearer(forged))).status).toBe(401);
+    await t.http().post('/api/auth/login').send({ username: 'Secret Pa55 word!', password: 'x' }).expect(401);
+    const [row] = await t.dataSource.query(
+      `SELECT details FROM audit_logs WHERE action = 'auth.login_failed' ORDER BY "occurredAt" DESC LIMIT 1`,
+    );
+    expect(String(row.details)).not.toContain('Secret');
+  });
+
+  it('UC16-15: ten wrong passwords for one account pause its sign-in, even with the right password; other accounts are not affected', async () => {
+    for (let i = 0; i < 10; i += 1) expect((await signIn('cashier', 'wrong-password')).status).toBe(401);
+    const paused = await signIn('cashier');
+    expect(paused.status).toBe(429);
+    expect(paused.body.code).toBe('TOO_MANY_ATTEMPTS');
+    expect((await signIn('manager')).status).toBe(200);
+    // The count lives in the service; clear it so later tests can sign in.
+    (t.app.get(AuthService) as unknown as { failures: Map<string, number[]> }).failures.clear();
   });
 
   it('UC16-12 NFR-05: passwords are stored as bcrypt hashes with cost 10', async () => {

@@ -185,7 +185,7 @@ export class LedgerTransaction {
       .select('m.id')
       .where('m.id IN (:...ids)', { ids })
       .orderBy('m.id', 'ASC')
-      .setLock('pessimistic_write')
+      .setLock('for_no_key_update')
       .getMany();
     if (rows.length !== ids.length) {
       const found = new Set(rows.map((m) => m.id));
@@ -209,7 +209,7 @@ export class LedgerTransaction {
         .addSelect('medicine.id')
         .where('b.id IN (:...ids)', { ids: missing })
         .orderBy('b.id', 'ASC')
-        .setLock('pessimistic_write', undefined, ['b'])
+        .setLock('for_no_key_update', undefined, ['b'])
         .getMany();
       if (rows.length !== missing.length) {
         const found = new Set(rows.map((b) => b.id));
@@ -251,9 +251,9 @@ export class LedgerTransaction {
       .andWhere('b.qtySellable > 0')
       .orderBy('b.expiryDate', 'ASC')
       .addOrderBy('b.receivedAt', 'ASC')
-      .addOrderBy('b.batchNumber', 'ASC')
+      .addOrderBy('b."batchNumber" COLLATE "C"', 'ASC')
       .addOrderBy('b.id', 'ASC')
-      .setLock('pessimistic_write', undefined, ['b'])
+      .setLock('for_no_key_update', undefined, ['b'])
       .getMany();
     for (const batch of rows) {
       this.lockedBatches.set(
@@ -279,7 +279,7 @@ export class LedgerTransaction {
       .addSelect('medicine.id')
       .where('medicine.id = :medicineId', { medicineId })
       .andWhere('b.batchNumber = :batchNumber', { batchNumber })
-      .setLock('pessimistic_write', undefined, ['b'])
+      .setLock('for_no_key_update', undefined, ['b'])
       .getOne();
     if (!row) return null;
     const known = this.lockedBatches.get(row.id) ?? row;

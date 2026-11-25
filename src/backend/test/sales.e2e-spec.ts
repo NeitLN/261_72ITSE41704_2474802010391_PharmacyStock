@@ -174,6 +174,15 @@ describe('UC07 over-the-counter sale (e2e)', () => {
     await expectBalanced();
   });
 
+  it('UC07-01b an id typed in capitals is the same medicine: the sale goes through instead of a 500', async () => {
+    const a = await receive('A', 10);
+    const res = await sell([{ medicineId: otc.id.toUpperCase(), quantity: 2 }]);
+    expect(res.status).toBe(201);
+    expect(res.body.lines[0].medicine.id).toBe(otc.id);
+    expect(await qty(a)).toBe(8);
+    await expectBalanced();
+  });
+
   it('UC07-02 BR01: more than the first batch continues into the next, same price, one line per batch', async () => {
     const a = await receive('A', 3, '2027-01-31');
     const b = await receive('B', 8, '2027-03-31');

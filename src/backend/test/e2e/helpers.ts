@@ -19,6 +19,9 @@ export interface TestApp {
  * Boots the whole application with the same settings as main.ts. Pass a
  * FixedClock to control "today" in date rules.
  */
+/** The databases of the apps under test, checked after every test (ledger-check.ts). */
+export const openDataSources = new Set<DataSource>();
+
 export async function createTestApp(
   options: { clock?: FixedClock } = {},
 ): Promise<TestApp> {
@@ -28,6 +31,7 @@ export async function createTestApp(
   const app = moduleRef.createNestApplication();
   configureApp(app);
   await app.init();
+  openDataSources.add(app.get(DataSource));
   return {
     app,
     dataSource: app.get(DataSource),

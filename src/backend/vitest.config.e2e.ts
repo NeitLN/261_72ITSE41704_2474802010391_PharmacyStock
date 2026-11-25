@@ -26,6 +26,8 @@ export default defineConfig({
     root: './',
     include: ['**/*.e2e-spec.ts'],
     globalSetup: ['./test/e2e/global-setup.ts'],
+    // NFR-08: the ledger balances after every test.
+    setupFiles: ['./test/e2e/ledger-check.ts'],
     env: { DB_NAME: testDatabase, AUTH_MODE: 'dev', ...authEnv },
     // One shared database: run the files one after another.
     fileParallelism: false,

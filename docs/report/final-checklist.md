@@ -50,7 +50,7 @@ with the matching evidence from section B.
 | 16 | Ch.2 Background, with sources | `ch2-background.md`; #277 (WHO FEFO citation) approved, not merged | Draft | Tiến |
 | 17 | Ch.3 Architecture and data, ERD, class diagram | `ch3-architecture-data.md`; diagrams regenerated from code on 20/11 and unchanged | Draft | Tiến |
 | 18 | Ch.3 Functions of A (UC01–04, UC13) | **No file in `docs/report/`** | Open | Tiến |
-| 19 | Ch.3 Functions of B, with a 5–25 line code excerpt | `ch3-functions-b.md` | Draft | Duy Anh |
+| 19 | Ch.3 Functions of B, with a 5-25 line code excerpt | `ch3-functions-b.md`, brought to `368ae91`; four figures named, two code excerpts of 17 lines | Done | Duy Anh |
 | 20 | Ch.3 Functions of C (UC09–12, UC15, UC16) | `ch3-functions-c.md`; brought to 05/11 in #283 (waiting for review) | Draft | Minh |
 | 21 | Ch.3 Interface design: wireframes, screenshots, use-case and sequence diagrams | `ch3-interface-design.md` | Draft | Tiến, Duy Anh |
 | 22 | Test table: ID, purpose, precondition, input, expected, actual, pass/fail, with the failures found and fixed | `ch3-testing.md` has the results summary and the defect table; the full table with actual results is still to be built from `test-cases.md` and `runs.md` on the submitted tag | Open | Minh |
@@ -64,7 +64,7 @@ with the matching evidence from section B.
 | 30 | Appendix B: AI tools, for what, how the output was checked | `docs/ai-use-log.md` holds the rows; the appendix is not written | Open | Tiến |
 | 31 | Appendix C: contributions from Git and GitHub, typed signatures of all three | `docs/report/appendix-c.md`; Duy Anh signed, Tiến's and Minh's signatures to collect | Draft | Duy Anh (W10-B3) |
 | 32 | Appendix D: rubric self-check | `docs/appendix-d-self-check.md`: the 31/10 scores, with the final evidence of §4 (23/11, `368ae91`) | Done | Duy Anh |
-| 33 | Third-party libraries with licence and purpose; generated code named | `docs/report/references.md` | Draft | Duy Anh (W10-B2) |
+| 33 | Third-party libraries with licence and purpose; generated code named | `docs/report/references.md`: 42 direct dependencies with licence and purpose, licence summary, the migrations and the initial scaffold, the AI-use pointer | Done | Duy Anh (W10-B2) |
 
 ### Technical minimums (§4.1)
 

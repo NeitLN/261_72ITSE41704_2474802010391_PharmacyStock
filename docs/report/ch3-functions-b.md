@@ -2,8 +2,8 @@
 
 > **Written by Duy Anh (W08-B3, #69), brought to the submitted build in
 > W09-B1 (#76).** Everything below describes `main` at `368ae91` (23/11/2026).
-> The figure captions name the screenshot in `tests/manual/evidence/` that
-> shows the same screen; the editor sets the final figure numbers when the
+> The screenshots were taken on a freshly seeded database (26/11); each
+> caption also names the test-run evidence for the same screen; the editor sets the final figure numbers when the
 > chapters are joined.
 
 This part covers the five use cases that move medicine from the shelf to the
@@ -52,9 +52,11 @@ be reviewed again; once anything has been dispensed it can no longer be edited
 `PrescriptionValidator`, so verification and every later dispensing apply
 exactly the same rules.
 
-*Figure B.1 — the prescription form refusing an item line: missing strength,
-then missing dose (`tests/manual/evidence/TC-47-4-missing-strength-2026-10-20.png`,
-`TC-47-5-missing-dose-2026-10-20.png`).*
+![Figure B.1 — The prescription form refusing an item line](figures/B01-prescription-dose-required.png)
+
+*Figure B.1 — The prescription form refusing an item line: AMOX500 saved
+without a dose, "Dose is required." under the field and nothing saved (same
+check as TC-47, `tests/manual/evidence/TC-47-5-missing-dose-2026-10-20.png`).*
 
 Test evidence: TC-47 (multi-item prescription, missing fields) and TC-58
 (dispense unverified, edit after verification) pass; 13 e2e tests in
@@ -146,9 +148,14 @@ same transaction as the movements, so either both exist or neither does. A
 request ID reused with different content is refused rather than silently
 answered with an unrelated result.
 
-*Figure B.2 — the dispense tab: the preview of FEFO batches, then the same
-hand-over after *Hand over* (`tests/manual/evidence/TC-04-w8-1-preview-2026-11-05.png`,
-`TC-04-w8-2-recorded-2026-11-05.png`).*
+![Figure B.2 — The dispense tab, preview](figures/B02-dispense-preview.png)
+
+![Figure B.2 — The dispense tab, hand-over recorded](figures/B03-dispense-recorded.png)
+
+*Figure B.2 — The dispense tab: the preview of the FEFO batch for
+RX-20261126-0101, then the hand-over recorded, 10 of AMOX527102 and nothing
+outstanding (the TC-04 runs show the same with two batches,
+`tests/manual/evidence/TC-04-w8-1-preview-2026-11-05.png`).*
 
 Concurrency: when two pharmacists, or a pharmacist and a cashier, reach for
 the last units at the same moment, the medicine row lock makes them take turns;
@@ -183,8 +190,11 @@ receipt. Money is stored as PostgreSQL `numeric(12,2)` and travels as a string; 
 service converts it to whole *xu* (hundredths of a dong) for the arithmetic and
 back (`money.ts`), so no amount ever passes through floating point.
 
-*Figure B.3 — a receipt with an over-the-counter line and a billed dispensing
-(`tests/manual/evidence/TC-15-w8-1-receipt-2026-11-05.png`).*
+![Figure B.3 — A receipt for a billed dispensing](figures/B04-billed-receipt.png)
+
+*Figure B.3 — The receipt for a billed dispensing: the price on the sale date,
+and "Handed over earlier — no stock movement" (TC-15,
+`tests/manual/evidence/TC-15-w8-1-receipt-2026-11-05.png`).*
 
 Test evidence: TC-15, TC-35, TC-36, TC-52, TC-55 and TC-59 pass; 23 e2e tests in
 `sales.e2e-spec.ts` and `sales-billing.e2e-spec.ts`; `BR09-01…06` against the
@@ -209,8 +219,11 @@ a returned item of unknown storage history cannot be sold again by mistake,
 and the low-stock alert is not cleared by goods that may never come back
 (TC-63).
 
-*Figure B.4 — the return slip, its lines *Pending assessment*
-(`tests/manual/evidence/R-1-tc16-return-slip-2026-11-05.png`).*
+![Figure B.4 — The return slip](figures/B05-return-slip.png)
+
+*Figure B.4 — The return slip RT-20261126-0001: one LORA10 back from receipt
+RC-20261119-0001, refunded at the price paid and Pending assessment in
+quarantine (TC-16, `tests/manual/evidence/R-1-tc16-return-slip-2026-11-05.png`).*
 
 Test evidence: TC-16, TC-17, TC-18 and TC-50 pass; 14 e2e tests in
 `returns.e2e-spec.ts` and the ledger tests for `receiveReturn`.

@@ -60,8 +60,8 @@ Not built, or built only in part:
   base unit.
 - **Report export** is CSV only, not Excel or PDF as FR-43 suggested.
 
-Known defects. All are severity S4 (cosmetic). Each has a fix on `main`; the
-issue stays open until someone other than the author re-tests it (Table 4.D):
+Known defects. All are severity S4 (cosmetic). All but #299 have a fix on
+`main`; an issue stays open until someone other than the author re-tests it (Table 4.D):
 
 *Table 4.D — Known defects at the time of writing.*
 
@@ -74,6 +74,7 @@ issue stays open until someone other than the author re-tests it (Table 4.D):
 | #257 | A session that expired while the tab was closed returned to sign-in without saying why | #266, #288 |
 | #258 | Ant Design 6 deprecation warnings in the browser console | #262 |
 | #279 | Customer search by phone matched only when spaces were typed the same way | #284 |
+| #299 | The Alerts tab's empty text talks about low stock whatever the filter | Not fixed (open) |
 
 Limitations of the process and the evidence:
 
@@ -102,12 +103,8 @@ Limitations of the process and the evidence:
 
 ## 4.2 Knowledge and Skills Gained
 
-*Each member writes their own paragraph here, in their own words, covering the
+Each member wrote their own paragraph, in their own words, covering the
 template's three points: technical skills, professional skills and practical
-experience.*
-
-**Võ Việt Tiến** — _(to be written by Tiến)_
-
-**Bùi Duy Anh** — _(to be written by Duy Anh)_
-
-**Võ Hoàng Minh** — _(to be written by Minh)_
+experience. The paragraphs are kept in `ch4-skills-tien.md`,
+`ch4-skills-duy-anh.md` and `ch4-skills-minh.md`, and the report build places
+them here.

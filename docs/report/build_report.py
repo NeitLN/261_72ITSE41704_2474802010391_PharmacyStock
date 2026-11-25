@@ -112,10 +112,7 @@ MANIFEST = [
     ('h', 4, 'Stock control, reporting and access control (Võ Hoàng Minh)'),
     ('file', 'ch3-functions-c.md', None, 5, {'skip': NOT_BUILT}),
     ('h', 3, '3.3.3 Unimplemented or Incomplete Functions'),
-    ('todo', '#85 (Bùi Duy Anh): one consolidated section. Until then the parts '
-             'each writer listed are collected below.'),
-    ('file', 'ch3-functions-a.md', '## What was not built', 4, {'heading_text': 'Catalogue, prices, purchasing, stock lookup'}),
-    ('file', 'ch3-functions-b.md', '## What is not built', 4, {'heading_text': 'Prescriptions, dispensing, sales and returns'}),
+    ('file', 'ch3-unimplemented.md', None, 4, {}),
     ('file', 'ch3-overview.md', '## 3.3.4 ', 3, {'keep_heading': True}),
     ('h', 2, '3.4 Testing and Evaluation'),
     ('h', 3, '3.4.1 Testing Process'),
@@ -124,6 +121,9 @@ MANIFEST = [
 
     ('chapter', 4, 'CHAPTER 4: CONCLUSION'),
     ('file', 'ch4-conclusion.md', None, 2, {}),
+    ('skills', [('Võ Việt Tiến', 'ch4-skills-tien.md'),
+                ('Bùi Duy Anh', 'ch4-skills-duy-anh.md'),
+                ('Võ Hoàng Minh', 'ch4-skills-minh.md')]),
 
     ('chapter', 'A', 'APPENDICES'),
     ('h', 2, 'Appendix A. Proposal feedback and the actions taken'),
@@ -702,6 +702,18 @@ def render(w, plan):
         if kind == 'todo':
             w.path = None
             w.todo(entry[1])
+            continue
+        if kind == 'skills':
+            for name, file in entry[1]:
+                w.path = file
+                w.local_refs = {}
+                w.heading(3, name)
+                if not (REPORT / file).exists():
+                    w.todo(f'{file}: to be written by {name}')
+                    continue
+                for bkind, payload in blocks(section_lines(read(file), None)):
+                    if bkind == 'para':
+                        w.para(payload)
             continue
         if kind == 'references':
             w.heading(1, 'REFERENCES', page_break=True)

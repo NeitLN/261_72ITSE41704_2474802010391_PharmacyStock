@@ -44,27 +44,30 @@ was then checked directly where the expected result is about stock.
 
 ## 3.y.2 Results
 
-*Table 3.y — Manual test cases by result on 23/11/2026.*
+*Table T.1 — Manual test cases by result on 26/11/2026.*
 
 | Result | Cases |
 |---|---|
-| Pass | 61 |
+| Pass | 62 |
 | Fail | 0 |
-| Not run yet | 4 |
+| Not run yet | 3 |
 | **Total** | **65** |
 
-The 4 not run yet are TC-27 (the same dispensing request sent twice), the
-outside-user and fresh-clone checks (TC-32, 33) and the submission check
-(TC-34). *The final version replaces this table with the full case table
-and actual results from `test-cases.md` on `v1.0`.*
+The 3 not run are the outside-user check (TC-32), the fresh clone on another
+computer (TC-33) and the submission check (TC-34, after the upload). TC-32
+needs two people from outside the team and TC-33 a second computer; neither
+was available before the content lock, so both are reported as not run
+rather than replaced by a run inside the team (Ch.3 §3.4.2). The full case
+table with the latest verdict of each case is Appendix E.
 
-In total 106 runs were recorded, 103 passing and 3 failing; one of the
-passing runs (79) also found an S4 defect, #279. Every failure led to a
-defect that was fixed and re-run (Table 3.z).
+In total 128 runs were recorded, 125 passing and 3 failing; one of the
+passing runs (79) also found an S4 defect, #279. Every run is in the run log
+(Appendix E). Every failure led to a
+defect that was fixed and re-run (Table T.2).
 
 ## 3.y.3 Defects found and fixed
 
-*Table 3.z — Defects found by testing and review.*
+*Table T.2 — Defects found by testing and review.*
 
 | Defect | Found by | Severity | Fix | Re-test |
 |---|---|---|---|---|
@@ -77,7 +80,7 @@ defect that was fixed and re-run (Table 3.z).
 | #215 A manager whose count was overwritten could approve it | Code review | S3 | #226 | Runs 69–70 (TC-51, TC-20), Pass |
 | #244 A price of five digits or more, typed key by key, was saved much smaller | Re-test of #183 (31/10) | S2 | #249 | Run 75, Pass |
 | #263 The audit log's role-change row did not name the user | TC-44, run 74 | S4 | #272 | Automated: UC15-03 checks the entry names the user; no manual re-run |
-| #279 Customer search by phone matched only when spaces were typed the same way | UC14 acceptance, run 79 | S4 | #284 | Pending |
+| #279 Customer search by phone matched only when spaces were typed the same way | UC14 acceptance, run 79 | S4 | #284 | Run 128, Pass |
 
 No S1 defect was found. The one S2, #244, was caused by the fix for #183
 and found when #183 was re-tested by hand: `100000` typed into the price
@@ -124,8 +127,36 @@ The week-8 runs used the working database, not a fresh one, because TC-40
 needed a price scheduled for 04/11. The whole pack is run again on a fresh
 database before `v1.0` (#81).
 
-*Table 3.w — Pack R and its result on each tag. To be filled from `runs.md`
-for `v0.2` and `v1.0`.*
+The final regression for `v1.0` ran on 24/11 and 26/11 on freshly seeded
+databases, with the runners rotated as for every tag: Minh ran A's cases and
+TC-31 (runs 108–110), Tiến ran B's and C's (runs 111–123). Duy Anh's planned
+share was taken over by Tiến on 26/11 so the tag would not wait; Tiến wrote
+none of that code, so the runner is still not the author. B's and C's cases
+were driven through the REST API with the stock read from the database, and
+TC-43 in the browser. All sixteen passed and the ledger check found no
+difference (Table T.3).
+
+*Table T.3 — Pack R and its result on each tag (run numbers in
+`tests/manual/runs.md`).*
+
+| Area | Case | `v0.2` (27–29/10) | `v1.0` (24–26/11) |
+|---|---|---|---|
+| Goods receipts | TC-01 | Pass (67) | Pass (108) |
+| Goods receipts | TC-03 | Pass (68) | Pass (109) |
+| Dispensing | TC-04 | Pass (39) | Pass (111) |
+| Dispensing | TC-06 | Pass (40) | Pass (112) |
+| Dispensing | TC-07 | Pass (41) | Pass (113) |
+| Dispensing | TC-09 | Pass (42) | Pass (114) |
+| Dispensing | TC-12 | Pass (43) | Pass (115) |
+| Sales and returns | TC-15 | Pass (44) | Pass (116) |
+| Sales and returns | TC-16 | Pass (47) | Pass (117) |
+| Sales and returns | TC-35 | Pass (46) | Pass (118) |
+| Sales and returns | TC-50 | Pass (48) | Pass (119) |
+| Stock control | TC-19 | Pass (49) | Pass (120) |
+| Stock control | TC-21 | Pass (50) | Pass (121) |
+| Access | TC-28 | Pass (51) | Pass (122) |
+| Access | TC-43 | Pass (52) | Pass (123) |
+| End to end | TC-31 | Pass (53) | Pass (110) |
 
 ## 3.y.5 What testing could not show
 

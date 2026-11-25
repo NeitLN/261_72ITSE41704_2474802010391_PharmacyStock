@@ -50,7 +50,7 @@ with the matching evidence from section B.
 | 16 | Ch.2 Background, with sources | `ch2-background.md`; #277 (WHO FEFO citation) approved, not merged | Draft | Tiến |
 | 17 | Ch.3 Architecture and data, ERD, class diagram | `ch3-architecture-data.md`; diagrams regenerated from code on 20/11 and unchanged | Draft | Tiến |
 | 18 | Ch.3 Functions of A (UC01–04, UC13) | **No file in `docs/report/`** | Open | Tiến |
-| 19 | Ch.3 Functions of B, with a 5–25 line code excerpt | `ch3-functions-b.md` | Draft | Duy Anh |
+| 19 | Ch.3 Functions of B, with a 5-25 line code excerpt | `ch3-functions-b.md`, brought to `368ae91`; four figures named, two code excerpts of 17 lines | Done | Duy Anh |
 | 20 | Ch.3 Functions of C (UC09–12, UC15, UC16) | `ch3-functions-c.md`; brought to 05/11 in #283 (waiting for review) | Draft | Minh |
 | 21 | Ch.3 Interface design: wireframes, screenshots, use-case and sequence diagrams | `ch3-interface-design.md` | Draft | Tiến, Duy Anh |
 | 22 | Test table: ID, purpose, precondition, input, expected, actual, pass/fail, with the failures found and fixed | `ch3-testing.md` has the results summary and the defect table; the full table with actual results is still to be built from `test-cases.md` and `runs.md` on the submitted tag | Open | Minh |
@@ -59,12 +59,12 @@ with the matching evidence from section B.
 | 25 | Class diagrams match the submitted code | `npm run diagrams` on `b807fd7`: ERD and class diagram unchanged; data dictionary gains the `LOWER(username)` index (this PR) | Done | Minh |
 | 26 | Traceability FR → UC → code → test → status | `docs/requirements/traceability-matrix.md`, snapshot 23/11 at `368ae91`: 46 Built, 0 Built-not-run, FR-41 partly built, FR-42 (Could) not built | Done | Duy Anh |
 | 27 | Proposal feedback table: feedback → action → evidence | Not found in `docs/` | Open | Tiến (W09-A3) |
-| 28 | Ch.4: built against proposed, limitations with **every open bug**, future work | Not in `docs/report/`. Open bugs today: #209 (fixed in #220, re-tested in run 73, not closed), #104 and #159 (acceptance and pilot write-up); the S4 UX set #254–#258, #279 and #158 are closed with their fixes | Open | Tiến |
-| 29 | Ch.4: a skills paragraph from each member | Not in the repository | Open | Each member |
+| 28 | Ch.4: built against proposed, limitations with **every open bug**, future work | Not in `docs/report/`. Open bugs today: #299 (S4, the alerts empty text; fix in #297), #209 (fixed in #220, re-tested in run 73, issue not closed); #159 has its write-up in `tests/manual/evidence/` but no measurement. The S4 UX set #254-#258, #279 and #158 are closed with their fixes; #104 is closed | Open | Tiến |
+| 29 | Ch.4: a skills paragraph from each member | B's paragraph in `ch4-skills-duy-anh.md` (for Tiến to paste); A's and C's still to write | Draft | Each member |
 | 30 | Appendix B: AI tools, for what, how the output was checked | `docs/ai-use-log.md` holds the rows; the appendix is not written | Open | Tiến |
 | 31 | Appendix C: contributions from Git and GitHub, typed signatures of all three | `docs/report/appendix-c.md`; Duy Anh signed, Tiến's and Minh's signatures to collect | Draft | Duy Anh (W10-B3) |
 | 32 | Appendix D: rubric self-check | `docs/appendix-d-self-check.md`: the 31/10 scores, with the final evidence of §4 (23/11, `368ae91`) | Done | Duy Anh |
-| 33 | Third-party libraries with licence and purpose; generated code named | `docs/report/references.md` | Draft | Duy Anh (W10-B2) |
+| 33 | Third-party libraries with licence and purpose; generated code named | `docs/report/references.md`: 42 direct dependencies with licence and purpose, licence summary, the migrations and the initial scaffold, the AI-use pointer | Done | Duy Anh (W10-B2) |
 
 ### Technical minimums (§4.1)
 

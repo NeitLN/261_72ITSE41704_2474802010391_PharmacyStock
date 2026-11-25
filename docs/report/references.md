@@ -3,7 +3,7 @@
 Draft for the Final Report: the declaration of tools used (Appendix B), the
 library and licence list, the reference list in one citation style, and a
 statement of the code that was generated rather than written. Snapshot: `main`
-at `b7fe6d5`, 23 October 2026. Versions are the ones actually installed: read
+at `368ae91`, 23 November 2026. Versions are the ones actually installed: read
 from `src/backend/package-lock.json` and `src/frontend/package-lock.json`
 (the `version` of each `node_modules/<package>` entry), never from the `^`
 range in `package.json`. Each licence is the `license` field of
@@ -35,6 +35,7 @@ against an import in the source with `git grep`.
 | Package | Version (lockfile) | Licence | Used for |
 |---|---|---|---|
 | `@ant-design/icons` | 6.3.4 | MIT | Icons in the layout and on page buttons |
+| `@fontsource/be-vietnam-pro` | 5.2.8 | OFL-1.1 | The Vietnamese text face, bundled with the app instead of loaded from a CDN |
 | `antd` | 6.6.5 | MIT | The UI: tables, forms, modals, messages and `FormInstance` |
 | `axios` | 1.20.0 | MIT | HTTP client in `api/client.ts` and `api/errors.ts` |
 | `react` | 19.3.0 | MIT | Components and hooks across `src/` |
@@ -88,19 +89,21 @@ this machine (Windows, x64), reading the licence from the installed manifest:
 | Apache-2.0 | 6 | 3 | 9 |
 | BSD-2-Clause | 3 | 0 | 3 |
 | MPL-2.0 | 2 | 2 | 4 |
+| OFL-1.1 | 0 | 1 | 1 |
 | BlueOak-1.0.0 | 1 | 0 | 1 |
 | 0BSD | 1 | 0 | 1 |
-| **Installed** | **353** | **153** | **506** |
+| **Installed** | **353** | **154** | **507** |
 
 Each lockfile also lists 43 platform-specific entries that are not installed on
 Windows (the oxlint and rolldown native bindings for other systems, plus
 `fsevents`), 86 in total; they are not counted above. A package present in both
 applications is counted once in each column and twice in the last one.
 
-The direct dependencies (the four tables above, 41 rows) are MIT (36),
-Apache-2.0 (4: `reflect-metadata`, `rxjs`, and `typescript` in each app) and
-BSD-3-Clause (1: `bcryptjs`). The licences outside the MIT / Apache-2.0 / BSD /
-ISC group all come in through the build tools, and all are permissive:
+The direct dependencies (the four tables above, 42 rows) are MIT (36),
+Apache-2.0 (4: `reflect-metadata`, `rxjs`, and `typescript` in each app),
+BSD-3-Clause (1: `bcryptjs`) and OFL-1.1 (1: the Vietnamese font). The
+licences outside the MIT / Apache-2.0 / BSD / ISC / OFL group all come in
+through the build tools, and all are permissive:
 
 | Package | Licence | Where it comes from |
 |---|---|---|
@@ -127,10 +130,14 @@ tests use.
 | `1791815704381-InitialSchema.ts` | The whole schema as `CREATE TABLE`, constraint and index statements, plus the trigger that refuses `UPDATE` and `DELETE` on `stock_movements` (BR05) |
 | `1792504000000-MovementTimeAtWrite.ts` | `ALTER` that stamps a movement when its row is written, so batch history keeps the real order |
 | `1792600000000-StockTakeLineCounter.ts` | `ALTER` adding `counted_by_id` to `stock_take_lines`, so BR08 can refuse an approver who counted any line |
+| `1793000000000-StockTakeMedicines.ts` | The medicines chosen when a take is opened (#184), back-filled from the medicines of the existing lines |
+| `1793100000000-StockTakeCounters.ts` | The people who counted or submitted a take (#215), back-filled from the existing counts, so an overwritten count still disqualifies the approver |
+| `1793200000000-DestructionRecords.ts` | The destruction record: quantity, date, method, witness, one row per DESTROY movement (FR-47) |
+| `1793300000000-UsernameUniqueLower.ts` | A unique index on `LOWER(username)`, so two accounts cannot differ only in case |
 
 The first file carries the generator's naming and the bulk `CREATE` output;
-the two later ones are short hand-written `ALTER`s with explanatory comments,
-and both were added together with the code that needs them.
+the rest are short hand-written statements with explanatory comments, each
+added together with the code that needs it.
 
 ### Initial scaffold
 

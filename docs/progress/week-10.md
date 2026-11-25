@@ -1,6 +1,6 @@
 # Week 10 — Final Report (16/11–22/11/2026)
 
-> Living report. Last updated **22/11/2026**. The Final Report is due on CTE on
+> Living report. Last updated **26/11/2026**. The Final Report is due on CTE on
 > **30/11/2026** (confirmed on 22/11; the plan had assumed 22/11), so the
 > submission work continues into the following week.
 > Process: [CONTRIBUTING — the weekly cycle](../../CONTRIBUTING.md#the-weekly-cycle).
@@ -23,7 +23,10 @@ the submitted build (#88); check files and links (#89); checklists 12.2 and
 | Week-8 review queue: main merged into #280; #273 and #278 re-reviewed and approved; #275–#277 merged | Tiến | #274 | Done 22/11; #280 waits for Minh's re-approval |
 | Ch.1, Ch.3 functions of A with ten screenshots, Ch.4 | Tiến | #296 (#73, #83) | Awaiting Minh's review |
 | As-built wireframes: sign in, stock take, alerts, quarantine and pending destruction, users and roles | Tiến | #297 (#156) | Awaiting Duy Anh's review |
-| Weekly reports for weeks 8–10 | Tiến | this pull request | Awaiting review |
+| Weekly reports for weeks 8–10 | Tiến | #298 | Merged 23/11 |
+| Final regression, B's and C's pack R cases on a fresh database (Duy Anh's share taken over) | Tiến | runs 111–123, `final-regression-b-c-2026-11-26.md` | Done 26/11, all Pass, ledger 0 |
+| Screenshots of B's and C's functions on the seeded data, embedded in their chapters | Tiến | #304, content-lock PR | Done 26/11 |
+| Review and merge of #302, #304, #305, #306, #307 and #297 | Tiến | the PRs | Done 26/11 |
 
 **Still open:** tag `v1.0` (#81); TC-32 (#79) and TC-33 (#80); Appendix B
 (Tiến) and Appendix C (#87); the Proposal feedback table (#75); the editing

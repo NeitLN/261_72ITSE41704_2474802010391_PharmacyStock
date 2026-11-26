@@ -25,8 +25,8 @@ weighed in Ch.3 §3.4.2; this section is about the project as a whole.
 | Should extras | Quarantine assessment and destruction (FR-46, FR-47); backup and restore | Built; TC-61 (release, reject, destroy) and TC-30 (restore gives identical balance checksums) pass |
 | Could | BR06 unit conversion; report export | BR06 not built; report export built as CSV, plus printed receipts, return slips and hand-over records |
 | Requirements | 48 FR, 13 NFR, all traced | 48 FR, 13 NFR, traced FR → UC → code → test → status in `traceability-matrix.md` |
-| Releases | `v0.1` week 5, `v0.2` week 7, `v1.0` week 9 | `v0.1` and `v0.2` on time; `v1.0` later than planned (*Limitations* below), then `v1.0.1` with the code-review fixes |
-| Tests | 63 test cases, ≥ 45 run by someone other than the author | 65 test cases; 131 unit, 656 end-to-end (12 skipped) and 44 web-client tests, run on every pull request in CI (counts on `v1.0.1`) |
+| Releases | `v0.1` week 5, `v0.2` week 7, `v1.0` week 9 | `v0.1` and `v0.2` on time; `v1.0` later than planned (*Limitations* below), then `v1.0.1` and `v1.0.2` with the code-review and screen-review fixes |
+| Tests | 63 test cases, ≥ 45 run by someone other than the author | 65 test cases; 131 unit, 673 end-to-end (12 skipped) and 45 web-client tests, run on every pull request in CI (counts on `v1.0.2`) |
 | Quality targets | NFR-01, 02, 13 on a reference machine | Met by a wide margin: 22 ms, 71 ms and 258 ms against 1 s, 3 s and 2 s (TC-29) |
 
 ### Achievements and outcomes

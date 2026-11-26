@@ -4,6 +4,7 @@ import { DataSource, type EntityManager, In } from 'typeorm';
 import { type Actor, assertPermission } from '../auth/actor.js';
 import { Permission } from '../auth/permissions.js';
 import {
+  BusinessRuleViolation,
   Conflict,
   type FieldError,
   NotFound,
@@ -170,6 +171,16 @@ export class PrescriptionsService {
     await this.dataSource.transaction(async (manager) => {
       const current = await this.lockPrescription(manager, id);
       PrescriptionValidator.assertEditable(current.status);
+      // BR10: validity is never extended. A prescription past its valid-until
+      // date keeps its issue date, so an edit cannot buy it five more days.
+      if (current.validUntil < this.clock.today() && dto.issuedDate !== current.issuedDate) {
+        throw new BusinessRuleViolation(
+          'BR10',
+          'PRESCRIPTION_EXPIRED',
+          'This prescription is past its valid-until date, so its issue date cannot change.',
+          [{ field: 'issuedDate', message: 'The issue date of an expired prescription cannot change.' }],
+        );
+      }
       const details = await this.checkDetails(manager, dto, id);
       await manager.delete(PrescriptionItem, { prescription: { id } });
       await manager.update(

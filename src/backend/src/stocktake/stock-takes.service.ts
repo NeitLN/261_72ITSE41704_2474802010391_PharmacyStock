@@ -185,6 +185,34 @@ export class StockTakesService {
         }));
       if (unknown.length > 0) throw new ValidationFailed(unknown);
 
+      // One open stock take per medicine: two takes counting the same batches
+      // would each post the same difference. The medicine rows are locked in
+      // id order, so two openings for the same medicine run one after the other.
+      await manager
+        .createQueryBuilder(Medicine, 'm')
+        .where('m.id IN (:...medicineIds)', { medicineIds })
+        .orderBy('m.id')
+        .setLock('for_no_key_update')
+        .getMany();
+      const busy: { medicine_id: string; referenceNumber: string }[] =
+        await manager.query(
+          `SELECT stm.medicine_id, st."referenceNumber"
+             FROM stock_take_medicines stm
+             JOIN stock_takes st ON st.id = stm.stock_take_id
+            WHERE stm.medicine_id = ANY($1) AND st.status IN ($2, $3)`,
+          [medicineIds, StockTakeStatus.COUNTING, StockTakeStatus.PENDING_APPROVAL],
+        );
+      if (busy.length > 0) {
+        const index = dto.medicineIds.findIndex(
+          (m) => m.toLowerCase() === busy[0].medicine_id.toLowerCase(),
+        );
+        throw new Conflict(
+          'MEDICINE_IN_OPEN_STOCK_TAKE',
+          `This medicine is already being counted in ${busy[0].referenceNumber}; approve, return or cancel that stock take first.`,
+          `medicineIds.${index}`,
+        );
+      }
+
       const batches = await manager
         .createQueryBuilder(Batch, 'b')
         .leftJoin('b.medicine', 'medicine')
@@ -244,13 +272,18 @@ export class StockTakesService {
         relations: { batch: true },
       });
       if (!line) throw new NotFound('Stock take line', lineId);
+      // The book quantity is taken when a count is entered or changed. Sending
+      // the same count again only adds or edits the reason: the book quantity
+      // of that count stays, otherwise a sale in between would be counted as
+      // part of the difference and hide a real shortage.
+      const recount = line.countedQuantity !== dto.countedQuantity;
       await manager.update(
         StockTakeLine,
         { id: line.id },
         {
           countedQuantity: dto.countedQuantity,
           reason: dto.reason ?? null,
-          systemQuantity: line.batch.qtySellable,
+          ...(recount ? { systemQuantity: line.batch.qtySellable } : {}),
           countedBy: { id: actor.id },
         },
       );

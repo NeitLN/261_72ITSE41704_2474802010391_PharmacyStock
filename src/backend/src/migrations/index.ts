@@ -6,6 +6,7 @@ import { StockTakeMedicines1793000000000 } from './1793000000000-StockTakeMedici
 import { StockTakeCounters1793100000000 } from './1793100000000-StockTakeCounters.js';
 import { DestructionRecords1793200000000 } from './1793200000000-DestructionRecords.js';
 import { UsernameUniqueLower1793300000000 } from './1793300000000-UsernameUniqueLower.js';
+import { ReviewHardening1793400000000 } from './1793400000000-ReviewHardening.js';
 
 /**
  * Every migration, oldest first. After `npm run migration:generate`, add the
@@ -20,4 +21,5 @@ export const MIGRATIONS: Array<new () => MigrationInterface> = [
   StockTakeCounters1793100000000,
   DestructionRecords1793200000000,
   UsernameUniqueLower1793300000000,
+  ReviewHardening1793400000000,
 ];

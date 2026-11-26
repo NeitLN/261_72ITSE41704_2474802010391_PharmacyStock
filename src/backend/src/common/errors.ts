@@ -92,3 +92,12 @@ export class BusinessRuleViolation extends DomainError {
     super(code, message, errors);
   }
 }
+
+/** Too many attempts in a short time, e.g. wrong passwords (UC16). */
+export class TooManyAttempts extends DomainError {
+  readonly status = 429;
+
+  constructor(message: string) {
+    super('TOO_MANY_ATTEMPTS', message);
+  }
+}

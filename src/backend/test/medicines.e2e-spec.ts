@@ -363,7 +363,7 @@ describe('UC01 medicine catalogue (e2e)', () => {
     expect(fieldsOf(res.body)).toEqual(['categoryId']);
   });
 
-  it('UC01-11 #185 length, range and missing-price errors are sentences that name the field', async () => {
+  it('UC01-14 #185 length, range and missing-price errors are sentences that name the field', async () => {
     const { currentPrice: _price, ...withoutPrice } = paracetamol();
     const res = await t
       .http()

@@ -86,12 +86,17 @@ export interface BillablePrescriptionView {
   referenceNumber: string;
   customer: { id: string; code: string; fullName: string };
   lastDispensedAt: string;
+  /** What billing now would charge: the prices in force today; null when one is missing. */
+  totalAmount: string | null;
   lines: Array<{
     dispenseLineId: string;
     medicine: MedicineRef;
     batch: BatchRef;
     quantity: number;
     dispensedAt: string;
+    /** Price in force today (BR09), or null when the medicine has none. */
+    unitPrice: string | null;
+    lineTotal: string | null;
   }>;
 }
 
@@ -226,6 +231,11 @@ export class SalesService {
       .addOrderBy('m.code', 'ASC')
       .addOrderBy('b.expiryDate', 'ASC')
       .getMany();
+    const prices = await this.priceBook.pricesOn(
+      this.dataSource.manager,
+      [...new Set(lines.map((l) => l.batch.medicine.id))],
+      this.clock.today(),
+    );
 
     const byPrescription = new Map<string, BillablePrescriptionView>();
     for (const line of lines) {
@@ -235,6 +245,7 @@ export class SalesService {
         referenceNumber: p.referenceNumber,
         customer: customerRef(p.customer),
         lastDispensedAt: line.dispensedAt.toISOString(),
+        totalAmount: null,
         lines: [],
       };
       entry.lastDispensedAt = line.dispensedAt.toISOString();
@@ -244,8 +255,17 @@ export class SalesService {
         batch: batchRef(line.batch),
         quantity: line.quantity,
         dispensedAt: line.dispensedAt.toISOString(),
+        unitPrice: prices.get(line.batch.medicine.id) ?? null,
+        lineTotal: prices.has(line.batch.medicine.id)
+          ? lineTotal(prices.get(line.batch.medicine.id)!, line.quantity)
+          : null,
       });
       byPrescription.set(p.id, entry);
+    }
+    for (const entry of byPrescription.values()) {
+      entry.totalAmount = entry.lines.every((l) => l.lineTotal !== null)
+        ? fromXu(entry.lines.reduce((sum, l) => sum + toXu(l.lineTotal!), 0n))
+        : null;
     }
     return [...byPrescription.values()].sort((a, b) =>
       b.lastDispensedAt.localeCompare(a.lastDispensedAt),

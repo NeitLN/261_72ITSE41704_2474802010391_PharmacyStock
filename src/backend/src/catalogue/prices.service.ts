@@ -12,6 +12,7 @@ import {
 import { Medicine, MedicinePrice } from '../entities/index.js';
 import { Clock } from '../stock/clock.js';
 import type { SchedulePriceDto } from './dto/price.dto.js';
+import { AuditService } from '../audit/audit.service.js';
 
 export type PriceState = 'scheduled' | 'in_force' | 'past';
 
@@ -39,14 +40,17 @@ const dateTaken = (date: string) =>
 /**
  * UC13: scheduling a price, cancelling one that has not started, and the
  * price history. UC01's edit still changes today's price (FR-03); a scheduled
- * price is only ever added or removed, never overwritten. Prices in force or
- * past are never touched, so a sale or report never changes (BR09).
+ * price is only ever added or removed, never overwritten. Past prices are
+ * never touched; today's price can be replaced by UC01's edit, which is
+ * audited (FR-41). A sale keeps its own copy of the price it was sold at, so
+ * a sale or report never changes either way (BR09).
  */
 @Injectable()
 export class PricesService {
   constructor(
     @InjectDataSource() private readonly dataSource: DataSource,
     private readonly clock: Clock,
+    private readonly audit: AuditService,
   ) {}
 
   async history(actor: Actor, medicineId: string): Promise<PriceHistoryView> {
@@ -81,6 +85,11 @@ export class PricesService {
           effectiveFrom: dto.effectiveFrom,
           unitPrice: String(dto.unitPrice),
           setBy: { id: actor.id },
+        });
+        await this.audit.record(manager, actor.id, 'price.changed', { entityName: 'Medicine', entityId: medicineId }, {
+          kind: 'scheduled',
+          effectiveFrom: dto.effectiveFrom,
+          to: dto.unitPrice,
         });
         return this.view(manager, medicineId);
       });
@@ -117,6 +126,11 @@ export class PricesService {
         );
       }
       await manager.delete(MedicinePrice, { id: priceId });
+      await this.audit.record(manager, actor.id, 'price.changed', { entityName: 'Medicine', entityId: medicineId }, {
+        kind: 'cancelled',
+        effectiveFrom: price.effectiveFrom,
+        from: Number(price.unitPrice),
+      });
     });
   }
 

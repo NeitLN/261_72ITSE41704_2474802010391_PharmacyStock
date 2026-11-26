@@ -11,6 +11,10 @@ export const SESSION_SECONDS = 8 * 60 * 60;
  */
 export type AuthMode = 'jwt' | 'dev';
 
+/** The value shipped in .env.example: public, so never accepted in production. */
+export const EXAMPLE_SECRET = 'local-dev-only-change-me-3f9a1c7e5b2d4f6a8c0e';
+export const MIN_SECRET_LENGTH = 32;
+
 export function authMode(): AuthMode {
   return process.env.AUTH_MODE === 'dev' ? 'dev' : 'jwt';
 }
@@ -30,8 +34,27 @@ export function jwtSecret(): string {
       'AUTH_MODE=dev has no passwords and must not run in production.',
     );
   }
+  if (mode === 'dev' && process.env.NODE_ENV !== 'test') {
+    new Logger('Auth').warn(
+      'AUTH_MODE=dev: any X-Dev-User header signs in without a password. Use it on your own machine only.',
+    );
+  }
   const secret = process.env.JWT_SECRET;
-  if (secret) return secret;
+  if (secret) {
+    const weak = secret.length < MIN_SECRET_LENGTH || secret === EXAMPLE_SECRET;
+    if (weak && process.env.NODE_ENV === 'production') {
+      throw new Error(
+        `JWT_SECRET is the example value or shorter than ${MIN_SECRET_LENGTH} characters. ` +
+          "Generate one: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
+      );
+    }
+    if (weak && process.env.NODE_ENV !== 'test') {
+      new Logger('Auth').warn(
+        'JWT_SECRET is the example value or short: anyone with the repository can sign tokens. Fine on your own machine, never elsewhere.',
+      );
+    }
+    return secret;
+  }
   if (mode === 'jwt') {
     throw new Error(
       'JWT_SECRET is not set. Copy it from .env.example into .env.',

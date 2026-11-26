@@ -318,8 +318,13 @@ describe('UC07 billing a dispensing (e2e)', () => {
       lines: [{ quantity: 3, medicine: { id: medicine.id } }],
     });
 
+    // The amount is shown before payment, and is what the bill then charges.
+    expect(waiting.body[0].lines[0].unitPrice).toEqual(expect.any(String));
+    expect(waiting.body[0].totalAmount).toEqual(waiting.body[0].lines[0].lineTotal);
+
     const secondBill = await bill(rx.id);
     expect(secondBill.status).toBe(201);
+    expect(secondBill.body.totalAmount).toBe(waiting.body[0].totalAmount);
     expect(secondBill.body.receiptNumber).toBe('RC-20261013-0002');
     expect(secondBill.body.lines[0].quantity).toBe(3);
   });

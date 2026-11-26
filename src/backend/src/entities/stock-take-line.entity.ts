@@ -1,4 +1,5 @@
 import {
+  Index,
   Check,
   Column,
   Entity,
@@ -13,6 +14,8 @@ import { User } from './user.entity.js';
 
 /** One counted batch and the discrepancy found against the book quantity. */
 @Entity('stock_take_lines')
+// One line per batch on a take; created by migration 1793400000000.
+@Index('uq_stock_take_lines_take_batch', { synchronize: false })
 @Check('ck_stock_take_lines_system_qty', '"systemQuantity" >= 0')
 @Check(
   'ck_stock_take_lines_counted_qty',

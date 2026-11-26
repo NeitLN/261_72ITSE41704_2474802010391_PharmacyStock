@@ -15,6 +15,15 @@ import { StatusTag } from '../ui/tags';
 
 const NO_ALERTS: StockAlert[] = [];
 
+/** The empty text names what the filters asked for (#299). */
+const EMPTY_BY_TYPE: Record<AlertType, string> = {
+  low_stock: 'No low-stock alert matches.',
+  out_of_stock: 'No out-of-stock alert matches.',
+  expiring_soon: 'No expiring-soon alert matches.',
+  expired: 'No expired-batch alert matches.',
+};
+const emptyText = (type: AlertType | undefined) => (type ? EMPTY_BY_TYPE[type] : 'No alerts match.');
+
 /**
  * UC10 Review low-stock alerts. The system raises and resolves them as stock
  * moves; the manager acknowledges them so the team can see who has seen one.
@@ -122,7 +131,7 @@ export function AlertsPanel() {
         dataSource={alerts}
         loading={loading}
         pagination={{ pageSize: 20, hideOnSinglePage: true }}
-        locale={{ emptyText: 'No monitored medicine is at or below its reorder level.' }}
+        locale={{ emptyText: emptyText(type) }}
         style={{ marginTop: 16 }}
       />
     </>

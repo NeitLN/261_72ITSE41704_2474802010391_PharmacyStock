@@ -9,10 +9,20 @@ import {
 } from '../api/alerts';
 import { toApiError } from '../api/errors';
 import { useLoad } from '../api/useLoad';
+import { LoadFailed } from '../ui/LoadFailed';
 import { formatDateTime } from '../ui/format';
 import { StatusTag } from '../ui/tags';
 
 const NO_ALERTS: StockAlert[] = [];
+
+/** The empty text names what the filters asked for (#299). */
+const EMPTY_BY_TYPE: Record<AlertType, string> = {
+  low_stock: 'No low-stock alert matches.',
+  out_of_stock: 'No out-of-stock alert matches.',
+  expiring_soon: 'No expiring-soon alert matches.',
+  expired: 'No expired-batch alert matches.',
+};
+const emptyText = (type: AlertType | undefined) => (type ? EMPTY_BY_TYPE[type] : 'No alerts match.');
 
 /**
  * UC10 Review low-stock alerts. The system raises and resolves them as stock
@@ -24,7 +34,7 @@ export function AlertsPanel() {
   const [type, setType] = useState<AlertType | undefined>();
   const [busyId, setBusyId] = useState<string | null>(null);
   const fetchAlerts = useCallback(() => alertsApi.list({ status, type }), [status, type]);
-  const { data: alerts, loading, reload } = useLoad(fetchAlerts, NO_ALERTS);
+  const { data: alerts, loading, error: loadError, reload } = useLoad(fetchAlerts, NO_ALERTS);
 
   async function acknowledge(alert: StockAlert) {
     setBusyId(alert.id);
@@ -114,13 +124,14 @@ export function AlertsPanel() {
           ]}
         />
       </Space>
+      {loadError && <LoadFailed error={loadError} onRetry={reload} />}
       <Table
         rowKey="id"
         columns={columns}
         dataSource={alerts}
         loading={loading}
         pagination={{ pageSize: 20, hideOnSinglePage: true }}
-        locale={{ emptyText: 'No monitored medicine is at or below its reorder level.' }}
+        locale={{ emptyText: emptyText(type) }}
         style={{ marginTop: 16 }}
       />
     </>

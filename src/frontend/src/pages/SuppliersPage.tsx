@@ -19,6 +19,7 @@ import { useCallback, useState } from 'react';
 import { showApiError, toApiError } from '../api/errors';
 import { type Supplier, type SupplierInput, suppliersApi } from '../api/suppliers';
 import { useLoad } from '../api/useLoad';
+import { LoadFailed } from '../ui/LoadFailed';
 import { GoodsReceiptsPanel } from './GoodsReceiptsPanel';
 
 const NO_SUPPLIERS: Supplier[] = [];
@@ -38,7 +39,7 @@ function SuppliersPanel() {
     () => suppliersApi.list({ search: search || undefined, includeInactive }),
     [search, includeInactive],
   );
-  const { data: suppliers, loading, reload } = useLoad(fetchSuppliers, NO_SUPPLIERS);
+  const { data: suppliers, loading, error: loadError, reload } = useLoad(fetchSuppliers, NO_SUPPLIERS);
 
   async function toggleActive(supplier: Supplier) {
     try {
@@ -84,6 +85,9 @@ function SuppliersPanel() {
                 ? 'It will no longer be offered on new goods receipts.'
                 : undefined
             }
+            okText={supplier.isActive ? 'Deactivate' : 'Reactivate'}
+            okButtonProps={{ danger: supplier.isActive }}
+            cancelText="Keep it"
             onConfirm={() => toggleActive(supplier)}
           >
             <Button size="small" danger={supplier.isActive}>
@@ -115,6 +119,7 @@ function SuppliersPanel() {
         </Space>
       </Space>
 
+      {loadError && <LoadFailed error={loadError} onRetry={reload} />}
       <Table
         rowKey="id"
         columns={columns}

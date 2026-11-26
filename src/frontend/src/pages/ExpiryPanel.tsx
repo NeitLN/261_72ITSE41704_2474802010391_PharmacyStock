@@ -6,9 +6,9 @@ import { type BatchStatus, batchesApi, type ExpiryRow } from '../api/batches';
 import { showApiError } from '../api/errors';
 import { medicinesApi, type Reference } from '../api/medicines';
 import { useLoad } from '../api/useLoad';
+import { LoadFailed } from '../ui/LoadFailed';
 import { useAuth } from '../auth/authContext';
 import { downloadCsv, toCsv } from '../ui/csv';
-import { expiryInfo } from '../ui/expiry';
 import { formatVnd } from '../ui/format';
 import { statusOf } from '../ui/status';
 import { StatusTag } from '../ui/tags';
@@ -23,9 +23,10 @@ const STATUS_OPTIONS: Array<{ value: BatchStatus; label: string }> = [
 ];
 
 function daysText(row: ExpiryRow) {
-  if (row.daysLeft < 0) return <strong>Expired {-row.daysLeft} days ago</strong>;
+  const days = (n: number) => (n === 1 ? '1 day' : `${n} days`);
+  if (row.daysLeft < 0) return <strong>Expired {days(-row.daysLeft)} ago</strong>;
   if (row.daysLeft === 0) return <strong>Expired today</strong>;
-  return `${row.daysLeft} days left`;
+  return `${days(row.daysLeft)} left`;
 }
 
 /**
@@ -39,7 +40,7 @@ export function ExpiryPanel() {
   const [writingOff, setWritingOff] = useState<ExpiryRow | null>(null);
   const [changing, setChanging] = useState<ExpiryRow | null>(null);
   const fetchReport = useCallback(() => batchesApi.expiry(categoryId), [categoryId]);
-  const { data: report, loading, reload } = useLoad(fetchReport, null);
+  const { data: report, loading, error: loadError, reload } = useLoad(fetchReport, null);
   const fetchReference = useCallback(() => medicinesApi.referenceData(), []);
   const { data: reference } = useLoad(fetchReference, NO_REFERENCE);
   const canChange = can('batch_status.manage');
@@ -84,7 +85,8 @@ export function ExpiryPanel() {
       `${r.medicine.code} — ${r.medicine.name}`,
       r.batch.batchNumber,
       r.batch.expiryDate,
-      expiryInfo(r.batch.expiryDate, report.totals.businessDate, r.medicine.expiryAlertDays).text,
+      // The server's number, as the table shows it; negative means already expired.
+      r.daysLeft,
       r.sellable,
       r.value,
       statusOf('batch', r.batch.status).label,
@@ -118,6 +120,7 @@ export function ExpiryPanel() {
           </Typography.Text>
         )}
       </Space>
+      {loadError && <LoadFailed error={loadError} onRetry={reload} />}
       <Table
         rowKey={(r) => r.batch.id}
         columns={columns}
@@ -271,7 +274,7 @@ function StatusModal({
         <StatusTag kind="batch" value={row.batch.status} />
       </Typography.Paragraph>
       <Form form={form} layout="vertical" onFinish={submit} disabled={saving}>
-        <Form.Item name="status" rules={[{ required: true, message: 'Choose a status.' }]}>
+        <Form.Item name="status" label="New status" rules={[{ required: true, message: 'Choose a status.' }]}>
           <Radio.Group options={STATUS_OPTIONS} />
         </Form.Item>
         {status === 'rejected' && (

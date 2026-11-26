@@ -57,6 +57,8 @@ export function decimalError(
  */
 export function parseGroupedNumber(text: string | undefined): number {
   const typed = (text ?? '').trim();
+  // An emptied field is empty, not 0, so the `required` rule speaks.
+  if (typed === '') return Number.NaN;
   if (/^\d{1,3}(\.\d{3})+$/.test(typed)) return Number(typed.replace(/\./g, ''));
   return Number(typed.replace(',', '.'));
 }

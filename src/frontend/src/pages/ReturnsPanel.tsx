@@ -11,7 +11,7 @@ import {
 } from 'antd';
 import { PrinterOutlined } from '@ant-design/icons';
 import { useRef, useState } from 'react';
-import { type FieldError, toApiError } from '../api/errors';
+import { type FieldError, outcomeUnknown, toApiError } from '../api/errors';
 import { formatDateTime, formatVnd } from '../ui/format';
 import {
   type ReturnableSale,
@@ -95,8 +95,12 @@ export function ReturnsPanel() {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<SaleReturn | null>(null);
   const [topError, setTopError] = useState<string | null>(null);
+  // FR-23: a lost answer may mean the return was saved; only a retry with the same ID is allowed.
+  const [unknownOutcome, setUnknownOutcome] = useState(false);
+  const locked = submitting || unknownOutcome;
 
   async function findSale() {
+    if (locked) return;
     const number = receiptNumber.trim();
     if (!number) {
       setSearchError('Enter the receipt number.');
@@ -196,8 +200,15 @@ export function ReturnsPanel() {
       });
       setResult(done);
       setRequestId(null);
+      setUnknownOutcome(false);
     } catch (error) {
       const apiError = toApiError(error);
+      if (outcomeUnknown(apiError)) {
+        setUnknownOutcome(true);
+        setTopError(apiError.message);
+        return;
+      }
+      setUnknownOutcome(false);
       const lineErrors = errorsByLine(apiError.errors, sentLines);
       setQuantityErrors(lineErrors);
       const reasonMessage = apiError.errors.find(
@@ -229,6 +240,7 @@ export function ReturnsPanel() {
     setRequestId(null);
     setResult(null);
     setTopError(null);
+    setUnknownOutcome(false);
   }
 
   if (result) {
@@ -250,9 +262,10 @@ export function ReturnsPanel() {
               setSearchError(null);
             }}
             onPressEnter={findSale}
+            disabled={locked}
             aria-label="Receipt number"
           />
-          <Button type="primary" loading={searching} onClick={findSale}>
+          <Button type="primary" loading={searching} disabled={locked} onClick={findSale}>
             Find
           </Button>
         </Space.Compact>
@@ -315,7 +328,7 @@ export function ReturnsPanel() {
                   render: (_, line) => (
                     <div>
                       <InputNumber<number>
-                        disabled={line.returnable === 0}
+                        disabled={line.returnable === 0 || locked}
                         value={quantities[line.saleLineId] ?? 0}
                         onChange={(v) => changeQuantity(line.saleLineId, v)}
                         aria-label={`Quantity to return of ${line.medicine.name}`}
@@ -343,6 +356,7 @@ export function ReturnsPanel() {
                 placeholder="Why the customer brings the goods back (3–500 characters)"
                 value={reason}
                 onChange={(e) => changeReason(e.target.value)}
+                disabled={locked}
                 aria-label="Reason for the return"
                 style={{ maxWidth: 640 }}
               />
@@ -362,14 +376,29 @@ export function ReturnsPanel() {
             sale. The goods go to quarantine, not back on the shelf.
           </Typography.Paragraph>
 
-          <Button
-            type="primary"
-            size="large"
-            loading={submitting}
-            onClick={confirmReturn}
-          >
-            Confirm return
-          </Button>
+          {unknownOutcome && (
+            <Alert
+              type="warning"
+              showIcon
+              title="We do not know whether this return was recorded."
+              description="Retry sends the same request: if it was already recorded you get its slip, otherwise it is recorded once now. Nothing can be changed until then."
+            />
+          )}
+          <Space>
+            <Button
+              type="primary"
+              size="large"
+              loading={submitting}
+              onClick={confirmReturn}
+            >
+              {unknownOutcome ? 'Retry the return' : 'Confirm return'}
+            </Button>
+            {unknownOutcome && (
+              <Button size="large" disabled={submitting} onClick={newReturn}>
+                Start over
+              </Button>
+            )}
+          </Space>
         </>
       )}
 

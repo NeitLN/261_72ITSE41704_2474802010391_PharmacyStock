@@ -46,6 +46,12 @@ describe('parseGroupedNumber', () => {
     expect(parseGroupedNumber('2200')).toBe(2200);
   });
 
+  it('reads an emptied field as no number, not 0', () => {
+    expect(parseGroupedNumber('')).toBeNaN();
+    expect(parseGroupedNumber('   ')).toBeNaN();
+    expect(parseGroupedNumber(undefined)).toBeNaN();
+  });
+
   it('keeps any other dot or comma as a decimal point, so the rule can refuse it', () => {
     expect(parseGroupedNumber('10.5')).toBe(10.5);
     expect(parseGroupedNumber('10,5')).toBe(10.5);

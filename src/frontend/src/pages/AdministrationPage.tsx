@@ -21,6 +21,7 @@ import type { Dayjs } from 'dayjs';
 import { useCallback, useState } from 'react';
 import { showApiError } from '../api/errors';
 import { useLoad } from '../api/useLoad';
+import { LoadFailed } from '../ui/LoadFailed';
 import { type AuditEntry, type RoleCode, type RoleRow, type UserRow, usersApi } from '../api/users';
 import { useAuth } from '../auth/authContext';
 import { formatDateTime } from '../ui/format';
@@ -54,7 +55,7 @@ const NO_USERS: UserRow[] = [];
 
 function UsersTab() {
   const fetchUsers = useCallback(() => usersApi.list(), []);
-  const { data: users, loading, reload } = useLoad(fetchUsers, NO_USERS);
+  const { data: users, loading, error: loadError, reload } = useLoad(fetchUsers, NO_USERS);
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<UserRow | null>(null);
 
@@ -84,6 +85,7 @@ function UsersTab() {
       <Button type="primary" onClick={() => setAdding(true)}>
         New user
       </Button>
+      {loadError && <LoadFailed error={loadError} onRetry={reload} />}
       <Table
         rowKey="id"
         columns={columns}
@@ -396,7 +398,7 @@ function AuditTab() {
       }),
     [period, action, page],
   );
-  const { data, loading } = useLoad(fetchLog, { items: [] as AuditEntry[], total: 0 });
+  const { data, loading, error: loadError } = useLoad(fetchLog, { items: [] as AuditEntry[], total: 0 });
 
   const columns: ColumnsType<AuditEntry> = [
     { title: 'When', width: 190, render: (_, e) => formatDateTime(e.occurredAt) },
@@ -430,6 +432,7 @@ function AuditTab() {
           options={ACTIONS.map((a) => ({ value: a, label: a }))}
         />
       </Space>
+      {loadError && <LoadFailed error={loadError} />}
       <Table
         rowKey="id"
         columns={columns}

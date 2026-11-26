@@ -24,6 +24,7 @@ import {
   stockApi,
 } from '../api/stock';
 import { useLoad } from '../api/useLoad';
+import { LoadFailed } from '../ui/LoadFailed';
 import { formatDateTime } from '../ui/format';
 
 const PAGE_SIZE = 50;
@@ -87,7 +88,7 @@ export function StockPanel() {
       }),
     [search, categoryId, state, includeInactive, page],
   );
-  const { data: stock, loading } = useLoad(fetchStock, NO_PAGE);
+  const { data: stock, loading, error: loadError } = useLoad(fetchStock, NO_PAGE);
 
   // A new filter starts again from the first page.
   function filter<T>(set: (v: T) => void) {
@@ -178,6 +179,7 @@ export function StockPanel() {
         cannot be issued.
       </Typography.Paragraph>
 
+      {loadError && <LoadFailed error={loadError} />}
       <Table
         rowKey={(r) => r.medicine.id}
         columns={columns}

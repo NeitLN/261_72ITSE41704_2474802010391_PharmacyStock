@@ -831,6 +831,35 @@ def clone_after(p, text):
     return np
 
 
+def signature_file(name):
+    """A member's handwritten signature in figures/, e.g. C01-signature-bui-duy-anh.png, or None."""
+    import unicodedata
+    plain = unicodedata.normalize('NFD', name.replace('Đ', 'D').replace('đ', 'd'))
+    slug = ''.join(c for c in plain if unicodedata.category(c) != 'Mn').lower().replace(' ', '-')
+    found = sorted((REPORT / 'figures').glob(f'*signature-{slug}.png'))
+    return found[0] if found else None
+
+
+def add_signatures_before(names_paragraph):
+    """The handwritten signatures the team has added, side by side above the typed names."""
+    files = [(n, signature_file(n)) for n, _, _ in MEMBERS]
+    if not any(f for _, f in files):
+        return
+    new = copy.deepcopy(names_paragraph._p)
+    names_paragraph._p.addprevious(new)
+    from docx.text.paragraph import Paragraph
+    sp = Paragraph(new, names_paragraph._parent)
+    set_text(sp, '')
+    for i, (name, f) in enumerate(files):
+        if i:
+            sp.add_run('      ')
+        if f:
+            sp.add_run().add_picture(str(f), width=Cm(3.2))
+        else:
+            # Signed by hand on the printed copy.
+            sp.add_run(' ' * 24)
+
+
 def fill_cover_and_declaration(doc, date):
     month = {'11': 'November', '12': 'December'}.get(date.split('/')[1], '')
     for p in list(paragraphs_everywhere(doc)):
@@ -865,6 +894,7 @@ def fill_cover_and_declaration(doc, date):
             set_text(p, 'Signatures of Students')
         elif t == '(Your Full Name)':
             set_text(p, '            '.join(n for n, _, _ in MEMBERS))
+            add_signatures_before(p)
 
 
 def add_field(paragraph, instr, placeholder):

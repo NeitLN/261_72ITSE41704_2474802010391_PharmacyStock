@@ -10,7 +10,11 @@ import {
   Typography,
 } from 'antd';
 import { PrinterOutlined } from '@ant-design/icons';
-import { useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { type SaleSummary, salesApi } from '../api/sales';
+import { useLoad } from '../api/useLoad';
+import { LoadFailed } from '../ui/LoadFailed';
 import { type FieldError, outcomeUnknown, toApiError } from '../api/errors';
 import { formatDateTime, formatVnd } from '../ui/format';
 import {
@@ -27,7 +31,10 @@ import { ResultAppear } from './ResultAppear';
 
 type LineErrors = Record<string, string>;
 
-const SALE_NOT_FOUND = 'Sale not found';
+const NO_SALES: SaleSummary[] = [];
+
+const saleNotFound = (number: string) =>
+  `No sale has the receipt number ${number}. It looks like RC-20261013-0001; check the printed receipt.`;
 
 /**
  * How a return line's assessment state reads on the slip (ui-design.md §5):
@@ -99,9 +106,28 @@ export function ReturnsPanel() {
   const [unknownOutcome, setUnknownOutcome] = useState(false);
   const locked = submitting || unknownOutcome;
 
-  async function findSale() {
+  // Today's sales, so a return or a doubtful payment can be found without typing a number.
+  const fetchToday = useCallback(() => salesApi.list(), []);
+  const { data: todaysSales, loading: todayLoading, error: todayError, reload: reloadToday } = useLoad(
+    fetchToday,
+    NO_SALES,
+  );
+
+  // "Return items" on a receipt opens this tab with the receipt number filled in and found.
+  const [searchParams] = useSearchParams();
+  const fromReceipt = searchParams.get('receipt');
+  useEffect(() => {
+    if (fromReceipt) {
+      setReceiptNumber(fromReceipt);
+      void findSale(fromReceipt);
+    }
+    // Only when the tab opens with a receipt number.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fromReceipt]);
+
+  async function findSale(typed: string = receiptNumber) {
     if (locked) return;
-    const number = receiptNumber.trim();
+    const number = typed.trim();
     if (!number) {
       setSearchError('Enter the receipt number.');
       return;
@@ -123,7 +149,7 @@ export function ReturnsPanel() {
       const apiError = toApiError(error);
       setSale(null);
       setTopError(null);
-      setSearchError(apiError.statusCode === 404 ? SALE_NOT_FOUND : null);
+      setSearchError(apiError.statusCode === 404 ? saleNotFound(number) : null);
       if (apiError.statusCode !== 404) setTopError(apiError.message);
     } finally {
       setSearching(false);
@@ -261,11 +287,11 @@ export function ReturnsPanel() {
               setReceiptNumber(e.target.value);
               setSearchError(null);
             }}
-            onPressEnter={findSale}
+            onPressEnter={() => void findSale()}
             disabled={locked}
             aria-label="Receipt number"
           />
-          <Button type="primary" loading={searching} disabled={locked} onClick={findSale}>
+          <Button type="primary" loading={searching} disabled={locked} onClick={() => void findSale()}>
             Find
           </Button>
         </Space.Compact>
@@ -274,12 +300,54 @@ export function ReturnsPanel() {
             <Typography.Text type="danger">{searchError}</Typography.Text>
           </div>
         )}
-        {!sale && (
-          <Typography.Paragraph type="secondary" style={{ margin: '8px 0 0' }}>
-            Find a sale by its receipt number to see what can be returned.
-          </Typography.Paragraph>
-        )}
       </div>
+
+      {!sale && (
+        <div>
+          <Typography.Text strong>Today's sales</Typography.Text>
+          {todayError && <LoadFailed error={todayError} onRetry={reloadToday} />}
+          <Table
+            rowKey="id"
+            size="small"
+            style={{ marginTop: 8 }}
+            loading={todayLoading}
+            dataSource={todaysSales}
+            pagination={{ pageSize: 10, hideOnSinglePage: true }}
+            locale={{ emptyText: 'No sale yet today.' }}
+            columns={[
+              { title: 'Receipt', dataIndex: 'receiptNumber', className: 'nowrap' },
+              { title: 'Sold at', className: 'nowrap', render: (_, r) => formatDateTime(r.soldAt) },
+              {
+                title: 'Customer',
+                render: (_, r) => (r.customer ? `${r.customer.code} — ${r.customer.fullName}` : '—'),
+              },
+              { title: 'Lines', dataIndex: 'lineCount', align: 'right' },
+              {
+                title: 'Total',
+                align: 'right',
+                className: 'nowrap',
+                render: (_, r) => formatVnd(r.totalAmount),
+              },
+              {
+                title: '',
+                render: (_, r) => (
+                  <Button
+                    size="small"
+                    disabled={locked}
+                    aria-label={`Return items of ${r.receiptNumber}`}
+                    onClick={() => {
+                      setReceiptNumber(r.receiptNumber);
+                      void findSale(r.receiptNumber);
+                    }}
+                  >
+                    Return items
+                  </Button>
+                ),
+              },
+            ]}
+          />
+        </div>
+      )}
 
       {sale && (
         <>

@@ -41,6 +41,10 @@ import { STATUSES, statusOf, TONE_COLOURS } from '../ui/status';
 import { StatusTag } from '../ui/tags';
 import { QuickCreateCustomerModal } from './QuickCreateCustomerModal';
 import { QuickCreatePrescriberModal } from './QuickCreatePrescriberModal';
+import { ListToolbar } from '../ui/ListToolbar';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth/authContext';
+import { matchesLabel } from '../ui/search';
 
 const NO_PRESCRIPTIONS: PrescriptionSummary[] = [];
 const NO_CUSTOMERS: Customer[] = [];
@@ -69,6 +73,10 @@ export function PrescriptionsPanel() {
   const [status, setStatus] = useState<PrescriptionStatus | undefined>(undefined);
   const [forming, setForming] = useState<Prescription | 'new' | null>(null);
   const [viewingId, setViewingId] = useState<string | null>(null);
+  const [verifyingId, setVerifyingId] = useState<string | null>(null);
+  const { can } = useAuth();
+  const navigate = useNavigate();
+  const canDispense = can('dispense');
 
   const fetchPrescriptions = useCallback(
     () =>
@@ -81,12 +89,13 @@ export function PrescriptionsPanel() {
   const { data: prescriptions, loading, error: loadError, reload } = useLoad(fetchPrescriptions, NO_PRESCRIPTIONS);
 
   const columns: ColumnsType<PrescriptionSummary> = [
-    { title: 'Reference', dataIndex: 'referenceNumber', width: 150 },
-    { title: 'Issued', dataIndex: 'issuedDate', width: 110 },
+    { title: 'Reference', dataIndex: 'referenceNumber', width: 170, className: 'nowrap' },
+    { title: 'Issued', dataIndex: 'issuedDate', width: 110, className: 'nowrap' },
     {
       title: 'Valid until',
       dataIndex: 'validUntil',
-      width: 150,
+      width: 170,
+      className: 'nowrap',
       render: (validUntil: string, p) =>
         p.isExpired ? (
           <Space>
@@ -114,25 +123,62 @@ export function PrescriptionsPanel() {
     {
       title: '',
       key: 'view',
-      width: 80,
+      width: 180,
+      fixed: 'right',
+      // The next step for this prescription is the first button.
       render: (_, p) => (
-        <Button size="small" onClick={() => setViewingId(p.id)}>
-          View
-        </Button>
+        <Space>
+          {p.status === 'received' && !p.isExpired && (
+            <Button
+              size="small"
+              type="primary"
+              aria-label={`Verify ${p.referenceNumber}`}
+              onClick={() => {
+                setVerifyingId(p.id);
+                setViewingId(p.id);
+              }}
+            >
+              Verify
+            </Button>
+          )}
+          {canDispense &&
+            !p.isExpired &&
+            (p.status === 'verified' || p.status === 'partially_dispensed') && (
+              <Button
+                size="small"
+                type="primary"
+                aria-label={`Dispense ${p.referenceNumber}`}
+                onClick={() => navigate(`/dispensing?tab=dispense&rx=${p.id}`)}
+              >
+                Dispense
+              </Button>
+            )}
+          <Button size="small" aria-label={`View ${p.referenceNumber}`} onClick={() => setViewingId(p.id)}>
+            View
+          </Button>
+        </Space>
       ),
     },
   ];
 
   return (
     <>
-      <Space style={{ width: '100%', justifyContent: 'flex-end' }} wrap>
+      <ListToolbar
+        action={
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => setForming('new')}>
+            New prescription
+          </Button>
+        }
+      >
         <Input.Search
           allowClear
           placeholder="Search reference, patient, prescriber"
+          aria-label="Search prescriptions by reference, patient or prescriber"
           onSearch={(value) => setSearch(value.trim())}
           style={{ width: 320 }}
         />
         <Select<PrescriptionStatus | ''>
+          aria-label="Status"
           value={status ?? ''}
           onChange={(v) => setStatus(v === '' ? undefined : (v as PrescriptionStatus))}
           style={{ width: 190 }}
@@ -144,16 +190,14 @@ export function PrescriptionsPanel() {
             })),
           ]}
         />
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setForming('new')}>
-          New prescription
-        </Button>
-      </Space>
+      </ListToolbar>
 
       {loadError && <LoadFailed error={loadError} onRetry={reload} />}
       <Table
         rowKey="id"
         columns={columns}
         dataSource={prescriptions}
+        scroll={{ x: 'max-content' }}
         loading={{ spinning: loading, delay: 300 }}
         pagination={{ pageSize: 20, hideOnSinglePage: true }}
         locale={{ emptyText: 'No prescription matches this search and status. Use New prescription to take one in.' }}
@@ -173,7 +217,13 @@ export function PrescriptionsPanel() {
       {viewingId && (
         <PrescriptionDetailsModal
           id={viewingId}
-          onClose={() => setViewingId(null)}
+          startReviewing={verifyingId === viewingId}
+          canDispense={canDispense}
+          onDispense={(id) => navigate(`/dispensing?tab=dispense&rx=${id}`)}
+          onClose={() => {
+            setViewingId(null);
+            setVerifyingId(null);
+          }}
           onEdit={(p) => {
             setViewingId(null);
             setForming(p);
@@ -358,7 +408,7 @@ function PrescriptionFormModal({
             <Form.Item label="Valid until">
               <Typography.Text type="secondary">
                 {issuedDate
-                  ? `${addDays(issuedDate.format('YYYY-MM-DD'), 5)} (computed)`
+                  ? `${addDays(issuedDate.format('YYYY-MM-DD'), 5)} (issue date + 5 days)`
                   : 'Choose the issue date first'}
               </Typography.Text>
             </Form.Item>
@@ -377,15 +427,22 @@ function PrescriptionFormModal({
                 filterOption={false}
                 onSearch={setCustomerSearch}
                 placeholder="Search patients"
+                notFoundContent="No patient matches. Use New patient below the list."
                 options={customers.map((c) => ({
                   value: c.id,
                   label: `${c.code} — ${c.fullName}`,
                 }))}
+                // A patient who is not on file yet is added from the list itself.
+                popupRender={(menu) => (
+                  <>
+                    {menu}
+                    <Button type="link" icon={<PlusOutlined />} onClick={() => setQuickCustomer(true)}>
+                      New patient
+                    </Button>
+                  </>
+                )}
               />
             </Form.Item>
-            <Button size="small" onClick={() => setQuickCustomer(true)} style={{ marginTop: -8 }}>
-              New patient
-            </Button>
           </Col>
           <Col span={12}>
             <Form.Item
@@ -398,15 +455,21 @@ function PrescriptionFormModal({
                 filterOption={false}
                 onSearch={setPrescriberSearch}
                 placeholder="Search prescribers"
+                notFoundContent="No prescriber matches. Use New prescriber below the list."
                 options={prescribers.map((p) => ({
                   value: p.id,
                   label: `${p.fullName} (${p.licenceNumber})`,
                 }))}
+                popupRender={(menu) => (
+                  <>
+                    {menu}
+                    <Button type="link" icon={<PlusOutlined />} onClick={() => setQuickPrescriber(true)}>
+                      New prescriber
+                    </Button>
+                  </>
+                )}
               />
             </Form.Item>
-            <Button size="small" onClick={() => setQuickPrescriber(true)} style={{ marginTop: -8 }}>
-              New prescriber
-            </Button>
           </Col>
         </Row>
 
@@ -416,8 +479,14 @@ function PrescriptionFormModal({
               name="patientAgeYears"
               label="Age (years)"
               rules={[wholeNumber('Age', { min: 0, max: 150 })]}
+              // The date of birth wins (FR-13), so the age is not typed when there is one.
+              extra={
+                chosenCustomer?.dateOfBirth
+                  ? `${Math.floor(ageMonthsAt(chosenCustomer.dateOfBirth, ageAt) / 12)} years, from the date of birth`
+                  : undefined
+              }
             >
-              <InputNumber<number> style={{ width: '100%' }} />
+              <InputNumber<number> disabled={Boolean(chosenCustomer?.dateOfBirth)} style={{ width: '100%' }} />
             </Form.Item>
           </Col>
         </Row>
@@ -463,7 +532,7 @@ function PrescriptionFormModal({
                   >
                     <Select
                       showSearch
-                      optionFilterProp="label"
+                      filterOption={matchesLabel}
                       placeholder="Medicine"
                       aria-label={`Line ${index + 1} medicine`}
                       style={{ width: 260 }}
@@ -471,6 +540,12 @@ function PrescriptionFormModal({
                         value: m.id,
                         label: `${m.code} — ${m.name} (${m.classification})`,
                       }))}
+                      // The catalogue's strength fills the next field; the prescription can still differ.
+                      onChange={(id: string) => {
+                        const m = medicines.find((x) => x.id === id);
+                        const path = ['items', field.name, 'strength'] as ['items', number, 'strength'];
+                        if (m?.strength && !form.getFieldValue(path)) form.setFieldValue(path, m.strength);
+                      }}
                     />
                   </Form.Item>
                   <Form.Item
@@ -568,11 +643,18 @@ function PrescriptionFormModal({
 
 function PrescriptionDetailsModal({
   id,
+  startReviewing = false,
+  canDispense = false,
+  onDispense,
   onClose,
   onEdit,
   onChanged,
 }: {
   id: string;
+  /** Opened from the row's Verify button: the review note box is already open. */
+  startReviewing?: boolean;
+  canDispense?: boolean;
+  onDispense?: (id: string) => void;
   onClose: () => void;
   onEdit: (p: Prescription) => void;
   onChanged: () => void;
@@ -580,7 +662,7 @@ function PrescriptionDetailsModal({
   const { message, modal } = App.useApp();
   const [verifyNote, setVerifyNote] = useState('');
   // Two states: the note box is open, and the request is on its way.
-  const [reviewing, setReviewing] = useState(false);
+  const [reviewing, setReviewing] = useState(startReviewing);
   const [verifying, setVerifying] = useState(false);
   const fetchPrescription = useCallback(
     () =>
@@ -679,7 +761,9 @@ function PrescriptionDetailsModal({
               (reviewing ? (
                 <Space>
                   <Input
+                    autoFocus
                     placeholder="Review note (optional)"
+                    aria-label="Review note (optional)"
                     value={verifyNote}
                     onChange={(e) => setVerifyNote(e.target.value)}
                     style={{ width: 280 }}
@@ -693,6 +777,14 @@ function PrescriptionDetailsModal({
                   Verify
                 </Button>
               ))}
+            {canDispense &&
+              onDispense &&
+              !prescription.isExpired &&
+              (prescription.status === 'verified' || prescription.status === 'partially_dispensed') && (
+                <Button type="primary" onClick={() => onDispense(prescription.id)}>
+                  Dispense now
+                </Button>
+              )}
             {editable && (
               <Button
                 onClick={() =>

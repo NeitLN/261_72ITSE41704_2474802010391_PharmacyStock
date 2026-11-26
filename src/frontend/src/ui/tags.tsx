@@ -18,9 +18,27 @@ export type Classification = 'otc' | 'prescription' | 'controlled';
 
 const CLASSES: Record<Classification, { label: string; color: string; border: string }> = {
   otc: { label: 'OTC', color: palette.success, border: '#b6dcc1' },
-  prescription: { label: 'Rx', color: palette.info, border: '#b9cdee' },
+  prescription: { label: 'Prescription', color: palette.info, border: '#b9cdee' },
   controlled: { label: 'Controlled', color: palette.danger, border: '#f2bcb6' },
 };
+
+/**
+ * A batch's status as staff should read it on the business date: an ACTIVE
+ * batch whose expiry date has come shows "Expired" in red (DEC-01), never a
+ * green "Active" next to "Expired 55 days ago".
+ */
+export function BatchStatusTag({
+  status,
+  expiryDate,
+  businessDate,
+}: {
+  status: StatusValue<'batch'>;
+  expiryDate: string;
+  businessDate: string;
+}) {
+  const expired = status === 'active' && expiryDate <= businessDate;
+  return <StatusTag kind="batch" value={expired ? 'expired' : status} />;
+}
 
 /** The medicine's class, outlined so it never reads as a status. */
 export function ClassTag({ value }: { value: Classification }) {

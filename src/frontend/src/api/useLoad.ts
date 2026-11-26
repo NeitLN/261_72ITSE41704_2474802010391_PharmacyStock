@@ -16,6 +16,8 @@ import { type ApiError, toApiError } from './errors';
 export function useLoad<T>(fetcher: () => Promise<T>, fallback: T) {
   const { message } = App.useApp();
   const [version, setVersion] = useState(0);
+  // A quiet reload (a timer refresh) keeps the rows on screen without a spinner.
+  const [quiet, setQuiet] = useState(false);
   const [result, setResult] = useState<{
     fetcher: () => Promise<T>;
     version: number;
@@ -49,8 +51,16 @@ export function useLoad<T>(fetcher: () => Promise<T>, fallback: T) {
   const current = result?.fetcher === fetcher && result.version === version;
   return {
     data: result?.data ?? fallback,
-    loading: !current,
+    loading: !current && !(quiet && result !== null && result.fetcher === fetcher),
     error: current ? result.error : null,
-    reload: () => setVersion((v) => v + 1),
+    reload: () => {
+      setQuiet(false);
+      setVersion((v) => v + 1);
+    },
+    /** Reloads without a spinner, keeping the rows on screen (a timer refresh). */
+    refreshQuietly: () => {
+      setQuiet(true);
+      setVersion((v) => v + 1);
+    },
   };
 }

@@ -12,6 +12,21 @@ body {
   min-height: 100vh;
 }
 
+/* Dates, codes, batch numbers and amounts never break in the middle ("2026-10-" / "02"). */
+.nowrap {
+  white-space: nowrap;
+}
+
+/* An empty table says what to do next, so its text is readable, not disabled grey. */
+.ant-table-placeholder .ant-table-cell {
+  color: #44524d;
+}
+
+/* A quantity of 0 in a dense report is quieter than a real movement. */
+.qty-zero {
+  color: #5b6964; /* still 4.5:1 on white */
+}
+
 /* A visible focus ring for keyboard users, on light and on the dark header. */
 :focus-visible {
   outline: 2px solid #0d7d6c;

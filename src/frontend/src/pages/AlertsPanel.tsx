@@ -1,6 +1,7 @@
-import { App, Button, Select, Space, Table, Tag, Typography } from 'antd';
+import { App, Button, Select, Space, Table, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useCallback, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   type AlertListStatus,
   type AlertType,
@@ -33,6 +34,8 @@ export function AlertsPanel() {
   const [status, setStatus] = useState<AlertListStatus>('unresolved');
   const [type, setType] = useState<AlertType | undefined>();
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [bulkBusy, setBulkBusy] = useState(false);
   const fetchAlerts = useCallback(() => alertsApi.list({ status, type }), [status, type]);
   const { data: alerts, loading, error: loadError, reload } = useLoad(fetchAlerts, NO_ALERTS);
 
@@ -49,40 +52,78 @@ export function AlertsPanel() {
     }
   }
 
+  async function acknowledgeSelected() {
+    setBulkBusy(true);
+    let done = 0;
+    const failed: string[] = [];
+    for (const id of selected) {
+      try {
+        await alertsApi.acknowledge(id);
+        done += 1;
+      } catch (error) {
+        failed.push(toApiError(error).message);
+      }
+    }
+    setBulkBusy(false);
+    setSelected([]);
+    if (done > 0) message.success(`${done} ${done === 1 ? 'alert' : 'alerts'} acknowledged.`);
+    if (failed.length > 0) message.error(`${failed.length} not acknowledged: ${failed[0]}`);
+    reload();
+  }
+
   const columns: ColumnsType<StockAlert> = [
     {
       title: 'Alert',
       width: 140,
       render: (_, a) => <StatusTag kind="stockAlert" value={a.type} />,
     },
-    { title: 'Medicine', render: (_, a) => `${a.medicine.code} — ${a.medicine.name}` },
+    { title: 'Medicine', width: 240, render: (_, a) => `${a.medicine.code} — ${a.medicine.name}` },
     {
+      // An expiry alert is about one batch: its quantity is shown here, not as "sellable".
       title: 'Batch',
-      width: 170,
-      render: (_, a) => (a.batch ? `${a.batch.batchNumber} · ${a.batch.expiryDate}` : '—'),
+      width: 200,
+      render: (_, a) =>
+        a.batch ? (
+          <>
+            <span className="nowrap">{a.batch.batchNumber}</span> ·{' '}
+            <span className="nowrap">exp. {a.batch.expiryDate}</span>
+            <div>
+              <Typography.Text type="secondary">{a.sellable} on shelf</Typography.Text>{' '}
+              {a.type === 'expired' && <Link to="/reports?tab=expiry">Write off</Link>}
+            </div>
+          </>
+        ) : (
+          '—'
+        ),
     },
-    { title: 'Sellable now', width: 120, align: 'right', render: (_, a) => a.sellable },
+    {
+      title: 'Sellable now',
+      width: 110,
+      align: 'right',
+      render: (_, a) => (a.batch ? '—' : a.sellable),
+    },
     {
       title: 'Reorder level',
       width: 120,
       align: 'right',
       render: (_, a) => (a.batch ? '—' : a.medicine.reorderLevel),
     },
-    { title: 'Raised', width: 170, render: (_, a) => formatDateTime(a.raisedAt) },
+    { title: 'Raised', width: 150, className: 'nowrap', render: (_, a) => formatDateTime(a.raisedAt) },
     {
       title: 'Status',
-      width: 230,
+      width: 170,
       render: (_, a) => {
         if (a.status === 'resolved') return `Resolved ${formatDateTime(a.resolvedAt)}`;
         if (a.status === 'acknowledged')
           return `Seen by ${a.acknowledgedBy?.fullName ?? '—'}, ${formatDateTime(a.acknowledgedAt)}`;
-        return <Tag color="blue">New</Tag>;
+        return <StatusTag kind="alertProgress" value="new" />;
       },
     },
     {
       title: '',
       key: 'ack',
       width: 120,
+      fixed: 'right',
       render: (_, a) =>
         a.status === 'open' && (
           <Button size="small" loading={busyId === a.id} onClick={() => acknowledge(a)}>
@@ -125,9 +166,23 @@ export function AlertsPanel() {
         />
       </Space>
       {loadError && <LoadFailed error={loadError} onRetry={reload} />}
+      <div style={{ marginTop: 16 }}>
+        <Button disabled={selected.length === 0} loading={bulkBusy} onClick={acknowledgeSelected}>
+          Acknowledge selected ({selected.length})
+        </Button>
+      </div>
       <Table
         rowKey="id"
         columns={columns}
+        scroll={{ x: 'max-content' }}
+        rowSelection={{
+          selectedRowKeys: selected,
+          onChange: (keys) => setSelected(keys as string[]),
+          getCheckboxProps: (a) => ({
+            disabled: a.status !== 'open',
+            'aria-label': `Select the alert for ${a.medicine.name}`,
+          }),
+        }}
         dataSource={alerts}
         loading={loading}
         pagination={{ pageSize: 20, hideOnSinglePage: true }}

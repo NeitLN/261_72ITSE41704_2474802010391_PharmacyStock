@@ -146,9 +146,11 @@ first slice of the project (#95) and set the pattern the other modules copy
 ## UC03 — Record a goods receipt
 
 A delivery arrives with the supplier's invoice. The manager opens *Record
-receipt* on the *Goods receipts* tab and enters the supplier, the invoice
+goods receipt* on the *Goods receipts* tab and enters the supplier, the invoice
 number, the receipt date and one line per batch: medicine, batch number,
-expiry date, quantity and unit cost. The total is computed while typing. When
+expiry date, quantity and unit cost. The total is computed while typing, each
+line shows its own total, and a cost typed as `15.000` is read as fifteen
+thousand like every other amount on screen. When
 the label shows only a month and year, the form says to enter the last day of
 that month, so a batch is never treated as valid longer than it is.
 
@@ -165,6 +167,10 @@ The service refuses, field by field (FR-07, FR-08):
 
 *Figure A.6 — Expiry 01/11/2026 on a receipt dated 22/11/2026: "Expiry date
 must be after the receipt date."; nothing is saved.*
+
+Because a saved receipt is never edited, *Review and save* first shows every
+line read back (medicine, batch, expiry, quantity with its unit, unit cost
+and line total) with the total, and saves only on confirmation.
 
 When everything is valid, the receipt, its lines, any new batch and one
 `RECEIPT` movement per line are written **in one transaction** (FR-06, FR-09):
@@ -183,11 +189,19 @@ deactivated at the same moment. And the batch's *received at* is the receipt
 date in Vietnam time, not the time of typing, because FEFO breaks ties between
 batches with the same expiry by the earlier receipt (DEC-07).
 
-**Implementation.** `GoodsReceiptsController` → `GoodsReceiptsService.create`
-(`src/backend/src/receiving/`), which runs inside `StockLedger.run`; screen
-`GoodsReceiptsPanel.tsx`.
+**Reversing a wrong receipt.** A receipt entered by mistake is undone with
+*Reverse goods receipt* and a reason: every line's `RECEIPT` movement gets its
+exact opposite in one transaction (BR05, `StockLedger.reverseAll`, which locks
+all medicines and then all batches). It is refused once any of the stock has
+been sold, dispensed or moved (BR03), and allowed only once. The receipt stays
+in the list marked *Reversed*, the batch history shows both movements, and
+the audit log records who reversed it and why.
 
-**Tests.** 16 e2e tests in `goods-receipts.e2e-spec.ts` (UC03-01…16). TC-01
+**Implementation.** `GoodsReceiptsController` → `GoodsReceiptsService.create`
+and `.reverse` (`src/backend/src/receiving/`), which run inside
+`StockLedger.run`; screen `GoodsReceiptsPanel.tsx`.
+
+**Tests.** 19 e2e tests in `goods-receipts.e2e-spec.ts` (UC03-01…19). TC-01
 (runs 2, 24, 67), TC-02 (failed in runs 4–5, bug #125; passed after the fix in runs 14 and 25), TC-03 (runs 3, 68) and TC-25
 (run 71, a failed line saves nothing) pass.
 

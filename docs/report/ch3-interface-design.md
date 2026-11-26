@@ -125,7 +125,33 @@ each was opened as an issue to fix before the freeze:
   (#257);
 - library deprecation warnings (#258).
 
-The final version of this section says which of them were fixed.
+All five were fixed and re-tested by someone other than the author (Ch.4,
+Table 4.D).
+
+After `v1.0.1` the screens were reviewed once more against 44 screenshots of
+every screen, for the three roles and at 1440, 1024 and 390 px, from four
+angles: visual design, task flows, accessibility and wording. The changes
+went into `v1.0.2`:
+
+- one date field everywhere that shows and returns `YYYY-MM-DD` (a browser
+  date input had shown `mm/dd/yyyy`);
+- an expired batch shows a red *Expired* tag, never a green *Active*;
+- a goods receipt is read back before it is saved, and a wrong one can be
+  reversed while none of its stock has left;
+- tables keep dates and codes on one line, scroll sideways on a narrow
+  screen with their actions pinned, and the menu folds to icons below
+  1200 px;
+- the counter shows units, the stock and the first batch's expiry before
+  payment, the total under the line totals, *Pay* with the amount, the cash
+  received and the change;
+- each role starts on its daily screen (manager overview, cashier sales,
+  pharmacist dispensing), and the overview starts with a *Next to handle* list;
+- a prescription row's first button is its next step (*Verify* or
+  *Dispense*), which opens that prescription on the *Dispense* tab;
+- bulk acknowledge and write-off, today's sales on the *Returns* tab, a
+  readable audit log, and search that ignores Vietnamese tone marks;
+- the reason given when a cart or a hand-over is cancelled is kept in the
+  audit log (TC-59).
 
 ## 3.x.4 Identity
 

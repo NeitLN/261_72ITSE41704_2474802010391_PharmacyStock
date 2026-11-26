@@ -2,6 +2,7 @@ import { Form, Input, Modal, Typography } from 'antd';
 import { useState } from 'react';
 import { showApiError } from '../api/errors';
 import { type Customer, type CustomerInput, customersApi } from '../api/customers';
+import { DateField } from '../forms/DateField';
 
 interface QuickCreateCustomerModalProps {
   onClose: () => void;
@@ -48,7 +49,7 @@ export function QuickCreateCustomerModal({ onClose, onCreated }: QuickCreateCust
           <Input maxLength={30} placeholder="e.g. 0909 123 456" />
         </Form.Item>
         <Form.Item name="dateOfBirth" label="Date of birth">
-          <Input type="date" />
+          <DateField />
         </Form.Item>
         <Form.Item name="address" label="Address">
           <Input maxLength={300} />

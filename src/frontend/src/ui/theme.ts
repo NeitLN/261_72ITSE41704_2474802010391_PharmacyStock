@@ -89,6 +89,7 @@ export const theme: ThemeConfig = {
       itemBorderRadius: 6,
     },
     Table: {
+      cellPaddingBlock: 10,
       headerBg: '#f6f8f7',
       headerColor: palette.textTertiary,
       rowHoverBg: '#f6f9f8',
@@ -99,7 +100,8 @@ export const theme: ThemeConfig = {
       itemSelectedColor: palette.brand800,
       itemHoverColor: palette.brand700,
     },
-    Button: { fontWeight: 500 },
+    // Button borders as dark as input borders, so an outlined button is as visible as a field.
+    Button: { fontWeight: 500, defaultBorderColor: palette.controlBorder },
     Input: controlBorders,
     InputNumber: controlBorders,
     Select: { ...controlBorders, optionSelectedBg: palette.brand50 },

@@ -11,7 +11,6 @@ import {
   Switch,
   Table,
   Tabs,
-  Tag,
   Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -21,6 +20,8 @@ import { type Supplier, type SupplierInput, suppliersApi } from '../api/supplier
 import { useLoad } from '../api/useLoad';
 import { LoadFailed } from '../ui/LoadFailed';
 import { GoodsReceiptsPanel } from './GoodsReceiptsPanel';
+import { StatusTag } from '../ui/tags';
+import { LabelledSwitch, ListToolbar } from '../ui/ListToolbar';
 
 const NO_SUPPLIERS: Supplier[] = [];
 
@@ -66,8 +67,7 @@ function SuppliersPanel() {
       title: 'Status',
       dataIndex: 'isActive',
       width: 110,
-      render: (active: boolean) =>
-        active ? <Tag color="green">Active</Tag> : <Tag>Inactive</Tag>,
+      render: (active: boolean) => <StatusTag kind="record" value={active ? 'active' : 'inactive'} />,
     },
     {
       title: '',
@@ -79,7 +79,7 @@ function SuppliersPanel() {
             Edit
           </Button>
           <Popconfirm
-            title={supplier.isActive ? 'Deactivate this supplier?' : 'Reactivate this supplier?'}
+            title={`${supplier.isActive ? 'Deactivate' : 'Reactivate'} ${supplier.name}?`}
             description={
               supplier.isActive
                 ? 'It will no longer be offered on new goods receipts.'
@@ -90,7 +90,7 @@ function SuppliersPanel() {
             cancelText="Keep it"
             onConfirm={() => toggleActive(supplier)}
           >
-            <Button size="small" danger={supplier.isActive}>
+            <Button size="small" aria-label={`${supplier.isActive ? 'Deactivate' : 'Activate'} ${supplier.name}`}>
               {supplier.isActive ? 'Deactivate' : 'Activate'}
             </Button>
           </Popconfirm>
@@ -101,23 +101,25 @@ function SuppliersPanel() {
 
   return (
     <>
-      <Space style={{ width: '100%', justifyContent: 'flex-end' }} wrap>
-        <Space wrap>
-          <Input.Search
-            allowClear
-            placeholder="Search name or phone"
-            onSearch={(value) => setSearch(value.trim())}
-            style={{ width: 260 }}
-          />
-          <Space>
-            <Switch checked={includeInactive} onChange={setIncludeInactive} />
-            <span>Show inactive</span>
-          </Space>
+      <ListToolbar
+        action={
           <Button type="primary" icon={<PlusOutlined />} onClick={() => setEditing('new')}>
             Add supplier
           </Button>
-        </Space>
-      </Space>
+        }
+      >
+        <Input.Search
+          allowClear
+          placeholder="Search name or phone"
+          aria-label="Search suppliers by name or phone"
+          onSearch={(value) => setSearch(value.trim())}
+          style={{ width: 280 }}
+        />
+        <LabelledSwitch>
+          <Switch checked={includeInactive} onChange={setIncludeInactive} />
+          Show inactive
+        </LabelledSwitch>
+      </ListToolbar>
 
       {loadError && <LoadFailed error={loadError} onRetry={reload} />}
       <Table
@@ -148,7 +150,7 @@ function SuppliersPanel() {
 export function SuppliersPage() {
   return (
     <Card>
-      <Typography.Title level={3} style={{ marginTop: 0 }}>
+      <Typography.Title level={1} style={{ marginTop: 0, fontSize: 24 }}>
         Suppliers &amp; goods receipts
       </Typography.Title>
       <Tabs

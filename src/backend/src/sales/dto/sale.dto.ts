@@ -1,4 +1,6 @@
+import { IsCalendarDate } from '../../common/validation.js';
 import { Type } from 'class-transformer';
+import { CancellationReasonDto } from '../../common/cancellation.dto.js';
 import {
   ArrayMaxSize,
   ArrayMinSize,
@@ -58,4 +60,20 @@ export class SaleDto {
   @IsOptional()
   @IsUUID('4', { message: 'Choose a customer.' })
   customerId?: string;
+}
+
+/** Body of `POST /sales/cancellations`: the cart that was given up, and why. */
+export class CartCancellationDto extends CancellationReasonDto {
+  @IsArray()
+  @ArrayMaxSize(50)
+  @ValidateNested({ each: true })
+  @Type(() => OtcLineDto)
+  otcLines: OtcLineDto[];
+}
+
+/** Query of `GET /sales`: one business day, today when left out. */
+export class ListSalesQuery {
+  @IsOptional()
+  @IsCalendarDate()
+  date?: string;
 }

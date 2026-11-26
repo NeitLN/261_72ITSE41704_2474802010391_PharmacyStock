@@ -57,6 +57,16 @@ export interface BillablePrescription {
   totalAmount: string | null;
 }
 
+/** One sale in a day's list (GET /sales?date=). */
+export interface SaleSummary {
+  id: string;
+  receiptNumber: string;
+  soldAt: string;
+  totalAmount: string;
+  lineCount: number;
+  customer: { id: string; code: string; fullName: string } | null;
+}
+
 /** The stored sale, as the receipt shows it. */
 export interface Sale {
   id: string;
@@ -86,6 +96,14 @@ export const salesApi = {
    */
   create: (input: SaleInput) =>
     apiClient.post<Sale>('/sales', input).then((r) => r.data),
+
+  /** The sales of one business day, newest first; today when no date is given. */
+  list: (date?: string) =>
+    apiClient.get<SaleSummary[]>('/sales', { params: date ? { date } : {} }).then((r) => r.data),
+
+  /** A cart given up before payment; nothing moves, the reason is audited (TC-59). */
+  cancelCart: (reason: string, otcLines: OtcLineInput[]) =>
+    apiClient.post('/sales/cancellations', { reason, otcLines }).then(() => undefined),
 
   /** The receipt again, e.g. to show or print (GET /api/sales/:id). */
   get: (id: string) => apiClient.get<Sale>(`/sales/${id}`).then((r) => r.data),

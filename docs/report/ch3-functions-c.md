@@ -168,8 +168,8 @@ the first screen of their menu. The web client reads the permissions again
 whenever its tab comes back into focus, so a role changed by the manager
 updates the menu without signing in again (#288). Every service method
 checks its permission first; TC-53 tries all three roles on every one of the
-77 routes behind sign-in and checks that only the permitted calls succeed
-(run 91).
+routes behind sign-in (77 at run 91, 81 since `v1.0.2`, all checked in CI)
+and checks that only the permitted calls succeed.
 
 | Input | Output |
 |---|---|

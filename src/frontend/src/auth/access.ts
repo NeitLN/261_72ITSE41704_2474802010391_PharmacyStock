@@ -4,7 +4,7 @@
  * checks every request itself (FR-39).
  */
 export const SCREEN_PERMISSIONS: Record<string, string[]> = {
-  // First, so a manager or cashier starts on it; the pharmacist holds neither.
+  // The start page of each role is chosen in guards.tsx (StartPage).
   '/overview': ['alert.manage', 'sale.create'],
   '/catalogue': ['stock.view', 'catalogue.manage'],
   '/suppliers': ['supplier.manage', 'goods_receipt.create'],

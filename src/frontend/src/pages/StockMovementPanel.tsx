@@ -1,5 +1,5 @@
 import { DownloadOutlined, WarningOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Modal, Select, Space, Table, Typography } from 'antd';
+import { Button, Form, Modal, Select, Space, Switch, Table, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useCallback, useEffect, useState } from 'react';
 import { showApiError } from '../api/errors';
@@ -16,6 +16,8 @@ import { LoadFailed } from '../ui/LoadFailed';
 import { useBusinessToday } from '../api/clock';
 import { downloadCsv, toCsv } from '../ui/csv';
 import { formatDateTime, formatVnd } from '../ui/format';
+import { DateField } from '../forms/DateField';
+import { LabelledSwitch } from '../ui/ListToolbar';
 
 const NO_REFERENCE = { categories: [] as Reference[], units: [] as Reference[] };
 
@@ -53,6 +55,7 @@ export function StockMovementPanel() {
   const [running, setRunning] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [openRow, setOpenRow] = useState<StockMovementRow | null>(null);
+  const [hideEmpty, setHideEmpty] = useState(true);
   const fetchReference = useCallback(() => medicinesApi.referenceData(), []);
   const { data: reference } = useLoad(fetchReference, NO_REFERENCE);
 
@@ -75,16 +78,34 @@ export function StockMovementPanel() {
     }
   }
 
-  const n = (key: keyof StockMovementRow) => ({
-    dataIndex: key,
-    align: 'right' as const,
-    width: 90,
-  });
+  // The quantity columns, in ledger order, with how to read each one and its total.
+  const quantities: Array<{ title: string; value: (r: StockMovementRow) => number; total: number }> = [
+    { title: 'Opening', value: (r) => r.opening, total: report?.totals.opening ?? 0 },
+    { title: 'Received', value: (r) => r.received, total: report?.totals.received ?? 0 },
+    { title: 'Dispensed', value: (r) => r.dispensed, total: report?.totals.dispensed ?? 0 },
+    { title: 'Sold', value: (r) => r.sold, total: report?.totals.sold ?? 0 },
+    { title: 'Returned', value: (r) => r.returned, total: report?.totals.returned ?? 0 },
+    { title: 'Released', value: (r) => r.released, total: report?.totals.released ?? 0 },
+    { title: 'Rejected', value: (r) => r.rejected, total: report?.totals.rejected ?? 0 },
+    { title: 'Written off', value: (r) => r.writtenOff, total: report?.totals.writtenOff ?? 0 },
+    { title: 'Destroyed', value: (r) => r.destroyed, total: report?.totals.destroyed ?? 0 },
+    { title: 'Adjusted', value: (r) => r.adjusted, total: report?.totals.adjusted ?? 0 },
+    { title: 'Closing', value: (r) => r.closing.total, total: report?.totals.closing.total ?? 0 },
+    { title: 'Net issued', value: (r) => r.netIssued, total: report?.totals.netIssued ?? 0 },
+  ];
+  // A movement type nobody used in the period is hidden unless asked for; opening, closing and
+  // net issued always stay.
+  const ALWAYS = ['Opening', 'Closing', 'Net issued'];
+  const shown = quantities.filter(
+    (q) => !hideEmpty || ALWAYS.includes(q.title) || (report?.rows ?? []).some((r) => q.value(r) !== 0),
+  );
+  const hiddenCount = quantities.length - shown.length;
+
   const columns: ColumnsType<StockMovementRow> = [
     {
       title: 'Medicine',
       fixed: 'left',
-      width: 220,
+      width: 240,
       render: (_, r) => (
         <Space orientation="vertical" size={0}>
           <span>
@@ -98,24 +119,25 @@ export function StockMovementPanel() {
         </Space>
       ),
     },
-    { title: 'Opening', ...n('opening') },
-    { title: 'Received', ...n('received') },
-    { title: 'Dispensed', ...n('dispensed') },
-    { title: 'Sold', ...n('sold') },
-    { title: 'Returned', ...n('returned') },
-    { title: 'Released', ...n('released') },
-    { title: 'Rejected', ...n('rejected') },
-    { title: 'Written off', ...n('writtenOff') },
-    { title: 'Destroyed', ...n('destroyed') },
-    { title: 'Adjusted', ...n('adjusted') },
-    { title: 'Closing', align: 'right', width: 90, render: (_, r) => r.closing.total },
-    { title: 'Net issued', ...n('netIssued') },
+    // The column the rows are sorted by comes first, so the order makes sense at a glance.
     {
       title: 'Cost of net issued',
       align: 'right',
-      width: 140,
+      width: 150,
+      className: 'nowrap',
       render: (_, r) => formatVnd(r.costNetIssued),
     },
+    ...shown.map((q) => ({
+      title: q.title,
+      align: 'right' as const,
+      width: 100,
+      className: 'nowrap',
+      // A 0 is quieter than a real movement, so the numbers that matter stand out.
+      render: (_: unknown, r: StockMovementRow) => {
+        const v = q.value(r);
+        return <span className={v === 0 ? 'qty-zero' : undefined}>{v}</span>;
+      },
+    })),
   ];
 
   /** The table's own columns and raw API values (FR-43). */
@@ -171,10 +193,10 @@ export function StockMovementPanel() {
         disabled={running}
       >
         <Form.Item name="from" label="From" rules={[{ required: true, message: 'Choose the first day.' }]}>
-          <Input type="date" style={{ width: 160 }} />
+          <DateField style={{ width: 160 }} />
         </Form.Item>
         <Form.Item name="to" label="To" rules={[{ required: true, message: 'Choose the last day.' }]}>
-          <Input type="date" style={{ width: 160 }} />
+          <DateField style={{ width: 160 }} />
         </Form.Item>
         <Form.Item name="categoryId">
           <Select
@@ -190,6 +212,12 @@ export function StockMovementPanel() {
           </Button>
         </Form.Item>
         <Form.Item>
+          <LabelledSwitch>
+            <Switch checked={hideEmpty} onChange={setHideEmpty} />
+            Hide unused movement types
+          </LabelledSwitch>
+        </Form.Item>
+        <Form.Item>
           <Button
             icon={<DownloadOutlined />}
             disabled={!report || report.rows.length === 0}
@@ -200,12 +228,19 @@ export function StockMovementPanel() {
         </Form.Item>
       </Form>
       {formError && <Typography.Text type="danger">{formError}</Typography.Text>}
+      {!report && !running && !formError && (
+        <Typography.Paragraph type="secondary" style={{ marginTop: 16 }}>
+          Choose a period and press Run. The report lists, per medicine, the stock at the start,
+          every movement in the period and the stock at the end; it changes nothing.
+        </Typography.Paragraph>
+      )}
 
       {report && (
         <>
           <Typography.Paragraph type="secondary" style={{ marginTop: 16 }}>
             Period {report.query.from} – {report.query.to} · produced {formatDateTime(report.producedAt)} by{' '}
             {report.producedBy.fullName} · sorted by cost of net issued
+            {hiddenCount > 0 && ` · ${hiddenCount} unused movement ${hiddenCount === 1 ? 'type' : 'types'} hidden`}
           </Typography.Paragraph>
           <Table
             rowKey={(r) => r.medicine.id}
@@ -233,7 +268,7 @@ export function StockMovementPanel() {
             ]}
             dataSource={report.rows}
             pagination={false}
-            scroll={{ x: 1500 }}
+            scroll={{ x: 'max-content' }}
             locale={{ emptyText: 'No stock or movements in this period.' }}
             onRow={(r) => ({ onClick: () => setOpenRow(r), style: { cursor: 'pointer' } })}
             summary={() =>
@@ -242,29 +277,15 @@ export function StockMovementPanel() {
                   <Table.Summary.Cell index={0}>
                     <strong>Total · {report.rows.length} medicines</strong>
                   </Table.Summary.Cell>
-                  {(
-                    [
-                      totals.opening,
-                      totals.received,
-                      totals.dispensed,
-                      totals.sold,
-                      totals.returned,
-                      totals.released,
-                      totals.rejected,
-                      totals.writtenOff,
-                      totals.destroyed,
-                      totals.adjusted,
-                      totals.closing.total,
-                      totals.netIssued,
-                    ] as number[]
-                  ).map((value, i) => (
-                    <Table.Summary.Cell key={i} index={i + 1} align="right">
-                      <strong>{value}</strong>
+                  <Table.Summary.Cell index={1} align="right">
+                    <strong className="nowrap">{formatVnd(totals.costNetIssued)}</strong>
+                  </Table.Summary.Cell>
+                  {shown.map((q, i) => (
+                    <Table.Summary.Cell key={q.title} index={i + 2} align="right">
+                      <strong>{q.total}</strong>
                     </Table.Summary.Cell>
                   ))}
-                  <Table.Summary.Cell index={13} align="right">
-                    <strong>{formatVnd(totals.costNetIssued)}</strong>
-                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={shown.length + 2} />
                 </Table.Summary.Row>
               ) : null
             }

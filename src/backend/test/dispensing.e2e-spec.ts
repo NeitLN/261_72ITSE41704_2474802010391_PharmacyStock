@@ -498,4 +498,29 @@ describe('UC06 dispensing (e2e)', () => {
     expect(after.quantityDispensed).toBe(4);
     await expectBalanced();
   });
+
+  it('UC06-15 TC-59: a cancelled hand-over moves nothing and its reason is kept in the audit log', async () => {
+    const a = await receive('A', 20);
+    const rx = await verifiedPrescription([{ quantity: 4 }]);
+    const res = await t
+      .http()
+      .post('/api/dispensings/cancellations')
+      .set(as('pharmacist'))
+      .send({ prescriptionId: rx.id, reason: 'Patient will come back tomorrow' });
+    expect(res.status).toBe(204);
+    expect(await qty(a)).toBe(20);
+    const [row] = await t.dataSource.query(
+      `SELECT "entityId", details FROM audit_logs WHERE action = 'dispense.cancelled' ORDER BY "occurredAt" DESC LIMIT 1`,
+    );
+    expect(row.entityId).toBe(rx.id);
+    expect(JSON.parse(row.details)).toEqual({ reason: 'Patient will come back tomorrow' });
+
+    const unknown = await t
+      .http()
+      .post('/api/dispensings/cancellations')
+      .set(as('pharmacist'))
+      .send({ prescriptionId: '00000000-0000-4000-8000-000000000000', reason: 'x' });
+    expect(unknown.status).toBe(404);
+    await expectBalanced();
+  });
 });

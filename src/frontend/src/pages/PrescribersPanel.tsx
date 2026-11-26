@@ -18,6 +18,7 @@ import { type Prescriber, type PrescriberInput, prescribersApi } from '../api/pr
 import { useLoad } from '../api/useLoad';
 import { LoadFailed } from '../ui/LoadFailed';
 import { StatusTag } from '../ui/tags';
+import { ListToolbar } from '../ui/ListToolbar';
 
 const NO_PRESCRIBERS: Prescriber[] = [];
 
@@ -78,7 +79,7 @@ export function PrescribersPanel() {
             Edit
           </Button>
           <Popconfirm
-            title={prescriber.isActive ? 'Deactivate this prescriber?' : 'Activate this prescriber?'}
+            title={`${prescriber.isActive ? 'Deactivate' : 'Activate'} ${prescriber.fullName}?`}
             description={
               prescriber.isActive
                 ? 'New prescriptions cannot name them; existing ones are kept.'
@@ -89,7 +90,7 @@ export function PrescribersPanel() {
             cancelText="Keep it"
             onConfirm={() => toggleActive(prescriber)}
           >
-            <Button size="small" danger={prescriber.isActive}>
+            <Button size="small" aria-label={`${prescriber.isActive ? 'Deactivate' : 'Activate'} ${prescriber.fullName}`}>
               {prescriber.isActive ? 'Deactivate' : 'Activate'}
             </Button>
           </Popconfirm>
@@ -100,14 +101,23 @@ export function PrescribersPanel() {
 
   return (
     <>
-      <Space style={{ width: '100%', justifyContent: 'flex-end' }} wrap>
+      <ListToolbar
+        action={
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => setEditing('new')}>
+            Add prescriber
+          </Button>
+        }
+      >
         <Input.Search
           allowClear
           placeholder="Search name, licence or clinic"
+          aria-label="Search prescribers by name, licence or clinic"
           onSearch={(value) => setSearch(value.trim())}
           style={{ width: 280 }}
         />
+        {/* Two lists, not a filter: the API returns active or inactive prescribers. */}
         <Segmented<Shown>
+          aria-label="Which prescribers to show"
           value={shown}
           onChange={setShown}
           options={[
@@ -115,10 +125,7 @@ export function PrescribersPanel() {
             { label: 'Inactive', value: 'inactive' },
           ]}
         />
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setEditing('new')}>
-          Add prescriber
-        </Button>
-      </Space>
+      </ListToolbar>
 
       {loadError && <LoadFailed error={loadError} onRetry={reload} />}
       <Table

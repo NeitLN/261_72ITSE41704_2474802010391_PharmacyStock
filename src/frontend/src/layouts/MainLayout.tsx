@@ -8,8 +8,8 @@ import {
   ShopOutlined,
   ShoppingCartOutlined,
 } from '@ant-design/icons';
-import { Button, Layout, Menu, Space, Typography } from 'antd';
-import type { CSSProperties } from 'react';
+import { Button, Grid, Layout, Menu, Space, Typography } from 'antd';
+import { type CSSProperties, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { ErrorBoundary } from '../ui/ErrorBoundary';
 import { canOpen } from '../auth/access';
@@ -36,7 +36,7 @@ const allMenuItems = [
   {
     key: '/suppliers',
     icon: <ShopOutlined />,
-    label: <Link to="/suppliers">Suppliers &amp; receipts</Link>,
+    label: <Link to="/suppliers">Suppliers &amp; goods receipts</Link>,
   },
   {
     key: '/dispensing',
@@ -59,6 +59,17 @@ const allMenuItems = [
     label: <Link to="/administration">Users &amp; roles</Link>,
   },
 ];
+
+/** The browser tab says which screen is open, e.g. "Sales & returns · LotOrder". */
+const PAGE_TITLES: Record<string, string> = {
+  '/overview': 'Overview',
+  '/catalogue': 'Catalogue & batches',
+  '/suppliers': 'Suppliers & goods receipts',
+  '/dispensing': 'Prescriptions & dispensing',
+  '/sales': 'Sales & returns',
+  '/reports': 'Stock control & reports',
+  '/administration': 'Users & roles',
+};
 
 const ROLE_LABELS: Record<string, string> = {
   MANAGER: 'Manager',
@@ -83,6 +94,12 @@ export function MainLayout() {
   const { pathname } = useLocation();
   const { user, can, signOut } = useAuth();
   const menuItems = allMenuItems.filter((item) => canOpen(item.key, can));
+  // On a narrow screen the name gives way; the role and Sign out stay.
+  const screens = Grid.useBreakpoint();
+  useEffect(() => {
+    const page = PAGE_TITLES[pathname];
+    document.title = page ? `${page} · LotOrder` : 'LotOrder';
+  }, [pathname]);
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -95,13 +112,15 @@ export function MainLayout() {
         {user && (
           // The header's 64 px line height would push the ellipsis text down.
           <Space size={12} align="center" style={{ lineHeight: 'normal' }}>
-            <Typography.Text
-              title={user.fullName}
-              ellipsis
-              style={{ color: '#fff', maxWidth: 220, verticalAlign: 'middle' }}
-            >
-              {user.fullName}
-            </Typography.Text>
+            {screens.md !== false && (
+              <Typography.Text
+                title={user.fullName}
+                ellipsis
+                style={{ color: '#fff', maxWidth: 220, verticalAlign: 'middle' }}
+              >
+                {user.fullName}
+              </Typography.Text>
+            )}
             <span style={rolePill}>{ROLE_LABELS[user.role] ?? user.role}</span>
             <Button ghost icon={<LogoutOutlined />} onClick={() => void signOut()}>
               Sign out
@@ -110,7 +129,8 @@ export function MainLayout() {
         )}
       </Header>
       <Layout>
-        <Sider width={260} theme="light">
+        {/* Below 1200 px the menu folds to its icons, so tables keep their width. */}
+        <Sider width={260} theme="light" breakpoint="xl" collapsedWidth={64}>
           <Menu
             mode="inline"
             selectedKeys={[pathname]}

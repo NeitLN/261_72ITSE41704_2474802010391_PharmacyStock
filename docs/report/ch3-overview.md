@@ -97,7 +97,7 @@ in the references and libraries appendix (`docs/report/references.md`).
 
 ### APIs
 
-A REST API under `/api`, 77 routes behind sign-in plus `POST /api/auth/login`.
+A REST API under `/api`, 81 routes behind sign-in plus `POST /api/auth/login` and the health check.
 Every route and the permission it needs is in
 `docs/design/access-control.md`, and the automated matrix TC-53 checks every
 route for every role. Errors have one shape,

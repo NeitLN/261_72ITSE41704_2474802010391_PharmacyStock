@@ -1,3 +1,4 @@
+import { AuditService } from '../audit/audit.service.js';
 import type { DataSource } from 'typeorm';
 import type { Actor } from '../auth/actor.js';
 import { ROLE_PERMISSIONS, RoleCode } from '../auth/permissions.js';
@@ -237,7 +238,7 @@ export async function seedDemoData(
   // on the earliest receipt date of its lines, which is still before every
   // line's expiry.
   planned.sort((a, b) => a.receiptDate.localeCompare(b.receiptDate));
-  const receipts = new GoodsReceiptsService(dataSource, ledger, seedClock);
+  const receipts = new GoodsReceiptsService(dataSource, ledger, seedClock, new AuditService(dataSource));
   let documentNumber = 1;
   for (let start = 0; start < planned.length; start += 5) {
     const lines = planned.slice(start, start + 5);

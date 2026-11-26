@@ -32,7 +32,7 @@ export function SalesPage() {
       <RecoveryResult
         icon="noScreens"
         title="Nothing here for your role"
-        text="Your role has no screen on this page. Ask the administrator if you need one."
+        text="Your role has no screen on this page. Ask the manager if you need one."
         action={<StartPageButton />}
       />
     );
@@ -40,7 +40,7 @@ export function SalesPage() {
 
   return (
     <Card>
-      <Typography.Title level={3} style={{ marginTop: 0 }}>
+      <Typography.Title level={1} style={{ marginTop: 0, fontSize: 24 }}>
         Sales &amp; returns
       </Typography.Title>
       <Tabs

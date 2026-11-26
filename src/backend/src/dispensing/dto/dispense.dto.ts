@@ -1,3 +1,4 @@
+import { CancellationReasonDto } from '../../common/cancellation.dto.js';
 import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
@@ -63,4 +64,10 @@ export class DispensePreviewDto {
 export class DispenseDto extends DispensePreviewDto {
   @IsUUID('4', { message: 'Request ID must be a UUID.' })
   requestId: string;
+}
+
+/** Body of `POST /dispensings/cancellations`: the prescription whose preview was given up, and why. */
+export class DispenseCancellationDto extends CancellationReasonDto {
+  @IsUUID('4', { message: 'Choose a prescription.' })
+  prescriptionId: string;
 }

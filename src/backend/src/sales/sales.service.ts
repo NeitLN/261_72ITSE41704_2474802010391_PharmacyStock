@@ -33,7 +33,8 @@ import {
 } from '../issuing/fefo-allocator.js';
 import { businessDateOf, Clock } from '../stock/clock.js';
 import { type LedgerTransaction, StockLedger } from '../stock/stock-ledger.js';
-import type { OtcLineDto, SaleDto } from './dto/sale.dto.js';
+import type { CartCancellationDto, OtcLineDto, SaleDto } from './dto/sale.dto.js';
+import { AuditService } from '../audit/audit.service.js';
 import { fromXu, lineTotal, toXu } from './money.js';
 
 const COMMAND = 'sale';
@@ -81,6 +82,16 @@ export interface SaleView {
 }
 
 /** A prescription whose hand-overs are waiting for payment (UC07 billing step 2). */
+/** One sale in a day's list. */
+export interface SaleSummary {
+  id: string;
+  receiptNumber: string;
+  soldAt: Date;
+  totalAmount: string;
+  lineCount: number;
+  customer: { id: string; code: string; fullName: string } | null;
+}
+
 export interface BillablePrescriptionView {
   id: string;
   referenceNumber: string;
@@ -137,7 +148,60 @@ export class SalesService {
     private readonly ledger: StockLedger,
     private readonly priceBook: PriceBook,
     private readonly clock: Clock,
+    private readonly audit: AuditService,
   ) {}
+
+  /**
+   * A cart cancelled before payment (UC07 A8, TC-59). No stock and no money
+   * moves; only the reason and the lines that were in the cart are kept.
+   */
+  async recordCartCancellation(actor: Actor, dto: CartCancellationDto): Promise<void> {
+    assertPermission(actor, Permission.SALE_CREATE);
+    await this.audit.record(this.dataSource.manager, actor.id, 'sale.cart_cancelled', { entityName: 'Sale' }, {
+      reason: dto.reason,
+      lines: dto.otcLines.map((l) => ({ medicineId: l.medicineId, quantity: l.quantity })),
+    });
+  }
+
+  /**
+   * The sales of one business day in pharmacy time, newest first, with their
+   * totals. Read only: the cashier finds a receipt to return against, or
+   * checks whether a payment whose answer was lost went through.
+   */
+  async list(actor: Actor, date?: string): Promise<SaleSummary[]> {
+    assertPermission(actor, Permission.SALE_CREATE);
+    const day = date ?? this.clock.today();
+    const rows: Array<{
+      id: string;
+      receiptNumber: string;
+      soldAt: Date;
+      totalAmount: string;
+      lineCount: string;
+      customer_id: string | null;
+      customer_code: string | null;
+      customer_name: string | null;
+    }> = await this.dataSource.query(
+      `SELECT s.id, s."receiptNumber", s."soldAt", s."totalAmount",
+              (SELECT COUNT(*) FROM sale_lines l WHERE l.sale_id = s.id) AS "lineCount",
+              c.id AS customer_id, c.code AS customer_code, c."fullName" AS customer_name
+         FROM sales s
+         LEFT JOIN customers c ON c.id = s.customer_id
+        WHERE (s."soldAt" AT TIME ZONE 'Asia/Ho_Chi_Minh')::date = $1
+        ORDER BY s."soldAt" DESC, s."receiptNumber" DESC
+        LIMIT 200`,
+      [day],
+    );
+    return rows.map((r) => ({
+      id: r.id,
+      receiptNumber: r.receiptNumber,
+      soldAt: r.soldAt,
+      totalAmount: r.totalAmount,
+      lineCount: Number(r.lineCount),
+      customer: r.customer_id
+        ? { id: r.customer_id, code: r.customer_code!, fullName: r.customer_name! }
+        : null,
+    }));
+  }
 
   async record(actor: Actor, dto: SaleDto): Promise<SaleView> {
     assertPermission(actor, Permission.SALE_CREATE);

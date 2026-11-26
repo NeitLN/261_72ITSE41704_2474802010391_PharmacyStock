@@ -14,7 +14,6 @@ import {
   Switch,
   Table,
   Tabs,
-  Tag,
   Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -35,21 +34,19 @@ import { LoadFailed } from '../ui/LoadFailed';
 import { MoneyInput } from '../forms/MoneyInput';
 import { wholeNumber } from '../forms/numberRules';
 import { StockPanel } from './StockPanel';
+import { DateField } from '../forms/DateField';
+import { ClassTag, StatusTag } from '../ui/tags';
+import { LabelledSwitch, ListToolbar } from '../ui/ListToolbar';
 
 const NO_MEDICINES: Medicine[] = [];
 const NO_REFERENCE = { categories: [] as Reference[], units: [] as Reference[] };
 
-const CLASSIFICATION_TAGS: Record<Classification, { color: string; label: string }> = {
-  otc: { color: 'green', label: 'OTC' },
-  prescription: { color: 'blue', label: 'Prescription' },
-  controlled: { color: 'red', label: 'Controlled' },
-};
 
 /** UC01 catalogue and UC04 stock lookup, one tab each. */
 export function CataloguePage() {
   return (
     <Card>
-      <Typography.Title level={3} style={{ marginTop: 0 }}>
+      <Typography.Title level={1} style={{ marginTop: 0, fontSize: 24 }}>
         Catalogue &amp; batches
       </Typography.Title>
       <Tabs
@@ -96,10 +93,11 @@ function MedicinesPanel() {
   }
 
   const columns: ColumnsType<Medicine> = [
-    { title: 'Code', dataIndex: 'code', width: 120 },
+    { title: 'Code', dataIndex: 'code', width: 110, className: 'nowrap' },
     {
       title: 'Name',
       dataIndex: 'name',
+      width: 240,
       render: (_, m) => (
         <Space orientation="vertical" size={0}>
           <span>{m.name}</span>
@@ -117,15 +115,14 @@ function MedicinesPanel() {
       title: 'Classification',
       dataIndex: 'classification',
       width: 130,
-      render: (c: Classification) => (
-        <Tag color={CLASSIFICATION_TAGS[c].color}>{CLASSIFICATION_TAGS[c].label}</Tag>
-      ),
+      render: (c: Classification) => <ClassTag value={c} />,
     },
     {
       title: 'Price',
       dataIndex: 'currentPrice',
       align: 'right',
-      width: 130,
+      width: 140,
+      className: 'nowrap',
       render: (price: string | null, m) => (
         <span>
           {formatVnd(price)}
@@ -137,14 +134,13 @@ function MedicinesPanel() {
       title: 'Reorder level',
       width: 130,
       render: (_, m) =>
-        m.lowStockMonitored ? m.reorderLevel : <Tag>Not monitored</Tag>,
+        m.lowStockMonitored ? m.reorderLevel : <Typography.Text type="secondary">Not monitored</Typography.Text>,
     },
     {
       title: 'Status',
       dataIndex: 'isActive',
       width: 100,
-      render: (active: boolean) =>
-        active ? <Tag color="green">Active</Tag> : <Tag>Inactive</Tag>,
+      render: (active: boolean) => <StatusTag kind="record" value={active ? 'active' : 'inactive'} />,
     },
   ];
 
@@ -152,17 +148,18 @@ function MedicinesPanel() {
     columns.push({
       title: '',
       key: 'actions',
-      width: 260,
+      width: 250,
+      fixed: 'right',
       render: (_, medicine) => (
         <Space>
-          <Button size="small" onClick={() => setEditing(medicine)}>
+          <Button size="small" aria-label={`Edit ${medicine.name}`} onClick={() => setEditing(medicine)}>
             Edit
           </Button>
-          <Button size="small" onClick={() => setPricesOf(medicine.id)}>
+          <Button size="small" aria-label={`Prices of ${medicine.name}`} onClick={() => setPricesOf(medicine.id)}>
             Prices
           </Button>
           <Popconfirm
-            title={medicine.isActive ? 'Deactivate this medicine?' : 'Reactivate this medicine?'}
+            title={`${medicine.isActive ? 'Deactivate' : 'Reactivate'} ${medicine.code} — ${medicine.name}?`}
             description={
               medicine.isActive
                 ? 'It can no longer be received, dispensed or sold. Its history stays.'
@@ -173,7 +170,7 @@ function MedicinesPanel() {
             cancelText="Keep it"
             onConfirm={() => toggleActive(medicine)}
           >
-            <Button size="small" danger={medicine.isActive}>
+            <Button size="small" aria-label={`${medicine.isActive ? 'Deactivate' : 'Activate'} ${medicine.name}`}>
               {medicine.isActive ? 'Deactivate' : 'Activate'}
             </Button>
           </Popconfirm>
@@ -184,38 +181,42 @@ function MedicinesPanel() {
 
   return (
     <>
-      <Space style={{ width: '100%', justifyContent: 'space-between' }} wrap>
-        <Space wrap>
-          <Input.Search
-            allowClear
-            placeholder="Code, name or ingredient"
-            onSearch={(value) => setSearch(value.trim())}
-            style={{ width: 240 }}
-          />
-          <Select
-            allowClear
-            placeholder="All categories"
-            value={categoryId}
-            onChange={setCategoryId}
-            options={reference.categories.map((c) => ({ value: c.id, label: c.name }))}
-            style={{ width: 220 }}
-          />
-          <Space>
-            <Switch checked={includeInactive} onChange={setIncludeInactive} />
-            <span>Show inactive</span>
-          </Space>
-          {canManage && (
+      <ListToolbar
+        action={
+          canManage && (
             <Button type="primary" icon={<PlusOutlined />} onClick={() => setEditing('new')}>
               Add medicine
             </Button>
-          )}
-        </Space>
-      </Space>
+          )
+        }
+      >
+        <Input.Search
+          allowClear
+          placeholder="Code, name or ingredient"
+          aria-label="Search by code, name or ingredient"
+          onSearch={(value) => setSearch(value.trim())}
+          style={{ width: 280 }}
+        />
+        <Select
+          allowClear
+          placeholder="All categories"
+          aria-label="Category"
+          value={categoryId}
+          onChange={setCategoryId}
+          options={reference.categories.map((c) => ({ value: c.id, label: c.name }))}
+          style={{ width: 220 }}
+        />
+        <LabelledSwitch>
+          <Switch checked={includeInactive} onChange={setIncludeInactive} />
+          Show inactive
+        </LabelledSwitch>
+      </ListToolbar>
 
       {loadError && <LoadFailed error={loadError} onRetry={reload} />}
       <Table
         rowKey="id"
         columns={columns}
+        scroll={{ x: 'max-content' }}
         dataSource={medicines}
         loading={loading}
         pagination={{ pageSize: 20, hideOnSinglePage: true }}
@@ -401,7 +402,7 @@ function MedicineFormModal({ medicine, reference, onClose, onSaved }: MedicineFo
               },
             ]}
           >
-            <Input type="date" style={{ width: 200 }} />
+            <DateField style={{ width: 200 }} />
           </Form.Item>
         </Space>
         <Space style={{ width: '100%' }} align="start" wrap>

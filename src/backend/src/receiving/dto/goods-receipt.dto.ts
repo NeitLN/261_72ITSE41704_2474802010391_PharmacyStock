@@ -1,3 +1,4 @@
+import { CancellationReasonDto } from '../../common/cancellation.dto.js';
 import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
@@ -79,3 +80,6 @@ export class ListGoodsReceiptsQuery {
   @IsUUID('4')
   supplierId?: string;
 }
+
+/** Body of `POST /goods-receipts/:id/reverse`: why the whole receipt is undone. */
+export class ReverseGoodsReceiptDto extends CancellationReasonDto {}

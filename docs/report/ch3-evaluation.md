@@ -10,7 +10,7 @@
 - **The rules are enforced, not suggested.** FEFO, the expiry ban, non-negative
   stock, the prescription checks and the two-person stock take are checked in
   the service layer on every request. A screen that is out of date, or a call
-  sent straight to the API, gets the same refusal (TC-53 covers 77 routes ×
+  sent straight to the API, gets the same refusal (TC-53 covers 81 routes ×
   3 roles).
 - **Stock is correct under concurrency.** Every stock change runs in one
   transaction through `StockLedger`, which locks the medicines in a fixed

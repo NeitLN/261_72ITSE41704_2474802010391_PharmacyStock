@@ -129,6 +129,12 @@ check now runs after every e2e test, not only the stock tests. The fixes are
 tagged `v1.0.1`; on it the automated tests pass (131 unit, 656 end-to-end (12 skipped) and 44 web-client).
 They were not re-run by hand before the content lock.
 
+A review of every screen then led to `v1.0.2` (Ch.3, *What every screen does
+the same way*). It added tests for the new commands (reversing a goods
+receipt UC03-18, 19; today's sales UC07-25; recorded cancellation reasons
+UC07-24, UC06-15) and four routes to the access matrix; on `v1.0.2` the
+automated tests pass (131 unit, 673 end-to-end (12 skipped) and 45 web-client).
+
 Receipts (TC-01, 03) were not re-run, as their screens changed only in an
 empty-table text. TC-28 and TC-43 (access) were left to their runner, Duy
 Anh, because Minh wrote that code. TC-19 and TC-21 are also Minh's, so those

@@ -11,8 +11,8 @@ Course project for **Application Programming Project (72ITSE41704)**, Faculty of
 Information Technology, Van Lang University — Semester 1, 2026–2027.
 Instructor: Dr. Nguyen Tri Hai.
 
-> **Status: week 10, final.** `v1.0` was tagged on 26/11/2026 and `v1.0.1`
-> after the final code review. All sixteen use cases (13 Must, 3 Should) are
+> **Status: week 10, final.** `v1.0` was tagged on 26/11/2026, then `v1.0.1`
+> and `v1.0.2` after the code and screen reviews. All sixteen use cases (13 Must, 3 Should) are
 > built; the Final Report is due 30/11. See [Current status](#current-status).
 
 ## Weekly progress
@@ -311,8 +311,8 @@ tests/         manual test cases and test evidence
   Frontend checks on an up-to-date branch (#191). Details:
   [CONTRIBUTING](CONTRIBUTING.md#pull-requests).
 - Release tags: `v0.1` (week 5, tagged 20/10), `v0.2` (week 7, 31/10),
-  `v1.0` (26/11, later than the week-9 plan) and `v1.0.1` (fixes from the
-  final code review).
+  `v1.0` (26/11, later than the week-9 plan), `v1.0.1` (fixes from the
+  final code review) and `v1.0.2` (fixes from the screen review).
 
 ## Current status
 
@@ -325,13 +325,17 @@ planned. Manual testing: 128 runs in [`tests/manual/runs.md`](tests/manual/runs.
 of the 65 test cases 62 pass and 3 are not run (TC-32 needs outside users,
 TC-33 another machine, TC-34 the final submission). The final regression of
 pack R passed on `v1.0`. CI runs the migrations, the seed and every test on
-each pull request: 131 unit, 656 end-to-end (12 skipped) and 44 web-client tests on `v1.0.1`.
+each pull request: 131 unit, 673 end-to-end (12 skipped) and 45 web-client tests on `v1.0.2`.
 
 `v1.0.1` holds the fixes from the final code review: sign-out and password
 resets end old sessions at once, repeated wrong passwords are throttled, price
 changes are audited (FR-41), a stock take can no longer hide a difference,
 and the web client keeps one request ID until a payment's outcome is known.
-Details per area are in the report (Ch.3) and the release notes.
+`v1.0.2` holds the fixes from a review of every screen: one date format,
+expired batches shown as expired, a goods receipt read back before saving
+and reversible while none of its stock has left, a clearer counter, start
+pages by role and today's sales on the Returns tab. Details per area are in
+the report (Ch.3) and the release notes.
 
 ### Scope against the course targets
 

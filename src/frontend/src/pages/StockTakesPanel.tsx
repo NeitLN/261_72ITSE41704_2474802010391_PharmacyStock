@@ -29,6 +29,7 @@ import {
   stockTakesApi,
 } from '../api/stockTakes';
 import { useLoad } from '../api/useLoad';
+import { LoadFailed } from '../ui/LoadFailed';
 import { useAuth } from '../auth/authContext';
 import { wholeNumber } from '../forms/numberRules';
 
@@ -54,7 +55,7 @@ export function StockTakesPanel() {
   const [opening, setOpening] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
   const fetchTakes = useCallback(() => stockTakesApi.list(status), [status]);
-  const { data: takes, loading, reload } = useLoad(fetchTakes, NO_TAKES);
+  const { data: takes, loading, error: loadError, reload } = useLoad(fetchTakes, NO_TAKES);
   const canApprove = can('stock_take.approve');
 
   const columns: ColumnsType<StockTakeSummary> = [
@@ -107,6 +108,7 @@ export function StockTakesPanel() {
           </Button>
         )}
       </Space>
+      {loadError && <LoadFailed error={loadError} onRetry={reload} />}
       <Table
         rowKey="id"
         columns={columns}
@@ -339,7 +341,7 @@ function StockTakeModal({ id, onClose }: { id: string; onClose: () => void }) {
           type="error"
           showIcon
           style={{ marginBottom: 16 }}
-          message="This step could not be done:"
+          title="This step could not be done:"
           description={
             <ul style={{ margin: 0, paddingLeft: 18 }}>
               {problems.map((p) => (
@@ -411,7 +413,7 @@ function AddBatch({
           type="info"
           showIcon
           style={{ marginBottom: 12 }}
-          message={`No stock on the book for ${missing.map((m) => `${m.code} — ${m.name}`).join(', ')}.`}
+          title={`No stock on the book for ${missing.map((m) => `${m.code} — ${m.name}`).join(', ')}.`}
           description="If you find any on the shelf, add its batch below and count it."
         />
       )}

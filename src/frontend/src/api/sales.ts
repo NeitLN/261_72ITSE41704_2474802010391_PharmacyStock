@@ -39,6 +39,9 @@ export interface BillableLine {
   quantity: number;
   /** When this line was handed over, ISO string. */
   dispensedAt: string;
+  /** Price in force today, decimal string; null when the medicine has none. */
+  unitPrice: string | null;
+  lineTotal: string | null;
 }
 
 /** A prescription whose hand-over is still waiting for payment (UC07). */
@@ -50,6 +53,8 @@ export interface BillablePrescription {
   lastDispensedAt: string;
   /** Every unbilled dispense line; billing pays them all in one sale. */
   lines: BillableLine[];
+  /** What billing would charge today, worked out by the server; null if a line has no price. */
+  totalAmount: string | null;
 }
 
 /** The stored sale, as the receipt shows it. */
@@ -105,7 +110,11 @@ export function xuToVndString(xu: bigint): string {
   return `${digits.slice(0, -2)}.${digits.slice(-2)}`;
 }
 
-/** unitPrice × quantity in xu; quantity is a whole unit count. */
-export function lineEstimateXu(unitPrice: string, quantity: number): bigint {
+/**
+ * unitPrice × quantity in xu. Anything but a whole positive quantity (an
+ * empty box, 2.5 while typing) counts as 0 instead of throwing during render.
+ */
+export function lineEstimateXu(unitPrice: string, quantity: number | null): bigint {
+  if (quantity === null || !Number.isSafeInteger(quantity) || quantity < 1) return 0n;
   return vndToXu(unitPrice) * BigInt(quantity);
 }

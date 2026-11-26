@@ -6,6 +6,7 @@ import { type Customer, type CustomerInput, customersApi } from '../api/customer
 import { showApiError } from '../api/errors';
 import { type PrescriptionSummary, prescriptionsApi } from '../api/prescriptions';
 import { useLoad } from '../api/useLoad';
+import { LoadFailed } from '../ui/LoadFailed';
 import { StatusTag } from '../ui/tags';
 
 const NO_CUSTOMERS: Customer[] = [];
@@ -23,7 +24,7 @@ export function CustomersPanel() {
   const [history, setHistory] = useState<Customer | null>(null);
 
   const fetchCustomers = useCallback(() => customersApi.list(search || undefined), [search]);
-  const { data: customers, loading, reload } = useLoad(fetchCustomers, NO_CUSTOMERS);
+  const { data: customers, loading, error: loadError, reload } = useLoad(fetchCustomers, NO_CUSTOMERS);
 
   const columns: ColumnsType<Customer> = [
     { title: 'Code', dataIndex: 'code', width: 110 },
@@ -67,6 +68,7 @@ export function CustomersPanel() {
         </Button>
       </Space>
 
+      {loadError && <LoadFailed error={loadError} onRetry={reload} />}
       <Table
         rowKey="id"
         columns={columns}
@@ -113,7 +115,7 @@ function CustomerHistoryDrawer({
     () => prescriptionsApi.list({ customerId: customer.id }),
     [customer.id],
   );
-  const { data: prescriptions, loading } = useLoad(fetchHistory, NO_PRESCRIPTIONS);
+  const { data: prescriptions, loading, error: loadError } = useLoad(fetchHistory, NO_PRESCRIPTIONS);
 
   return (
     <Drawer
@@ -125,6 +127,7 @@ function CustomerHistoryDrawer({
       <Typography.Text strong>
         {prescriptions.length} prescription{prescriptions.length === 1 ? '' : 's'}
       </Typography.Text>
+      {loadError && <LoadFailed error={loadError} />}
       <Table
         rowKey="id"
         size="small"

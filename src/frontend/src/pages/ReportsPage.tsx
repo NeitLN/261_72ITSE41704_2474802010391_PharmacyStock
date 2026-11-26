@@ -2,6 +2,7 @@ import { Card, Tabs, Typography } from 'antd';
 import type { JSX } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../auth/authContext';
+import { RecoveryResult, StartPageButton } from '../ui/RecoveryResult';
 import { AlertsPanel } from './AlertsPanel';
 import { DestructionPanel } from './DestructionPanel';
 import { ExpiryPanel } from './ExpiryPanel';
@@ -14,7 +15,8 @@ export function ReportsPage() {
   const { can } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const items = [
-    can('stock_take.count') && {
+    // An approver who does not count still needs the tab to approve (UC09).
+    (can('stock_take.count') || can('stock_take.approve')) && {
       key: 'stock-takes',
       label: 'Stock take',
       children: <StockTakesPanel />,
@@ -51,6 +53,17 @@ export function ReportsPage() {
   const requested = searchParams.get('tab');
   const activeKey =
     requested && items.some((item) => item.key === requested) ? requested : items[0]?.key;
+
+  if (items.length === 0) {
+    return (
+      <RecoveryResult
+        icon="noScreens"
+        title="Nothing here for your role"
+        text="Your role has no screen on this page. Ask the administrator if you need one."
+        action={<StartPageButton />}
+      />
+    );
+  }
 
   return (
     <Card>

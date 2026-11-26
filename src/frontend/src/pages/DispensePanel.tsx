@@ -1,4 +1,5 @@
 import {
+  Alert,
   App,
   Button,
   Descriptions,
@@ -18,7 +19,7 @@ import {
   dispensingApi,
   type ExpiryWarning,
 } from '../api/dispensing';
-import { type FieldError, toApiError } from '../api/errors';
+import { type FieldError, outcomeUnknown, toApiError } from '../api/errors';
 import { wholeNumberError } from '../forms/numberRules';
 import {
   DISPENSABLE_STATUSES,
@@ -107,6 +108,11 @@ export function DispensePanel() {
   const [result, setResult] = useState<DispenseResult | null>(null);
   const [topError, setTopError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<ItemErrors>({});
+  // FR-23: a lost answer may mean stock already left; only a retry with the same ID is allowed.
+  const [unknownOutcome, setUnknownOutcome] = useState(false);
+  const locked = confirming || unknownOutcome;
+  // The prescription picked last; an older detail response arriving late is ignored.
+  const latestPick = useRef<string | undefined>(undefined);
 
   const fetchOptions = useCallback(
     () => prescriptionsApi.list({ search: search || undefined }),
@@ -116,11 +122,14 @@ export function DispensePanel() {
   const dispensable = options.filter((o) => DISPENSABLE_STATUSES.includes(o.status));
 
   async function select(id: string) {
+    if (locked) return;
+    latestPick.current = id;
     setPrescriptionId(id);
     setLoadingDetail(true);
     setTopError(null);
     try {
       const p = await prescriptionsApi.get(id);
+      if (latestPick.current !== id) return;
       setPrescription(p);
       setQuantities(
         Object.fromEntries(p.items.map((item) => [item.id, item.quantityOutstanding])),
@@ -131,10 +140,11 @@ export function DispensePanel() {
       setResult(null);
       setFieldErrors({});
     } catch (error) {
+      if (latestPick.current !== id) return;
       setPrescription(null);
       setTopError(toApiError(error).message);
     } finally {
-      setLoadingDetail(false);
+      if (latestPick.current === id) setLoadingDetail(false);
     }
   }
 
@@ -195,6 +205,7 @@ export function DispensePanel() {
       title: 'Confirm hand-over?',
       content: 'Stock leaves the shelf now. Continue?',
       okText: 'Hand over',
+      cancelText: 'Go back',
       onOk: () => handOver(),
     });
   }
@@ -227,6 +238,7 @@ export function DispensePanel() {
         </div>
       ),
       okText: 'Cancel hand-over',
+      cancelText: 'Keep the hand-over',
       okButtonProps: { danger: true, disabled: true },
       onOk: () => {
         if (!reason.trim()) {
@@ -265,16 +277,24 @@ export function DispensePanel() {
       });
       setResult(done);
       setRequestId(null);
+      setUnknownOutcome(false);
     } catch (error) {
       const apiError = toApiError(error);
-      setFieldErrors(errorsByItem(apiError.errors, sentItems));
       setTopError(apiError.message);
+      if (outcomeUnknown(apiError)) {
+        setUnknownOutcome(true);
+        return;
+      }
+      setUnknownOutcome(false);
+      setFieldErrors(errorsByItem(apiError.errors, sentItems));
     } finally {
       setConfirming(false);
     }
   }
 
   function resetAll() {
+    latestPick.current = undefined;
+    setUnknownOutcome(false);
     setSearch('');
     setPrescriptionId(undefined);
     setPrescription(null);
@@ -308,6 +328,7 @@ export function DispensePanel() {
                 onSearch={setSearch}
                 value={prescriptionId}
                 onChange={select}
+                disabled={locked}
                 placeholder="Search prescriptions"
                 notFoundContent="No verified prescription to dispense. Verify one on the Prescriptions tab."
                 style={{ width: '100%', marginTop: 8 }}
@@ -320,6 +341,11 @@ export function DispensePanel() {
 
             {prescription && (
               <div>
+                <Typography.Paragraph style={{ marginBottom: 4 }}>
+                  {prescription.referenceNumber} — {prescription.customer.fullName} — valid until{' '}
+                  {prescription.validUntil}
+                  {prescription.isExpired ? ' (expired)' : ''}
+                </Typography.Paragraph>
                 <Typography.Text strong>Step 2 — Quantities to hand over now</Typography.Text>
                 <Table
                   rowKey="id"
@@ -344,7 +370,7 @@ export function DispensePanel() {
                       render: (_, item) => (
                         <div>
                           <InputNumber<number>
-                            disabled={item.quantityOutstanding === 0}
+                            disabled={item.quantityOutstanding === 0 || locked}
                             value={quantities[item.id] ?? 0}
                             onChange={(v) => changeQuantity(item.id, v)}
                             aria-label={`Hand over ${item.medicine.name}`}
@@ -366,6 +392,7 @@ export function DispensePanel() {
                   type="primary"
                   onClick={runPreview}
                   loading={previewing}
+                  disabled={locked}
                   style={{ marginTop: 12 }}
                 >
                   Preview
@@ -379,21 +406,41 @@ export function DispensePanel() {
                 <PreviewTable
                   preview={preview}
                   notes={notes}
-                  onNote={(itemId, v) => setNotes((prev) => ({ ...prev, [itemId]: v }))}
+                  onNote={(itemId, v) => {
+                    setNotes((prev) => ({ ...prev, [itemId]: v }));
+                    // Different content needs a new request ID, or the server refuses it.
+                    setRequestId(null);
+                  }}
                   noteErrors={fieldErrors}
+                  disabled={locked}
                 />
+                {unknownOutcome && (
+                  <Alert
+                    type="warning"
+                    showIcon
+                    style={{ marginTop: 12 }}
+                    title="We do not know whether this hand-over was recorded."
+                    description="Retry sends the same request: if it was already recorded you get its result, otherwise stock leaves once now. Nothing can be changed until then."
+                  />
+                )}
                 <Space style={{ marginTop: 12 }}>
                   <Button
                     type="primary"
                     disabled={!canConfirm}
                     loading={confirming}
-                    onClick={confirmHandover}
+                    onClick={unknownOutcome ? () => void handOver() : confirmHandover}
                   >
-                    Confirm hand-over
+                    {unknownOutcome ? 'Retry hand-over' : 'Confirm hand-over'}
                   </Button>
-                  <Button danger disabled={confirming} onClick={cancelHandover}>
-                    Cancel hand-over
-                  </Button>
+                  {unknownOutcome ? (
+                    <Button disabled={confirming} onClick={resetAll}>
+                      Start over
+                    </Button>
+                  ) : (
+                    <Button danger disabled={confirming} onClick={cancelHandover}>
+                      Cancel hand-over
+                    </Button>
+                  )}
                 </Space>
                 {requestId && (
                   <Typography.Paragraph type="secondary" style={{ marginTop: 8 }}>
@@ -417,11 +464,13 @@ function PreviewTable({
   notes,
   onNote,
   noteErrors,
+  disabled = false,
 }: {
   preview: DispensePreview;
   notes: Record<string, string>;
   onNote: (itemId: string, value: string) => void;
   noteErrors: Record<string, { quantity?: string; note?: string }>;
+  disabled?: boolean;
 }) {
   return (
     <Table
@@ -464,6 +513,7 @@ function PreviewTable({
                   placeholder="Why a smaller quantity is enough"
                   value={notes[pi.prescriptionItemId] ?? ''}
                   onChange={(e) => onNote(pi.prescriptionItemId, e.target.value)}
+                  disabled={disabled}
                   aria-label={`Partial supply note for ${pi.medicine.name}`}
                 />
                 <Typography.Paragraph type="secondary" style={{ margin: '4px 0 0' }}>

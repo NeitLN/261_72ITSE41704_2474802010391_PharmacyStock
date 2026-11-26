@@ -7,7 +7,8 @@ import {
   salesApi,
 } from '../api/sales';
 import { useLoad } from '../api/useLoad';
-import { formatDateTime } from '../ui/format';
+import { LoadFailed } from '../ui/LoadFailed';
+import { formatDateTime, formatVnd } from '../ui/format';
 import { ReceiptView } from './SalesCartPanel';
 
 const NO_BILLABLE: BillablePrescription[] = [];
@@ -28,11 +29,14 @@ function isAlreadyBilled(error: ApiError): boolean {
  */
 export function BillDispensingPanel() {
   const fetchList = useCallback(() => salesApi.billable(), []);
-  const { data: prescriptions, loading, reload } = useLoad(
+  const { data: prescriptions, loading, error: loadError, reload } = useLoad(
     fetchList,
     NO_BILLABLE,
   );
-  const [selected, setSelected] = useState<BillablePrescription | null>(null);
+  // Only the id is kept: the lines shown always come from the latest list, so
+  // after Refresh the cashier sees exactly what the server will bill.
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selected = prescriptions.find((p) => p.id === selectedId) ?? null;
   const [requestId, setRequestId] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
   const [receipt, setReceipt] = useState<Sale | null>(null);
@@ -40,12 +44,12 @@ export function BillDispensingPanel() {
 
   function choose(prescription: BillablePrescription) {
     if (paying) return;
-    if (selected?.id !== prescription.id) {
+    if (selectedId !== prescription.id) {
       // One request ID per chosen prescription: kept when the cashier retries
       // the payment, replaced when a different prescription is picked (FR-23).
       setRequestId(crypto.randomUUID());
     }
-    setSelected(prescription);
+    setSelectedId(prescription.id);
     setTopError(null);
   }
 
@@ -65,7 +69,7 @@ export function BillDispensingPanel() {
       setTopError(apiError.message);
       if (isAlreadyBilled(apiError)) {
         // S12: it is paid for now, so it must disappear from the list.
-        setSelected(null);
+        setSelectedId(null);
         setRequestId(null);
         reload();
       }
@@ -76,7 +80,7 @@ export function BillDispensingPanel() {
 
   function billAnother() {
     setReceipt(null);
-    setSelected(null);
+    setSelectedId(null);
     setRequestId(null);
     setTopError(null);
     reload();
@@ -110,10 +114,11 @@ export function BillDispensingPanel() {
           }}
         >
           <Typography.Text strong>Hand-overs waiting for payment</Typography.Text>
-          <Button onClick={reload} loading={loading}>
+          <Button onClick={reload} loading={loading} disabled={paying}>
             Refresh
           </Button>
         </div>
+        {loadError && <LoadFailed error={loadError} onRetry={reload} />}
         <Table
           rowKey="id"
           size="small"
@@ -128,7 +133,7 @@ export function BillDispensingPanel() {
               cursor: 'pointer',
               // The prescription being paid for is tinted, so the cashier can
               // always see which one the Confirm payment button will charge.
-              background: selected?.id === p.id ? '#e6f4ff' : undefined,
+              background: selectedId === p.id ? '#e6f4ff' : undefined,
             },
           })}
           columns={[
@@ -160,6 +165,11 @@ export function BillDispensingPanel() {
               align: 'right',
               render: (_, p) => p.lines.length,
             },
+            {
+              title: 'To pay',
+              align: 'right',
+              render: (_, p) => (p.totalAmount ? formatVnd(p.totalAmount) : '—'),
+            },
           ]}
         />
       </div>
@@ -184,9 +194,22 @@ export function BillDispensingPanel() {
               { title: 'Batch', dataIndex: ['batch', 'batchNumber'] },
               { title: 'Expiry', dataIndex: ['batch', 'expiryDate'] },
               { title: 'Quantity', dataIndex: 'quantity', align: 'right' },
+              {
+                title: 'Unit price',
+                align: 'right',
+                render: (_, l) => (l.unitPrice ? formatVnd(l.unitPrice) : 'No price'),
+              },
+              {
+                title: 'Line total',
+                align: 'right',
+                render: (_, l) => (l.lineTotal ? formatVnd(l.lineTotal) : '—'),
+              },
             ]}
           />
-          <Typography.Paragraph type="secondary" style={{ margin: '8px 0 0' }}>
+          <Typography.Text strong style={{ fontSize: 16, display: 'block', marginTop: 8 }}>
+            Total to pay: {selected.totalAmount ? formatVnd(selected.totalAmount) : '—'}
+          </Typography.Text>
+          <Typography.Paragraph type="secondary" style={{ margin: 0 }}>
             Prices are those in force today; the receipt shows the total
             charged.
           </Typography.Paragraph>
@@ -208,7 +231,7 @@ export function BillDispensingPanel() {
         </div>
       )}
 
-      {topError && <Alert type="error" showIcon message={topError} />}
+      {topError && <Alert type="error" showIcon title={topError} />}
     </Space>
   );
 }

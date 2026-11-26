@@ -26,6 +26,7 @@ import { type Medicine, medicinesApi } from '../api/medicines';
 import { formatVnd } from '../ui/format';
 import { type Supplier, suppliersApi } from '../api/suppliers';
 import { useLoad } from '../api/useLoad';
+import { LoadFailed } from '../ui/LoadFailed';
 import { useBusinessToday } from '../api/clock';
 
 const NO_RECEIPTS: GoodsReceiptSummary[] = [];
@@ -42,7 +43,7 @@ export function GoodsReceiptsPanel() {
   const { message } = App.useApp();
   const [recording, setRecording] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
-  const { data: receipts, loading, reload } = useLoad(goodsReceiptsApi.list, NO_RECEIPTS);
+  const { data: receipts, loading, error: loadError, reload } = useLoad(goodsReceiptsApi.list, NO_RECEIPTS);
 
   const columns: ColumnsType<GoodsReceiptSummary> = [
     { title: 'Receipt date', dataIndex: 'receiptDate', width: 130 },
@@ -79,6 +80,7 @@ export function GoodsReceiptsPanel() {
           Record receipt
         </Button>
       </Space>
+      {loadError && <LoadFailed error={loadError} onRetry={reload} />}
       <Table
         rowKey="id"
         columns={columns}
@@ -250,6 +252,9 @@ function ReceiptFormModal({
                   <Form.Item
                     name={[field.name, 'unitCost']}
                     label={index === 0 ? 'Unit cost (VND)' : undefined}
+                    // Costs can have decimals, so a dot is a decimal point here:
+                    // 15.000 means 15 VND, not fifteen thousand.
+                    tooltip={index === 0 ? 'Digits only, no thousands dots: 15000 or 1250.50.' : undefined}
                     rules={[
                       { required: true, message: 'Unit cost is required.' },
                       decimal('Unit cost', { min: 0, max: 100_000_000, decimals: 2 }),
@@ -257,6 +262,7 @@ function ReceiptFormModal({
                   >
                     <InputNumber<number>
                       aria-label={`Line ${index + 1} unit cost`}
+                      placeholder="e.g. 15000"
                       style={{ width: 140 }}
                     />
                   </Form.Item>

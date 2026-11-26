@@ -16,6 +16,11 @@ describe('toCsv (FR-43)', () => {
     expect(toCsv(['A'], [[null]])).toContain('\r\n""\r\n');
   });
 
+  it('keeps a money amount sent as text a number, even when negative', () => {
+    expect(toCsv(['A'], [['-1200.00']])).toContain('\r\n"-1200.00"\r\n');
+    expect(toCsv(['A'], [['-1200,00']])).toContain(`"'-1200,00"`);
+  });
+
   it('stops a cell that looks like a formula', () => {
     expect(toCsv(['A'], [['=SUM(1)']])).toContain('"\'=SUM(1)"');
   });

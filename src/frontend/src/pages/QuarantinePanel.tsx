@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { type AssessInput, batchesApi, type QuarantineLine, type ReleaseBlock } from '../api/batches';
 import { showApiError } from '../api/errors';
 import { useLoad } from '../api/useLoad';
+import { LoadFailed } from '../ui/LoadFailed';
 import { StatusTag } from '../ui/tags';
 
 const NO_LINES: QuarantineLine[] = [];
@@ -24,7 +25,7 @@ const BLOCKED: Record<ReleaseBlock, string> = {
  */
 export function QuarantinePanel() {
   const fetchLines = useCallback(() => batchesApi.quarantine(), []);
-  const { data: lines, loading, reload } = useLoad(fetchLines, NO_LINES);
+  const { data: lines, loading, error: loadError, reload } = useLoad(fetchLines, NO_LINES);
   const [assessing, setAssessing] = useState<{ line: QuarantineLine; outcome: AssessInput['outcome'] } | null>(null);
 
   const columns: ColumnsType<QuarantineLine> = [
@@ -56,6 +57,16 @@ export function QuarantinePanel() {
         </Space>
       ),
     },
+    {
+      title: 'Why it cannot be released',
+      // The reason is written out too, not only in a hover tooltip.
+      render: (_, l) =>
+        l.releaseBlockedBy ? (
+          <Typography.Text type="secondary">{BLOCKED[l.releaseBlockedBy]}</Typography.Text>
+        ) : (
+          '—'
+      ),
+    },
   ];
 
   return (
@@ -64,6 +75,7 @@ export function QuarantinePanel() {
         Returned goods wait here until a manager assesses them. A release goes back on sale; a
         reject goes to pending destruction.
       </Typography.Paragraph>
+      {loadError && <LoadFailed error={loadError} onRetry={reload} />}
       <Table
         rowKey={(l) => l.returnLineId}
         columns={columns}
@@ -200,7 +212,7 @@ function AssessModal({
           It is recorded as destroyed only when the destruction is recorded.
         </Typography.Paragraph>
       )}
-      {refusal && <Alert type="error" showIcon message={refusal} />}
+      {refusal && <Alert type="error" showIcon title={refusal} />}
     </Modal>
   );
 }

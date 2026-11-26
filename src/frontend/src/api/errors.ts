@@ -45,9 +45,20 @@ export function toApiError(error: unknown): ApiError {
 }
 
 /**
- * Shows each field error under its form field (NFR-04) and returns the
- * message for anything that does not belong to a field, or null when every
- * error was placed on a field.
+ * True when the request may or may not have been saved: the server was not
+ * reached, the answer was lost, or the server failed (5xx). A screen that
+ * sends a request ID must then offer only a retry with the same ID (FR-23),
+ * because a new ID could save the same thing twice.
+ */
+export function outcomeUnknown(apiError: ApiError): boolean {
+  return apiError.code === 'NETWORK' || apiError.code === 'UNKNOWN' || apiError.statusCode >= 500;
+}
+
+/**
+ * Shows each field error under its form field (NFR-04), scrolls to the first
+ * one, and returns a message for whatever could not be placed, or null when
+ * every error was placed on a field. An error for a field that is not on the
+ * screen is added to the returned message, so it is never lost.
  *
  * Paths such as `lines.0.quantity` map to Ant Design name paths
  * `['lines', 0, 'quantity']`, so it also works for Form.List.
@@ -59,10 +70,14 @@ export function showApiError(form: FormInstance, error: unknown): string | null 
   );
 
   const placed: FieldError[] = [];
+  const unplaced: FieldError[] = [];
   const byField = new Map<string, string[]>();
   for (const fieldError of apiError.errors) {
     const root = fieldError.field.split('.')[0];
-    if (!known.has(root)) continue;
+    if (!known.has(root)) {
+      unplaced.push(fieldError);
+      continue;
+    }
     placed.push(fieldError);
     byField.set(fieldError.field, [
       ...(byField.get(fieldError.field) ?? []),
@@ -70,15 +85,22 @@ export function showApiError(form: FormInstance, error: unknown): string | null 
     ]);
   }
 
-  form.setFields(
-    [...byField].map(([field, messages]) => ({
-      name: field.split('.').map((part) => (/^\d+$/.test(part) ? Number(part) : part)),
-      errors: messages,
-    })),
-  );
+  const fields = [...byField].map(([field, messages]) => ({
+    name: toNamePath(field),
+    errors: messages,
+  }));
+  form.setFields(fields);
+  // A long form's error can be off screen (NFR-04): bring the first one into view.
+  if (fields.length > 0) form.scrollToField(fields[0].name, { focus: true });
 
-  if (placed.length > 0 && placed.length === apiError.errors.length) {
+  if (placed.length > 0 && unplaced.length === 0) {
     return null;
   }
-  return apiError.message;
+  if (unplaced.length === 0) return apiError.message;
+  return [apiError.message, ...unplaced.map((e) => e.message)]
+    .filter((m, i, all) => all.indexOf(m) === i)
+    .join(' ');
 }
+
+const toNamePath = (field: string) =>
+  field.split('.').map((part) => (/^\d+$/.test(part) ? Number(part) : part));

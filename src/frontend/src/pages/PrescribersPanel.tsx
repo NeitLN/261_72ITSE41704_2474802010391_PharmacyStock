@@ -16,6 +16,7 @@ import { useCallback, useState } from 'react';
 import { showApiError, toApiError } from '../api/errors';
 import { type Prescriber, type PrescriberInput, prescribersApi } from '../api/prescribers';
 import { useLoad } from '../api/useLoad';
+import { LoadFailed } from '../ui/LoadFailed';
 import { StatusTag } from '../ui/tags';
 
 const NO_PRESCRIBERS: Prescriber[] = [];
@@ -38,7 +39,7 @@ export function PrescribersPanel() {
     () => prescribersApi.list({ search: search || undefined, active: shown === 'active' }),
     [search, shown],
   );
-  const { data: prescribers, loading, reload } = useLoad(fetchPrescribers, NO_PRESCRIBERS);
+  const { data: prescribers, loading, error: loadError, reload } = useLoad(fetchPrescribers, NO_PRESCRIBERS);
 
   async function toggleActive(prescriber: Prescriber) {
     try {
@@ -83,6 +84,9 @@ export function PrescribersPanel() {
                 ? 'New prescriptions cannot name them; existing ones are kept.'
                 : undefined
             }
+            okText={prescriber.isActive ? 'Deactivate' : 'Activate'}
+            okButtonProps={{ danger: prescriber.isActive }}
+            cancelText="Keep it"
             onConfirm={() => toggleActive(prescriber)}
           >
             <Button size="small" danger={prescriber.isActive}>
@@ -116,6 +120,7 @@ export function PrescribersPanel() {
         </Button>
       </Space>
 
+      {loadError && <LoadFailed error={loadError} onRetry={reload} />}
       <Table
         rowKey="id"
         columns={columns}

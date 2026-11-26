@@ -395,6 +395,69 @@ export class LedgerTransaction {
   }
 
   /**
+   * Reverses several movements of one document together (BR05), e.g. every
+   * line of a wrong goods receipt. All medicines are locked first, then all
+   * batches, so the lock order holds however many lines there are. Each
+   * movement is reversed at most once; a reversal that would leave a batch
+   * below zero (the goods were already sold or dispensed) is refused (BR03)
+   * and nothing is written.
+   */
+  async reverseAll(
+    actor: Actor,
+    movementIds: string[],
+    reason: string,
+  ): Promise<StockMovement[]> {
+    const why = requireReason(reason, 'A correction needs a reason.');
+    const ids = [...new Set(movementIds.map((id) => id.toLowerCase()))];
+    if (ids.length === 0) return [];
+    const originals = await this.manager
+      .createQueryBuilder(StockMovement, 'm')
+      .leftJoinAndSelect('m.batch', 'batch')
+      .leftJoinAndSelect('batch.medicine', 'medicine')
+      .leftJoinAndSelect('m.reversesMovement', 'reverses')
+      .where('m.id IN (:...ids)', { ids })
+      .orderBy('m.id', 'ASC')
+      .getMany();
+    if (originals.length !== ids.length) {
+      const found = new Set(originals.map((m) => m.id));
+      throw new NotFound('Stock movement', ids.find((id) => !found.has(id))!);
+    }
+    if (originals.some((m) => m.reversesMovement)) {
+      throw new Conflict(
+        'CANNOT_REVERSE_REVERSAL',
+        'A correction cannot itself be reversed; post a new movement instead.',
+      );
+    }
+
+    await this.lockMedicines(originals.map((m) => m.batch.medicine.id));
+    const batches = await this.lockBatches(originals.map((m) => m.batch.id));
+    const byId = new Map(batches.map((b) => [b.id, b]));
+
+    const already = await this.manager
+      .createQueryBuilder(StockMovement, 'm')
+      .where('m.reverses_movement_id IN (:...ids)', { ids })
+      .getExists();
+    if (already) {
+      throw new Conflict('ALREADY_REVERSED', 'This document has already been reversed.');
+    }
+
+    const written: StockMovement[] = [];
+    for (const original of originals) {
+      written.push(
+        await this.write(actor, byId.get(original.batch.id)!, {
+          ...negate(original),
+          type: original.type,
+          sourceDocumentType: original.sourceDocumentType,
+          sourceDocumentId: original.sourceDocumentId,
+          reason: why,
+          reversesMovement: { id: original.id } as StockMovement,
+        }),
+      );
+    }
+    return written;
+  }
+
+  /**
    * Changes a batch's status with a reason (FR-48, DEC-07). ACTIVE, ON_HOLD
    * and RECALLED change into each other freely; REJECTED is final. No stock
    * moves: a batch that is not ACTIVE simply stops being eligible for FEFO,

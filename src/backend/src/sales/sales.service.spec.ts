@@ -1,3 +1,4 @@
+import type { AuditService } from '../audit/audit.service.js';
 import type { DataSource } from 'typeorm';
 import { describe, expect, it, vi } from 'vitest';
 import type { Actor } from '../auth/actor.js';
@@ -43,6 +44,7 @@ function service() {
       ledger,
       {} as PriceBook,
       new FixedClock(new Date('2026-10-13T03:00:00Z')),
+      {} as AuditService,
     ),
   };
 }

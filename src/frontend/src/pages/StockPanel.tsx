@@ -8,14 +8,12 @@ import {
   Space,
   Switch,
   Table,
-  Tag,
   Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useCallback, useState } from 'react';
 import { medicinesApi, type Reference } from '../api/medicines';
 import {
-  type BatchState,
   type Movement,
   type MovementType,
   type StockBatch,
@@ -26,6 +24,8 @@ import {
 import { useLoad } from '../api/useLoad';
 import { LoadFailed } from '../ui/LoadFailed';
 import { formatDateTime } from '../ui/format';
+import { StatusTag } from '../ui/tags';
+import { LabelledSwitch, ListToolbar } from '../ui/ListToolbar';
 
 const PAGE_SIZE = 50;
 const NO_REFERENCE = { categories: [] as Reference[], units: [] as Reference[] };
@@ -38,13 +38,6 @@ const STATE_OPTIONS: Array<{ value: StockState; label: string }> = [
   { value: 'has_expired', label: 'Has expired stock' },
 ];
 
-const BATCH_TAGS: Record<BatchState, { color: string; label: string }> = {
-  active: { color: 'green', label: 'Active' },
-  expired: { color: 'red', label: 'Expired' },
-  on_hold: { color: 'orange', label: 'On hold' },
-  recalled: { color: 'volcano', label: 'Recalled' },
-  rejected: { color: 'default', label: 'Rejected' },
-};
 
 const MOVEMENT_LABELS: Record<MovementType, string> = {
   receipt: 'Receipt',
@@ -99,13 +92,14 @@ export function StockPanel() {
   }
 
   const columns: ColumnsType<StockRow> = [
-    { title: 'Code', width: 120, render: (_, r) => r.medicine.code },
+    { title: 'Code', width: 110, className: 'nowrap', render: (_, r) => r.medicine.code },
     {
       title: 'Medicine',
+      width: 240,
       render: (_, r) => (
         <Space orientation="vertical" size={0}>
           <span>
-            {r.medicine.name} {!r.medicine.isActive && <Tag>Inactive</Tag>}
+            {r.medicine.name} {!r.medicine.isActive && <StatusTag kind="record" value="inactive" />}
           </span>
           <Typography.Text type="secondary" style={{ fontSize: 12 }}>
             {r.medicine.category.name}
@@ -116,14 +110,15 @@ export function StockPanel() {
     {
       title: 'Sellable',
       align: 'right',
-      width: 110,
+      width: 120,
+      className: 'nowrap',
       render: (_, r) => (
         <Typography.Text strong type={r.sellable === 0 ? 'danger' : undefined}>
           {r.sellable} <Typography.Text type="secondary">{r.medicine.baseUnit.name.toLowerCase()}</Typography.Text>
         </Typography.Text>
       ),
     },
-    { title: 'Next expiry', width: 120, render: (_, r) => r.nextExpiry ?? '—' },
+    { title: 'Next expiry', width: 120, className: 'nowrap', render: (_, r) => r.nextExpiry ?? '—' },
     { title: 'Expired', align: 'right', width: 90, render: (_, r) => muted(r.expired) },
     { title: 'Held', align: 'right', width: 80, render: (_, r) => muted(r.held) },
     { title: 'Quarantine', align: 'right', width: 110, render: (_, r) => muted(r.quarantine) },
@@ -136,8 +131,9 @@ export function StockPanel() {
     {
       title: '',
       width: 100,
+      fixed: 'right',
       render: (_, r) => (
-        <Button size="small" onClick={() => setOpenMedicine(r.medicine.id)}>
+        <Button size="small" aria-label={`Batches of ${r.medicine.name}`} onClick={() => setOpenMedicine(r.medicine.id)}>
           Batches
         </Button>
       ),
@@ -146,16 +142,18 @@ export function StockPanel() {
 
   return (
     <>
-      <Space wrap>
+      <ListToolbar>
         <Input.Search
           allowClear
           placeholder="Code, name or ingredient"
+          aria-label="Search by code, name or ingredient"
           onSearch={(value) => filter(setSearch)(value.trim())}
-          style={{ width: 240 }}
+          style={{ width: 280 }}
         />
         <Select
           allowClear
           placeholder="All categories"
+          aria-label="Category"
           value={categoryId}
           onChange={filter(setCategoryId)}
           options={reference.categories.map((c) => ({ value: c.id, label: c.name }))}
@@ -168,11 +166,11 @@ export function StockPanel() {
           aria-label="Stock state"
           style={{ width: 180 }}
         />
-        <Space>
+        <LabelledSwitch>
           <Switch checked={includeInactive} onChange={filter(setIncludeInactive)} />
-          <span>Show inactive</span>
-        </Space>
-      </Space>
+          Show inactive
+        </LabelledSwitch>
+      </ListToolbar>
       <Typography.Paragraph type="secondary" style={{ marginTop: 8, marginBottom: 0 }}>
         Sellable counts active batches that expire after today. Expired, held (on hold,
         recalled or rejected), quarantined and pending-destruction stock is shown apart and
@@ -183,6 +181,7 @@ export function StockPanel() {
       <Table
         rowKey={(r) => r.medicine.id}
         columns={columns}
+        scroll={{ x: 'max-content' }}
         dataSource={stock.items}
         loading={loading}
         pagination={{
@@ -217,18 +216,20 @@ function MedicineStockDrawer({
     () => (medicineId ? stockApi.medicine(medicineId) : Promise.resolve(null)),
     [medicineId],
   );
-  const { data: detail, loading } = useLoad(fetchDetail, null);
+  const { data: detail, loading, error: detailError, reload: reloadDetail } = useLoad(fetchDetail, null);
 
   const columns: ColumnsType<StockBatch> = [
-    { title: 'Batch', dataIndex: 'batchNumber' },
-    { title: 'Expiry', dataIndex: 'expiryDate' },
+    { title: 'Batch', dataIndex: 'batchNumber', className: 'nowrap' },
+    { title: 'Expiry', dataIndex: 'expiryDate', className: 'nowrap' },
     {
       title: 'State',
       render: (_, b) => (
         <Space size={4}>
-          <Tag color={BATCH_TAGS[b.state].color}>{BATCH_TAGS[b.state].label}</Tag>
+          <StatusTag kind="batch" value={b.state} />
           {b.state === 'active' && (
-            <Typography.Text type="secondary">{b.daysLeft} days left</Typography.Text>
+            <Typography.Text type="secondary" className="nowrap">
+              {b.daysLeft === 1 ? '1 day' : `${b.daysLeft} days`} left
+            </Typography.Text>
           )}
         </Space>
       ),
@@ -243,7 +244,7 @@ function MedicineStockDrawer({
     {
       title: '',
       render: (_, b) => (
-        <Button size="small" onClick={() => setOpenBatch(b.id)}>
+        <Button size="small" aria-label={`History of batch ${b.batchNumber}`} onClick={() => setOpenBatch(b.id)}>
           History
         </Button>
       ),
@@ -271,6 +272,7 @@ function MedicineStockDrawer({
           </Descriptions.Item>
         </Descriptions>
       )}
+      {detailError && <LoadFailed error={detailError} onRetry={reloadDetail} />}
       <Table
         rowKey="id"
         size="small"
@@ -291,17 +293,20 @@ function BatchHistoryModal({ batchId, onClose }: { batchId: string | null; onClo
     () => (batchId ? stockApi.history(batchId) : Promise.resolve(null)),
     [batchId],
   );
-  const { data: history, loading } = useLoad(fetchHistory, null);
+  const { data: history, loading, error: historyError, reload: reloadHistory } = useLoad(fetchHistory, null);
 
   const columns: ColumnsType<Movement> = [
-    { title: 'Time', width: 170, render: (_, m) => formatDateTime(m.occurredAt) },
+    { title: 'Time', width: 150, className: 'nowrap', render: (_, m) => formatDateTime(m.occurredAt) },
     {
       title: 'Type',
       width: 150,
       render: (_, m) => (
         <Space orientation="vertical" size={0}>
           <span>
-            {MOVEMENT_LABELS[m.type]} {m.reverses && <Tag color="purple">Correction</Tag>}
+            {MOVEMENT_LABELS[m.type]}
+            {m.reverses && (
+              <Typography.Text type="secondary"> (correction)</Typography.Text>
+            )}
           </span>
           {m.reverses && (
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
@@ -322,8 +327,8 @@ function BatchHistoryModal({ batchId, onClose }: { batchId: string | null; onClo
       align: 'right',
       render: (_, m) => (
         <span>
-          {signed(m.deltaSellable)}{' '}
-          <Typography.Text type="secondary">→ {m.balanceSellable}</Typography.Text>
+          <span className={m.deltaSellable === 0 ? 'qty-zero' : undefined}>{signed(m.deltaSellable)}</span>
+          <Typography.Text type="secondary" className="nowrap"> · balance {m.balanceSellable}</Typography.Text>
         </span>
       ),
     },
@@ -332,18 +337,18 @@ function BatchHistoryModal({ batchId, onClose }: { batchId: string | null; onClo
       align: 'right',
       render: (_, m) => (
         <span>
-          {signed(m.deltaQuarantine)}{' '}
-          <Typography.Text type="secondary">→ {m.balanceQuarantine}</Typography.Text>
+          <span className={m.deltaQuarantine === 0 ? 'qty-zero' : undefined}>{signed(m.deltaQuarantine)}</span>
+          <Typography.Text type="secondary" className="nowrap"> · balance {m.balanceQuarantine}</Typography.Text>
         </span>
       ),
     },
     {
-      title: 'Pending destr.',
+      title: 'Pending destruction',
       align: 'right',
       render: (_, m) => (
         <span>
-          {signed(m.deltaPendingDestruction)}{' '}
-          <Typography.Text type="secondary">→ {m.balancePendingDestruction}</Typography.Text>
+          <span className={m.deltaPendingDestruction === 0 ? 'qty-zero' : undefined}>{signed(m.deltaPendingDestruction)}</span>
+          <Typography.Text type="secondary" className="nowrap"> · balance {m.balancePendingDestruction}</Typography.Text>
         </span>
       ),
     },
@@ -377,10 +382,12 @@ function BatchHistoryModal({ batchId, onClose }: { batchId: string | null; onClo
       }
       destroyOnHidden
     >
+      {historyError && <LoadFailed error={historyError} onRetry={reloadHistory} />}
       <Table
         rowKey="id"
         size="small"
         columns={columns}
+        scroll={{ x: 'max-content' }}
         dataSource={history?.movements ?? []}
         loading={loading}
         pagination={false}

@@ -559,4 +559,51 @@ describe('UC07 over-the-counter sale (e2e)', () => {
       .set(as('cashier'));
     expect(again.body).toEqual(res.body);
   });
+
+  it('UC07-24 TC-59: a cancelled cart moves nothing and its reason is kept in the audit log', async () => {
+    const a = await receive('A', 10);
+    const blank = await t
+      .http()
+      .post('/api/sales/cancellations')
+      .set(as('cashier'))
+      .send({ reason: '   ', otcLines: [{ medicineId: otc.id, quantity: 2 }] });
+    expect(blank.status).toBe(400);
+    expect(blank.body.errors[0].field).toBe('reason');
+
+    const res = await t
+      .http()
+      .post('/api/sales/cancellations')
+      .set(as('cashier'))
+      .send({ reason: 'Customer changed their mind', otcLines: [{ medicineId: otc.id, quantity: 2 }] });
+    expect(res.status).toBe(204);
+    expect(await qty(a)).toBe(10);
+    const [row] = await t.dataSource.query(
+      `SELECT details FROM audit_logs WHERE action = 'sale.cart_cancelled' ORDER BY "occurredAt" DESC LIMIT 1`,
+    );
+    expect(JSON.parse(row.details)).toEqual({
+      reason: 'Customer changed their mind',
+      lines: [{ medicineId: otc.id, quantity: 2 }],
+    });
+    await expectBalanced();
+  });
+
+  it('UC07-25 the sales of the business day are listed newest first; another day is empty', async () => {
+    await receive('A', 10);
+    const first = await sell([{ medicineId: otc.id, quantity: 1 }]);
+    const second = await sell([{ medicineId: otc.id, quantity: 2 }]);
+    expect([first.status, second.status]).toEqual([201, 201]);
+
+    const today = await t.http().get('/api/sales').set(as('cashier'));
+    expect(today.status).toBe(200);
+    expect(today.body.map((s: { receiptNumber: string }) => s.receiptNumber)).toEqual([
+      second.body.receiptNumber,
+      first.body.receiptNumber,
+    ]);
+    expect(today.body[0]).toMatchObject({ lineCount: 1, totalAmount: second.body.totalAmount, customer: null });
+
+    const other = await t.http().get('/api/sales?date=2026-10-12').set(as('cashier'));
+    expect(other.body).toEqual([]);
+    const bad = await t.http().get('/api/sales?date=2026-10').set(as('cashier'));
+    expect(bad.status).toBe(400);
+  });
 });

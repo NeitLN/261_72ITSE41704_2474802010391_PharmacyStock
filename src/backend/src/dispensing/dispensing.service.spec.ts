@@ -1,3 +1,4 @@
+import type { AuditService } from '../audit/audit.service.js';
 import type { DataSource } from 'typeorm';
 import { describe, expect, it, vi } from 'vitest';
 import type { Actor } from '../auth/actor.js';
@@ -59,6 +60,7 @@ describe('DispensingService permissions (FR-39)', () => {
       { manager: {} } as unknown as DataSource,
       ledger,
       new FixedClock(new Date('2026-10-13T03:00:00Z')),
+      {} as AuditService,
     );
     const cashier: Actor = {
       id: 'u1',

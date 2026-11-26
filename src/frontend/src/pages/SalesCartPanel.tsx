@@ -13,9 +13,14 @@ import {
 } from 'antd';
 import { PrinterOutlined } from '@ant-design/icons';
 import { useCallback, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import type { RefSelectProps } from 'antd/es/select';
 import { type FieldError, outcomeUnknown, toApiError } from '../api/errors';
 import { wholeNumberError } from '../forms/numberRules';
 import { medicinesApi, type Medicine } from '../api/medicines';
+import { stockApi } from '../api/stock';
+import { MoneyInput } from '../forms/MoneyInput';
+import { expiryInfo } from '../ui/expiry';
 import { formatDateTime, formatVnd } from '../ui/format';
 import {
   lineEstimateXu,
@@ -26,6 +31,7 @@ import {
 import { useLoad } from '../api/useLoad';
 import { WarningTag } from './DispensePanel';
 import { ResultAppear } from './ResultAppear';
+import { matchesLabel } from '../ui/search';
 
 const NO_OTC: Medicine[] = [];
 
@@ -37,6 +43,17 @@ interface CartLine {
   unitPrice: string;
   /** null while the box is empty. */
   quantity: number | null;
+  /** The base unit, e.g. "sachet", so "2" is never read as two boxes. */
+  unit: string;
+}
+
+/** What the shelf holds for a cart line, read when the medicine is added. */
+interface ShelfInfo {
+  sellable: number;
+  /** Expiry of the batch FEFO takes first, or null when none is sellable. */
+  nextExpiry: string | null;
+  businessDate: string;
+  alertDays: number;
 }
 
 const quantityError = (quantity: number | null) =>
@@ -99,6 +116,10 @@ export function SalesCartPanel() {
   const [topError, setTopError] = useState<string | null>(null);
   const [lineErrors, setLineErrors] = useState<LineErrors>({});
   const [unknownOutcome, setUnknownOutcome] = useState(false);
+  const [shelf, setShelf] = useState<Record<string, ShelfInfo>>({});
+  const [cash, setCash] = useState<number | null>(null);
+  const [paidEstimate, setPaidEstimate] = useState<string | null>(null);
+  const picker = useRef<RefSelectProps>(null);
   const locked = paying || unknownOutcome;
   const cartInvalid = cart.some((c) => quantityError(c.quantity) !== null);
 
@@ -138,9 +159,33 @@ export function SalesCartPanel() {
           name: m.name,
           unitPrice: price,
           quantity: 1,
+          unit: m.baseUnit.name.toLowerCase(),
         },
       ];
     });
+    // The stock and the batch FEFO will take, before the money is taken (shown, not checked:
+    // the server still decides at payment).
+    if (!shelf[m.id]) {
+      stockApi.medicine(m.id).then(
+        (d) => {
+          const next = d.batches
+            .filter((b) => b.state === 'active' && b.qtySellable > 0)
+            .sort((x, y) => x.expiryDate.localeCompare(y.expiryDate))[0];
+          setShelf((prev) => ({
+            ...prev,
+            [m.id]: {
+              sellable: d.totals.sellable,
+              nextExpiry: next?.expiryDate ?? null,
+              businessDate: next ? addDays(next.expiryDate, -next.daysLeft) : '',
+              alertDays: m.expiryAlertDays,
+            },
+          }));
+        },
+        () => {
+          // Only a hint: the payment itself reports a shortage.
+        },
+      );
+    }
     // The cart changed: a stale request ID must never be reused (FR-23).
     setRequestId(null);
     setLineErrors({});
@@ -175,7 +220,7 @@ export function SalesCartPanel() {
       content: (
         <div style={{ marginTop: 8 }}>
           <Typography.Paragraph type="secondary">
-            Nothing was saved — bill and stock are untouched.
+            No sale is recorded and stock is untouched. The reason is kept for the manager.
           </Typography.Paragraph>
           <CancelReason
             onChange={(v) => {
@@ -194,21 +239,38 @@ export function SalesCartPanel() {
       okText: 'Cancel cart',
       cancelText: 'Keep the cart',
       okButtonProps: { danger: true, disabled: true },
-      onOk: () => {
+      onOk: async () => {
         if (!reason.trim()) {
-          return Promise.reject(new Error('A reason is required.'));
+          throw new Error('A reason is required.');
+        }
+        try {
+          await salesApi.cancelCart(
+            reason.trim(),
+            cart.map((c) => ({ medicineId: c.medicineId, quantity: c.quantity ?? 0 })),
+          );
+        } catch (error) {
+          message.error(toApiError(error).message);
+          throw error;
         }
         setCart([]);
         setRequestId(null);
         setTopError(null);
         setLineErrors({});
-        message.info('Cart cancelled — nothing was saved.');
+        setCash(null);
+        message.info('Cart cancelled — no sale was recorded; the reason is kept.');
       },
     });
   }
 
   async function pay() {
-    if (cart.length === 0 || cartInvalid || paying) return;
+    if (cartInvalid) {
+      // Pay stays reachable; it leads to the first quantity to fix.
+      const first = cart.find((c) => quantityError(c.quantity) !== null);
+      if (first) document.getElementById(`qty-${first.medicineId}`)?.focus();
+      return;
+    }
+    if (cart.length === 0 || paying) return;
+    setPaidEstimate(xuToVndString(estimatedTotalXu));
     // One request ID per cart; a retry resends the same one (FR-23).
     const rid = requestId ?? crypto.randomUUID();
     setRequestId(rid);
@@ -251,13 +313,17 @@ export function SalesCartPanel() {
     setTopError(null);
     setLineErrors({});
     setUnknownOutcome(false);
+    setCash(null);
+    setPaidEstimate(null);
+    // The next customer: straight back to the medicine search.
+    setTimeout(() => picker.current?.focus(), 0);
   }
 
   function confirmStartOver() {
     modal.confirm({
       title: 'Start a new cart?',
       content:
-        'The payment may already have gone through. Check the sales report for this sale first; if it is there, do not charge the customer again.',
+        'The payment may already have gone through. Press Retry payment first: it can never charge twice, and it shows the receipt if the payment was recorded. The list of today’s sales on the Returns tab also shows it if it went through. Start a new cart only if you are sure nothing was charged.',
       okText: 'Start a new cart',
       okButtonProps: { danger: true },
       cancelText: 'Keep the cart',
@@ -266,16 +332,21 @@ export function SalesCartPanel() {
   }
 
   if (receipt) {
-    return <ReceiptView sale={receipt} onNew={resetAll} />;
+    return <ReceiptView sale={receipt} onNew={resetAll} expectedTotal={paidEstimate} />;
   }
 
   return (
     <Space orientation="vertical" style={{ width: '100%' }} size="large">
       <div>
-        <Typography.Text strong>Add a medicine to the cart</Typography.Text>
+        <label htmlFor="cart-medicine" style={{ display: 'block', fontWeight: 600, marginBottom: 8 }}>
+          Add a medicine to the cart
+        </label>
         <Select
+          ref={picker}
+          id="cart-medicine"
+          autoFocus
           showSearch
-          optionFilterProp="label"
+          filterOption={matchesLabel}
           // `null` (not undefined) so antd really clears the picker after
           // every pick; onSelect (not onChange) because picking the same
           // medicine twice in a row must still merge quantities.
@@ -284,7 +355,7 @@ export function SalesCartPanel() {
           disabled={locked}
           placeholder="Search by code or name"
           notFoundContent="No OTC medicine matches"
-          style={{ width: '100%', maxWidth: 480, marginTop: 8 }}
+          style={{ width: '100%', maxWidth: 480 }}
           options={otc.map((m) => ({
             value: m.id,
             label:
@@ -311,6 +382,26 @@ export function SalesCartPanel() {
               dataSource={cart}
               style={{ marginTop: 8 }}
               locale={{ emptyText: 'The cart is empty. Search a medicine by code or name to add it.' }}
+              summary={() => (
+                <Table.Summary.Row>
+                  <Table.Summary.Cell index={0} colSpan={3} align="right">
+                    <Typography.Text strong style={{ fontSize: 16 }}>
+                      Total to pay
+                    </Typography.Text>
+                    {cartInvalid && (
+                      <div>
+                        <Typography.Text type="secondary">Fix the quantity to see the total.</Typography.Text>
+                      </div>
+                    )}
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={3} align="right">
+                    <Typography.Text strong style={{ fontSize: 20 }} className="nowrap">
+                      {cartInvalid ? '—' : formatVnd(xuToVndString(estimatedTotalXu))}
+                    </Typography.Text>
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={4} />
+                </Table.Summary.Row>
+              )}
               columns={[
                 {
                   title: 'Medicine',
@@ -319,37 +410,69 @@ export function SalesCartPanel() {
                 {
                   title: 'Price',
                   align: 'right',
-                  render: (_, c) => formatVnd(c.unitPrice),
+                  width: 130,
+                  className: 'nowrap',
+                  render: (_, c) => (
+                    <>
+                      {formatVnd(c.unitPrice)}
+                      <Typography.Text type="secondary"> /{c.unit}</Typography.Text>
+                    </>
+                  ),
                 },
                 {
                   title: 'Quantity',
-                  align: 'right',
-                  render: (_, c) => (
-                    <div>
-                      {/* No min or precision: they quietly change what was typed (#125). */}
-                      <InputNumber<number>
-                        value={c.quantity}
-                        onChange={(v) => changeQuantity(c.medicineId, v)}
-                        disabled={locked}
-                        status={(quantityError(c.quantity) ?? lineErrors[c.medicineId]) ? 'error' : undefined}
-                        aria-label={`Quantity of ${c.name}`}
-                        style={{ width: 90 }}
-                      />
-                      {(quantityError(c.quantity) ?? lineErrors[c.medicineId]) && (
-                        <div>
-                          <Typography.Text type="danger">
-                            {quantityError(c.quantity) ?? lineErrors[c.medicineId]}
-                          </Typography.Text>
-                        </div>
-                      )}
-                    </div>
-                  ),
+                  width: 250,
+                  render: (_, c) => {
+                    const error = quantityError(c.quantity) ?? lineErrors[c.medicineId];
+                    const info = shelf[c.medicineId];
+                    const tier = info?.nextExpiry
+                      ? expiryInfo(info.nextExpiry, info.businessDate, info.alertDays)
+                      : null;
+                    return (
+                      <div>
+                        {/* No min or precision: they quietly change what was typed (#125). */}
+                        <InputNumber<number>
+                          id={`qty-${c.medicineId}`}
+                          value={c.quantity}
+                          onChange={(v) => changeQuantity(c.medicineId, v)}
+                          disabled={locked}
+                          suffix={c.unit}
+                          status={error ? 'error' : undefined}
+                          aria-invalid={error ? true : undefined}
+                          aria-describedby={error ? `qty-error-${c.medicineId}` : undefined}
+                          aria-label={`Quantity of ${c.name}`}
+                          style={{ width: 140 }}
+                        />
+                        {error && (
+                          <div id={`qty-error-${c.medicineId}`} role="alert">
+                            <Typography.Text type="danger">{error}</Typography.Text>
+                          </div>
+                        )}
+                        {info && (
+                          <div>
+                            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                              {info.sellable} in stock
+                            </Typography.Text>{' '}
+                            {tier && tier.tier !== 'later' && (
+                              <Typography.Text style={{ fontSize: 12, color: '#8f5200' }}>
+                                · first batch expires in {tier.daysLeft} {tier.daysLeft === 1 ? 'day' : 'days'}
+                              </Typography.Text>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  },
                 },
                 {
                   title: 'Line total',
                   align: 'right',
+                  width: 140,
+                  className: 'nowrap',
                   render: (_, c) =>
-                    formatVnd(xuToVndString(lineEstimateXu(c.unitPrice, c.quantity))),
+                    quantityError(c.quantity)
+                      ? '—'
+                      : formatVnd(xuToVndString(lineEstimateXu(c.unitPrice, c.quantity))),
                 },
                 {
                   title: '',
@@ -366,7 +489,6 @@ export function SalesCartPanel() {
                     >
                       <Button
                         type="text"
-                        danger
                         disabled={locked}
                         aria-label={`Remove ${c.name} from the cart`}
                       >
@@ -377,12 +499,6 @@ export function SalesCartPanel() {
                 },
               ]}
             />
-            <Typography.Text strong style={{ fontSize: 16 }}>
-              Estimated total: {formatVnd(xuToVndString(estimatedTotalXu))}
-            </Typography.Text>
-            <Typography.Paragraph type="secondary" style={{ margin: 0 }}>
-              Estimate — the receipt shows the total charged.
-            </Typography.Paragraph>
           </div>
           {unknownOutcome && (
             <Alert
@@ -392,26 +508,44 @@ export function SalesCartPanel() {
               description="Retry payment sends the same request: if it was already recorded you get its receipt, otherwise it is charged once now. The cart cannot be changed until then."
             />
           )}
-          <Space>
-            <Button
-              type="primary"
-              size="large"
-              loading={paying}
-              disabled={cartInvalid}
-              onClick={pay}
-            >
-              {unknownOutcome ? 'Retry payment' : 'Pay'}
-            </Button>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center', justifyContent: 'space-between' }}>
             {unknownOutcome ? (
-              <Button size="large" disabled={paying} onClick={confirmStartOver}>
+              <Button disabled={paying} onClick={confirmStartOver}>
                 Start a new cart
               </Button>
             ) : (
-              <Button danger size="large" disabled={paying} onClick={confirmCancelCart}>
+              <Button type="text" disabled={paying} onClick={confirmCancelCart}>
                 Cancel cart
               </Button>
             )}
-          </Space>
+            <Space wrap size="middle">
+              {/* Only a help for the change: the amount received is not sent anywhere. */}
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                Cash received
+                <MoneyInput value={cash} onChange={(v) => setCash(v ?? null)} disabled={locked} style={{ width: 140 }} />
+              </label>
+              {cash !== null && !cartInvalid && (
+                <Typography.Text strong className="nowrap">
+                  {BigInt(Math.round(cash * 100)) >= estimatedTotalXu
+                    ? `Change ${formatVnd(xuToVndString(BigInt(Math.round(cash * 100)) - estimatedTotalXu))}`
+                    : `Short ${formatVnd(xuToVndString(estimatedTotalXu - BigInt(Math.round(cash * 100))))}`}
+                </Typography.Text>
+              )}
+              <Button
+                type="primary"
+                size="large"
+                loading={paying}
+                aria-disabled={cartInvalid || undefined}
+                onClick={pay}
+              >
+                {unknownOutcome
+                  ? 'Retry payment'
+                  : cartInvalid
+                    ? 'Pay'
+                    : `Pay ${formatVnd(xuToVndString(estimatedTotalXu))}`}
+              </Button>
+            </Space>
+          </div>
         </>
       )}
 
@@ -434,12 +568,19 @@ export function ReceiptView({
   sale,
   onNew,
   newText = 'New sale',
+  expectedTotal = null,
 }: {
   sale: Sale;
   onNew: () => void;
   newText?: string;
+  /** The total the cart showed; a different charged total is pointed out. */
+  expectedTotal?: string | null;
 }) {
   const printedAt = useRef<HTMLSpanElement>(null);
+  const navigate = useNavigate();
+  const fetchUnits = useCallback(() => medicinesApi.list({}), []);
+  const { data: medicines } = useLoad(fetchUnits, NO_OTC);
+  const unitOf = (id: string) => medicines.find((m) => m.id === id)?.baseUnit.name.toLowerCase() ?? '';
 
   function print() {
     if (printedAt.current) printedAt.current.textContent = formatDateTime(new Date().toISOString());
@@ -480,10 +621,16 @@ export function ReceiptView({
               },
               { title: 'Batch', dataIndex: ['batch', 'batchNumber'] },
               { title: 'Expiry', dataIndex: ['batch', 'expiryDate'] },
-              { title: 'Quantity', dataIndex: 'quantity', align: 'right' },
+              {
+                title: 'Quantity',
+                align: 'right',
+                className: 'nowrap',
+                render: (_, l) => `${l.quantity} ${unitOf(l.medicine.id)}`,
+              },
               {
                 title: 'Unit price',
                 align: 'right',
+                className: 'nowrap',
                 render: (_, l) => formatVnd(l.unitPrice),
               },
               {
@@ -497,21 +644,42 @@ export function ReceiptView({
               },
             ]}
           />
-          <Descriptions size="small" column={1}>
-            <Descriptions.Item label="Total">
+          <div style={{ textAlign: 'right', marginTop: 12 }}>
+            <Typography.Text style={{ fontSize: 16 }}>Total paid </Typography.Text>
+            <Typography.Text strong style={{ fontSize: 22 }} className="nowrap">
               {formatVnd(sale.totalAmount)}
-            </Descriptions.Item>
-          </Descriptions>
+            </Typography.Text>
+          </div>
         </div>
-        <Space>
-          <Button icon={<PrinterOutlined />} onClick={print}>
+        {expectedTotal !== null && Number(expectedTotal) !== Number(sale.totalAmount) && (
+          <Alert
+            type="info"
+            showIcon
+            title={`The total charged differs from the cart (${formatVnd(expectedTotal)}): a price changed at payment. The receipt is what was charged.`}
+          />
+        )}
+        <Space wrap>
+          <Button type="primary" size="large" onClick={onNew}>
+            {newText}
+          </Button>
+          <Button icon={<PrinterOutlined />} size="large" onClick={print}>
             Print
           </Button>
-          <Button type="primary" onClick={onNew}>
-            {newText}
+          <Button
+            size="large"
+            onClick={() => navigate(`/sales?tab=returns&receipt=${encodeURIComponent(sale.receiptNumber)}`)}
+          >
+            Return items
           </Button>
         </Space>
       </Space>
     </ResultAppear>
   );
+}
+
+/** `YYYY-MM-DD` plus `days` (negative to go back), without the browser's time zone. */
+function addDays(date: string, days: number): string {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
 }

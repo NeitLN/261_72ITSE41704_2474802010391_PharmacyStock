@@ -8,6 +8,8 @@ import { type PrescriptionSummary, prescriptionsApi } from '../api/prescriptions
 import { useLoad } from '../api/useLoad';
 import { LoadFailed } from '../ui/LoadFailed';
 import { StatusTag } from '../ui/tags';
+import { DateField } from '../forms/DateField';
+import { ListToolbar } from '../ui/ListToolbar';
 
 const NO_CUSTOMERS: Customer[] = [];
 const NO_PRESCRIPTIONS: PrescriptionSummary[] = [];
@@ -56,17 +58,21 @@ export function CustomersPanel() {
 
   return (
     <>
-      <Space style={{ width: '100%', justifyContent: 'flex-end' }} wrap>
+      <ListToolbar
+        action={
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => setEditing('new')}>
+            Add customer
+          </Button>
+        }
+      >
         <Input.Search
           allowClear
           placeholder="Search name, code or phone"
+          aria-label="Search customers by name, code or phone"
           onSearch={(value) => setSearch(value.trim())}
           style={{ width: 280 }}
         />
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setEditing('new')}>
-          Add customer
-        </Button>
-      </Space>
+      </ListToolbar>
 
       {loadError && <LoadFailed error={loadError} onRetry={reload} />}
       <Table
@@ -228,7 +234,7 @@ function CustomerFormModal({ customer, onClose, onSaved }: CustomerFormModalProp
           <Input maxLength={30} placeholder="e.g. 0909 123 456" />
         </Form.Item>
         <Form.Item name="dateOfBirth" label="Date of birth">
-          <Input type="date" />
+          <DateField />
         </Form.Item>
         <Form.Item name="address" label="Address">
           <Input maxLength={300} />

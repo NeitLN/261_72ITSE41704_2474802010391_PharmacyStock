@@ -1,3 +1,4 @@
+import { AuditService } from '../audit/audit.service.js';
 import { randomUUID } from 'node:crypto';
 import type { DataSource } from 'typeorm';
 import type { Actor } from '../auth/actor.js';
@@ -221,6 +222,7 @@ export async function seedReportHistory(ctx: HistoryContext): Promise<void> {
     ctx.ledger,
     new PriceBook(),
     ctx.clock,
+    new AuditService(ctx.dataSource),
   );
   const returns = new ReturnsService(ctx.dataSource, ctx.ledger, ctx.clock);
   const soldReceipts = new Map<string, string>();

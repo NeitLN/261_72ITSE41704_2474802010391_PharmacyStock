@@ -12,7 +12,11 @@ export function ResultAppear({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const heading = ref.current?.querySelector<HTMLElement>(HEADING) ?? ref.current;
+    // The first heading that is on screen: the print-only heading comes first but is hidden.
+    const visible = [...(ref.current?.querySelectorAll<HTMLElement>(HEADING) ?? [])].find(
+      (el) => el.offsetParent !== null,
+    );
+    const heading = visible ?? ref.current;
     if (!heading) return;
     heading.setAttribute('tabindex', '-1');
     heading.focus();

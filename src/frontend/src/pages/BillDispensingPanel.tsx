@@ -1,5 +1,5 @@
 import { Alert, Button, Space, Table, Typography } from 'antd';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { type ApiError, toApiError } from '../api/errors';
 import {
   type BillablePrescription,
@@ -29,7 +29,7 @@ function isAlreadyBilled(error: ApiError): boolean {
  */
 export function BillDispensingPanel() {
   const fetchList = useCallback(() => salesApi.billable(), []);
-  const { data: prescriptions, loading, error: loadError, reload } = useLoad(
+  const { data: prescriptions, loading, error: loadError, reload, refreshQuietly } = useLoad(
     fetchList,
     NO_BILLABLE,
   );
@@ -41,6 +41,21 @@ export function BillDispensingPanel() {
   const [paying, setPaying] = useState(false);
   const [receipt, setReceipt] = useState<Sale | null>(null);
   const [topError, setTopError] = useState<string | null>(null);
+
+  // New hand-overs arrive while the cashier waits: refresh every 15 s and when the
+  // window comes back, quietly (no spinner), but never while a payment is on its way.
+  useEffect(() => {
+    if (paying || receipt) return undefined;
+    const refresh = () => refreshQuietly();
+    const timer = window.setInterval(refresh, 15_000);
+    window.addEventListener('focus', refresh);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener('focus', refresh);
+    };
+    // refreshQuietly is a new function each render; the timer only needs the two states.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paying, receipt]);
 
   function choose(prescription: BillablePrescription) {
     if (paying) return;
@@ -96,7 +111,7 @@ export function BillDispensingPanel() {
         />
         {receipt.lines.some((line) => line.billed) && (
           <Typography.Paragraph type="secondary" style={{ margin: 0 }}>
-            Handed over earlier — no stock movement.
+            Dispensed earlier — no stock movement.
           </Typography.Paragraph>
         )}
       </Space>
@@ -113,7 +128,7 @@ export function BillDispensingPanel() {
             alignItems: 'center',
           }}
         >
-          <Typography.Text strong>Hand-overs waiting for payment</Typography.Text>
+          <Typography.Text strong>Dispensed prescriptions waiting for payment</Typography.Text>
           <Button onClick={reload} loading={loading} disabled={paying}>
             Refresh
           </Button>
@@ -126,7 +141,7 @@ export function BillDispensingPanel() {
           loading={{ spinning: loading, delay: 300 }}
           dataSource={prescriptions}
           style={{ marginTop: 8 }}
-          locale={{ emptyText: 'No hand-over is waiting for payment.' }}
+          locale={{ emptyText: 'No dispensed prescription is waiting for payment. New ones appear here by themselves.' }}
           onRow={(p) => ({
             onClick: () => choose(p),
             style: {
@@ -153,11 +168,11 @@ export function BillDispensingPanel() {
               ),
             },
             {
-              title: 'Patient',
+              title: 'Customer',
               render: (_, p) => `${p.customer.code} — ${p.customer.fullName}`,
             },
             {
-              title: 'Last hand-over',
+              title: 'Last dispensed',
               render: (_, p) => formatDateTime(p.lastDispensedAt),
             },
             {

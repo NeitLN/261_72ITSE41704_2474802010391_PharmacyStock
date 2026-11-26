@@ -4,30 +4,25 @@ import {
   Button,
   Drawer,
   Form,
-  Input,
   Popconfirm,
   Space,
   Table,
-  Tag,
   Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useCallback, useState } from 'react';
 import { showApiError, toApiError } from '../api/errors';
-import { type PriceHistory, type PriceState, pricesApi } from '../api/medicines';
+import { type PriceHistory, pricesApi } from '../api/medicines';
 import { useLoad } from '../api/useLoad';
 import { MoneyInput } from '../forms/MoneyInput';
 import { wholeNumber } from '../forms/numberRules';
 import { LoadFailed } from '../ui/LoadFailed';
 import { formatVnd } from '../ui/format';
+import { DateField } from '../forms/DateField';
+import { StatusTag } from '../ui/tags';
 
 type Price = PriceHistory['prices'][number];
 
-const STATE_TAGS: Record<PriceState, { label: string; color?: string }> = {
-  scheduled: { label: 'Scheduled', color: 'blue' },
-  in_force: { label: 'In force', color: 'green' },
-  past: { label: 'Past' },
-};
 
 /** `2026-11-02 09:12` in the pharmacy's time zone (ui-design.md §5). */
 function setAt(iso: string): string {
@@ -122,7 +117,7 @@ export function PricesDrawer({
     { title: 'Price', align: 'right', render: (_, p) => formatVnd(p.unitPrice) },
     {
       title: 'State',
-      render: (_, p) => <Tag color={STATE_TAGS[p.state].color}>{STATE_TAGS[p.state].label}</Tag>,
+      render: (_, p) => <StatusTag kind="price" value={p.state} />,
     },
     {
       title: 'Set by',
@@ -178,7 +173,7 @@ export function PricesDrawer({
             rules={[{ required: true, message: 'Choose the date the price starts.' }]}
             extra={history ? `Today (${history.today}) at the earliest.` : undefined}
           >
-            <Input type="date" min={history?.today} style={{ width: 170 }} />
+            <DateField min={history?.today} style={{ width: 170 }} />
           </Form.Item>
           <Form.Item label=" ">
             <Button type="primary" htmlType="submit" loading={saving}>

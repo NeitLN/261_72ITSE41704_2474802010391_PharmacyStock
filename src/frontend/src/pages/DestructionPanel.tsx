@@ -8,7 +8,7 @@ import { showApiError } from '../api/errors';
 import { wholeNumber } from '../forms/numberRules';
 import { useLoad } from '../api/useLoad';
 import { LoadFailed } from '../ui/LoadFailed';
-import { StatusTag } from '../ui/tags';
+import { BatchStatusTag } from '../ui/tags';
 
 const NO_BATCHES: BatchView[] = [];
 
@@ -27,18 +27,24 @@ export function DestructionPanel() {
   const fetchBatches = useCallback(() => batchesApi.pendingDestruction(), []);
   const { data: batches, loading, error: loadError, reload } = useLoad(fetchBatches, NO_BATCHES);
   const [destroying, setDestroying] = useState<BatchView | null>(null);
+  const today = useBusinessToday();
 
   const columns: ColumnsType<BatchView> = [
-    { title: 'Medicine', render: (_, b) => `${b.medicine.code} — ${b.medicine.name}` },
-    { title: 'Batch', width: 110, render: (_, b) => b.batchNumber },
-    { title: 'Expiry', width: 110, render: (_, b) => b.expiryDate },
-    { title: 'Status', width: 110, render: (_, b) => <StatusTag kind="batch" value={b.status} /> },
+    { title: 'Medicine', width: 240, render: (_, b) => `${b.medicine.code} — ${b.medicine.name}` },
+    { title: 'Batch', width: 110, className: 'nowrap', render: (_, b) => b.batchNumber },
+    { title: 'Expiry', width: 110, className: 'nowrap', render: (_, b) => b.expiryDate },
+    {
+      title: 'Batch status',
+      width: 120,
+      render: (_, b) => <BatchStatusTag status={b.status} expiryDate={b.expiryDate} businessDate={today} />,
+    },
     { title: 'Pending destruction', width: 160, align: 'right', render: (_, b) => b.qtyPendingDestruction },
     {
       title: '',
       width: 170,
+      fixed: 'right',
       render: (_, b) => (
-        <Button size="small" danger onClick={() => setDestroying(b)}>
+        <Button size="small" onClick={() => setDestroying(b)}>
           Record destruction
         </Button>
       ),
@@ -54,6 +60,7 @@ export function DestructionPanel() {
       <Table
         rowKey={(b) => b.id}
         columns={columns}
+        scroll={{ x: 'max-content' }}
         dataSource={batches}
         loading={loading}
         pagination={{ pageSize: 20, hideOnSinglePage: true }}

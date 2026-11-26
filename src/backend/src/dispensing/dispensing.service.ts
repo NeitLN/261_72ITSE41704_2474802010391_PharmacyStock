@@ -8,8 +8,10 @@ import {
   BusinessRuleViolation,
   Conflict,
   type FieldError,
+  NotFound,
   ValidationFailed,
 } from '../common/errors.js';
+import { AuditService } from '../audit/audit.service.js';
 import {
   Batch,
   DispenseLine,
@@ -30,6 +32,7 @@ import { PrescriptionValidator } from '../prescriptions/prescription-validator.j
 import { Clock } from '../stock/clock.js';
 import { type LedgerTransaction, StockLedger } from '../stock/stock-ledger.js';
 import type {
+  DispenseCancellationDto,
   DispenseDto,
   DispenseItemDto,
   DispensePreviewDto,
@@ -104,7 +107,25 @@ export class DispensingService {
     @InjectDataSource() private readonly dataSource: DataSource,
     private readonly ledger: StockLedger,
     private readonly clock: Clock,
+    private readonly audit: AuditService,
   ) {}
+
+  /**
+   * A hand-over cancelled after its preview (UC06, TC-59). Nothing was
+   * reserved, so nothing moves; the reason is kept in the audit log.
+   */
+  async recordCancellation(actor: Actor, dto: DispenseCancellationDto): Promise<void> {
+    assertPermission(actor, Permission.DISPENSE);
+    const exists = await this.dataSource.manager.existsBy(Prescription, { id: dto.prescriptionId });
+    if (!exists) throw new NotFound('Prescription', dto.prescriptionId);
+    await this.audit.record(
+      this.dataSource.manager,
+      actor.id,
+      'dispense.cancelled',
+      { entityName: 'Prescription', entityId: dto.prescriptionId },
+      { reason: dto.reason },
+    );
+  }
 
   async preview(
     actor: Actor,

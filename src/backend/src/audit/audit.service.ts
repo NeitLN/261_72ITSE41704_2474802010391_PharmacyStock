@@ -19,7 +19,10 @@ export type AuditAction =
   | 'user.password_reset'
   | 'role.permissions_changed'
   | 'stock_take.approved'
-  | 'price.changed';
+  | 'price.changed'
+  | 'sale.cart_cancelled'
+  | 'dispense.cancelled'
+  | 'goods_receipt.reversed';
 
 export interface AuditEntryView {
   id: string;

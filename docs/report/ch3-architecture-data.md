@@ -2,8 +2,7 @@
 
 > **Draft for W08-A3 (#66), written by Tiến.** Final in W09-A1, on `v1.0`:
 > the ERD and class diagram are regenerated from the code then (#71), and table
-> and figure numbers are set by the editor. Describes `main` at `9063509`
-> (22/11/2026).
+> and figure numbers are set by the editor. Describes `v1.0.1` (26/11/2026).
 
 ## 3.1 Architecture
 
@@ -30,7 +29,7 @@ flowchart LR
 
 *Figure 3.1 — Client, server and database, with the three server layers.*
 
-Inside the server each use-case group is a NestJS module (16 modules in
+Inside the server each use-case group is a NestJS module (18 modules in
 `src/backend/src/`, for example `catalogue`, `receiving`, `dispensing`,
 `sales`, `returns`, `stocktake`, `reports`). A module has the same three
 layers everywhere (Table 3.L):
@@ -41,7 +40,7 @@ layers everywhere (Table 3.L):
 |---|---|---|
 | Controller (`*.controller.ts`) | Maps a route and its validated DTO to one service call | Holds a rule or touches the database |
 | Service (`*.service.ts`) | Checks the permission first (`assertPermission`), applies the business rules, runs the transaction | Changes a stock quantity directly |
-| Data access (entities, `StockLedger`) | Reads and writes rows; `StockLedger` is the only code that changes stock | Decides whether an operation is allowed |
+| Data access (entities, `StockLedger`) | Reads and writes rows; `StockLedger` is the only code that changes stock, and it refuses a change that would break a stock invariant (negative stock, BR03; releasing an expired or controlled batch) | Checks permissions or a use case's own rules; the service decides those |
 
 Rules that need no database are plain classes with unit tests:
 `FefoAllocator` (BR01, BR02), `PrescriptionValidator` (BR04, BR07, BR10),
@@ -116,11 +115,13 @@ Five decisions shape the data model:
    never rewrites a past sale. Money columns are `numeric(12,2)` and are read
    as strings, so no amount passes through floating point.
 
-The schema is built only by migrations (`synchronize` is off). There are five
-so far: the initial schema with its constraints and triggers, then four short
+The schema is built only by migrations (`synchronize` is off). There are
+eight: the initial schema with its constraints and triggers, then seven short
 hand-written changes, each merged with the feature that needed it. Examples
-are the time a movement was written (batch history order) and the counters of
-a stock take (BR08).
+are the time a movement was written (batch history order), the counters of a
+stock take (BR08), destruction records (FR-47), and the last one from the
+final code review: a token version per user, one line per batch on a stock
+take, and indexes on the foreign keys that reports follow.
 
 ## 3.3 The stock ledger
 
@@ -156,7 +157,7 @@ if (this.highestMedicineId !== null && ids[0] < this.highestMedicineId) {
     'Lock order: medicines must be locked in ascending id; lock them all in one call.',
   );
 }
-// SELECT … FROM medicines WHERE id IN (…) ORDER BY id FOR UPDATE
+// SELECT … FROM medicines WHERE id IN (…) ORDER BY id FOR NO KEY UPDATE
 ```
 
 A convention in a design document is easy to break in a new feature. Here a
@@ -173,9 +174,9 @@ wait (`races.e2e-spec.ts`, RACE-01…05).
   do not match its type.
 - A trigger refuses edits to movements.
 - A unique index allows each movement to be reversed only once.
-- In the tests, `findLedgerMismatches()` checks after every stock-changing
-  e2e test that each batch's cached quantities equal the sum of its movements
-  (NFR-08).
+- In the tests, `findLedgerMismatches()` runs after every e2e test (a global
+  `afterEach` in `test/e2e/ledger-check.ts`) and fails the test if any batch's
+  cached quantities differ from the sum of its movements (NFR-08).
 
 ## 3.4 Data flow of one command
 

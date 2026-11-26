@@ -39,12 +39,13 @@ change.
 | Item | Choice | Reason |
 |---|---|---|
 | Password hash | `bcryptjs`, cost 10, in `User.passwordHash` | NFR-05. Pure JavaScript, so it installs on Windows without build tools (risk R12). |
-| Token | JWT, HS256, payload `{ sub: user.id }`, lifetime 8 h (FR-38) | Stateless. Holds no permissions, because the guard re-reads them (below). |
+| Token | JWT, HS256 only, payload `{ sub: user.id, v: user.tokenVersion }`, lifetime 8 h (FR-38) | Holds no permissions, because the guard re-reads them (below). Signing out, a password reset or a lock raises `tokenVersion`, so every older token stops working at once. A role change does not, because the new permissions already apply on the next request. |
 | Secret | `JWT_SECRET` in `.env`; the backend refuses to start in `AUTH_MODE=jwt` without it, and refuses `AUTH_MODE=dev` when `NODE_ENV=production` | A default secret ends up being used for real. In `dev` mode without a secret a random one is used, so an old `.env` still starts. |
 | Mode | `AUTH_MODE=jwt` is the default and what `.env.example` sets; `dev` is kept for the e2e tests | The 97 e2e tests written before sign-in keep using `as('pharmacist')`; `test/auth.e2e-spec.ts` runs in `jwt` mode. |
 | Transport | `Authorization: Bearer <token>` | No cookie, so no CSRF handling. |
 | Every request | The guard verifies the token, then loads the user **with role and permissions** from the database, as `DevAuthGuard` does today | A locked user (`isActive = false`, FR-40) or a changed role takes effect on the next request, not after 8 hours. |
 | Usernames | Compared without regard to case | `Manager` and `manager` are one account. |
+| Wrong passwords | 10 for one username within 15 minutes give 429 `TOO_MANY_ATTEMPTS` until the window passes; a correct sign-in clears the count | Slows guessing. The count is in memory, so a restart clears it (limitation, Ch.4). |
 | Frontend storage | `sessionStorage` | Cleared when the tab closes. Readable by scripts on the page, so the page loads no third-party scripts; recorded as a limitation. |
 
 ### Endpoints
@@ -53,7 +54,8 @@ change.
 |---|---|---|
 | `POST /api/auth/login` `{ username, password }` | `@Public()` | 200 `{ accessToken, expiresAt, user: { id, username, fullName, role, permissions } }` |
 | `GET /api/auth/me` | signed in | Already exists; unchanged. The UI calls it after a reload to rebuild the menu. |
-| `POST /api/auth/logout` | signed in | 204. The client discards the token; writes the audit entry if FR-41 is built. |
+| `POST /api/auth/logout` | signed in | 204. Raises `tokenVersion`, so the token is dead on the server too; writes `auth.logout`. |
+| `GET /api` | `@Public()` | 200 `{ status: 'ok' }`, a health check. |
 
 ### Failures, using the existing `DomainError` classes
 
@@ -130,9 +132,11 @@ sequenceDiagram
 
 ## Audit (FR-41, Should)
 
-If UC15 is built, these go to `audit_logs` with user and time:
-`auth.login`, `auth.login_failed` (username tried, never the password),
-`auth.logout`, user and role changes, and approved stock takes (UC09).
+These go to `audit_logs` with user and time: `auth.login`,
+`auth.login_failed` (the username tried, only when it looks like a username,
+so a password typed in the wrong box is never stored), `auth.logout`, user and
+role changes, password resets, approved stock takes (UC09) and
+`price.changed` (UC01 edit, UC13 schedule and cancel).
 
 ## Tests
 
@@ -157,7 +161,8 @@ Every route the API serves (77 behind a session, plus the public sign-in), the p
 role gets. "✓" means the role is let through (it may still get 400, 404, 409
 or 422 for business reasons); "403" means `PERMISSION_DENIED`. Roles follow
 `ROLE_PERMISSIONS` in `src/backend/src/auth/permissions.ts` (Proposal
-Table 2.4). Without a valid token every route except sign-in answers 401.
+Table 2.4). Without a valid token every route except sign-in and the health
+check `GET /api` answers 401.
 
 `test/access-matrix.e2e-spec.ts` sends each of these calls as each role with
 a valid body and real ids, and checks exactly this. It also reads the routes

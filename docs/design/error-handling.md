@@ -35,6 +35,12 @@ Business rules (BR03 shortage, BR04 not verified, BR07 over-prescribed…) are
 (one `describe` per row). Other names are tests in the use-case suites. A
 dash means the case cannot happen on that endpoint.
 
+The table does not list every write endpoint. Returns, stock takes, batch
+status, write-off, destruction, quarantine, alerts, prices, users and roles
+are not rows here: their missing-field, wrong-type and unknown-id cases are
+tested in their own use-case suites, and every route's no-session and
+wrong-role cases in `access-matrix.e2e-spec.ts` (TC-53).
+
 | Endpoint | Missing field | Wrong type | Not JSON | Unknown id | No session | Wrong role | Duplicate |
 |---|---|---|---|---|---|---|---|
 | `POST /suppliers` | ERR-01 | ERR-02 | ERR-03 | — | ERR-05 | ERR-06 | — (no unique field) |

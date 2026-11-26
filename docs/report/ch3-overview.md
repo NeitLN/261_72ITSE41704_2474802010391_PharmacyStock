@@ -83,7 +83,7 @@ cases. Every actor link follows the permission table of Ch.2 (Table 2.4).
 | Programming language | TypeScript 6, on both client and server | One typed language end to end; the compiler checks the DTOs and entities shared in shape between the two |
 | Server framework | NestJS 12 on Node.js 24 | Modules, dependency injection and decorators give the layered structure the course asks for without hand-made wiring |
 | Persistence | TypeORM 1.1, with migrations only (`synchronize: false`) | Entities as classes; transactions and row locks for the stock ledger; a schema change is a reviewed migration |
-| Database | PostgreSQL 18 (Docker Compose) | Transactions, row-level locks (`FOR UPDATE`, `FOR SHARE`) and partial unique indexes, which the stock rules rely on |
+| Database | PostgreSQL 18 (Docker Compose) | Transactions, row-level locks (`FOR NO KEY UPDATE`, `FOR SHARE`) and partial unique indexes, which the stock rules rely on |
 | Client | React 19, Ant Design 6, React Router 7, Vite 8 | A component library with accessible tables, forms and modals, so effort went into the rules, not widgets |
 | Authentication | JWT (`@nestjs/jwt`), bcrypt password hashes | Stateless sessions with an 8-hour expiry (FR-38); passwords never stored in clear (NFR-05) |
 | Testing | Vitest 4 (unit and end-to-end against a real test database), Playwright for scripted UI runs | Business rules tested without a database; end-to-end tests go through the real HTTP routes |

@@ -3,23 +3,17 @@
 Everything the system does **not** do, in one place, with the reason. The
 status of every requirement is in
 [`../requirements/traceability-matrix.md`](../requirements/traceability-matrix.md):
-46 of the 48 functional requirements are `Built`, FR-41 is partly built and
-FR-42 was cut. The gaps below are grouped by cause — a missing requirement, a
+47 of the 48 functional requirements are `Built` and FR-42 was cut. The gaps below are grouped by cause — a missing requirement, a
 *Could* item that the plan cut, a limit of the build, and one open defect.
 
-## The audit log does not cover every manager decision (FR-41)
+## The audit view does not show stock decisions
 
 The audit log records sign-ins and failed sign-ins, sign-outs, every user and
-role change, password resets and approved stock takes, with the user and the
-time. It does not record **price changes**: `price.changed` is declared in
-`AuditAction` and nothing writes it. It also does not show write-offs,
-quarantine assessments and destructions, which are kept in the stock ledger
-with their user but not in the audit view.
-
-The information is not lost: `medicine_prices` keeps *who* set each price and
-from when, and every movement names the user who made it. What is missing is
-one screen that shows every manager decision in one list. This is the part of
-FR-41 that the week-8 plan cut when the design gate closed.
+role change, password resets, price changes and approved stock takes, with the
+user and the time (FR-41). Write-offs, quarantine assessments and destructions
+are kept in the stock ledger with their user, but not in the audit view, so
+there is no single list of every manager decision. FR-41 does not ask for
+them; it is listed here because a manager would expect to find them there.
 
 ## Pack-unit conversion (FR-42, *Could*)
 
@@ -50,10 +44,8 @@ Purchase orders, supplier payments and barcode scanning were outside the scope
 of Proposal §1.3 from the start and are not built. Medicines are received
 against a supplier document number and searched by code, name or category.
 
-## Known defect still open
+## Known defects
 
-**#299 (S4).** When the alerts list is empty, the *Alerts* tab says "No
-monitored medicine is at or below its reorder level" whatever the filter is, so
-an empty *Expired* or *Expiring soon* list shows the low-stock sentence. The
-wireframe (§3.2.4) already shows the sentence the screen should use. It is a
-text defect, not a wrong alert: the filtering itself is correct.
+None open at `v1.0.1`. The last one, #299 (the *Alerts* tab's empty text
+spoke of low stock whatever the filter), was fixed after the final code
+review.

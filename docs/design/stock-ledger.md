@@ -25,7 +25,7 @@ await this.ledger.run(async (tx) => {
 | Method | Step | Notes |
 |---|---|---|
 | `run(work)` | — | One READ COMMITTED transaction, `lock_timeout = 5s`. A deadlock (40P01) retries the whole `work` once; a timeout becomes 409 *busy*. Any error rolls back everything (FR-09). |
-| `lockMedicines(ids)` | 1 | `SELECT … FOR UPDATE` in ascending id. Must come before any batch lock; the transaction throws otherwise. |
+| `lockMedicines(ids)` | 1 | `SELECT … FOR NO KEY UPDATE` in ascending id. Must come before any batch lock; the transaction throws otherwise. `NO KEY` still serialises every stock command, but lets inserts that only reference the row (a sale line, a movement) through. |
 | `lockBatches(ids)` | 2 | Specific batches, ascending id, fresh quantities. |
 | `lockEligibleBatches(medicineId, date)` | 2 | ACTIVE, `expiryDate > date`, `qtySellable > 0`, ordered by expiry, first received, batch number, id (DEC-01, DEC-07). |
 | `lockBatchByNumber(medicineId, number)` / `createBatch(input)` | 2 | Goods receipts: top up an existing batch or create one. |
@@ -115,15 +115,15 @@ sequenceDiagram
     S->>L: run(work)
     L->>DB: BEGIN, lock_timeout 5s
     S->>L: lockMedicines([medicine of B])
-    L->>DB: SELECT medicine FOR UPDATE
+    L->>DB: SELECT medicine FOR NO KEY UPDATE
     alt write-off
         S->>L: writeOff(actor, B, reason, businessDate)
-        L->>DB: SELECT batch B FOR UPDATE
+        L->>DB: SELECT batch B FOR NO KEY UPDATE
         L->>L: B expired or not ACTIVE, sellable above 0, else 422
         L->>DB: INSERT movement WRITE_OFF (−q sellable, +q pending), UPDATE batch
     else status change
         S->>L: setBatchStatus(actor, B, status, reason)
-        L->>DB: SELECT batch B FOR UPDATE
+        L->>DB: SELECT batch B FOR NO KEY UPDATE
         L->>L: status differs, REJECTED is final, else 422
         L->>DB: UPDATE batch status, reason, user, time (no movement)
     end

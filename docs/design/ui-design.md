@@ -30,8 +30,8 @@ The menu shows an entry when the user holds **any** permission of that screen
 | Catalogue & batches (`/catalogue`) | Medicines · Stock | look up, stock, batch history → `stock.view`; add, edit, deactivate, set price → `catalogue.manage` | all | look up | look up |
 | Suppliers & receipts (`/suppliers`) | Suppliers · Goods receipts | suppliers → `supplier.manage`; record a receipt → `goods_receipt.create` | all | — | — |
 | Prescriptions & dispensing (`/dispensing`) | Prescriptions · Dispense | take in, edit, verify; quick-create patient/prescriber → `prescription.manage`; preview, hand over → `dispense` | all | all | — |
-| Sales & returns (`/sales`) | Over-the-counter sale · Bill a dispensing *(in review)* · Returns *(being built, #174)* | sell, bill → `sale.create`; return → `return.create` | all | — | all |
-| Stock control & reports (`/reports`) | Stock take · Alerts · Expiry, Stock movement *(planned)* | count → `stock_take.count`; open, approve → `stock_take.approve`; alerts → `alert.manage`; batch status, write-off → `batch_status.manage`; report → `report.view` | all | count only | — |
+| Sales & returns (`/sales`) | Over-the-counter sale · Bill a dispensing · Returns | sell, bill → `sale.create`; return → `return.create` | all | — | all |
+| Stock control & reports (`/reports`) | Stock take · Alerts · Expiry · Quarantine · Pending destruction · Stock movement | count → `stock_take.count`; open, approve → `stock_take.approve`; alerts → `alert.manage`; batch status, write-off → `batch_status.manage`; report → `report.view` | all | count only | — |
 | Users & roles (`/administration`) | — | `user.manage` (UC15, Should) | all | — | — |
 | Sign in (`/login`) | — | public | | | |
 
@@ -84,9 +84,9 @@ diagrams show the transactions behind them.
 | Hand over a prescription (UC06) | quantity now per item; a note if less than outstanding | **Preview** shows the batches FEFO takes and expiry warnings; *Confirm hand-over* asks once more | one DISPENSE movement per batch, −sellable; prescription partly or fully dispensed | request ID kept on retry |
 | Sell over the counter (UC07) | OTC medicines and quantities in the cart | the cart is the review; *Pay* | one SALE movement per batch, −sellable; receipt | request ID per cart, renewed when the cart changes |
 | Bill a dispensing (UC07) | choose a prescription with unbilled hand-overs | the lines listed; *Confirm payment* | sale lines, **no** movement (stock left at hand-over) | ALREADY_BILLED if someone was first |
-| Return (UC08, *planned*) | sale, line, quantity, reason | **must** confirm | RETURN movement **into quarantine** of the same batch, never back to sellable directly (DEC-04) | request ID |
-| Write off an expired batch (UC11, *planned*) | batch, reason | **must** confirm | WRITE_OFF: sellable → pending destruction; not destroyed yet | — |
-| Change batch status (UC11, *planned*) | batch, new status, reason | confirm | status only, no movement; stock alerts re-evaluated | — |
+| Return (UC08) | sale, line, quantity, reason | **must** confirm | RETURN movement **into quarantine** of the same batch, never back to sellable directly (DEC-04) | request ID |
+| Write off an expired batch (UC11) | batch, reason | **must** confirm | WRITE_OFF: sellable → pending destruction; not destroyed yet | — |
+| Change batch status (UC11) | batch, new status, reason | confirm | status only, no movement; stock alerts re-evaluated | — |
 | Approve a stock take (UC09) | approver ≠ counter | confirm | ADJUSTMENT movements for the differences | — |
 
 Rule for new screens: an action that changes stock or money and cannot be
@@ -206,11 +206,13 @@ refused field still happen: they carry meaning, not decoration.
 - **Long lists** keep the search box and the column headers in view while
   scrolling, so the cashier does not lose the filter.
 
-**For week 8 (#158).** One small module, `src/frontend/src/ui/motion.ts`, with
-the 300 ms loading delay, a `useReducedMotion()` hook that feeds the theme's
-`motion` token, and a `ResultPanel` wrapper (fade-in and focus) used by the
-receipt, the hand-over result and the return result. Screens then use these
-three instead of their own timings.
+**As built (#158).** Tables that load details wait 300 ms before showing a
+spinner; when the
+system asks for less motion, `main.tsx` turns off the theme's `motion` token;
+`ResultAppear` fades in and focuses the receipt, the hand-over result and the
+return result. A screen that fails while rendering shows a recovery message
+inside the layout (`ErrorBoundary`), and a list that fails to load says so
+(`LoadFailed`) instead of looking empty.
 
 ## 6. Wireframes
 

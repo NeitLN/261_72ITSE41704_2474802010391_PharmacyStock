@@ -1,6 +1,6 @@
 # Domain model
 
-Twenty-five domain entities in `src/backend/src/entities/`, plus one
+Twenty-eight domain entities in `src/backend/src/entities/`, plus one
 infrastructure table (`ProcessedRequest`). The target for a three-person team
 is 16–22 meaningful domain classes; this model sits just above that, and every
 class below earns its place by holding state that some business rule reads or
@@ -12,9 +12,9 @@ most important rules as a safety net behind the services: no negative stock in
 any state, dispensed ≤ prescribed, returned ≤ sold, the sign of every stock
 movement, and an append-only ledger.
 
-A class diagram matching this model is due in Week 4. **Keep the diagram and
-this file in step with the code** — a diagram that contradicts the repository
-is worse than no diagram.
+The class diagram and ERD are in [`../diagrams/`](../diagrams/). **Keep the
+diagrams and this file in step with the code** — a diagram that contradicts
+the repository is worse than no diagram.
 
 ## Catalogue
 
@@ -59,7 +59,10 @@ is worse than no diagram.
 |---|---|---|
 | `StockMovement` | Type, a signed delta per stock state, reason, source document type and id, the movement it reverses, who performed it | The append-only ledger. Every change to any batch appears here exactly once (BR05). A transfer between states (release, reject, write-off) is one row with two deltas. |
 | `StockTake` | Reference, status (counting / pending approval / approved / cancelled), who opened, counted and approved it, and when | Counting is separated from posting so a discrepancy is reviewed before it changes the book quantity, and approval is a distinct step (BR08). |
-| `StockTakeLine` | Sellable quantity when opened, counted quantity, reason | The discrepancy, with the reason required whenever the two differ (TC-20). |
+| `StockTakeMedicine` | The medicines a stock take covers | A medicine can be on only one open stock take, so two counts never adjust the same batch. |
+| `StockTakeCounter` | Each user who counted on a stock take | BR08 compares the approver with every counter, not only the last one. |
+| `StockTakeLine` | Book quantity, counted quantity, reason; one line per batch | The book quantity is taken when the batch is first counted (and again only on a real recount), so a reason added later cannot hide the difference. The reason is required whenever the two differ (TC-20). |
+| `DestructionRecord` | Batch, quantity, date, method, witness, who recorded it | Stock pending destruction becomes destroyed only with this record (FR-47, DEC-04). |
 | `StockAlert` | Type (low stock / out of stock / expiring / expired), status, message, medicine, batch, who acknowledged it, when resolved | Stored so the pharmacy can show who saw an alert and when. Partial unique indexes allow one unresolved stock-level alert per medicine and one unresolved expiry alert per batch (decision 16). |
 
 ## Access control and audit
@@ -112,5 +115,5 @@ decimal-safe path, never `parseFloat`.
 The decisions behind this model are DEC-01 to DEC-10 of Proposal v1.1
 (Appendix D), recorded in
 [`../requirements/business-decisions.md`](../requirements/business-decisions.md).
-DEC-09 and DEC-10 are still being confirmed with the pharmacist reviewer in
-week 5.
+DEC-09 and DEC-10 stayed team decisions: the follow-up with the pharmacist
+reviewer planned for week 5 was not held (Proposal feedback, Table A.2).

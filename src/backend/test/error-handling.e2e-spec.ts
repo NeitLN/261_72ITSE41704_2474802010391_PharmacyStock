@@ -30,7 +30,9 @@ interface Ids {
 
 /**
  * One row of the endpoint × invalid-input table in
- * docs/design/error-handling.md. Every endpoint that writes is listed.
+ * docs/design/error-handling.md. The table covers the catalogue, receiving,
+ * prescription, dispensing, sale and sign-in endpoints; the other write
+ * endpoints are covered by their own use-case suites and the access matrix.
  */
 interface Row {
   endpoint: string;
@@ -434,8 +436,8 @@ const ROWS: Row[] = [
 
 /**
  * Consistent error handling (#47): the endpoint × invalid-input table of
- * docs/design/error-handling.md, one test per cell (ERR-01…06 here; the
- * database cells ERR-07…10 are unit tests of the filter).
+ * docs/design/error-handling.md, one test per cell (ERR-01…07 here; the
+ * database cells ERR-07…10 are also unit tests of the filter).
  */
 describe('Error handling, endpoint × invalid input (e2e)', () => {
   const clock = new FixedClock(new Date('2026-10-20T03:00:00Z'));

@@ -235,10 +235,6 @@ exactly that.
 
 ## What was not built in this part
 
-- **Audit of price changes (part of FR-41).** `price.changed` is declared in
-  the audit log but the price commands do not write it yet. Who set each price
-  is still visible in the price history itself (*Set by*), so the gap is the
-  central audit view only.
 - **Pack-unit conversion (FR-42, BR06, Could).** Quantities are entered in the
   base unit. It was the first item cut in the Proposal's MoSCoW plan.
 - **Purchase orders, supplier payments and barcode scanning** were out of scope

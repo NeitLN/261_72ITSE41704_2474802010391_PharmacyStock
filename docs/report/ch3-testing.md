@@ -119,6 +119,16 @@ dispensing rules (TC-04, 06, 07, 09, 12), sales and returns (TC-15, 16, 35,
 flow (TC-31). All passed, and the ledger check again found no difference.
 The automated tests passed on that commit too (126 unit, 646 end-to-end,
 36 web client).
+After `v1.0` a code review of the whole application found faults that no
+test had caught: a stock-take reason added after the count reset the book
+quantity, a decimal quantity in the cart crashed the web client, a price typed
+as `15.000` in the price drawer was saved as 15 ₫, and a token stayed valid
+after sign-out. Each fix came with a test (UC09-21…23, UC16-13…15, UC03-17,
+UC05-15, UC13-10 and web-client tests for money and errors), and the ledger
+check now runs after every e2e test, not only the stock tests. The fixes are
+tagged `v1.0.1`; on it the automated tests pass (131 unit, 656 end-to-end (12 skipped) and 44 web-client).
+They were not re-run by hand before the content lock.
+
 Receipts (TC-01, 03) were not re-run, as their screens changed only in an
 empty-table text. TC-28 and TC-43 (access) were left to their runner, Duy
 Anh, because Minh wrote that code. TC-19 and TC-21 are also Minh's, so those

@@ -103,7 +103,7 @@ what to cut. Table 1.2 shows what came of each part.
 | Priority | Proposed | Built |
 |---|---|---|
 | Must (13 use cases) | UC01–UC12 and UC16: catalogue with price and classification, suppliers, goods receipts, stock lookup and batch history, prescriptions with pharmacist verification, dispensing, sales, returns into quarantine, stock take, low-stock and expiry alerts with write-off, stock movement report, sign in/out; BR01–05, BR07, BR10, BR11; three roles | All built |
-| Should (3 use cases and extras) | UC13 price history, UC14 customers and prescribers, UC15 users and roles; quarantine assessment and destruction records (FR-46, FR-47); BR08, BR09; backup and restore | All built after the Must-core gate in week 7, except one part of FR-41: price changes are not written to the audit log (Ch.3, *functions not implemented*) |
+| Should (3 use cases and extras) | UC13 price history, UC14 customers and prescribers, UC15 users and roles; quarantine assessment and destruction records (FR-46, FR-47); BR08, BR09; backup and restore | All built after the Must-core gate in week 7 |
 | Could | Unit-of-measure conversion (BR06, FR-42); export of reports to Excel or PDF (FR-43) | BR06 not built (cut first, as planned). FR-43 built as CSV export of the expiry and stock movement reports, plus printing of receipts, return slips and hand-over records |
 | Added | — | A role-aware overview page as the start page for managers and cashiers; the LotOrder visual identity |
 
@@ -115,7 +115,7 @@ what to cut. Table 1.2 shows what came of each part.
 | Meaningful domain classes | 16–22 | 25 | 29 entity classes in `src/backend/src/entities/` |
 | Roles with distinct permissions | 3+ | 3 | 3 (Manager, Pharmacist, Cashier), 14 permissions checked in the service layer |
 | Non-trivial business rules | 6+ | 11 | 10 (BR06 not built) |
-| Documented test cases | 20+ | 63 | 65, plus 126 unit, 646 end-to-end and 36 web-client automated tests (on `b807fd7`) |
+| Documented test cases | 20+ | 63 | 65, plus 131 unit, 656 end-to-end (12 skipped) and 44 web-client automated tests (on `v1.0.1`) |
 
 The out-of-scope list of the Proposal still holds: one branch and one storage
 location only; no link to the national pharmacy data system, e-prescriptions,

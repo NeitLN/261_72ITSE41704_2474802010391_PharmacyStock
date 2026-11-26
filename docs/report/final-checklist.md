@@ -74,7 +74,7 @@ with the matching evidence from section B.
 | 35 | Data survives a restart | PostgreSQL; TC-24 | Done |
 | 36 | Every input validated with a clear message | DTO validation and the error table; `error-handling.e2e-spec.ts` (121 tests) | Done |
 | 37 | Structured exception handling | Domain errors mapped to HTTP codes; TC-25 rollback | Done |
-| 38 | 10+ documented test cases with expected and actual results; automated unit tests for the rules | 65 cases, 56 Pass; 126 unit and 646 end-to-end tests pass on `b807fd7` | Done |
+| 38 | 10+ documented test cases with expected and actual results; automated unit tests for the rules | 65 cases, 62 Pass; 131 unit, 656 end-to-end (12 skipped) and 44 web-client tests pass on `v1.0.1` | Done |
 | 39 | Consistent GUI | React + Ant Design, one UI kit | Done |
 
 ## C. Order of work to submit by Sat 21/11

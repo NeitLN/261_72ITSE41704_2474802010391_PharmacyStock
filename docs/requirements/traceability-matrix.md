@@ -73,7 +73,7 @@ this page.
 | FR-38 | Must | UC16 | `AuthService`, `AuthGuard`, screen `LoginPage` | `auth.e2e-spec.ts` UC16-01…13; `auth/auth-config.spec.ts` | TC-42 run 7; TC-43 runs 8, 52 | Built |
 | FR-39 | Must | All | `assertPermission` at every service entry, `AuthGuard` | `access-matrix.e2e-spec.ts` TC-53 route × role table, one test per route and role, plus "without a session every endpoint except sign-in is 401 (NFR-05)"; `suppliers.e2e-spec.ts` UC02-08; `goods-receipts.e2e-spec.ts` UC03-12; `prescriptions.e2e-spec.ts` UC05-13; `parties.e2e-spec.ts` UC05-27; `dispensing.e2e-spec.ts` UC06-12; `sales.e2e-spec.ts` UC07-10; `auth.e2e-spec.ts` UC16-10; `users.e2e-spec.ts` UC15-10 | TC-28 run 51; TC-53 run 91 | Built |
 | FR-40 | Should | UC15 | `UsersService`, screen `AdministrationPage` (Users and Roles tabs) | `users.e2e-spec.ts` UC15-01…07, 10…12 | TC-44 run 74 | Built |
-| FR-41 | Should | UC15 | `AuditService`; sign-ins, user and role changes and approved stock takes are logged; **a price change writes no audit row**: `price.changed` is declared in `AuditAction` and nothing produces it; screen `AdministrationPage` (Audit log tab) | `users.e2e-spec.ts` UC15-08, 09 | TC-44 run 74 (users, roles, sign-ins) | Should — after the gate |
+| FR-41 | Should | UC15 | `AuditService`; sign-ins, user and role changes, approved stock takes and price changes (`price.changed` from `MedicinesService.update` and `PricesService`) are logged; screen `AdministrationPage` (Audit log tab) | `users.e2e-spec.ts` UC15-08, 09; `prices.e2e-spec.ts` UC13-10 | TC-44 run 74 (users, roles, sign-ins); price changes not run by hand | Built, not run |
 | FR-42 | Could | UC03, 06 | — | — | none by design | Could — not built |
 | FR-43 | Could | UC11, 12 | `ui/csv.ts` (`toCsv`, `downloadCsv`), *Export CSV* on `ExpiryPanel` and `StockMovementPanel` (#286); CSV replaces Excel/PDF | `ui.test.ts` `toCsv (FR-43)` | run 106 (no test case by design) | Built |
 
@@ -85,10 +85,10 @@ OC-21 ticket:
 | Status | Count | FRs |
 |---|---|---|
 | Built | 46 | every FR except FR-41 and FR-42 |
-| Built, not run | 0 | — |
+| Built, not run | 1 | FR-41 (the price-change part, added in `v1.0.1`) |
 | In review | 0 | — |
 | Planned (week 8) | 0 | — |
-| Should — after the gate | 1 | FR-41 |
+| Should — after the gate | 0 | — |
 | Could — not built | 1 | FR-42 |
 
 ### Must FRs not Built (0)
@@ -107,10 +107,10 @@ Every Must FR is `Built` on `main`: the last one, FR-23, got its run with TC-27
   since the assessment and destruction screens merged (`QuarantinePanel`,
   `DestructionPanel`, #235) and TC-61 ran them (run 90); the UC13 scheduling
   screen (`PricesDrawer`) is built and run 92 covers it.
-- FR-41 is only partly built: sign-ins, user and role changes and approved
-  stock takes write an audit row, but `price.changed` is declared in
-  `AuditAction` and no command produces it, so a price change leaves no audit
-  row. FR-40 and FR-41 name TC-44, run 74.
+- FR-41 was partly built until `v1.0.1`: a price change left no audit row.
+  Since the final code review every price change writes `price.changed`
+  (UC13-10); that part has no manual run yet. FR-40 and FR-41 name TC-44,
+  run 74.
 - The Status column of `functional-requirements.md` (A and C sections) is the
   starting point; the rows above were re-checked against code, tests and
   `runs.md` at the snapshot commit and use the stricter vocabulary of this

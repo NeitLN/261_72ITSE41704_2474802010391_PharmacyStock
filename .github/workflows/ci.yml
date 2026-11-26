@@ -80,6 +80,8 @@ jobs:
 
       - name: No migration left pending
         run: |
+          # Without pipefail a failing migration:show would be hidden by tee.
+          set -o pipefail
           npm run --silent typeorm -- migration:show | tee migrations.txt
           if grep -q '\[ \]' migrations.txt; then
             echo "A migration was not applied." >&2
@@ -120,6 +122,9 @@ jobs:
 
       - name: Lint
         run: npm run lint
+
+      - name: Unit tests
+        run: npm test
 
       - name: Build
         run: npm run build

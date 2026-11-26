@@ -21,12 +21,12 @@ weighed in Ch.3 §3.4.2; this section is about the project as a whole.
 | Part of the Proposal | Proposed | Completed |
 |---|---|---|
 | Must use cases | 13 (UC01–UC12, UC16) | 13, each from screen to database, surviving a restart |
-| Should use cases | UC13, UC14, UC15 after the week 7 gate | All three, after the gate passed; the audit log does not cover price changes (*Limitations* below) |
+| Should use cases | UC13, UC14, UC15 after the week 7 gate | All three, after the gate passed |
 | Should extras | Quarantine assessment and destruction (FR-46, FR-47); backup and restore | Built; TC-61 (release, reject, destroy) and TC-30 (restore gives identical balance checksums) pass |
 | Could | BR06 unit conversion; report export | BR06 not built; report export built as CSV, plus printed receipts, return slips and hand-over records |
 | Requirements | 48 FR, 13 NFR, all traced | 48 FR, 13 NFR, traced FR → UC → code → test → status in `traceability-matrix.md` |
-| Releases | `v0.1` week 5, `v0.2` week 7, `v1.0` week 9 | `v0.1` and `v0.2` on time; `v1.0` later than planned (*Limitations* below) |
-| Tests | 63 test cases, ≥ 45 run by someone other than the author | 65 test cases; 126 unit, 646 end-to-end and 36 web-client tests, run on every pull request in CI (counts on `b807fd7`) |
+| Releases | `v0.1` week 5, `v0.2` week 7, `v1.0` week 9 | `v0.1` and `v0.2` on time; `v1.0` later than planned (*Limitations* below), then `v1.0.1` with the code-review fixes |
+| Tests | 63 test cases, ≥ 45 run by someone other than the author | 65 test cases; 131 unit, 656 end-to-end (12 skipped) and 44 web-client tests, run on every pull request in CI (counts on `v1.0.1`) |
 | Quality targets | NFR-01, 02, 13 on a reference machine | Met by a wide margin: 22 ms, 71 ms and 258 ms against 1 s, 3 s and 2 s (TC-29) |
 
 ### Achievements and outcomes
@@ -52,18 +52,21 @@ weighed in Ch.3 §3.4.2; this section is about the project as a whole.
 
 Not built, or built only in part:
 
-- **Audit log coverage** (part of FR-41). Sign-ins, user and role changes,
-  password resets and approved stock takes are audited. Price changes are not written to the audit
-  log (the price history still records who set each price), and stock-take
-  approvals are the only stock decision in it.
+- **Audit view coverage.** Sign-ins, user and role changes, password resets,
+  price changes and approved stock takes are audited (FR-41). Write-offs,
+  quarantine assessments and destructions are in the stock ledger with their
+  user, not in the audit view.
+- **Sign-in throttling lives in one server process.** The count of wrong
+  passwords is kept in memory, so it starts again after a restart and would
+  not be shared by a second server; enough for one pharmacy on one machine.
 - **Unit-of-measure conversion** (BR06, FR-42, Could): all quantities are in the
   base unit.
 - **Report export** is CSV only, not Excel or PDF as FR-43 suggested.
 
 Defects. Every defect found was severity S4 (cosmetic) or fixed (Ch.3,
 Table T.2). The S4 defects of the last weeks were all fixed and re-tested by
-someone other than the author on `v1.0`, except #299, which is still open
-(Table 4.D):
+someone other than the author on `v1.0`, except #299, which was fixed in
+`v1.0.1` and not yet re-tested by hand (Table 4.D):
 
 *Table 4.D — The S4 defects of weeks 7–10 and their state at `v1.0`.*
 
@@ -76,7 +79,7 @@ someone other than the author on `v1.0`, except #299, which is still open
 | #257 | A session that expired while the tab was closed returned to sign-in without saying why | #266, #288; re-tested in run 123 |
 | #258 | Ant Design 6 deprecation warnings in the browser console | #262; re-tested 26/11 (run 127) |
 | #279 | Customer search by phone matched only when spaces were typed the same way | #284; re-tested 26/11 (run 128) |
-| #299 | The Alerts tab's empty text talks about low stock whatever the filter | **Not fixed, open** |
+| #299 | The Alerts tab's empty text talks about low stock whatever the filter | Fixed in `v1.0.1`; not re-tested by hand |
 
 Limitations of the process and the evidence:
 
@@ -95,8 +98,8 @@ Limitations of the process and the evidence:
 ### Future work
 
 1. A forced password change at the next sign-in after the manager resets one.
-2. Audit entries for price changes and for every manager decision on stock
-   (write-off, quarantine assessment, destruction), shown in one audit view.
+2. Audit entries for every manager decision on stock (write-off, quarantine
+   assessment, destruction), shown in the audit view next to price changes.
 3. Pack-unit conversion at receipt and dispensing (BR06).
 4. Barcode scanning of batch labels at receipt and at the counter.
 5. Reorder suggestions from the stock movement history, then purchase orders.

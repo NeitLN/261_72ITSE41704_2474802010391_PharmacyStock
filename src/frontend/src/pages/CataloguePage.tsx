@@ -31,6 +31,7 @@ import {
 } from '../api/medicines';
 import { formatVnd } from '../ui/format';
 import { useLoad } from '../api/useLoad';
+import { LoadFailed } from '../ui/LoadFailed';
 import { MoneyInput } from '../forms/MoneyInput';
 import { wholeNumber } from '../forms/numberRules';
 import { StockPanel } from './StockPanel';
@@ -80,7 +81,7 @@ function MedicinesPanel() {
     () => medicinesApi.list({ search: search || undefined, categoryId, includeInactive }),
     [search, categoryId, includeInactive],
   );
-  const { data: medicines, loading, reload } = useLoad(fetchMedicines, NO_MEDICINES);
+  const { data: medicines, loading, error: loadError, reload } = useLoad(fetchMedicines, NO_MEDICINES);
 
   async function toggleActive(medicine: Medicine) {
     try {
@@ -167,6 +168,9 @@ function MedicinesPanel() {
                 ? 'It can no longer be received, dispensed or sold. Its history stays.'
                 : undefined
             }
+            okText={medicine.isActive ? 'Deactivate' : 'Reactivate'}
+            okButtonProps={{ danger: medicine.isActive }}
+            cancelText="Keep it"
             onConfirm={() => toggleActive(medicine)}
           >
             <Button size="small" danger={medicine.isActive}>
@@ -208,6 +212,7 @@ function MedicinesPanel() {
         </Space>
       </Space>
 
+      {loadError && <LoadFailed error={loadError} onRetry={reload} />}
       <Table
         rowKey="id"
         columns={columns}

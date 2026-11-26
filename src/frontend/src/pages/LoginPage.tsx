@@ -108,7 +108,7 @@ export function LoginPage() {
             Use the account your manager set up for you.
           </Typography.Paragraph>
           {error && (
-            <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} />
+            <Alert type="error" showIcon title={error} style={{ marginBottom: 16 }} />
           )}
           <Form<LoginForm>
             form={form}

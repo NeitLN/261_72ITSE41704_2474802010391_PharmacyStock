@@ -1,10 +1,13 @@
 import { Alert, App, Button, DatePicker, Form, Input, InputNumber, Modal, Radio, Table, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs, { type Dayjs } from 'dayjs';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { type BatchView, batchesApi, type DestructionMethod } from '../api/batches';
+import { useBusinessToday } from '../api/clock';
 import { showApiError } from '../api/errors';
+import { wholeNumber } from '../forms/numberRules';
 import { useLoad } from '../api/useLoad';
+import { LoadFailed } from '../ui/LoadFailed';
 import { StatusTag } from '../ui/tags';
 
 const NO_BATCHES: BatchView[] = [];
@@ -15,9 +18,6 @@ const METHODS: Array<{ value: DestructionMethod; label: string }> = [
   { value: 'other', label: 'Other' },
 ];
 
-/** Today in the pharmacy's time zone, as the API's business date. */
-const today = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
-
 /**
  * UC11 stock pending destruction and the record of its destruction (FR-47,
  * DEC-04). Written-off and rejected stock waits here; it is *destroyed* only
@@ -25,7 +25,7 @@ const today = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_
  */
 export function DestructionPanel() {
   const fetchBatches = useCallback(() => batchesApi.pendingDestruction(), []);
-  const { data: batches, loading, reload } = useLoad(fetchBatches, NO_BATCHES);
+  const { data: batches, loading, error: loadError, reload } = useLoad(fetchBatches, NO_BATCHES);
   const [destroying, setDestroying] = useState<BatchView | null>(null);
 
   const columns: ColumnsType<BatchView> = [
@@ -50,6 +50,7 @@ export function DestructionPanel() {
       <Typography.Paragraph type="secondary">
         Written-off and rejected stock stays here until its destruction is recorded.
       </Typography.Paragraph>
+      {loadError && <LoadFailed error={loadError} onRetry={reload} />}
       <Table
         rowKey={(b) => b.id}
         columns={columns}
@@ -95,6 +96,12 @@ function DestroyModal({
   const [saving, setSaving] = useState(false);
   const [refusal, setRefusal] = useState<string | null>(null);
   const method = Form.useWatch('method', form);
+  // The server's business date (#255), not the PC's clock.
+  const today = useBusinessToday();
+  useEffect(() => {
+    // The server's date can arrive after the form opened; follow it until the user picks a date.
+    if (!form.isFieldTouched('destroyedOn')) form.setFieldValue('destroyedOn', dayjs(today, 'YYYY-MM-DD'));
+  }, [form, today]);
 
   async function submit(values: DestroyForm) {
     setSaving(true);
@@ -137,16 +144,20 @@ function DestroyModal({
         disabled={saving}
         initialValues={{
           quantity: batch.qtyPendingDestruction,
-          destroyedOn: dayjs(today(), 'YYYY-MM-DD'),
+          destroyedOn: dayjs(today, 'YYYY-MM-DD'),
           method: 'licensed_contractor',
         }}
       >
         <Form.Item
           name="quantity"
           label="Quantity destroyed"
-          rules={[{ required: true, message: 'Enter a whole number of units.' }]}
+          rules={[
+            { required: true, message: 'Enter a whole number of units.' },
+            wholeNumber('Quantity', { min: 1, max: batch.qtyPendingDestruction }),
+          ]}
         >
-          <InputNumber<number> min={1} max={batch.qtyPendingDestruction} precision={0} style={{ width: 160 }} />
+          {/* No min, max or precision: they quietly change what was typed (#125). */}
+          <InputNumber<number> style={{ width: 160 }} />
         </Form.Item>
         <Form.Item
           name="destroyedOn"
@@ -155,7 +166,7 @@ function DestroyModal({
         >
           <DatePicker
             format="YYYY-MM-DD"
-            disabledDate={(d) => d.format('YYYY-MM-DD') > today()}
+            disabledDate={(d) => d.format('YYYY-MM-DD') > today}
           />
         </Form.Item>
         <Form.Item name="method" label="Method" rules={[{ required: true }]}>
@@ -184,7 +195,7 @@ function DestroyModal({
           <Input maxLength={500} />
         </Form.Item>
       </Form>
-      {refusal && <Alert type="error" showIcon message={refusal} />}
+      {refusal && <Alert type="error" showIcon title={refusal} />}
     </Modal>
   );
 }

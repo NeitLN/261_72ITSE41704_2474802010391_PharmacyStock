@@ -9,6 +9,7 @@ import {
 } from '../api/alerts';
 import { toApiError } from '../api/errors';
 import { useLoad } from '../api/useLoad';
+import { LoadFailed } from '../ui/LoadFailed';
 import { formatDateTime } from '../ui/format';
 import { StatusTag } from '../ui/tags';
 
@@ -24,7 +25,7 @@ export function AlertsPanel() {
   const [type, setType] = useState<AlertType | undefined>();
   const [busyId, setBusyId] = useState<string | null>(null);
   const fetchAlerts = useCallback(() => alertsApi.list({ status, type }), [status, type]);
-  const { data: alerts, loading, reload } = useLoad(fetchAlerts, NO_ALERTS);
+  const { data: alerts, loading, error: loadError, reload } = useLoad(fetchAlerts, NO_ALERTS);
 
   async function acknowledge(alert: StockAlert) {
     setBusyId(alert.id);
@@ -114,6 +115,7 @@ export function AlertsPanel() {
           ]}
         />
       </Space>
+      {loadError && <LoadFailed error={loadError} onRetry={reload} />}
       <Table
         rowKey="id"
         columns={columns}

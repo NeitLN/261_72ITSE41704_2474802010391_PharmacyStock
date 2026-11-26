@@ -33,6 +33,7 @@ import {
   prescriptionsApi,
 } from '../api/prescriptions';
 import { useLoad } from '../api/useLoad';
+import { LoadFailed } from '../ui/LoadFailed';
 import { useBusinessToday } from '../api/clock';
 import { decimal, wholeNumber } from '../forms/numberRules';
 import { formatDateTime } from '../ui/format';
@@ -77,7 +78,7 @@ export function PrescriptionsPanel() {
       }),
     [search, status],
   );
-  const { data: prescriptions, loading, reload } = useLoad(fetchPrescriptions, NO_PRESCRIPTIONS);
+  const { data: prescriptions, loading, error: loadError, reload } = useLoad(fetchPrescriptions, NO_PRESCRIPTIONS);
 
   const columns: ColumnsType<PrescriptionSummary> = [
     { title: 'Reference', dataIndex: 'referenceNumber', width: 150 },
@@ -148,6 +149,7 @@ export function PrescriptionsPanel() {
         </Button>
       </Space>
 
+      {loadError && <LoadFailed error={loadError} onRetry={reload} />}
       <Table
         rowKey="id"
         columns={columns}

@@ -13,7 +13,8 @@ import {
 } from 'antd';
 import { PrinterOutlined } from '@ant-design/icons';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { type FieldError, toApiError } from '../api/errors';
+import { type FieldError, outcomeUnknown, toApiError } from '../api/errors';
+import { wholeNumberError } from '../forms/numberRules';
 import { medicinesApi, type Medicine } from '../api/medicines';
 import { formatDateTime, formatVnd } from '../ui/format';
 import {
@@ -34,8 +35,12 @@ interface CartLine {
   name: string;
   /** Price in force, decimal string from UC01 (e.g. "2200.00"). */
   unitPrice: string;
-  quantity: number;
+  /** null while the box is empty. */
+  quantity: number | null;
 }
+
+const quantityError = (quantity: number | null) =>
+  quantity === null ? 'Enter a quantity.' : wholeNumberError('Quantity', quantity, { min: 1 });
 
 type LineErrors = Record<string, string>;
 
@@ -78,6 +83,11 @@ function CancelReason({ onChange }: { onChange: (value: string) => void }) {
  * UC07 over-the-counter cart: pick OTC medicines, quantities, live estimate,
  * cancel with a reason, pay. Stock and receipt come from the server only;
  * the payment generates one request ID and retries reuse it (FR-23).
+ *
+ * While the payment is being sent the cart is locked. If the answer is lost
+ * (network error, 5xx) the payment may have been saved, so the cart stays
+ * locked and the only way on is "Retry payment" with the same request ID:
+ * the server then returns the receipt it already stored, or charges once.
  */
 export function SalesCartPanel() {
   const { message, modal } = App.useApp();
@@ -88,6 +98,9 @@ export function SalesCartPanel() {
   const [receipt, setReceipt] = useState<Sale | null>(null);
   const [topError, setTopError] = useState<string | null>(null);
   const [lineErrors, setLineErrors] = useState<LineErrors>({});
+  const [unknownOutcome, setUnknownOutcome] = useState(false);
+  const locked = paying || unknownOutcome;
+  const cartInvalid = cart.some((c) => quantityError(c.quantity) !== null);
 
   const fetchOptions = useCallback(() => medicinesApi.list({}), []);
   const { data: medicines } = useLoad(fetchOptions, NO_OTC);
@@ -105,6 +118,7 @@ export function SalesCartPanel() {
   );
 
   function addMedicine(id: string) {
+    if (locked) return;
     const m = otc.find((x) => x.id === id);
     if (!m || m.currentPrice === null) return;
     const price: string = m.currentPrice;
@@ -113,7 +127,7 @@ export function SalesCartPanel() {
       if (existing) {
         // The same medicine again: one line, quantities add up.
         return prev.map((c) =>
-          c.medicineId === id ? { ...c, quantity: c.quantity + 1 } : c,
+          c.medicineId === id ? { ...c, quantity: (c.quantity ?? 0) + 1 } : c,
         );
       }
       return [
@@ -134,7 +148,7 @@ export function SalesCartPanel() {
     setPickedId(undefined);
   }
 
-  function changeQuantity(medicineId: string, quantity: number) {
+  function changeQuantity(medicineId: string, quantity: number | null) {
     setCart((prev) =>
       prev.map((c) => (c.medicineId === medicineId ? { ...c, quantity } : c)),
     );
@@ -178,6 +192,7 @@ export function SalesCartPanel() {
         </div>
       ),
       okText: 'Cancel cart',
+      cancelText: 'Keep the cart',
       okButtonProps: { danger: true, disabled: true },
       onOk: () => {
         if (!reason.trim()) {
@@ -193,7 +208,7 @@ export function SalesCartPanel() {
   }
 
   async function pay() {
-    if (cart.length === 0) return;
+    if (cart.length === 0 || cartInvalid || paying) return;
     // One request ID per cart; a retry resends the same one (FR-23).
     const rid = requestId ?? crypto.randomUUID();
     setRequestId(rid);
@@ -205,16 +220,24 @@ export function SalesCartPanel() {
         requestId: rid,
         otcLines: cart.map((c) => ({
           medicineId: c.medicineId,
-          quantity: c.quantity,
+          quantity: c.quantity ?? 0, // never null here: pay() refuses an invalid cart
         })),
       });
       setReceipt(sale);
       setCart([]);
       setRequestId(null);
+      setUnknownOutcome(false);
     } catch (error) {
       const apiError = toApiError(error);
-      setLineErrors(errorsByLine(apiError.errors, cart));
       setTopError(apiError.message);
+      if (outcomeUnknown(apiError)) {
+        // Maybe saved: keep the cart and the request ID, allow only a retry.
+        setUnknownOutcome(true);
+      } else {
+        // The server refused it, so nothing was saved; fixing the cart gets a new ID.
+        setUnknownOutcome(false);
+        setLineErrors(errorsByLine(apiError.errors, cart));
+      }
     } finally {
       setPaying(false);
     }
@@ -227,6 +250,19 @@ export function SalesCartPanel() {
     setReceipt(null);
     setTopError(null);
     setLineErrors({});
+    setUnknownOutcome(false);
+  }
+
+  function confirmStartOver() {
+    modal.confirm({
+      title: 'Start a new cart?',
+      content:
+        'The payment may already have gone through. Check the sales report for this sale first; if it is there, do not charge the customer again.',
+      okText: 'Start a new cart',
+      okButtonProps: { danger: true },
+      cancelText: 'Keep the cart',
+      onOk: resetAll,
+    });
   }
 
   if (receipt) {
@@ -245,6 +281,7 @@ export function SalesCartPanel() {
           // medicine twice in a row must still merge quantities.
           value={pickedId ?? null}
           onSelect={addMedicine}
+          disabled={locked}
           placeholder="Search by code or name"
           notFoundContent="No OTC medicine matches"
           style={{ width: '100%', maxWidth: 480, marginTop: 8 }}
@@ -289,18 +326,19 @@ export function SalesCartPanel() {
                   align: 'right',
                   render: (_, c) => (
                     <div>
+                      {/* No min or precision: they quietly change what was typed (#125). */}
                       <InputNumber<number>
-                        min={1}
-                        precision={0}
                         value={c.quantity}
-                        onChange={(v) => changeQuantity(c.medicineId, v ?? 1)}
+                        onChange={(v) => changeQuantity(c.medicineId, v)}
+                        disabled={locked}
+                        status={(quantityError(c.quantity) ?? lineErrors[c.medicineId]) ? 'error' : undefined}
                         aria-label={`Quantity of ${c.name}`}
                         style={{ width: 90 }}
                       />
-                      {lineErrors[c.medicineId] && (
+                      {(quantityError(c.quantity) ?? lineErrors[c.medicineId]) && (
                         <div>
                           <Typography.Text type="danger">
-                            {lineErrors[c.medicineId]}
+                            {quantityError(c.quantity) ?? lineErrors[c.medicineId]}
                           </Typography.Text>
                         </div>
                       )}
@@ -324,8 +362,14 @@ export function SalesCartPanel() {
                       okButtonProps={{ danger: true }}
                       cancelText="Keep it"
                       onConfirm={() => removeLine(c.medicineId)}
+                      disabled={locked}
                     >
-                      <Button type="text" danger aria-label={`Remove ${c.name} from the cart`}>
+                      <Button
+                        type="text"
+                        danger
+                        disabled={locked}
+                        aria-label={`Remove ${c.name} from the cart`}
+                      >
                         Remove
                       </Button>
                     </Popconfirm>
@@ -340,18 +384,38 @@ export function SalesCartPanel() {
               Estimate — the receipt shows the total charged.
             </Typography.Paragraph>
           </div>
+          {unknownOutcome && (
+            <Alert
+              type="warning"
+              showIcon
+              title="We do not know whether this payment went through."
+              description="Retry payment sends the same request: if it was already recorded you get its receipt, otherwise it is charged once now. The cart cannot be changed until then."
+            />
+          )}
           <Space>
-            <Button type="primary" size="large" loading={paying} onClick={pay}>
-              Pay
+            <Button
+              type="primary"
+              size="large"
+              loading={paying}
+              disabled={cartInvalid}
+              onClick={pay}
+            >
+              {unknownOutcome ? 'Retry payment' : 'Pay'}
             </Button>
-            <Button danger size="large" onClick={confirmCancelCart}>
-              Cancel cart
-            </Button>
+            {unknownOutcome ? (
+              <Button size="large" disabled={paying} onClick={confirmStartOver}>
+                Start a new cart
+              </Button>
+            ) : (
+              <Button danger size="large" disabled={paying} onClick={confirmCancelCart}>
+                Cancel cart
+              </Button>
+            )}
           </Space>
         </>
       )}
 
-      {topError && <Alert type="error" showIcon message={topError} />}
+      {topError && <Alert type="error" showIcon title={topError} />}
       {requestId && (
         <Typography.Paragraph type="secondary" style={{ margin: 0 }}>
           Retrying sends the same request, so a network failure can never

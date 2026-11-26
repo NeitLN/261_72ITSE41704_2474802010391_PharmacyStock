@@ -12,6 +12,7 @@ import {
   type StockMovementRow,
 } from '../api/reports';
 import { useLoad } from '../api/useLoad';
+import { LoadFailed } from '../ui/LoadFailed';
 import { useBusinessToday } from '../api/clock';
 import { downloadCsv, toCsv } from '../ui/csv';
 import { formatDateTime, formatVnd } from '../ui/format';
@@ -78,7 +79,8 @@ export function StockMovementPanel() {
     dataIndex: key,
     align: 'right' as const,
     width: 90,
-  });  const columns: ColumnsType<StockMovementRow> = [
+  });
+  const columns: ColumnsType<StockMovementRow> = [
     {
       title: 'Medicine',
       fixed: 'left',
@@ -208,7 +210,27 @@ export function StockMovementPanel() {
           <Table
             rowKey={(r) => r.medicine.id}
             size="small"
-            columns={columns}
+            columns={[
+              ...columns,
+              {
+                title: '',
+                fixed: 'right',
+                width: 110,
+                // A real button, so the movements open from the keyboard too.
+                render: (_, r) => (
+                  <Button
+                    size="small"
+                    aria-label={`Movements of ${r.medicine.name}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenRow(r);
+                    }}
+                  >
+                    Movements
+                  </Button>
+                ),
+              },
+            ]}
             dataSource={report.rows}
             pagination={false}
             scroll={{ x: 1500 }}
@@ -274,7 +296,7 @@ function MovementsModal({
     () => reportsApi.movements(row.medicine.id, query),
     [row.medicine.id, query],
   );
-  const { data, loading } = useLoad(fetchMovements, null);
+  const { data, loading, error: loadError } = useLoad(fetchMovements, null);
   const columns: ColumnsType<MovementLine> = [
     { title: 'Time', width: 170, render: (_, m) => formatDateTime(m.occurredAt) },
     {
@@ -297,6 +319,7 @@ function MovementsModal({
       onCancel={onClose}
       footer={<Button onClick={onClose}>Close</Button>}
     >
+      {loadError && <LoadFailed error={loadError} />}
       <Table
         rowKey="id"
         size="small"

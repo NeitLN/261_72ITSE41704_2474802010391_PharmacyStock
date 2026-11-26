@@ -5,7 +5,6 @@ import {
   Drawer,
   Form,
   Input,
-  InputNumber,
   Popconfirm,
   Space,
   Table,
@@ -17,7 +16,9 @@ import { useCallback, useState } from 'react';
 import { showApiError, toApiError } from '../api/errors';
 import { type PriceHistory, type PriceState, pricesApi } from '../api/medicines';
 import { useLoad } from '../api/useLoad';
+import { MoneyInput } from '../forms/MoneyInput';
 import { wholeNumber } from '../forms/numberRules';
+import { LoadFailed } from '../ui/LoadFailed';
 import { formatVnd } from '../ui/format';
 
 type Price = PriceHistory['prices'][number];
@@ -58,7 +59,7 @@ export function PricesDrawer({
   /** The list shows the price in force today; reload it after a change. */
   onChanged: () => void;
 }) {
-  const { message } = App.useApp();
+  const { message, modal } = App.useApp();
   const [form] = Form.useForm<{ unitPrice: number; effectiveFrom: string }>();
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -66,7 +67,24 @@ export function PricesDrawer({
     () => (medicineId ? pricesApi.history(medicineId) : Promise.resolve(null)),
     [medicineId],
   );
-  const { data: history, loading, reload } = useLoad<PriceHistory | null>(fetchHistory, null);
+  const { data: history, loading, error: loadError, reload } = useLoad<PriceHistory | null>(fetchHistory, null);
+
+  /**
+   * A price from today has no Cancel button (only scheduled prices can be
+   * cancelled), so the amount is read back before it is saved (#244).
+   */
+  function confirmSchedule(values: { unitPrice: number; effectiveFrom: string }) {
+    const startsToday = history !== null && values.effectiveFrom === history.today;
+    modal.confirm({
+      title: `Schedule ${formatVnd(String(values.unitPrice))} from ${values.effectiveFrom}?`,
+      content: startsToday
+        ? 'This price starts today, so sales use it at once and it cannot be cancelled afterwards.'
+        : 'It can be cancelled until that date.',
+      okText: 'Schedule price',
+      cancelText: 'Go back',
+      onOk: () => schedule(values),
+    });
+  }
 
   async function schedule(values: { unitPrice: number; effectiveFrom: string }) {
     if (!medicineId) return;
@@ -145,14 +163,14 @@ export function PricesDrawer({
       title={history ? `Prices — ${history.medicine.code} ${history.medicine.name}` : 'Prices'}
       destroyOnHidden
     >
-      <Form form={form} layout="vertical" onFinish={schedule} disabled={saving || !history}>
+      <Form form={form} layout="vertical" onFinish={confirmSchedule} disabled={saving || !history}>
         <Space align="start" wrap>
           <Form.Item
             name="unitPrice"
             label="Price (VND)"
             rules={[{ required: true, message: 'Price is required.' }, wholeNumber('Price', { min: 1 })]}
           >
-            <InputNumber<number> style={{ width: 160 }} />
+            <MoneyInput style={{ width: 160 }} />
           </Form.Item>
           <Form.Item
             name="effectiveFrom"
@@ -168,8 +186,9 @@ export function PricesDrawer({
             </Button>
           </Form.Item>
         </Space>
-        {formError && <Alert type="error" showIcon message={formError} style={{ marginBottom: 16 }} />}
+        {formError && <Alert type="error" showIcon title={formError} style={{ marginBottom: 16 }} />}
       </Form>
+      {loadError && <LoadFailed error={loadError} onRetry={reload} />}
       <Table
         rowKey="id"
         size="small"

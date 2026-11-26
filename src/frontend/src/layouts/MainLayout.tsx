@@ -11,6 +11,7 @@ import {
 import { Button, Layout, Menu, Space, Typography } from 'antd';
 import type { CSSProperties } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import { ErrorBoundary } from '../ui/ErrorBoundary';
 import { canOpen } from '../auth/access';
 import { useAuth } from '../auth/authContext';
 import { BrandLogo } from '../ui/BrandLogo';
@@ -118,7 +119,9 @@ export function MainLayout() {
           />
         </Sider>
         <Content style={{ padding: 24 }}>
-          <Outlet />
+          <ErrorBoundary key={pathname}>
+            <Outlet />
+          </ErrorBoundary>
         </Content>
       </Layout>
     </Layout>

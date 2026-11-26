@@ -2,8 +2,10 @@
 function cell(value: string | number | null): string {
   let text = value === null ? '' : String(value);
   // Numbers cannot carry a formula, so only text is escaped this way; a
-  // negative number keeps its sign instead of turning into text.
-  if (typeof value === 'string' && /^[=+\-@\t\r]/.test(text)) text = `'${text}`;
+  // negative number, or a money amount sent as text ("-1200.00"), keeps its
+  // sign instead of turning into text a spreadsheet will not add up.
+  const plainNumber = /^-?\d+(\.\d+)?$/.test(text);
+  if (typeof value === 'string' && !plainNumber && /^[=+\-@\t\r]/.test(text)) text = `'${text}`;
   return `"${text.replace(/"/g, '""')}"`;
 }
 

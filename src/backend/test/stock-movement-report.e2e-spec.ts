@@ -308,13 +308,15 @@ describe('UC12 billing counted once (e2e)', () => {
       `SELECT ((now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date)::text AS today`,
     );
     clock.set(new Date(`${today}T05:00:00Z`));
+    // Dates are derived from today, so the test does not expire with the calendar.
+    const expiry = new Date(Date.parse(`${today}T00:00:00Z`) + 400 * 86_400_000).toISOString().slice(0, 10);
     const medicine = await createMedicine(t.dataSource, {
       code: 'AMOX500',
       name: 'Amoxicillin 500 mg',
       classification: MedicineClassification.PRESCRIPTION,
     });
     const actor = await actorFor(t.dataSource, 'manager');
-    await t.app.get(PriceBook).setPrice(t.dataSource.manager, actor, medicine.id, 2000, '2026-01-01');
+    await t.app.get(PriceBook).setPrice(t.dataSource.manager, actor, medicine.id, 2000, today);
     const supplier = (
       await t.http().post('/api/suppliers').set(as('manager')).send({ name: 'Phano', phone: '028 3855 1234' })
     ).body.id;
@@ -322,7 +324,7 @@ describe('UC12 billing counted once (e2e)', () => {
       supplierId: supplier,
       documentNumber: 'HD-1',
       receiptDate: today,
-      lines: [{ medicineId: medicine.id, batchNumber: 'A1', expiryDate: '2028-01-31', quantity: 10, unitCost: 800 }],
+      lines: [{ medicineId: medicine.id, batchNumber: 'A1', expiryDate: expiry, quantity: 10, unitCost: 800 }],
     });
     expect(receipt.status).toBe(201);
     const customer = (
@@ -354,7 +356,11 @@ describe('UC12 billing counted once (e2e)', () => {
     });
     expect(bill.status).toBe(201);
 
-    const res = await t.http().get(`/api/reports/stock-movement?from=${today}&to=${today}`).set(as('manager'));
+    // A run that crosses midnight in Vietnam still covers every movement.
+    const [{ end }] = await t.dataSource.query<Array<{ end: string }>>(
+      `SELECT ((now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date)::text AS end`,
+    );
+    const res = await t.http().get(`/api/reports/stock-movement?from=${today}&to=${end}`).set(as('manager'));
     expect(res.status).toBe(200);
     expect(res.body.rows).toEqual([
       expect.objectContaining({ received: 10, dispensed: 3, sold: 0, netIssued: 3, costNetIssued: '2400.00', checkOk: true }),

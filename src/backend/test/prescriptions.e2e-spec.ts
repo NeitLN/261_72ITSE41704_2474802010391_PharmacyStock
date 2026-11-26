@@ -274,6 +274,17 @@ describe('UC05 prescriptions (e2e)', () => {
     expect(after.body).toMatchObject({ isExpired: true, status: 'received' });
   });
 
+  it('UC05-15 BR10: an expired prescription cannot get a new issue date by an edit', async () => {
+    const { id } = (await create()).body;
+    clock.set(new Date('2026-10-20T03:00:00Z')); // valid until 18/10, now 20/10
+    const moved = await t.http().put(`/api/prescriptions/${id}`).set(as('pharmacist')).send(body({ issuedDate: '2026-10-20' }));
+    expect(moved.status).toBe(422);
+    expect(moved.body.code).toBe('PRESCRIPTION_EXPIRED');
+    expect(moved.body.errors[0].field).toBe('issuedDate');
+    // Fixing a typo elsewhere, with the same issue date, is still allowed.
+    expect((await t.http().put(`/api/prescriptions/${id}`).set(as('pharmacist')).send(body())).status).toBe(200);
+  });
+
   it('UC05-12 lists with search, status filter and item count', async () => {
     await create();
     await create({ referenceNumber: 'RX-0002' });

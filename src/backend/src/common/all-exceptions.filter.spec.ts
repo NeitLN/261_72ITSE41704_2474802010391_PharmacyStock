@@ -189,7 +189,7 @@ describe('toFieldErrors', () => {
     ]);
   });
 
-  it('ERR-02 reports a wrong kind of value before a length or range message (#47)', () => {
+  it('ERR-13 reports a wrong kind of value before a length or range message (#47)', () => {
     expect(
       toFieldErrors([
         {
@@ -224,7 +224,7 @@ describe('toFieldErrors', () => {
     ]);
   });
 
-  it('ERR-08 rewrites class-validator defaults as sentences that name the field (#185)', () => {
+  it('ERR-12 rewrites class-validator defaults as sentences that name the field (#185)', () => {
     const field = (property: string, constraints: Record<string, string>) => ({
       property,
       constraints,

@@ -176,6 +176,8 @@ describe('UC09 stock takes (e2e)', () => {
       expect(line.difference).toBeNull();
     }
 
+    // Numbering goes on after the first take is closed (one open take per medicine).
+    expect((await manager.cancel(take.id)).status).toBe(201);
     const second = await open([paraId]);
     expect(second.referenceNumber).toBe('ST-20261012-0002');
   });
@@ -257,6 +259,48 @@ describe('UC09 stock takes (e2e)', () => {
     const [movement] = await adjustments();
     expect(movement.deltaSellable).toBe(-2);
     expect(await qty(batch)).toBe(5);
+  });
+
+  it('UC09-21 adding the reason later keeps the book quantity of the count: a sale in between does not hide the shortage', async () => {
+    const batch = await receive(paraId, 'P1', 10);
+    const take = await open([paraId]);
+    const line = lineOf(take, batch);
+
+    // Shelf 8, book 10: counted without a reason, then 2 are sold (book 8, shelf 6).
+    expect((await pharmacist.count(take.id, line, { countedQuantity: 8 })).status).toBe(200);
+    await sell(paraId, 2);
+    // Submit is refused for the missing reason; the same count is sent again with one.
+    expect((await pharmacist.submit(take.id)).status).toBe(400);
+    expect((await pharmacist.count(take.id, line, { countedQuantity: 8, reason: 'Two boxes damaged' })).status).toBe(200);
+    const submitted = await pharmacist.submit(take.id);
+    expect(submitted.status).toBe(201);
+    expect(submitted.body.lines[0]).toMatchObject({ systemQuantity: 10, countedQuantity: 8, difference: -2 });
+  });
+
+  it('UC09-22 a recount with a different number takes the book quantity of that moment', async () => {
+    const batch = await receive(paraId, 'P1', 10);
+    const take = await open([paraId]);
+    const line = lineOf(take, batch);
+    expect((await pharmacist.count(take.id, line, { countedQuantity: 9 })).status).toBe(200);
+    await sell(paraId, 2);
+    expect((await pharmacist.count(take.id, line, { countedQuantity: 7, reason: 'One box missing' })).status).toBe(200);
+    const submitted = await pharmacist.submit(take.id);
+    expect(submitted.status).toBe(201);
+    expect(submitted.body.lines[0]).toMatchObject({ systemQuantity: 8, countedQuantity: 7, difference: -1 });
+  });
+
+  it('UC09-23 a medicine already in an open stock take cannot be opened again until that one is closed', async () => {
+    await receive(paraId, 'P1', 10);
+    await receive(vitcId, 'V1', 5);
+    const first = await open([paraId]);
+    const again = await manager.open({ medicineIds: [vitcId, paraId] });
+    expect(again.status).toBe(409);
+    expect(again.body.code).toBe('MEDICINE_IN_OPEN_STOCK_TAKE');
+    expect(again.body.errors[0].field).toBe('medicineIds.1');
+    expect(again.body.message).toContain(first.referenceNumber);
+    // Once the first is cancelled, the medicine can be counted again.
+    expect((await manager.cancel(first.id)).status).toBe(201);
+    expect((await manager.open({ medicineIds: [paraId] })).status).toBe(201);
   });
 
   it('UC09-06 TC-20: a difference without a reason cannot be submitted; the line is named', async () => {

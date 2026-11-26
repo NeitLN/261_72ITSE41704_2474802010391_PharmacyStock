@@ -10,10 +10,11 @@ export class AppController {
     private readonly clock: Clock,
   ) {}
 
+  /** Health check, public like sign-in (access-control.md). */
   @Public()
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  health(): { status: 'ok' } {
+    return this.appService.health();
   }
 
   /**

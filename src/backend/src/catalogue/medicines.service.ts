@@ -24,6 +24,7 @@ import type {
   ListMedicinesQuery,
   UpdateMedicineDto,
 } from './dto/medicine.dto.js';
+import { AuditService } from '../audit/audit.service.js';
 import { PriceBook } from './price-book.js';
 
 /** A medicine as the API returns it, with the price in force today. */
@@ -56,6 +57,7 @@ export class MedicinesService {
     private readonly priceBook: PriceBook,
     private readonly clock: Clock,
     private readonly alerts: AlertEvaluator,
+    private readonly audit: AuditService,
   ) {}
 
   async list(actor: Actor, query: ListMedicinesQuery): Promise<MedicineView[]> {
@@ -184,11 +186,13 @@ export class MedicinesService {
         // the row is locked above, so this cannot race a stock command.
         if (
           dto.reorderLevel !== undefined ||
-          dto.lowStockMonitored !== undefined
+          dto.lowStockMonitored !== undefined ||
+          dto.expiryAlertDays !== undefined
         ) {
           await this.alerts.evaluate(manager, [medicine.id]);
         }
         if (dto.currentPrice !== undefined) {
+          const before = (await this.priceBook.pricesOn(manager, [medicine.id], today)).get(medicine.id);
           await this.priceBook.setPrice(
             manager,
             actor,
@@ -196,6 +200,15 @@ export class MedicinesService {
             dto.currentPrice,
             today,
           );
+          if (before === undefined || Number(before) !== dto.currentPrice) {
+            // FR-41: who changed today's price, from what to what.
+            await this.audit.record(manager, actor.id, 'price.changed', { entityName: 'Medicine', entityId: medicine.id }, {
+              code: medicine.code,
+              effectiveFrom: today,
+              from: before === undefined ? null : Number(before),
+              to: dto.currentPrice,
+            });
+          }
         }
         const [view] = await this.withPrices(manager, [medicine]);
         return view;

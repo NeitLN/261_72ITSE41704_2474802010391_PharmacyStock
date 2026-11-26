@@ -199,6 +199,8 @@ describe('Races, 20 runs each (e2e)', () => {
       medicineId,
     ]);
     const pending = Promise.all(requests());
+    // If the check below fails, its error is the one reported, not an unhandled rejection.
+    pending.catch(() => {});
     try {
       let blocked = 0;
       for (let tries = 0; tries < 250 && blocked < waiters; tries += 1) {

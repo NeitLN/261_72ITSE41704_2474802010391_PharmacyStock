@@ -32,13 +32,23 @@ export interface AllocationRequest<B extends BatchCandidate> {
   daysOfUse?: number | null;
 }
 
-/** DEC-07: earliest expiry, then received first, then batch number, then id. */
+/** Plain code-point order, the same as `COLLATE "C"` in the ledger's SQL. */
+function byCodePoint(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+/**
+ * DEC-07: earliest expiry, then received first, then batch number, then id.
+ * Batch numbers compare as plain strings ("B10" before "B9"), exactly like
+ * the ledger's `ORDER BY ... COLLATE "C"`, so the preview and the hand-over
+ * never pick different batches.
+ */
 export function compareFefo(a: BatchCandidate, b: BatchCandidate): number {
   return (
-    a.expiryDate.localeCompare(b.expiryDate) ||
+    byCodePoint(a.expiryDate, b.expiryDate) ||
     a.receivedAt.getTime() - b.receivedAt.getTime() ||
-    a.batchNumber.localeCompare(b.batchNumber) ||
-    a.id.localeCompare(b.id)
+    byCodePoint(a.batchNumber, b.batchNumber) ||
+    byCodePoint(a.id, b.id)
   );
 }
 

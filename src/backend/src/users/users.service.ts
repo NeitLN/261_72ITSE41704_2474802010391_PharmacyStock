@@ -153,6 +153,7 @@ export class UsersService {
       }
       if (isActive !== user.isActive) {
         await manager.update(User, id, { isActive });
+        if (!isActive) await manager.increment(User, { id }, 'tokenVersion', 1);
         await this.audit.record(
           manager,
           actor.id,
@@ -178,6 +179,7 @@ export class UsersService {
       const user = await manager.findOneBy(User, { id });
       if (!user) throw new NotFound('User', id);
       await manager.update(User, id, { passwordHash });
+      await manager.increment(User, { id }, 'tokenVersion', 1);
       await this.audit.record(manager, actor.id, 'user.password_reset', target(id), {
         username: user.username,
       });
@@ -283,6 +285,11 @@ function roleView(r: Role): RoleView {
 }
 
 function samePassword(password: string, confirm: string): void {
+  // bcrypt reads at most 72 bytes; with accented letters 72 characters can be
+  // more, and the rest would be ignored without a word.
+  if (Buffer.byteLength(password, 'utf8') > 72) {
+    throw ValidationFailed.field('password', 'This password is too long: use fewer accented characters or a shorter password.');
+  }
   if (password !== confirm) {
     throw ValidationFailed.field('passwordConfirm', 'The two passwords differ.');
   }

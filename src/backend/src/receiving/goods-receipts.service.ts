@@ -162,6 +162,14 @@ export class GoodsReceiptsService {
                 `Batch ${line.batchNumber} is already recorded with expiry ${batch.expiryDate}.`,
               );
             }
+            // A batch has one unit cost: the reports and the stock-take value
+            // use it, so a top-up at another cost would be valued wrongly.
+            if (toCents(Number(batch.unitCost)) !== toCents(line.unitCost)) {
+              throw ValidationFailed.field(
+                `lines.${index}.unitCost`,
+                `Batch ${line.batchNumber} is already recorded at a unit cost of ${batch.unitCost}. Use that cost, or record the delivery as a new batch number.`,
+              );
+            }
             if (batch.status !== BatchStatus.ACTIVE) {
               throw ValidationFailed.field(
                 `lines.${index}.batchNumber`,

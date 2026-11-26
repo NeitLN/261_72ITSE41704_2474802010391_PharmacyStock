@@ -6,6 +6,7 @@ import {
 import {
   Param,
   ParseUUIDPipe,
+  type PipeTransform,
   ValidationPipe,
   type ValidationError,
 } from '@nestjs/common';
@@ -193,4 +194,27 @@ export function UuidParam(name = 'id'): ParameterDecorator {
         ValidationFailed.field(name, `${name} must be a valid UUID.`),
     }),
   );
+}
+
+const UUID_TEXT = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i;
+
+function lowerUuids(value: unknown): unknown {
+  if (typeof value === 'string') return UUID_TEXT.test(value) ? value.toLowerCase() : value;
+  if (Array.isArray(value)) return value.map(lowerUuids);
+  if (value && typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype) {
+    return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, lowerUuids(v)]));
+  }
+  return value;
+}
+
+/**
+ * Ids are UUIDs, which compare without regard to case, but the services and
+ * the database compare them as text. Writing every id of a request in lower
+ * case once, before validation, means an id typed in capitals finds its row
+ * instead of failing somewhere deeper with a 500.
+ */
+export class LowerCaseUuidPipe implements PipeTransform {
+  transform(value: unknown): unknown {
+    return lowerUuids(value);
+  }
 }

@@ -213,6 +213,25 @@ describe('UC13 medicine prices (e2e)', () => {
     expect(res.body.prices.every((p: { createdAt: string }) => typeof p.createdAt === 'string')).toBe(true);
   });
 
+  it('UC13-10 FR-41: changing the price of today, scheduling one and cancelling it each write price.changed', async () => {
+    const edit = await t.http().patch(`/api/medicines/${medicine.id}`).set(as('manager')).send({ currentPrice: 550 });
+    expect(edit.status).toBe(200);
+    const scheduled = (await schedule(600, '2026-11-03')).body.prices[0];
+    expect((await t.http().delete(`${url()}/${scheduled.id}`).set(as('manager'))).status).toBe(204);
+
+    const rows: { details: string }[] = await t.dataSource.query(
+      `SELECT details FROM audit_logs WHERE action = 'price.changed' ORDER BY "occurredAt", id`,
+    );
+    const details = rows.map((r) => JSON.parse(r.details));
+    expect(details).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ effectiveFrom: '2026-11-02', from: 500, to: 550 }),
+        expect.objectContaining({ kind: 'scheduled', effectiveFrom: '2026-11-03', to: 600 }),
+        expect.objectContaining({ kind: 'cancelled', effectiveFrom: '2026-11-03', from: 600 }),
+      ]),
+    );
+  });
+
   it('an unknown medicine is a 404, and a pharmacist cannot schedule', async () => {
     expect((await t.http().get(url(randomUUID())).set(as('manager'))).status).toBe(404);
     expect((await schedule(600, '2026-11-03', 'pharmacist')).status).toBe(403);

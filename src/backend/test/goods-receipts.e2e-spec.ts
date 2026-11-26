@@ -277,6 +277,17 @@ describe('UC03 goods receipts (e2e)', () => {
     expect(await findLedgerMismatches(t.dataSource)).toEqual([]);
   });
 
+  it('UC03-17 the same batch number at another unit cost is refused on that line; nothing is saved', async () => {
+    await post(receipt()).expect(201);
+    const first = receipt().lines[0] as { unitCost: number };
+    const res = await post(
+      receipt({ documentNumber: 'HD-0002', lines: [{ ...receipt().lines[0], unitCost: first.unitCost + 100 }] }),
+    );
+    expect(res.status).toBe(400);
+    expect(res.body.errors[0].field).toBe('lines.0.unitCost');
+    expect(await counts()).toEqual({ receipts: 1, batches: 1, movements: 1 });
+  });
+
   it('UC03-08 a mid-receipt failure rolls back every line (4c, FR-09, TC-25)', async () => {
     await post(receipt()).expect(201);
 

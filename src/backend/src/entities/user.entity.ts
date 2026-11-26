@@ -40,6 +40,13 @@ export class User {
   @Column({ type: 'timestamptz', nullable: true })
   lastLoginAt: Date | null;
 
+  /**
+   * Copied into each session token. Raised on sign-out, password reset and
+   * lock (a role change applies on the next request anyway), so tokens issued before stop working at once.
+   */
+  @Column({ type: 'integer', default: 0 })
+  tokenVersion: number;
+
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 }

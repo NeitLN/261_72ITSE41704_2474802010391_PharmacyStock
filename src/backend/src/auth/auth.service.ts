@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { Repository } from 'typeorm';
 import { AuditService } from '../audit/audit.service.js';
-import { Unauthenticated } from '../common/errors.js';
+import { TooManyAttempts, Unauthenticated } from '../common/errors.js';
 import { User } from '../entities/index.js';
 import { type Actor, toActor } from './actor.js';
 import { SESSION_SECONDS } from './auth-config.js';
@@ -26,7 +26,16 @@ export interface ActorView {
 
 interface TokenPayload {
   sub: string;
+  /** The user's tokenVersion when the token was issued. */
+  v: number;
 }
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+/** What a username may look like (UC15); anything else is not stored in the audit log. */
+const USERNAME = /^[A-Za-z0-9._-]{3,32}$/;
+
+const MAX_FAILURES = 10;
+const FAILURE_WINDOW_MS = 15 * 60 * 1000;
 
 /** One message for an unknown username and a wrong password (FR-38). */
 const BAD_CREDENTIALS = 'Incorrect username or password.';
@@ -43,7 +52,31 @@ export class AuthService {
    * UC16 sign-in. The password is checked before the account's state, so
    * "locked" is only ever shown to someone who knows the password (FR-40).
    */
+  /** Recent wrong sign-ins per username (lower case): times in ms. */
+  private readonly failures = new Map<string, number[]>();
+
+  /**
+   * Slows down password guessing: after MAX_FAILURES wrong sign-ins for one
+   * username within FAILURE_WINDOW_MS, further attempts are refused for the
+   * rest of the window. Kept in memory: one API process, and a restart only
+   * forgets the count.
+   */
+  private assertNotThrottled(key: string): void {
+    const now = Date.now();
+    const recent = (this.failures.get(key) ?? []).filter((t) => now - t < FAILURE_WINDOW_MS);
+    this.failures.set(key, recent);
+    if (recent.length >= MAX_FAILURES) {
+      throw new TooManyAttempts('Too many wrong sign-ins for this account. Wait 15 minutes, or ask the manager.');
+    }
+  }
+
+  private noteFailure(key: string): void {
+    this.failures.set(key, [...(this.failures.get(key) ?? []), Date.now()]);
+  }
+
   async login(username: string, password: string): Promise<SessionView> {
+    const key = username.toLowerCase();
+    this.assertNotThrottled(key);
     const user = await this.users
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.role', 'role')
@@ -53,10 +86,12 @@ export class AuthService {
 
     if (!user) {
       await verifyPassword(password, await dummyPasswordHash());
+      this.noteFailure(key);
       await this.failed(username, null, 'unknown user');
       throw new Unauthenticated(BAD_CREDENTIALS);
     }
     if (!(await verifyPassword(password, user.passwordHash))) {
+      this.noteFailure(key);
       await this.failed(username, user.id, 'wrong password');
       throw new Unauthenticated(BAD_CREDENTIALS);
     }
@@ -65,13 +100,14 @@ export class AuthService {
       throw new Unauthenticated('This account is locked. Ask the manager.');
     }
 
+    this.failures.delete(key);
     await this.users.update(user.id, { lastLoginAt: new Date() });
     await this.audit.record(this.users.manager, user.id, 'auth.login', {
       entityName: 'User',
       entityId: user.id,
     });
 
-    const payload: TokenPayload = { sub: user.id };
+    const payload: TokenPayload = { sub: user.id, v: user.tokenVersion };
     const accessToken = await this.jwt.signAsync(payload, {
       expiresIn: SESSION_SECONDS,
     });
@@ -84,6 +120,8 @@ export class AuthService {
 
   /** FR-41: who signed out. The token itself is discarded by the client. */
   async logout(actor: Actor): Promise<void> {
+    // Ends every session of this user, not only the one in this browser.
+    await this.users.increment({ id: actor.id }, 'tokenVersion', 1);
     await this.audit.record(this.users.manager, actor.id, 'auth.logout', {
       entityName: 'User',
       entityId: actor.id,
@@ -101,7 +139,8 @@ export class AuthService {
       null,
       'auth.login_failed',
       { entityName: 'User', entityId: userId },
-      { username, why },
+      // A password typed into the username field must not end up in the log.
+      { username: USERNAME.test(username) ? username : '(not a username)', why },
     );
   }
 
@@ -112,17 +151,22 @@ export class AuthService {
   async actorFromToken(token: string): Promise<Actor> {
     let payload: TokenPayload;
     try {
-      payload = await this.jwt.verifyAsync<TokenPayload>(token);
+      payload = await this.jwt.verifyAsync<TokenPayload>(token, {
+        algorithms: ['HS256'],
+      });
     } catch {
       throw new Unauthenticated(
         'Your session has expired. Please sign in again.',
       );
     }
-    const user = await this.users.findOne({
-      where: { id: payload.sub, isActive: true },
-      relations: { role: { permissions: true } },
-    });
-    if (!user) {
+    const user =
+      typeof payload.sub === 'string' && UUID.test(payload.sub)
+        ? await this.users.findOne({
+            where: { id: payload.sub, isActive: true },
+            relations: { role: { permissions: true } },
+          })
+        : null;
+    if (!user || user.tokenVersion !== payload.v) {
       throw new Unauthenticated(
         'Your session has ended. Please sign in again.',
       );

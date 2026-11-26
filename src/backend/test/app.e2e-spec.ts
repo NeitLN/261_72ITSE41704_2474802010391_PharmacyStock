@@ -20,7 +20,7 @@ describe('Application (e2e)', () => {
   });
 
   it('answers the public health check without a user', async () => {
-    await t.http().get('/api').expect(200).expect('Hello World!');
+    await t.http().get('/api').expect(200).expect({ status: 'ok' });
   });
 
   it('#255 gives a signed-in user the business date, and refuses without a session', async () => {

@@ -11,7 +11,6 @@ import {
   Select,
   Space,
   Table,
-  Tag,
   Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -32,19 +31,14 @@ import { useLoad } from '../api/useLoad';
 import { LoadFailed } from '../ui/LoadFailed';
 import { useAuth } from '../auth/authContext';
 import { wholeNumber } from '../forms/numberRules';
+import { StatusTag as SharedStatusTag } from '../ui/tags';
+import { matchesLabel } from '../ui/search';
 
 const NO_TAKES: StockTakeSummary[] = [];
 const NO_MEDICINES: Medicine[] = [];
 
-const STATUS_COLORS: Record<StockTakeStatus, string> = {
-  counting: 'blue',
-  pending_approval: 'gold',
-  approved: 'green',
-  cancelled: 'default',
-};
-
 function StatusTag({ status }: { status: StockTakeStatus }) {
-  return <Tag color={STATUS_COLORS[status]}>{STOCK_TAKE_STATUS_LABELS[status]}</Tag>;
+  return <SharedStatusTag kind="stockTake" value={status} />;
 }
 
 /** UC09 Conduct a stock take: the list, opening one, the count sheet and approval. */
@@ -59,7 +53,7 @@ export function StockTakesPanel() {
   const canApprove = can('stock_take.approve');
 
   const columns: ColumnsType<StockTakeSummary> = [
-    { title: 'Reference', dataIndex: 'referenceNumber', width: 170 },
+    { title: 'Reference', dataIndex: 'referenceNumber', width: 170, className: 'nowrap' },
     {
       title: 'Status',
       dataIndex: 'status',
@@ -67,22 +61,37 @@ export function StockTakesPanel() {
       render: (s: StockTakeStatus) => <StatusTag status={s} />,
     },
     {
-      title: 'Counted',
-      width: 100,
+      title: 'Lines counted',
+      width: 120,
       align: 'right',
-      render: (_, r) => `${r.countedCount} / ${r.lineCount}`,
+      render: (_, r) => `${r.countedCount} of ${r.lineCount}`,
     },
-    { title: 'Opened by', render: (_, r) => r.openedBy.fullName },
-    { title: 'Counted by', render: (_, r) => r.countedBy?.fullName ?? '—' },
+    { title: 'Started by', render: (_, r) => r.openedBy.fullName },
+    { title: 'Submitted by', render: (_, r) => r.countedBy?.fullName ?? '—' },
     { title: 'Approved by', render: (_, r) => r.approvedBy?.fullName ?? '—' },
-    { title: 'Opened', width: 170, render: (_, r) => formatDateTime(r.createdAt) },
+    { title: 'Started', width: 150, className: 'nowrap', render: (_, r) => formatDateTime(r.createdAt) },
     {
       title: '',
       key: 'open',
-      width: 90,
+      width: 100,
+      fixed: 'right',
+      // The button names what this user will do there.
       render: (_, r) => (
-        <Button size="small" onClick={() => setOpenId(r.id)}>
-          Open
+        <Button
+          size="small"
+          type={
+            (r.status === 'counting' && can('stock_take.count')) ||
+            (r.status === 'pending_approval' && can('stock_take.approve'))
+              ? 'primary'
+              : 'default'
+          }
+          onClick={() => setOpenId(r.id)}
+        >
+          {r.status === 'counting' && can('stock_take.count')
+            ? 'Count'
+            : r.status === 'pending_approval' && can('stock_take.approve')
+              ? 'Review'
+              : 'View'}
         </Button>
       ),
     },
@@ -188,7 +197,7 @@ function OpenStockTakeModal({
           <Select
             mode="multiple"
             showSearch
-            optionFilterProp="label"
+            filterOption={matchesLabel}
             options={medicines.map((m) => ({ value: m.id, label: `${m.code} — ${m.name}` }))}
           />
         </Form.Item>
@@ -208,25 +217,36 @@ function StockTakeModal({ id, onClose }: { id: string; onClose: () => void }) {
   const { data: loaded, loading } = useLoad<StockTake | null>(fetchTake, null);
   const [take, setTake] = useState<StockTake | null>(null);
   const [busy, setBusy] = useState(false);
+  const [savingLine, setSavingLine] = useState<string | null>(null);
+  const [dirty, setDirty] = useState<string[]>([]);
   const [problems, setProblems] = useState<FieldError[]>([]);
   const current = take ?? loaded;
   const canCount = can('stock_take.count');
   const canApprove = can('stock_take.approve');
 
-  async function run(action: () => Promise<StockTake>, done?: string) {
+  async function run(action: () => Promise<StockTake>, done?: string): Promise<boolean> {
     setBusy(true);
     setProblems([]);
     try {
       const updated = await action();
       setTake(updated);
       if (done) message.success(done);
+      return true;
     } catch (error) {
       const apiError = toApiError(error);
       if (apiError.errors.length > 0) setProblems(apiError.errors);
       else message.error(apiError.message);
+      return false;
     } finally {
       setBusy(false);
     }
+  }
+
+  async function countLine(lineId: string, countedQuantity: number, reason?: string) {
+    setSavingLine(lineId);
+    const ok = await run(() => stockTakesApi.count(current!.id, lineId, { countedQuantity, reason }));
+    setSavingLine(null);
+    if (ok) setDirty((d) => d.filter((x) => x !== lineId));
   }
 
   if (!current) {
@@ -240,10 +260,12 @@ function StockTakeModal({ id, onClose }: { id: string; onClose: () => void }) {
       <Button
         key="submit"
         type="primary"
-        loading={busy}
+        loading={busy && savingLine === null}
+        disabled={dirty.length > 0}
+        title={dirty.length > 0 ? 'Save every changed line first.' : undefined}
         onClick={() => run(() => stockTakesApi.submit(current.id), 'Submitted for approval.')}
       >
-        Submit for approval
+        {dirty.length > 0 ? `Save ${dirty.length} changed ${dirty.length === 1 ? 'line' : 'lines'} first` : 'Submit for approval'}
       </Button>
     ),
     pending && canApprove && (
@@ -363,10 +385,9 @@ function StockTakeModal({ id, onClose }: { id: string; onClose: () => void }) {
       <LinesTable
         take={current}
         editable={counting && canCount}
-        busy={busy}
-        onCount={(lineId, countedQuantity, reason) =>
-          run(() => stockTakesApi.count(current.id, lineId, { countedQuantity, reason }))
-        }
+        savingLine={savingLine}
+        onCount={countLine}
+        onDirty={(lineId) => setDirty((d) => (d.includes(lineId) ? d : [...d, lineId]))}
       />
       {current.status === 'approved' && (
         <Typography.Paragraph style={{ marginTop: 16 }}>
@@ -464,27 +485,31 @@ function AddBatch({
 function LinesTable({
   take,
   editable,
-  busy,
+  savingLine,
   onCount,
+  onDirty,
 }: {
   take: StockTake;
   editable: boolean;
-  busy: boolean;
+  savingLine: string | null;
   onCount: (lineId: string, countedQuantity: number, reason?: string) => void;
+  onDirty: (lineId: string) => void;
 }) {
   const columns: ColumnsType<StockTakeLine> = [
     {
       title: 'Medicine',
       render: (_, l) => `${l.batch.medicine.code} — ${l.batch.medicine.name}`,
     },
-    { title: 'Batch', width: 110, render: (_, l) => l.batch.batchNumber },
-    { title: 'Expiry', width: 110, render: (_, l) => l.batch.expiryDate },
+    { title: 'Batch', width: 110, className: 'nowrap', render: (_, l) => l.batch.batchNumber },
+    { title: 'Expiry', width: 110, className: 'nowrap', render: (_, l) => l.batch.expiryDate },
   ];
   if (editable) {
     columns.push({
       title: 'Count and reason',
       width: 480,
-      render: (_, l) => <CountForm line={l} busy={busy} onCount={onCount} />,
+      render: (_, l) => (
+        <CountForm line={l} busy={savingLine === l.id} onCount={onCount} onDirty={() => onDirty(l.id)} />
+      ),
     });
   } else {
     columns.push(
@@ -527,10 +552,12 @@ function CountForm({
   line,
   busy,
   onCount,
+  onDirty,
 }: {
   line: StockTakeLine;
   busy: boolean;
   onCount: (lineId: string, countedQuantity: number, reason?: string) => void;
+  onDirty: () => void;
 }) {
   const [form] = Form.useForm<{ countedQuantity: number; reason?: string }>();
   return (
@@ -538,6 +565,7 @@ function CountForm({
       form={form}
       layout="inline"
       disabled={busy}
+      onValuesChange={onDirty}
       initialValues={{
         countedQuantity: line.countedQuantity ?? undefined,
         reason: line.reason ?? undefined,
@@ -551,7 +579,12 @@ function CountForm({
           wholeNumber('Counted quantity', { min: 0, max: 1_000_000 }),
         ]}
       >
-        <InputNumber<number> aria-label={`Counted ${line.batch.batchNumber}`} style={{ width: 90 }} />
+        {/* Enter saves the line, like the Save button. */}
+        <InputNumber<number>
+          aria-label={`Counted ${line.batch.batchNumber}`}
+          style={{ width: 90 }}
+          onPressEnter={() => form.submit()}
+        />
       </Form.Item>
       <Form.Item name="reason">
         <Input
@@ -562,7 +595,7 @@ function CountForm({
         />
       </Form.Item>
       <Form.Item>
-        <Button htmlType="submit" size="small">
+        <Button htmlType="submit" size="small" loading={busy}>
           {line.countedQuantity === null ? 'Save' : `Saved: ${line.countedQuantity}`}
         </Button>
       </Form.Item>

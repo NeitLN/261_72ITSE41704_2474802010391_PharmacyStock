@@ -42,7 +42,7 @@ weighed in Ch.3 §3.4.2; this section is about the project as a whole.
   document behind every movement.
 - **Permissions are enforced where they matter.** Each service checks the
   permission before anything else; the automated role × route matrix (TC-53)
-  covers all 77 routes for all three roles.
+  covers all 81 routes for all three roles.
 - **The process was real teamwork with evidence.** Protected `main`, one
   approval and green CI per pull request, a review rotation, tests run by a
   member other than the author, weekly reports and a leader's weekly review on

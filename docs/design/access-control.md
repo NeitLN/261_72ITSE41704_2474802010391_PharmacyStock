@@ -135,8 +135,10 @@ sequenceDiagram
 These go to `audit_logs` with user and time: `auth.login`,
 `auth.login_failed` (the username tried, only when it looks like a username,
 so a password typed in the wrong box is never stored), `auth.logout`, user and
-role changes, password resets, approved stock takes (UC09) and
-`price.changed` (UC01 edit, UC13 schedule and cancel).
+role changes, password resets, approved stock takes (UC09),
+`price.changed` (UC01 edit, UC13 schedule and cancel), a reversed goods
+receipt (`goods_receipt.reversed`) and the reason of a cancelled cart or
+hand-over (`sale.cart_cancelled`, `dispense.cancelled`, TC-59).
 
 ## Tests
 
@@ -206,6 +208,7 @@ all three are listed. The two `stock-movement` routes need `?from=&to=`.
 | GET | `/api/goods-receipts` | `goods_receipt.create` | ✓ | 403 | 403 |
 | GET | `/api/goods-receipts/:id` | `goods_receipt.create` | ✓ | 403 | 403 |
 | POST | `/api/goods-receipts` | `goods_receipt.create` | ✓ | 403 | 403 |
+| POST | `/api/goods-receipts/:id/reverse` | `goods_receipt.create` | ✓ | 403 | 403 |
 | GET | `/api/customers` | `prescription.manage` | ✓ | ✓ | 403 |
 | GET | `/api/customers/:id` | `prescription.manage` | ✓ | ✓ | 403 |
 | POST | `/api/customers` | `prescription.manage` | ✓ | ✓ | 403 |
@@ -223,7 +226,10 @@ all three are listed. The two `stock-movement` routes need `?from=&to=`.
 | POST | `/api/prescriptions/:id/verify` | `prescription.manage` | ✓ | ✓ | 403 |
 | POST | `/api/dispensings/preview` | `dispense` | ✓ | ✓ | 403 |
 | POST | `/api/dispensings` | `dispense` | ✓ | ✓ | 403 |
+| POST | `/api/dispensings/cancellations` | `dispense` | ✓ | ✓ | 403 |
 | POST | `/api/sales` | `sale.create` | ✓ | 403 | ✓ |
+| GET | `/api/sales` | `sale.create` | ✓ | 403 | ✓ |
+| POST | `/api/sales/cancellations` | `sale.create` | ✓ | 403 | ✓ |
 | GET | `/api/sales/billable` | `sale.create` | ✓ | 403 | ✓ |
 | GET | `/api/sales/:id` | `sale.create` | ✓ | 403 | ✓ |
 | GET | `/api/returns/sales/:receiptNumber` | `return.create` | ✓ | 403 | ✓ |

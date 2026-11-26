@@ -1,16 +1,15 @@
-import { Alert, App, Button, Checkbox, Form, Input, Modal, Space, Table, Tooltip, Typography } from 'antd';
+import { Alert, App, Button, Checkbox, Form, Input, Modal, Space, Table, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useCallback, useState } from 'react';
 import { type AssessInput, batchesApi, type QuarantineLine, type ReleaseBlock } from '../api/batches';
 import { showApiError } from '../api/errors';
 import { useLoad } from '../api/useLoad';
 import { LoadFailed } from '../ui/LoadFailed';
-import { StatusTag } from '../ui/tags';
+import { useBusinessToday } from '../api/clock';
+import { formatDateTime } from '../ui/format';
+import { BatchStatusTag } from '../ui/tags';
 
 const NO_LINES: QuarantineLine[] = [];
-
-const at = (value: string) =>
-  new Date(value).toLocaleString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
 
 const BLOCKED: Record<ReleaseBlock, string> = {
   controlled: 'A returned controlled medicine never goes back on the shelf.',
@@ -26,45 +25,52 @@ const BLOCKED: Record<ReleaseBlock, string> = {
 export function QuarantinePanel() {
   const fetchLines = useCallback(() => batchesApi.quarantine(), []);
   const { data: lines, loading, error: loadError, reload } = useLoad(fetchLines, NO_LINES);
+  const today = useBusinessToday();
   const [assessing, setAssessing] = useState<{ line: QuarantineLine; outcome: AssessInput['outcome'] } | null>(null);
 
   const columns: ColumnsType<QuarantineLine> = [
-    { title: 'Returned', width: 150, render: (_, l) => at(l.saleReturn.returnedAt) },
-    { title: 'Slip', width: 150, render: (_, l) => l.saleReturn.referenceNumber },
-    { title: 'Medicine', render: (_, l) => `${l.medicine.code} — ${l.medicine.name}` },
-    { title: 'Batch', width: 110, render: (_, l) => l.batch.batchNumber },
-    { title: 'Expiry', width: 110, render: (_, l) => l.batch.expiryDate },
-    { title: 'Status', width: 110, render: (_, l) => <StatusTag kind="batch" value={l.batch.status} /> },
+    { title: 'Returned', width: 140, className: 'nowrap', render: (_, l) => formatDateTime(l.saleReturn.returnedAt) },
+    { title: 'Slip', width: 150, className: 'nowrap', render: (_, l) => l.saleReturn.referenceNumber },
+    { title: 'Medicine', width: 220, render: (_, l) => `${l.medicine.code} — ${l.medicine.name}` },
+    { title: 'Batch', width: 110, className: 'nowrap', render: (_, l) => l.batch.batchNumber },
+    { title: 'Expiry', width: 110, className: 'nowrap', render: (_, l) => l.batch.expiryDate },
+    {
+      title: 'Batch status',
+      width: 120,
+      render: (_, l) => (
+        <BatchStatusTag status={l.batch.status} expiryDate={l.batch.expiryDate} businessDate={today} />
+      ),
+    },
     { title: 'Quantity', width: 90, align: 'right', render: (_, l) => l.quantity },
-    { title: 'Reason for the return', render: (_, l) => l.saleReturn.reason },
+    { title: 'Reason for the return', width: 220, render: (_, l) => l.saleReturn.reason },
     {
       title: '',
-      width: 180,
+      width: 200,
+      fixed: 'right',
+      // Why Release is unavailable is written under it, not hidden in a tooltip.
       render: (_, l) => (
-        <Space>
-          <Tooltip title={l.releaseBlockedBy ? BLOCKED[l.releaseBlockedBy] : undefined}>
+        <>
+          <Space>
             <Button
               size="small"
               disabled={l.releaseBlockedBy !== null}
+              aria-describedby={l.releaseBlockedBy ? `blocked-${l.returnLineId}` : undefined}
               onClick={() => setAssessing({ line: l, outcome: 'release' })}
             >
               Release
             </Button>
-          </Tooltip>
-          <Button size="small" danger onClick={() => setAssessing({ line: l, outcome: 'reject' })}>
-            Reject
-          </Button>
-        </Space>
-      ),
-    },
-    {
-      title: 'Why it cannot be released',
-      // The reason is written out too, not only in a hover tooltip.
-      render: (_, l) =>
-        l.releaseBlockedBy ? (
-          <Typography.Text type="secondary">{BLOCKED[l.releaseBlockedBy]}</Typography.Text>
-        ) : (
-          '—'
+            <Button size="small" onClick={() => setAssessing({ line: l, outcome: 'reject' })}>
+              Reject
+            </Button>
+          </Space>
+          {l.releaseBlockedBy && (
+            <div id={`blocked-${l.returnLineId}`}>
+              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                {BLOCKED[l.releaseBlockedBy]}
+              </Typography.Text>
+            </div>
+          )}
+        </>
       ),
     },
   ];
@@ -79,6 +85,7 @@ export function QuarantinePanel() {
       <Table
         rowKey={(l) => l.returnLineId}
         columns={columns}
+        scroll={{ x: 'max-content' }}
         dataSource={lines}
         loading={loading}
         pagination={{ pageSize: 20, hideOnSinglePage: true }}

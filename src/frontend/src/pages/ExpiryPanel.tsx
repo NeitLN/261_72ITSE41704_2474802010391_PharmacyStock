@@ -3,7 +3,7 @@ import { Alert, App, Button, Form, Input, Modal, Radio, Select, Space, Table, Ty
 import type { ColumnsType } from 'antd/es/table';
 import { useCallback, useState } from 'react';
 import { type BatchStatus, batchesApi, type ExpiryRow } from '../api/batches';
-import { showApiError } from '../api/errors';
+import { showApiError, toApiError } from '../api/errors';
 import { medicinesApi, type Reference } from '../api/medicines';
 import { useLoad } from '../api/useLoad';
 import { LoadFailed } from '../ui/LoadFailed';
@@ -11,7 +11,7 @@ import { useAuth } from '../auth/authContext';
 import { downloadCsv, toCsv } from '../ui/csv';
 import { formatVnd } from '../ui/format';
 import { statusOf } from '../ui/status';
-import { StatusTag } from '../ui/tags';
+import { BatchStatusTag, ExpiryText } from '../ui/tags';
 
 const NO_REFERENCE = { categories: [] as Reference[], units: [] as Reference[] };
 
@@ -22,12 +22,6 @@ const STATUS_OPTIONS: Array<{ value: BatchStatus; label: string }> = [
   { value: 'rejected', label: 'Rejected' },
 ];
 
-function daysText(row: ExpiryRow) {
-  const days = (n: number) => (n === 1 ? '1 day' : `${n} days`);
-  if (row.daysLeft < 0) return <strong>Expired {days(-row.daysLeft)} ago</strong>;
-  if (row.daysLeft === 0) return <strong>Expired today</strong>;
-  return `${days(row.daysLeft)} left`;
-}
 
 /**
  * UC11 the expiry list (FR-35), write-off (FR-36) and batch status (FR-48).
@@ -39,33 +33,65 @@ export function ExpiryPanel() {
   const [categoryId, setCategoryId] = useState<string | undefined>();
   const [writingOff, setWritingOff] = useState<ExpiryRow | null>(null);
   const [changing, setChanging] = useState<ExpiryRow | null>(null);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [bulkWriteOff, setBulkWriteOff] = useState(false);
   const fetchReport = useCallback(() => batchesApi.expiry(categoryId), [categoryId]);
   const { data: report, loading, error: loadError, reload } = useLoad(fetchReport, null);
   const fetchReference = useCallback(() => medicinesApi.referenceData(), []);
   const { data: reference } = useLoad(fetchReference, NO_REFERENCE);
   const canChange = can('batch_status.manage');
 
+  const businessDate = report?.totals.businessDate ?? '';
   const columns: ColumnsType<ExpiryRow> = [
-    { title: 'Medicine', render: (_, r) => `${r.medicine.code} — ${r.medicine.name}` },
-    { title: 'Batch', width: 110, render: (_, r) => r.batch.batchNumber },
-    { title: 'Expiry', width: 110, render: (_, r) => r.batch.expiryDate },
-    { title: 'Days left', width: 170, align: 'right', render: (_, r) => daysText(r) },
-    { title: 'Sellable', width: 90, align: 'right', render: (_, r) => r.sellable },
-    { title: 'Value at cost', width: 130, align: 'right', render: (_, r) => formatVnd(r.value) },
     {
-      title: 'Status',
+      title: 'Medicine',
+      width: 200,
+      render: (_, r) => `${r.medicine.code} — ${r.medicine.name}`,
+    },
+    { title: 'Batch', width: 120, className: 'nowrap', render: (_, r) => r.batch.batchNumber },
+    {
+      // The date and how far it is, in one cell, so every column fits a 1440 px screen.
+      title: 'Expiry',
+      width: 180,
+      className: 'nowrap',
+      render: (_, r) => (
+        <>
+          <div>{r.batch.expiryDate}</div>
+          <ExpiryText
+            expiryDate={r.batch.expiryDate}
+            businessDate={businessDate}
+            alertDays={r.medicine.expiryAlertDays}
+            showDate={false}
+          />
+        </>
+      ),
+    },
+    // Not "Sellable": an expired batch is on the shelf but can no longer be sold.
+    { title: 'On shelf', width: 90, align: 'right', render: (_, r) => r.sellable },
+    {
+      title: 'Value at cost',
+      width: 120,
+      align: 'right',
+      className: 'nowrap',
+      render: (_, r) => formatVnd(r.value),
+    },
+    {
+      title: 'Batch status',
       width: 110,
-      render: (_, r) => <StatusTag kind="batch" value={r.batch.status} />,
+      render: (_, r) => (
+        <BatchStatusTag status={r.batch.status} expiryDate={r.batch.expiryDate} businessDate={businessDate} />
+      ),
     },
   ];
   if (canChange) {
     columns.push({
       title: '',
-      width: 220,
+      width: 200,
+      fixed: 'right',
       render: (_, r) => (
         <Space>
           {r.canWriteOff && (
-            <Button size="small" danger onClick={() => setWritingOff(r)}>
+            <Button size="small" onClick={() => setWritingOff(r)}>
               Write off
             </Button>
           )}
@@ -121,9 +147,35 @@ export function ExpiryPanel() {
         )}
       </Space>
       {loadError && <LoadFailed error={loadError} onRetry={reload} />}
+      {canChange && (
+        <Space style={{ marginTop: 16 }}>
+          <Button
+            disabled={selected.length === 0}
+            onClick={() => setBulkWriteOff(true)}
+          >
+            Write off selected ({selected.length})
+          </Button>
+          <Typography.Text type="secondary">
+            Tick the batches that can be written off to move them all with one reason.
+          </Typography.Text>
+        </Space>
+      )}
       <Table
         rowKey={(r) => r.batch.id}
         columns={columns}
+        scroll={{ x: 'max-content' }}
+        rowSelection={
+          canChange
+            ? {
+                selectedRowKeys: selected,
+                onChange: (keys) => setSelected(keys as string[]),
+                getCheckboxProps: (r) => ({
+                  disabled: !r.canWriteOff,
+                  'aria-label': `Select batch ${r.batch.batchNumber}`,
+                }),
+              }
+            : undefined
+        }
         dataSource={report?.rows ?? []}
         loading={loading}
         pagination={{ pageSize: 20, hideOnSinglePage: true }}
@@ -134,8 +186,20 @@ export function ExpiryPanel() {
         Write off is offered for a batch that is expired or not active. Expired, held and recalled
         batches are never issued.
       </Typography.Paragraph>
+      {bulkWriteOff && report && (
+        <BulkWriteOffModal
+          rows={report.rows.filter((r) => selected.includes(r.batch.id))}
+          onClose={() => setBulkWriteOff(false)}
+          onDone={() => {
+            setBulkWriteOff(false);
+            setSelected([]);
+            reload();
+          }}
+        />
+      )}
       {writingOff && (
         <WriteOffModal
+          businessDate={businessDate}
           row={writingOff}
           onClose={() => setWritingOff(null)}
           onDone={() => {
@@ -146,6 +210,7 @@ export function ExpiryPanel() {
       )}
       {changing && (
         <StatusModal
+          businessDate={businessDate}
           row={changing}
           onClose={() => setChanging(null)}
           onDone={() => {
@@ -158,12 +223,77 @@ export function ExpiryPanel() {
   );
 }
 
+/** One reason for several batches; each is written off on its own, so one refusal stops none of the others. */
+function BulkWriteOffModal({
+  rows,
+  onClose,
+  onDone,
+}: {
+  rows: ExpiryRow[];
+  onClose: () => void;
+  onDone: () => void;
+}) {
+  const { message } = App.useApp();
+  const [form] = Form.useForm<{ reason: string }>();
+  const [saving, setSaving] = useState(false);
+  const [failures, setFailures] = useState<string[]>([]);
+
+  async function submit({ reason }: { reason: string }) {
+    setSaving(true);
+    const failed: string[] = [];
+    let done = 0;
+    for (const row of rows) {
+      try {
+        await batchesApi.writeOff(row.batch.id, reason);
+        done += 1;
+      } catch (error) {
+        failed.push(`${row.batch.batchNumber}: ${toApiError(error).message}`);
+      }
+    }
+    setSaving(false);
+    if (done > 0) message.success(`${done} ${done === 1 ? 'batch' : 'batches'} written off to pending destruction.`);
+    if (failed.length === 0) onDone();
+    else setFailures(failed);
+  }
+
+  const units = rows.reduce((sum, r) => sum + r.sellable, 0);
+  return (
+    <Modal
+      open
+      title={`Write off ${rows.length} ${rows.length === 1 ? 'batch' : 'batches'}?`}
+      okText={`Write off ${rows.length}`}
+      okButtonProps={{ danger: true }}
+      confirmLoading={saving}
+      onOk={() => form.submit()}
+      onCancel={failures.length > 0 ? onDone : onClose}
+    >
+      <Typography.Paragraph>
+        {rows.map((r) => r.batch.batchNumber).join(', ')} · {units} units move to pending destruction.
+      </Typography.Paragraph>
+      <Form form={form} layout="vertical" onFinish={submit} disabled={saving}>
+        <Form.Item
+          name="reason"
+          label="Reason (the same for every batch)"
+          rules={[{ required: true, whitespace: true, message: 'Say why the batches are written off.' }]}
+        >
+          <Input maxLength={500} />
+        </Form.Item>
+      </Form>
+      {failures.length > 0 && (
+        <Alert type="error" showIcon title="Some batches were not written off" description={failures.join(' · ')} />
+      )}
+    </Modal>
+  );
+}
+
 function WriteOffModal({
   row,
+  businessDate,
   onClose,
   onDone,
 }: {
   row: ExpiryRow;
+  businessDate: string;
   onClose: () => void;
   onDone: () => void;
 }) {
@@ -199,7 +329,7 @@ function WriteOffModal({
     >
       <Typography.Paragraph>
         {row.medicine.name} · expires {row.batch.expiryDate} ·{' '}
-        <StatusTag kind="batch" value={row.batch.status} />
+        <BatchStatusTag status={row.batch.status} expiryDate={row.batch.expiryDate} businessDate={businessDate} />
       </Typography.Paragraph>
       <Table
         size="small"
@@ -208,7 +338,7 @@ function WriteOffModal({
         dataSource={[row]}
         locale={{ emptyText: 'No batch to show.' }}
         columns={[
-          { title: 'Sellable now', align: 'right', render: () => row.sellable },
+          { title: 'On shelf now', align: 'right', render: () => row.sellable },
           { title: 'To pending destruction', align: 'right', render: () => row.sellable },
           { title: 'Value at cost', align: 'right', render: () => formatVnd(row.value) },
         ]}
@@ -233,10 +363,12 @@ function WriteOffModal({
 
 function StatusModal({
   row,
+  businessDate,
   onClose,
   onDone,
 }: {
   row: ExpiryRow;
+  businessDate: string;
   onClose: () => void;
   onDone: () => void;
 }) {
@@ -271,7 +403,7 @@ function StatusModal({
     >
       <Typography.Paragraph>
         {row.medicine.name} · expires {row.batch.expiryDate} · now{' '}
-        <StatusTag kind="batch" value={row.batch.status} />
+        <BatchStatusTag status={row.batch.status} expiryDate={row.batch.expiryDate} businessDate={businessDate} />
       </Typography.Paragraph>
       <Form form={form} layout="vertical" onFinish={submit} disabled={saving}>
         <Form.Item name="status" label="New status" rules={[{ required: true, message: 'Choose a status.' }]}>

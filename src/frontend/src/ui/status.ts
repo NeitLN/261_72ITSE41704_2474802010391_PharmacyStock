@@ -21,6 +21,24 @@ export const STATUSES = {
     active: { tone: 'success', label: 'Active' },
     inactive: { tone: 'neutral', label: 'Inactive' },
   },
+  user: {
+    active: { tone: 'success', label: 'Active' },
+    locked: { tone: 'danger', label: 'Locked' },
+  },
+  stockTake: {
+    counting: { tone: 'info', label: 'Counting' },
+    pending_approval: { tone: 'warning', label: 'Pending approval' },
+    approved: { tone: 'success', label: 'Approved' },
+    cancelled: { tone: 'neutral', label: 'Cancelled' },
+  },
+  price: {
+    scheduled: { tone: 'info', label: 'Scheduled' },
+    in_force: { tone: 'success', label: 'In force' },
+    past: { tone: 'neutral', label: 'Past' },
+  },
+  alertProgress: {
+    new: { tone: 'info', label: 'New' },
+  },
   batch: {
     active: { tone: 'success', label: 'Active' },
     expired: { tone: 'danger', label: 'Expired' },

@@ -4,6 +4,7 @@ import { DataSource, type EntityManager, QueryFailedError } from 'typeorm';
 import { type Actor, assertPermission } from '../auth/actor.js';
 import { Permission } from '../auth/permissions.js';
 import {
+  BusinessRuleViolation,
   Conflict,
   type FieldError,
   NotFound,
@@ -16,8 +17,10 @@ import {
   Medicine,
   MovementType,
   SourceDocumentType,
+  StockMovement,
   Supplier,
 } from '../entities/index.js';
+import { AuditService } from '../audit/audit.service.js';
 import { Clock } from '../stock/clock.js';
 import { StockLedger } from '../stock/stock-ledger.js';
 import type {
@@ -47,6 +50,8 @@ export interface GoodsReceiptView {
     quantity: number;
     unitCost: string;
   }>;
+  /** Set once the whole receipt was undone by opposite movements. */
+  reversed: { at: Date; by: string; reason: string } | null;
 }
 
 export interface GoodsReceiptSummary {
@@ -57,6 +62,7 @@ export interface GoodsReceiptSummary {
   supplier: { id: string; name: string };
   lineCount: number;
   createdAt: Date;
+  reversed: boolean;
 }
 
 /** goods_receipts.totalCost is numeric(14,2): at most 999,999,999,999.99. */
@@ -86,7 +92,46 @@ export class GoodsReceiptsService {
     @InjectDataSource() private readonly dataSource: DataSource,
     private readonly ledger: StockLedger,
     private readonly clock: Clock,
+    private readonly audit: AuditService,
   ) {}
+
+  /**
+   * Undoes a wrong receipt: each line's RECEIPT movement gets its exact
+   * opposite (BR05), in one transaction. Refused when any of the stock has
+   * already been sold, dispensed or moved out (BR03), and allowed once. The
+   * receipt itself stays, marked as reversed, so the history shows both.
+   */
+  async reverse(actor: Actor, id: string, reason: string): Promise<GoodsReceiptView> {
+    assertPermission(actor, Permission.GOODS_RECEIPT_CREATE);
+    const exists = await this.dataSource.manager.existsBy(GoodsReceipt, { id });
+    if (!exists) throw new NotFound('Goods receipt', id);
+    await this.ledger.run(async (tx) => {
+      const movements = await tx.manager
+        .createQueryBuilder(StockMovement, 'm')
+        .select('m.id')
+        .where('m.sourceDocumentType = :type', { type: SourceDocumentType.GOODS_RECEIPT })
+        .andWhere('m.sourceDocumentId = :id', { id })
+        .andWhere('m.reverses_movement_id IS NULL')
+        .getMany();
+      try {
+        await tx.reverseAll(actor, movements.map((m) => m.id), reason);
+      } catch (error) {
+        if (error instanceof BusinessRuleViolation && error.code === 'INSUFFICIENT_STOCK') {
+          throw new BusinessRuleViolation(
+            'BR03',
+            'RECEIPT_STOCK_ALREADY_USED',
+            `Part of this receipt has already left stock (${error.message}) Correct the quantity with a stock take instead.`,
+          );
+        }
+        throw error;
+      }
+      await this.audit.record(tx.manager, actor.id, 'goods_receipt.reversed', { entityName: 'GoodsReceipt', entityId: id }, {
+        reason: reason.trim(),
+        lines: movements.length,
+      });
+    });
+    return this.view(this.dataSource.manager, id);
+  }
 
   async create(
     actor: Actor,
@@ -240,6 +285,16 @@ export class GoodsReceiptsService {
     const lineCount = new Map(
       counts.map((c) => [c.goods_receipt_id, Number(c.count)]),
     );
+    const reversedRows: { source_document_id: string }[] =
+      receipts.length === 0
+        ? []
+        : await this.dataSource.query(
+            `SELECT DISTINCT "sourceDocumentId" AS source_document_id FROM stock_movements
+              WHERE "sourceDocumentType" = $1 AND reverses_movement_id IS NOT NULL
+                AND "sourceDocumentId" = ANY($2)`,
+            [SourceDocumentType.GOODS_RECEIPT, receipts.map((r) => r.id)],
+          );
+    const reversed = new Set(reversedRows.map((r) => r.source_document_id));
     return receipts.map((r) => ({
       id: r.id,
       documentNumber: r.documentNumber,
@@ -248,6 +303,7 @@ export class GoodsReceiptsService {
       supplier: { id: r.supplier.id, name: r.supplier.name },
       lineCount: lineCount.get(r.id) ?? 0,
       createdAt: r.createdAt,
+      reversed: reversed.has(r.id),
     }));
   }
 
@@ -370,7 +426,18 @@ export class GoodsReceiptsService {
       order: { lines: { lineNumber: 'ASC' } },
     });
     if (!receipt) throw new NotFound('Goods receipt', id);
+    const reversal = await manager
+      .createQueryBuilder(StockMovement, 'm')
+      .leftJoinAndSelect('m.performedBy', 'by')
+      .where('m.sourceDocumentType = :type', { type: SourceDocumentType.GOODS_RECEIPT })
+      .andWhere('m.sourceDocumentId = :id', { id })
+      .andWhere('m.reverses_movement_id IS NOT NULL')
+      .orderBy('m.occurredAt', 'ASC')
+      .getOne();
     return {
+      reversed: reversal
+        ? { at: reversal.occurredAt, by: reversal.performedBy.fullName, reason: reversal.reason ?? '' }
+        : null,
       id: receipt.id,
       documentNumber: receipt.documentNumber,
       receiptDate: receipt.receiptDate,

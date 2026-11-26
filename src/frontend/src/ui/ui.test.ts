@@ -90,3 +90,12 @@ describe('one status map', () => {
     expect(statusOf('returnAssessment', 'pending_assessment').tone).toBe('quarantine');
   });
 });
+
+describe('fold (search without tone marks)', () => {
+  it('matches Vietnamese text typed without marks', async () => {
+    const { fold, matchesLabel } = await import('./search');
+    expect(fold('Đường Huyết')).toBe('duong huyet');
+    expect(matchesLabel('duong', { label: 'GLU01 — Đường glucose' })).toBe(true);
+    expect(matchesLabel('xyz', { label: 'GLU01 — Đường glucose' })).toBe(false);
+  });
+});

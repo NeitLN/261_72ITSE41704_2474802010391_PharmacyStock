@@ -2,7 +2,7 @@ import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import type { Actor } from '../auth/actor.js';
 import { CurrentUser } from '../auth/decorators.js';
 import { DispensingService } from './dispensing.service.js';
-import { DispenseDto, DispensePreviewDto } from './dto/dispense.dto.js';
+import { DispenseCancellationDto, DispenseDto, DispensePreviewDto } from './dto/dispense.dto.js';
 
 /** UC06. Thin HTTP layer; the rules live in DispensingService. */
 @Controller('dispensings')
@@ -14,6 +14,13 @@ export class DispensingController {
   @HttpCode(200)
   preview(@CurrentUser() actor: Actor, @Body() dto: DispensePreviewDto) {
     return this.dispensing.preview(actor, dto);
+  }
+
+  /** A previewed hand-over given up: nothing moves, the reason is audited (TC-59). */
+  @Post('cancellations')
+  @HttpCode(204)
+  async cancel(@CurrentUser() actor: Actor, @Body() dto: DispenseCancellationDto): Promise<void> {
+    await this.dispensing.recordCancellation(actor, dto);
   }
 
   /** The confirmed hand-over: the only step that moves stock (FR-45). */

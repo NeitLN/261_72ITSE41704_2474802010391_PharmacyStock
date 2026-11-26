@@ -34,10 +34,22 @@ export function RequireScreen({ path, children }: { path: string; children: Reac
   );
 }
 
-/** The first screen the user may open, used as their start page. */
+/**
+ * Each role starts where its daily work is: the manager on the overview, the
+ * cashier at the counter, the pharmacist at dispensing. Any other set of
+ * permissions starts on the first screen it may open.
+ */
+function startPath(can: (permission: string) => boolean): string | undefined {
+  if (can('alert.manage')) return '/overview';
+  if (can('sale.create')) return '/sales';
+  if (can('dispense')) return '/dispensing';
+  return Object.keys(SCREEN_PERMISSIONS).find((path) => canOpen(path, can));
+}
+
+/** The user's start page. */
 export function StartPage() {
   const { can } = useAuth();
-  const first = Object.keys(SCREEN_PERMISSIONS).find((path) => canOpen(path, can));
+  const first = startPath(can);
   if (!first) {
     // No button: the start page is this screen, so it would only loop.
     return (

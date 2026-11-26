@@ -401,4 +401,63 @@ describe('UC03 goods receipts (e2e)', () => {
       .set(as('manager'));
     expect(one.body.lines).toHaveLength(1);
   });
+
+  it('UC03-18 BR05: a wrong receipt is reversed by opposite movements, once, and the receipt stays marked', async () => {
+    const res = await post(receipt({
+      lines: [
+        { medicineId: paraId, batchNumber: 'P1', expiryDate: '2027-06-30', quantity: 10, unitCost: 800 },
+        { medicineId: vitcId, batchNumber: 'V1', expiryDate: '2027-06-30', quantity: 4, unitCost: 500 },
+      ],
+    }));
+    expect(res.status).toBe(201);
+    const reverse = (reason: string, user: 'manager' | 'cashier' = 'manager') =>
+      t.http().post(`/api/goods-receipts/${res.body.id}/reverse`).set(as(user)).send({ reason });
+
+    expect((await reverse('Wrong supplier document', 'cashier')).status).toBe(403);
+    expect((await reverse('  ')).status).toBe(400);
+
+    const done = await reverse('Wrong supplier document');
+    expect(done.status).toBe(200);
+    expect(done.body.reversed).toMatchObject({ by: 'Sample Manager', reason: 'Wrong supplier document' });
+    const batches = await t.dataSource.getRepository(Batch).find();
+    expect(batches.map((b) => b.qtySellable)).toEqual([0, 0]);
+    const reversals = await t.dataSource.query(
+      `SELECT COUNT(*)::int AS n FROM stock_movements WHERE reverses_movement_id IS NOT NULL`,
+    );
+    expect(reversals[0].n).toBe(2);
+
+    const list = await t.http().get('/api/goods-receipts').set(as('manager'));
+    expect(list.body[0].reversed).toBe(true);
+    const again = await reverse('Twice');
+    expect(again.status).toBe(409);
+    expect(again.body.code).toBe('ALREADY_REVERSED');
+    expect(await findLedgerMismatches(t.dataSource)).toEqual([]);
+  });
+
+  it('UC03-19 BR03: a receipt whose stock has partly left cannot be reversed; nothing is written', async () => {
+    const res = await post(receipt());
+    // Some of the stock leaves through a real sale (the medicine is made OTC first).
+    const otc = await t
+      .http()
+      .patch(`/api/medicines/${paraId}`)
+      .set(as('manager'))
+      .send({ classification: 'otc', classificationSource: 'Label: OTC', classificationDate: '2026-10-01' });
+    expect(otc.status, JSON.stringify(otc.body)).toBe(200);
+    const sale = await t
+      .http()
+      .post('/api/sales')
+      .set(as('cashier'))
+      .send({ requestId: crypto.randomUUID(), otcLines: [{ medicineId: paraId, quantity: 3 }] });
+    expect(sale.status, JSON.stringify(sale.body)).toBe(201);
+    const before = await counts();
+    const refused = await t
+      .http()
+      .post(`/api/goods-receipts/${res.body.id}/reverse`)
+      .set(as('manager'))
+      .send({ reason: 'Wrong quantity' });
+    expect(refused.status).toBe(422);
+    expect(refused.body.code).toBe('RECEIPT_STOCK_ALREADY_USED');
+    expect(await counts()).toEqual(before);
+    expect(await findLedgerMismatches(t.dataSource)).toEqual([]);
+  });
 });

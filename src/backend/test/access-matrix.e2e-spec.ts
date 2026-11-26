@@ -64,6 +64,8 @@ describe('TC-53 role × endpoint matrix (e2e)', () => {
     ids.price = (await t.http().get(`/api/medicines/${ids.medicine}/prices`).set(as('manager'))).body.prices[0].id;
     ids.receipt = receipt.body.id;
     ids.batch = receipt.body.lines[0].batch.id;
+    // A receipt of its own for the reverse route, so undoing it takes no stock the other rows need.
+    ids.receiptToReverse = (await http('manager').post('/api/goods-receipts', receiptBody(1))).body.id;
     ids.customer = (await http('pharmacist').post('/api/customers', customerBody())).body.id;
     for (const name of ['prescriber', 'prescriber2']) {
       ids[name] = (await http('pharmacist').post('/api/prescribers', prescriberBody())).body.id;
@@ -222,6 +224,7 @@ describe('TC-53 role × endpoint matrix (e2e)', () => {
     { method: 'get', path: '/api/goods-receipts', permission: P.GOODS_RECEIPT_CREATE },
     { method: 'get', path: '/api/goods-receipts/:receipt', permission: P.GOODS_RECEIPT_CREATE },
     { method: 'post', path: '/api/goods-receipts', permission: P.GOODS_RECEIPT_CREATE, body: () => receiptBody() },
+    { method: 'post', path: '/api/goods-receipts/:receiptToReverse/reverse', permission: P.GOODS_RECEIPT_CREATE, body: () => ({ reason: 'Matrix' }) },
     // UC05 and its quick-create (UC14)
     { method: 'get', path: '/api/customers', permission: P.PRESCRIPTION_MANAGE },
     { method: 'get', path: '/api/customers/:customer', permission: P.PRESCRIPTION_MANAGE },
@@ -241,9 +244,12 @@ describe('TC-53 role × endpoint matrix (e2e)', () => {
     // UC06
     { method: 'post', path: '/api/dispensings/preview', permission: P.DISPENSE, body: previewBody },
     { method: 'post', path: '/api/dispensings', permission: P.DISPENSE, body: dispenseBody },
+    { method: 'post', path: '/api/dispensings/cancellations', permission: P.DISPENSE, body: () => ({ prescriptionId: ids.prescription, reason: 'Matrix' }) },
     // UC07
     { method: 'post', path: '/api/sales', permission: P.SALE_CREATE, body: saleBody },
+    { method: 'post', path: '/api/sales/cancellations', permission: P.SALE_CREATE, body: () => ({ reason: 'Matrix', otcLines: [{ medicineId: ids.medicine, quantity: 1 }] }) },
     { method: 'get', path: '/api/sales/billable', permission: P.SALE_CREATE },
+    { method: 'get', path: '/api/sales', permission: P.SALE_CREATE },
     { method: 'get', path: '/api/sales/:sale', permission: P.SALE_CREATE },
     // UC08
     { method: 'get', path: '/api/returns/sales/:receiptNumber', permission: P.RETURN_CREATE },

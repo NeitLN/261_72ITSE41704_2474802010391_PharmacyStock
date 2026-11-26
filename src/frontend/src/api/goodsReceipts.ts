@@ -8,6 +8,8 @@ export interface GoodsReceiptSummary {
   supplier: { id: string; name: string };
   lineCount: number;
   createdAt: string;
+  /** True once the whole receipt was undone by opposite movements. */
+  reversed: boolean;
 }
 
 export interface GoodsReceipt {
@@ -26,6 +28,7 @@ export interface GoodsReceipt {
     quantity: number;
     unitCost: string;
   }>;
+  reversed: { at: string; by: string; reason: string } | null;
 }
 
 export interface GoodsReceiptLineInput {
@@ -52,4 +55,8 @@ export const goodsReceiptsApi = {
 
   create: (input: GoodsReceiptInput) =>
     apiClient.post<GoodsReceipt>('/goods-receipts', input).then((r) => r.data),
+
+  /** Undoes the whole receipt with opposite movements; refused once any of its stock has left. */
+  reverse: (id: string, reason: string) =>
+    apiClient.post<GoodsReceipt>(`/goods-receipts/${id}/reverse`, { reason }).then((r) => r.data),
 };

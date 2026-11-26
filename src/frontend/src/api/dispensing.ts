@@ -77,6 +77,10 @@ export interface DispenseResult {
 }
 
 export const dispensingApi = {
+  /** A previewed hand-over given up; nothing moves, the reason is audited (TC-59). */
+  cancel: (prescriptionId: string, reason: string) =>
+    apiClient.post('/dispensings/cancellations', { prescriptionId, reason }).then(() => undefined),
+
   preview: (input: DispensePreviewInput) =>
     apiClient.post<DispensePreview>('/dispensings/preview', input).then((r) => r.data),
 

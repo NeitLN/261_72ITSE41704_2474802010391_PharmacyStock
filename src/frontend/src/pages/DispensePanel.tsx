@@ -12,7 +12,8 @@ import {
   Typography,
 } from 'antd';
 import { PrinterOutlined } from '@ant-design/icons';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   type DispensePreview,
   type DispenseResult,
@@ -118,8 +119,16 @@ export function DispensePanel() {
     () => prescriptionsApi.list({ search: search || undefined }),
     [search],
   );
-  const { data: options } = useLoad(fetchOptions, NO_OPTIONS);
+  const { data: options, loading: optionsLoading } = useLoad(fetchOptions, NO_OPTIONS);
   const dispensable = options.filter((o) => DISPENSABLE_STATUSES.includes(o.status));
+  // `?rx=` (from a prescription's Dispense button) opens that prescription at once.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const rx = searchParams.get('rx');
+  useEffect(() => {
+    if (rx && rx !== latestPick.current) void select(rx);
+    // Only when the address names a prescription.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rx]);
 
   async function select(id: string) {
     if (locked) return;
@@ -221,7 +230,7 @@ export function DispensePanel() {
       content: (
         <div style={{ marginTop: 8 }}>
           <Typography.Paragraph type="secondary">
-            Nothing was handed over — stock is unchanged.
+            Nothing is handed over and stock is unchanged. The reason is kept for the manager.
           </Typography.Paragraph>
           <CancelReason
             onChange={(v) => {
@@ -240,9 +249,17 @@ export function DispensePanel() {
       okText: 'Cancel hand-over',
       cancelText: 'Keep the hand-over',
       okButtonProps: { danger: true, disabled: true },
-      onOk: () => {
+      onOk: async () => {
         if (!reason.trim()) {
-          return Promise.reject(new Error('A reason is required.'));
+          throw new Error('A reason is required.');
+        }
+        if (prescription) {
+          try {
+            await dispensingApi.cancel(prescription.id, reason.trim());
+          } catch (error) {
+            message.error(toApiError(error).message);
+            throw error;
+          }
         }
         // Keep the chosen prescription so the pharmacist can enter the
         // quantities again; the preview and its request ID no longer apply.
@@ -252,7 +269,7 @@ export function DispensePanel() {
         setRequestId(null);
         setFieldErrors({});
         setTopError(null);
-        message.info('Hand-over cancelled — stock is unchanged.');
+        message.info('Hand-over cancelled — stock is unchanged; the reason is kept.');
       },
     });
   }
@@ -321,8 +338,12 @@ export function DispensePanel() {
         <>
           <Space orientation="vertical" style={{ width: '100%' }} size="large">
             <div>
-              <Typography.Text strong>Step 1 — Choose a verified prescription</Typography.Text>
+              <label htmlFor="dispense-prescription" style={{ display: 'block', fontWeight: 600 }}>
+                Step 1 — Choose a verified prescription
+              </label>
               <Select
+                id="dispense-prescription"
+                autoFocus
                 showSearch
                 filterOption={false}
                 onSearch={setSearch}
@@ -337,6 +358,21 @@ export function DispensePanel() {
                   label: `${o.referenceNumber} — ${o.customer.fullName}${o.isExpired ? ' (expired)' : ''}`,
                 }))}
               />
+              {/* Said on the page, not only inside the closed dropdown. */}
+              {!optionsLoading && !search && dispensable.length === 0 && !prescription && (
+                <Alert
+                  type="info"
+                  showIcon
+                  style={{ marginTop: 12 }}
+                  title="No prescription is verified and waiting to be dispensed."
+                  description="A prescription is dispensed after the pharmacist verifies it on the Prescriptions tab."
+                  action={
+                    <Button size="small" onClick={() => setSearchParams({ tab: 'prescriptions' }, { replace: true })}>
+                      Open Prescriptions
+                    </Button>
+                  }
+                />
+              )}
             </div>
 
             {prescription && (
@@ -437,7 +473,7 @@ export function DispensePanel() {
                       Start over
                     </Button>
                   ) : (
-                    <Button danger disabled={confirming} onClick={cancelHandover}>
+                    <Button type="text" disabled={confirming} onClick={cancelHandover}>
                       Cancel hand-over
                     </Button>
                   )}

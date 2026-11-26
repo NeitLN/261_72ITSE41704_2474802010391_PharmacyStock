@@ -28,7 +28,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
       <RecoveryResult
         icon="notFound"
         title="This screen stopped working"
-        text="The rest of the app still works. Open the screen again; anything not yet saved on this screen has to be entered again. If it keeps happening, tell the administrator what you did just before."
+        text="The rest of the app still works. Open the screen again; anything not yet saved on this screen has to be entered again. If it keeps happening, tell the manager what you did just before."
         action={
           <Button type="primary" onClick={() => this.setState({ failed: false })}>
             Open the screen again

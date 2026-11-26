@@ -1,3 +1,4 @@
+import { PlusOutlined } from '@ant-design/icons';
 import {
   Alert,
   App,
@@ -13,7 +14,6 @@ import {
   Switch,
   Table,
   Tabs,
-  Tag,
   Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -24,7 +24,9 @@ import { useLoad } from '../api/useLoad';
 import { LoadFailed } from '../ui/LoadFailed';
 import { type AuditEntry, type RoleCode, type RoleRow, type UserRow, usersApi } from '../api/users';
 import { useAuth } from '../auth/authContext';
-import { formatDateTime } from '../ui/format';
+import { formatDateTime, formatVnd } from '../ui/format';
+import { StatusTag } from '../ui/tags';
+import { ListToolbar } from '../ui/ListToolbar';
 
 const ROLE_OPTIONS: Array<{ value: RoleCode; label: string }> = [
   { value: 'MANAGER', label: 'Manager' },
@@ -36,7 +38,7 @@ const ROLE_OPTIONS: Array<{ value: RoleCode; label: string }> = [
 export function AdministrationPage() {
   return (
     <Card>
-      <Typography.Title level={3} style={{ marginTop: 0 }}>
+      <Typography.Title level={1} style={{ marginTop: 0, fontSize: 24 }}>
         Users &amp; roles
       </Typography.Title>
       <Tabs
@@ -66,7 +68,7 @@ function UsersTab() {
     {
       title: 'Account',
       width: 110,
-      render: (_, u) => (u.isActive ? <Tag color="green">Active</Tag> : <Tag color="red">Locked</Tag>),
+      render: (_, u) => <StatusTag kind="user" value={u.isActive ? 'active' : 'locked'} />,
     },
     { title: 'Last sign-in', width: 190, render: (_, u) => formatDateTime(u.lastLoginAt) },
     {
@@ -82,9 +84,13 @@ function UsersTab() {
 
   return (
     <>
-      <Button type="primary" onClick={() => setAdding(true)}>
-        New user
-      </Button>
+      <ListToolbar
+        action={
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => setAdding(true)}>
+            New user
+          </Button>
+        }
+      />
       {loadError && <LoadFailed error={loadError} onRetry={reload} />}
       <Table
         rowKey="id"
@@ -300,7 +306,7 @@ function EditUserModal({ user, onClose, onDone }: { user: UserRow; onClose: () =
 function RolesTab() {
   const { message } = App.useApp();
   const fetchRoles = useCallback(() => usersApi.roles(), []);
-  const { data, loading, reload } = useLoad(fetchRoles, null);
+  const { data, loading, error: rolesError, reload } = useLoad(fetchRoles, null);
   // Only unsaved edits; a role without one shows what the server has.
   const [edits, setEdits] = useState<Record<string, string[]>>({});
   const [saving, setSaving] = useState<string | null>(null);
@@ -326,12 +332,47 @@ function RolesTab() {
 
   const permissionsOf = (role: RoleRow) => edits[role.code] ?? role.permissions;
 
-  if (!data) return <Table loading={loading} locale={{ emptyText: 'No permission to show.' }} />;
+  if (!data) {
+    return (
+      <>
+        {rolesError && <LoadFailed error={rolesError} onRetry={reload} />}
+        <Table loading={loading} locale={{ emptyText: 'No permission to show.' }} />
+      </>
+    );
+  }
   const columns: ColumnsType<{ code: string; description: string }> = [
-    { title: 'Permission', render: (_, p) => <><code>{p.code}</code><br /><Typography.Text type="secondary">{p.description}</Typography.Text></> },
+    {
+      title: 'Permission',
+      // What it allows, in words first; the code is for the team that reads the logs.
+      render: (_, p) => (
+        <>
+          {plainDescription(p.description)}
+          <br />
+          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+            {p.code}
+          </Typography.Text>
+        </>
+      ),
+    },
     ...data.roles.map((role) => ({
-      title: `${role.name} (${role.userCount})`,
-      width: 150,
+      // The save button sits on the role's own column, so a tick is never left unsaved by accident.
+      title: (
+        <Space orientation="vertical" size={4} style={{ alignItems: 'center' }}>
+          <span>
+            {role.name} ({role.userCount})
+          </span>
+          {edits[role.code] ? (
+            <Button size="small" type="primary" loading={saving === role.code} onClick={() => save(role)}>
+              Save {role.name}
+            </Button>
+          ) : (
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              Saved
+            </Typography.Text>
+          )}
+        </Space>
+      ),
+      width: 160,
       align: 'center' as const,
       render: (_: unknown, p: { code: string }) => (
         <Checkbox
@@ -353,36 +394,91 @@ function RolesTab() {
   return (
     <>
       <Typography.Paragraph type="secondary">
-        What each role may do. A change applies to everyone with that role on their next action. At
-        least one active user must keep <code>user.manage</code>.
+        Tick what each role may do, then press Save on that role. A change applies to everyone with
+        that role on their next action. At least one active user must keep the right to manage
+        users.
       </Typography.Paragraph>
-      <Table rowKey="code" size="small" columns={columns} dataSource={data.allPermissions} pagination={false} locale={{ emptyText: 'No permission to show.' }} />
-      <Space style={{ marginTop: 16 }}>
-        {data.roles.map((role) => (
-          <Button key={role.code} loading={saving === role.code} onClick={() => save(role)}>
-            Save {role.name}
-          </Button>
-        ))}
-      </Space>
+      {Object.keys(edits).length > 0 && (
+        <Alert
+          type="warning"
+          showIcon
+          style={{ marginBottom: 12 }}
+          title={`Unsaved changes for ${data.roles
+            .filter((r) => edits[r.code])
+            .map((r) => r.name)
+            .join(', ')}. Press Save on the role's column.`}
+        />
+      )}
+      <Table
+        rowKey="code"
+        size="small"
+        columns={columns}
+        dataSource={data.allPermissions}
+        pagination={false}
+        sticky
+        locale={{ emptyText: 'No permission to show.' }}
+      />
       {refusal && <Alert type="error" showIcon title={refusal} style={{ marginTop: 12 }} />}
     </>
   );
 }
 
-const ACTIONS = [
-  'auth.login',
-  'auth.login_failed',
-  'auth.logout',
-  'user.created',
-  'user.updated',
-  'user.role_changed',
-  'user.locked',
-  'user.unlocked',
-  'user.password_reset',
-  'role.permissions_changed',
-  'stock_take.approved',
-  'price.changed',
-];
+/** Each audit action in words, in the order the filter lists them. */
+const ACTION_LABELS: Record<string, string> = {
+  'auth.login': 'Signed in',
+  'auth.login_failed': 'Sign-in failed',
+  'auth.logout': 'Signed out',
+  'user.created': 'User created',
+  'user.updated': 'User changed',
+  'user.role_changed': 'Role changed',
+  'user.locked': 'Account locked',
+  'user.unlocked': 'Account unlocked',
+  'user.password_reset': 'Password reset',
+  'role.permissions_changed': 'Role permissions changed',
+  'stock_take.approved': 'Stock take approved',
+  'price.changed': 'Price changed',
+  'sale.cart_cancelled': 'Cart cancelled',
+  'dispense.cancelled': 'Hand-over cancelled',
+};
+const ACTIONS = Object.keys(ACTION_LABELS);
+
+/** "Dispense against a prescription (UC06)" → "Dispense against a prescription". */
+function plainDescription(description: string): string {
+  return description.replace(/\s*\((?:UC|FR|BR|DEC)[^)]*\)\s*$/, '');
+}
+
+const money = (v: unknown) => (v === undefined || v === null ? '—' : formatVnd(String(v)));
+
+/** An audit entry's details as a sentence or as "name value" pairs, never raw JSON. */
+function describeDetails(action: string, raw: unknown): string {
+  if (raw === null || raw === undefined) return '—';
+  let d: unknown = raw;
+  if (typeof raw === 'string') {
+    try {
+      d = JSON.parse(raw);
+    } catch {
+      return raw;
+    }
+  }
+  if (typeof d !== 'object' || d === null) return String(d);
+  const o = d as Record<string, unknown>;
+  if (action === 'price.changed') {
+    if (o.kind === 'scheduled') return `Scheduled ${money(o.to)} from ${String(o.effectiveFrom)}`;
+    if (o.kind === 'cancelled') return `Cancelled ${money(o.from)} that would start ${String(o.effectiveFrom)}`;
+    return `${o.code ? `${String(o.code)}: ` : ''}${money(o.from)} → ${money(o.to)} from ${String(o.effectiveFrom)}`;
+  }
+  if (action === 'sale.cart_cancelled') {
+    const lines = Array.isArray(o.lines) ? o.lines.length : 0;
+    return `Reason: ${String(o.reason)} · ${lines} ${lines === 1 ? 'line' : 'lines'}`;
+  }
+  return Object.entries(o)
+    .map(([k, v]) => {
+      const name = k.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase();
+      const value = Array.isArray(v) ? v.join(', ') : typeof v === 'object' && v !== null ? JSON.stringify(v) : String(v);
+      return `${name}: ${value}`;
+    })
+    .join(' · ');
+}
 
 function AuditTab() {
   const [period, setPeriod] = useState<[Dayjs | null, Dayjs | null] | null>(null);
@@ -401,20 +497,18 @@ function AuditTab() {
   const { data, loading, error: loadError } = useLoad(fetchLog, { items: [] as AuditEntry[], total: 0 });
 
   const columns: ColumnsType<AuditEntry> = [
-    { title: 'When', width: 190, render: (_, e) => formatDateTime(e.occurredAt) },
+    { title: 'When', width: 150, className: 'nowrap', render: (_, e) => formatDateTime(e.occurredAt) },
     { title: 'Who', width: 180, render: (_, e) => e.performedBy?.fullName ?? '—' },
-    { title: 'Action', width: 200, render: (_, e) => <code>{e.action}</code> },
-    {
-      title: 'Details',
-      render: (_, e) =>
-        e.details === null ? '—' : typeof e.details === 'string' ? e.details : JSON.stringify(e.details),
-    },
+    { title: 'Action', width: 200, render: (_, e) => ACTION_LABELS[e.action] ?? e.action },
+    { title: 'Details', render: (_, e) => describeDetails(e.action, e.details) },
   ];
 
   return (
     <>
       <Space wrap>
         <DatePicker.RangePicker
+          format="YYYY-MM-DD"
+          aria-label="Period"
           onChange={(v) => {
             setPeriod(v as [Dayjs | null, Dayjs | null] | null);
             setPage(1);
@@ -423,13 +517,14 @@ function AuditTab() {
         <Select
           allowClear
           placeholder="All actions"
+          aria-label="Action"
           style={{ width: 240 }}
           value={action}
           onChange={(v) => {
             setAction(v);
             setPage(1);
           }}
-          options={ACTIONS.map((a) => ({ value: a, label: a }))}
+          options={ACTIONS.map((a) => ({ value: a, label: ACTION_LABELS[a] }))}
         />
       </Space>
       {loadError && <LoadFailed error={loadError} />}

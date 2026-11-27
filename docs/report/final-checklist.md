@@ -62,7 +62,7 @@ with the matching evidence from section B.
 | 28 | Ch.4: built against proposed, limitations with **every open bug**, future work | `ch4-conclusion.md`; no bug issue is open on 27/11 (#209, #299 closed) | Done | Tiến |
 | 29 | Ch.4: a skills paragraph from each member | `ch4-skills-duy-anh.md`, `ch4-skills-minh.md` (#309); **`ch4-skills-tien.md` missing**, so the build prints a to-do in 4.2 | **Open** | Tiến |
 | 30 | Appendix B: AI tools, for what, how the output was checked | Still a to-do in `build_report.py`; `docs/ai-use-log.md` has rows for Duy Anh only | **Open** | Tiến; each member adds their AI-use rows |
-| 31 | Appendix C: contributions from Git and GitHub, typed signatures of all three | `appendix-c.md`, C.4 corrected; Duy Anh signed (handwritten, #315); Tiến and Minh to sign | **Open** | Tiến, Minh |
+| 31 | Appendix C: contributions from Git and GitHub, typed signatures of all three | `appendix-c.md`, C.4 corrected; Duy Anh (#315) and Minh signed, typed and handwritten (Figures C.1, C.2; the build also places both on the declaration page); Tiến to sign | **Open** | Tiến |
 | 32 | Appendix D: rubric self-check | `docs/appendix-d-self-check.md`: the 31/10 scores, with the final evidence of §4 (23/11, `368ae91`) | Done | Duy Anh |
 | 33 | Third-party libraries with licence and purpose; generated code named | `docs/report/references.md`: 42 direct dependencies with licence and purpose, licence summary, the migrations and the initial scaffold, the AI-use pointer | Done | Duy Anh (W10-B2) |
 

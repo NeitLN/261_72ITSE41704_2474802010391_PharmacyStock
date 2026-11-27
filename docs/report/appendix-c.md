@@ -121,9 +121,11 @@ describes the work we did in this project.
 |---|---|---|---|---|
 | Võ Việt Tiến | A, team leader | 2474802010391 | *to be typed by the member* | |
 | Bùi Duy Anh | B | 2474802010525 | Bùi Duy Anh | 23/11/2026 |
-| Võ Hoàng Minh | C | 2474802010242 | *to be typed by the member* | |
+| Võ Hoàng Minh | C | 2474802010242 | Võ Hoàng Minh | 28/11/2026 |
 
 ![Figure C.1 — Handwritten signature of Bùi Duy Anh](figures/C01-signature-bui-duy-anh.png)
 
-The two remaining signatures are collected on the printed copy before the
-submission on 27/11/2026; each member signs after reading C.2 and C.3.
+![Figure C.2 — Handwritten signature of Võ Hoàng Minh](figures/C02-signature-vo-hoang-minh.png)
+
+Võ Việt Tiến's signature is collected on the printed copy before the
+submission; each member signs after reading C.2 and C.3.

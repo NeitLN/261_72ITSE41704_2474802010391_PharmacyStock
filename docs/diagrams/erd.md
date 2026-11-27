@@ -378,6 +378,7 @@ erDiagram
         varchar email
         boolean isActive
         timestamptz lastLoginAt
+        integer tokenVersion
         timestamptz createdAt
         uuid role_id FK
     }

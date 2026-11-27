@@ -23,9 +23,11 @@ book, with a second person checking every correction (FR-29 to FR-32, BR08).
 system makes one line per batch with sellable stock and hides the book
 quantity while counting (a *blind count*), so the number on screen cannot
 steer the counter. The counter enters what is on the shelf and a reason for
-any difference. When a count is saved, the system records the book quantity
-at that moment (decision 15), so a sale made between opening and counting is
-not mistaken for a loss. After submission, a manager who did not count or
+any difference. When a count is entered or changed, the system records the
+book quantity at that moment (decision 15), so a sale made between opening
+and counting is not mistaken for a loss. Sending the same count again with
+only a new reason keeps that book quantity, so a later sale cannot hide a
+real shortage. After submission, a manager who did not count or
 submit approves it. Only then does the system post one `ADJUSTMENT` movement
 per line with a difference, in one transaction.
 
@@ -37,7 +39,11 @@ per line with a difference, in one transaction.
 submitted (TC-20). The approver must be someone who neither counted any line
 nor submitted (BR08, TC-20, TC-51); since #215 this includes a counter whose
 count was later overwritten. A medicine whose batches the book holds at 0
-can still be counted by adding its batch (A3, #184).
+can still be counted by adding its batch (A3, #184). A medicine can be in
+only one open stock take at a time; opening a second is refused with the
+reference of the open one (`MEDICINE_IN_OPEN_STOCK_TAKE`), because two takes
+counting the same batches would each post the same difference. A unique
+index on stock take and batch stops the same batch being added twice.
 
 ![The count sheet during counting](figures/C01-count-sheet-blind.png)
 
@@ -163,8 +169,14 @@ role takes effect on the next request, not when the token expires. A wrong
 password and an unknown username get the same message (TC-42). The menu
 shows only the screens the role may open, and a screen typed into the
 address bar by a role without access shows *No access* (TC-43, TC-65).
-Managers and cashiers start on the *Overview* screen and the pharmacist on
-the first screen of their menu. The web client reads the permissions again
+Each role starts on its daily screen: the manager on *Overview*, the cashier
+on *Sales & returns* and the pharmacist on *Prescriptions & dispensing*.
+Signing out, a password reset or locking the account ends every session of
+that user at once, because each token carries the user's token version and
+these actions raise it. After 10 wrong sign-ins for one username within 15
+minutes, further attempts are refused for a while ("Too many wrong sign-ins
+for this account. Wait 15 minutes, or ask the manager."), which slows down
+password guessing. The web client reads the permissions again
 whenever its tab comes back into focus, so a role changed by the manager
 updates the menu without signing in again (#288). Every service method
 checks its permission first; TC-53 tries all three roles on every one of the

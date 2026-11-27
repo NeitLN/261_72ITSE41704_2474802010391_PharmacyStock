@@ -57,7 +57,7 @@ with the matching evidence from section B.
 | 23 | Figures and tables numbered, captioned and referred to | `build_report.py` numbers every caption per chapter and logs any unnumbered reference to `out/build-log.md`; check that log at export | At export | Tiến |
 | 24 | Screenshots readable, with realistic data, taken on the submitted build | 26 screenshots in `docs/report/figures/`, all committed before the UI changes of #316 (date fields, status tags, start pages, layout), so they show `v1.0`, not `v1.0.2` | **Open** | Each writer, or say in Ch.3 which build they show |
 | 25 | Class diagrams match the submitted code | `npm run diagrams` on `v1.0.2` (27/11): `users.tokenVersion` and `uq_stock_take_lines_take_batch` added; otherwise unchanged | Done | Minh |
-| 26 | Traceability FR → UC → code → test → status | `docs/requirements/traceability-matrix.md`: FR-41 built in full since `v1.0.1` (price changes write `price.changed`) | Done | Duy Anh |
+| 26 | Traceability FR → UC → code → test → status | `docs/requirements/traceability-matrix.md`: 46 FRs *Built*; FR-41 *Built, not run*, because the price-change audit (`price.changed`, since `v1.0.1`) is covered by UC13-10 but has no manual run; FR-42 (Could) not built | Done | Duy Anh |
 | 27 | Proposal feedback table: feedback → action → evidence | `proposal-feedback.md` (#296, #311) | Done | Tiến |
 | 28 | Ch.4: built against proposed, limitations with **every open bug**, future work | `ch4-conclusion.md`; no bug issue is open on 27/11 (#209, #299 closed) | Done | Tiến |
 | 29 | Ch.4: a skills paragraph from each member | `ch4-skills-duy-anh.md`, `ch4-skills-minh.md` (#309); **`ch4-skills-tien.md` missing**, so the build prints a to-do in 4.2 | **Open** | Tiến |

@@ -375,6 +375,7 @@ classDiagram
         +varchar email?
         +boolean isActive
         +timestamptz lastLoginAt?
+        +integer tokenVersion
         +timestamptz createdAt
     }
     class Role {

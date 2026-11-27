@@ -181,6 +181,7 @@ Every table and column, with its type, nullability, default and keys; enumeratio
 | `batch_id` | uuid | no |  | FK → `batches` |  |
 | `counted_by_id` | uuid | yes |  | FK → `users` |  |
 
+- Unique index `uq_stock_take_lines_take_batch`: (`stock_take_id, batch_id`, created by a migration)
 - Check `ck_stock_take_lines_counted_qty`: `"countedQuantity" IS NULL OR "countedQuantity" >= 0`
 - Check `ck_stock_take_lines_system_qty`: `"systemQuantity" >= 0`
 
@@ -384,6 +385,7 @@ Every table and column, with its type, nullability, default and keys; enumeratio
 | `email` | varchar | yes |  |  |  |
 | `isActive` | boolean | no | `true` |  |  |
 | `lastLoginAt` | timestamptz | yes |  |  |  |
+| `tokenVersion` | integer | no | `0` |  |  |
 | `createdAt` | timestamptz | no | `now()` |  |  |
 | `role_id` | uuid | no |  | FK → `roles` |  |
 
